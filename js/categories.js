@@ -1,0 +1,48 @@
+// Mapa de todas as categorias do projeto.
+// "ready: true" = já tem receitas completas em data/<id>.js
+// "ready: false" = ainda não foi escrita (aparece como "em breve" no menu)
+window.CATEGORIES = [
+  { group: "Fundamentos", id: "molhos", label: "Molhos Clássicos", desc: "A base de praticamente toda cozinha ocidental.", ready: true },
+  { group: "Fundamentos", id: "sopas", label: "Sopas", ready: true },
+  { group: "Fundamentos", id: "entradas-frias", label: "Entradas Frias", ready: true },
+  { group: "Fundamentos", id: "entradas-quentes", label: "Entradas Quentes", ready: true },
+  { group: "Fundamentos", id: "massas", label: "Massas", ready: true },
+  { group: "Fundamentos", id: "risotos", label: "Risotos", ready: true },
+  { group: "Fundamentos", id: "ovos-basicos", label: "Ovos Básicos", ready: true },
+  { group: "Fundamentos", id: "ovos-classicos", label: "Preparações Clássicas com Ovos", ready: true },
+  { group: "Fundamentos", id: "padaria", label: "Padaria", ready: true },
+  { group: "Fundamentos", id: "sobremesas-classicas", label: "Sobremesas Clássicas", ready: true },
+  { group: "Fundamentos", id: "contemporaneos", label: "Clássicos Contemporâneos", ready: true },
+  { group: "Fundamentos", id: "tecnicas-contemporaneas-2", label: "Técnicas Contemporâneas Avançadas", ready: true },
+
+  { group: "Proteínas", id: "aves", label: "Aves", ready: true },
+  { group: "Proteínas", id: "carnes-bovinas", label: "Carnes Bovinas", ready: true },
+  { group: "Proteínas", id: "cordeiro", label: "Cordeiro", ready: true },
+  { group: "Proteínas", id: "suinos", label: "Suínos", ready: true },
+  { group: "Proteínas", id: "peixes", label: "Peixes", ready: true },
+  { group: "Proteínas", id: "frutos-do-mar", label: "Frutos do Mar", ready: true },
+  { group: "Proteínas", id: "arrozes", label: "Arrozes", ready: true },
+
+  { group: "Brasil", id: "brasileiros", label: "Brasileiros Obrigatórios", ready: true },
+  { group: "Brasil", id: "brasil-regional", label: "Brasil por Região", ready: true },
+
+  { group: "Cozinhas do Mundo", id: "franca", label: "França", ready: true },
+  { group: "Cozinhas do Mundo", id: "italia", label: "Itália", ready: true },
+  { group: "Cozinhas do Mundo", id: "espanha", label: "Espanha", ready: true },
+  { group: "Cozinhas do Mundo", id: "portugal", label: "Portugal", ready: true },
+  { group: "Cozinhas do Mundo", id: "japao", label: "Japão", ready: true },
+  { group: "Cozinhas do Mundo", id: "china", label: "China", ready: true },
+  { group: "Cozinhas do Mundo", id: "coreia", label: "Coreia", ready: true },
+  { group: "Cozinhas do Mundo", id: "tailandia", label: "Tailândia", ready: true },
+  { group: "Cozinhas do Mundo", id: "india", label: "Índia", ready: true },
+  { group: "Cozinhas do Mundo", id: "mexico", label: "México", ready: true },
+  { group: "Cozinhas do Mundo", id: "peru", label: "Peru", ready: true },
+  { group: "Cozinhas do Mundo", id: "alemanha", label: "Alemanha", ready: true },
+  { group: "Cozinhas do Mundo", id: "austria", label: "Áustria", ready: true },
+  { group: "Cozinhas do Mundo", id: "hungria", label: "Hungria", ready: true },
+  { group: "Cozinhas do Mundo", id: "grecia", label: "Grécia", ready: true },
+  { group: "Cozinhas do Mundo", id: "marrocos", label: "Marrocos", ready: true },
+  { group: "Cozinhas do Mundo", id: "libano", label: "Líbano", ready: true },
+  { group: "Cozinhas do Mundo", id: "eua", label: "EUA", ready: true },
+  { group: "Cozinhas do Mundo", id: "dinamarca", label: "Dinamarca", ready: true },
+];

@@ -1,0 +1,189 @@
+// FRANÇA
+// Nota: vários clássicos franceses já estão detalhados em outras categorias
+// (Molhos, Massas/Padaria, Ovos, Carnes, Aves, Sobremesas). Aqui reunimos os
+// pratos de entrada e principais que ainda não apareceram em nenhuma outra categoria.
+window.RECIPES = window.RECIPES || {};
+window.RECIPES["franca"] = [
+
+  // ===================== ENTRADAS =====================
+  {
+    name: "Foie Gras Poêlé",
+    subgroup: "Entradas",
+    origin: "França",
+    time: { prep: "15 min", cook: "5 min", total: "20 min" },
+    yield: "2 porções",
+    difficulty: "Média",
+    ingredients: [
+      "2 fatias de foie gras fresco, cerca de 2 cm de espessura",
+      "Sal e pimenta a gosto",
+      "1 colher (sopa) de vinagre balsâmico ou redução de vinho do Porto",
+      "2 fatias de brioche ou pão rústico, tostadas",
+      "Frutas para acompanhar (figo, maçã ou pêra), fatiadas"
+    ],
+    steps: [
+      "Retire o foie gras da geladeira 15-20 minutos antes de cozinhar.",
+      "Faça leves cortes em losango na superfície de cada fatia (ajuda a liberar gordura uniformemente e evita que curve).",
+      "Tempere com sal e pimenta.",
+      "Aqueça uma frigideira (sem nenhuma gordura extra — o foie gras solta a própria) em fogo alto até bem quente.",
+      "Sele as fatias por 45-60 segundos de cada lado, até dourarem bem por fora e ficarem macias por dentro — o processo é muito rápido, fique atento.",
+      "Retire imediatamente para não passar do ponto (o foie gras derrete facilmente se cozido demais).",
+      "Disponha sobre a torrada de brioche, regue com a redução de balsâmico ou Porto, e sirva com as frutas fatiadas."
+    ],
+    tips: [
+      "O foie gras cozinha extremamente rápido — tenha tudo pronto (torrada, frutas, redução) antes de selar, para servir imediatamente.",
+      "A frigideira deve estar bem quente antes de começar, mas sem óleo — a própria gordura do foie gras é suficiente e evita que ele frite em vez de selar.",
+      "O contraste doce das frutas e da redução é essencial para equilibrar a riqueza intensa do foie gras."
+    ]
+  },
+  {
+    name: "Salade Niçoise",
+    subgroup: "Entradas",
+    origin: "França (Nice)",
+    time: { prep: "25 min", cook: "15 min", total: "40 min" },
+    yield: "2-4 porções",
+    difficulty: "Fácil",
+    ingredients: [
+      "200 g de atum fresco (ou em conserva de boa qualidade, em azeite)",
+      "200 g de vagem, cozida al dente",
+      "4 tomates médios, em quartos",
+      "4 ovos cozidos no ponto mollet (ver receita, categoria Ovos Básicos), cortados ao meio",
+      "1/2 cebola roxa fatiada fina",
+      "100 g de azeitonas pretas de Nice (ou pretas comuns)",
+      "8 filés de anchova",
+      "Folhas de alface ou mix de folhas",
+      "Para o vinagrete: 4 colheres (sopa) de azeite, 1 colher (sopa) de vinagre de vinho tinto, 1 dente de alho picado, sal e pimenta"
+    ],
+    steps: [
+      "Se for usar atum fresco, tempere com sal e pimenta e sele rapidamente numa frigideira bem quente, 1 minuto de cada lado, mantendo rosado no centro. Deixe esfriar e fatie.",
+      "Prepare o vinagrete misturando azeite, vinagre, alho picado, sal e pimenta.",
+      "Numa travessa grande, disponha as folhas de alface como base.",
+      "Arrume por cima o tomate em quartos, a vagem cozida, a cebola roxa fatiada, os ovos mollet cortados ao meio e as azeitonas.",
+      "Adicione o atum (fresco fatiado ou em conserva escorrido) e finalize com os filés de anchova por cima.",
+      "Regue com o vinagrete na hora de servir."
+    ],
+    tips: [
+      "A verdadeira Salade Niçoise tradicional não leva batata cozida nem feijão verde cru — a receita clássica de Nice é justamente vagem cozida, tomate fresco e atum, sem batata (isso é uma variação posterior popularizada fora da França).",
+      "Ovos no ponto mollet (gema ainda cremosa) elevam a salada bem além de ovos duros comuns — vale o esforço extra.",
+      "Sirva em temperatura ambiente, nunca gelada — é assim que se aproveita melhor o sabor de todos os ingredientes frescos."
+    ]
+  },
+
+  // ===================== PRINCIPAIS =====================
+  {
+    name: "Cassoulet",
+    subgroup: "Principais",
+    origin: "França (Languedoc)",
+    time: { prep: "30 min + 8h molho do feijão", cook: "3h", total: "≈12h" },
+    yield: "6-8 porções",
+    difficulty: "Alta",
+    ingredients: [
+      "500 g de feijão branco, de molho por 8h",
+      "4 coxas de confit de pato (ver receita, categoria Aves)",
+      "300 g de linguiça de Toulouse (ou linguiça fresca de porco)",
+      "200 g de bacon ou toucinho em pedaço",
+      "1 cebola espetada com 2 cravos",
+      "2 cenouras em pedaços grandes",
+      "4 dentes de alho picados",
+      "2 tomates picados sem pele",
+      "1 buquê de ervas (louro, tomilho, salsão)",
+      "1 L de caldo de carne ou água",
+      "100 g de farinha de rosca",
+      "Sal e pimenta a gosto"
+    ],
+    steps: [
+      "Escorra o feijão de molho e cozinhe em água nova com a cebola cravejada, cenoura e o buquê de ervas, até ficar macio mas ainda inteiro, cerca de 1 hora. Escorra, reservando o caldo, e descarte a cebola e as ervas.",
+      "Numa panela funda, doure o bacon em pedaço até render um pouco de gordura. Adicione a linguiça e doure também. Retire ambos e reserve.",
+      "Refogue o alho e o tomate na gordura que sobrou, por 3-4 minutos.",
+      "Numa panela de barro ou refratário grande, monte camadas: metade do feijão, o bacon, a linguiça em pedaços, as coxas de confit de pato, depois o restante do feijão por cima.",
+      "Cubra com o caldo reservado do feijão (complete com caldo de carne se necessário), até quase cobrir tudo.",
+      "Polvilhe a farinha de rosca por cima, formando uma crosta.",
+      "Leve ao forno a 150°C, destampado, por 2h-2h30 — a cada 30-40 minutos, quebre a crosta que se forma por cima e empurre-a para dentro, deixando uma nova se formar (repita esse processo tradicional 3-4 vezes).",
+      "Na última vez, deixe a crosta final se formar e dourar bem. Sirva quente, direto do refratário."
+    ],
+    tips: [
+      "Quebrar e reincorporar a crosta várias vezes durante o forno (a 'croûte' tradicional) é uma etapa clássica que intensifica a textura e o sabor — não pule esse processo, mesmo que pareça repetitivo.",
+      "Usar coxas de confit de pato já prontas (ver receita) economiza tempo significativo nesse prato já trabalhoso.",
+      "É um prato de inverno por excelência, denso e reconfortante — faça com bastante antecedência de tempo disponível."
+    ]
+  },
+  {
+    name: "Blanquette de Veau",
+    subgroup: "Principais",
+    origin: "França",
+    time: { prep: "25 min", cook: "1h30", total: "1h55" },
+    yield: "4-6 porções",
+    difficulty: "Média",
+    ingredients: [
+      "1,2 kg de vitela (paleta ou peito), em cubos",
+      "1 cebola espetada com 1 cravo",
+      "2 cenouras em pedaços grandes",
+      "1 buquê de ervas (louro, tomilho, salsão)",
+      "1,5 L de água ou fundo claro de vitela",
+      "200 g de cogumelos paris",
+      "12 cebolinhas pérola",
+      "40 g de manteiga",
+      "40 g de farinha de trigo",
+      "2 gemas",
+      "100 ml de creme de leite fresco",
+      "Suco de 1/2 limão",
+      "Sal e pimenta branca a gosto"
+    ],
+    steps: [
+      "Numa panela grande, cubra a carne com água fria, leve para ferver e escorra (isso remove impurezas, resultando num molho mais claro e limpo). Enxágue a carne e a panela.",
+      "Volte a carne à panela limpa, cubra com água ou fundo claro, junte a cebola cravejada, cenoura e o buquê de ervas.",
+      "Deixe ferver, abaixe o fogo e cozinhe em fervura suave, tampado, por 1h-1h15, retirando a espuma que sobe, até a carne ficar macia.",
+      "Retire a carne com uma escumadeira e reserve. Coe o caldo, descartando os sólidos, e reserve 800 ml dele.",
+      "Numa panela separada, salteie os cogumelos e as cebolinhas pérola na manteiga até dourarem levemente. Reserve.",
+      "Na mesma panela, derreta um pouco mais de manteiga, junte a farinha e cozinhe por 2 minutos formando um roux claro.",
+      "Adicione o caldo reservado aos poucos, mexendo sempre, até engrossar formando um velouté.",
+      "Volte a carne, os cogumelos e as cebolinhas ao molho, cozinhe por 10 minutos.",
+      "Bata as gemas com o creme de leite, tempere com uma concha do molho quente para amornar, e incorpore de volta à panela, fora do fogo forte, mexendo sem parar (não deixe ferver depois disso).",
+      "Finalize com o suco de limão, ajuste sal e pimenta branca. Sirva com arroz branco."
+    ],
+    tips: [
+      "Ferver e escorrer a carne no início (branqueamento) é o que garante um molho branco e limpo — sem esse passo, o molho fica turvo e acinzentado.",
+      "É um dos poucos pratos franceses clássicos que não leva nenhuma cor dourada de caramelização — a carne nunca é selada/dourada, resultando num guisado totalmente 'branco'.",
+      "A finalização com gemas e creme (liaison) deve ser feita com cuidado e fogo baixo, para não talhar os ovos."
+    ]
+  },
+  {
+    name: "Navarin d'Agneau",
+    subgroup: "Principais",
+    origin: "França",
+    time: { prep: "25 min", cook: "1h30", total: "1h55" },
+    yield: "4-6 porções",
+    difficulty: "Média",
+    ingredients: [
+      "1,2 kg de paleta ou pescoço de cordeiro, em cubos",
+      "2 colheres (sopa) de óleo",
+      "1 colher (sopa) de açúcar",
+      "2 colheres (sopa) de extrato de tomate",
+      "2 colheres (sopa) de farinha de trigo",
+      "800 ml de fundo escuro ou caldo de carne",
+      "2 dentes de alho picados",
+      "1 buquê de ervas (louro, tomilho)",
+      "12 cebolinhas pérola",
+      "4 cenouras pequenas (ou baby), inteiras",
+      "4 nabos pequenos, em quartos",
+      "200 g de batatinhas, inteiras ou em metades",
+      "100 g de ervilha fresca ou congelada",
+      "Sal e pimenta a gosto"
+    ],
+    steps: [
+      "Tempere o cordeiro com sal e pimenta. Aqueça o óleo numa panela funda e doure bem os cubos por todos os lados.",
+      "Polvilhe o açúcar por cima e deixe caramelizar levemente junto com a carne (isso ajuda na cor final do molho, uma técnica clássica do prato).",
+      "Junte o extrato de tomate e a farinha, mexendo por 1-2 minutos para formar uma base.",
+      "Adicione o fundo escuro aos poucos, mexendo para não empelotar. Junte o alho e o buquê de ervas.",
+      "Tampe e cozinhe em fogo baixo por 45 minutos.",
+      "Enquanto isso, salteie as cebolinhas pérola, cenouras e nabos numa frigideira à parte com um pouco de manteiga até dourarem levemente.",
+      "Junte os legumes salteados e as batatinhas à panela do cordeiro, continuando o cozimento por mais 30-35 minutos, até tudo ficar macio.",
+      "Nos últimos 5 minutos, adicione a ervilha.",
+      "Ajuste sal e pimenta, retire o buquê de ervas. Sirva quente, com o molho encorpado envolvendo carne e legumes."
+    ],
+    tips: [
+      "O toque de açúcar caramelizado com a carne no início é uma técnica clássica francesa (usada também em outros guisados) que aprofunda a cor e o sabor do molho final.",
+      "É considerado o 'guisado de primavera' francês por excelência, tradicionalmente feito quando os legumes novos (cenouras baby, nabos pequenos) estão na estação.",
+      "Cortar os legumes em tamanhos uniformes e salteá-los à parte antes de juntar garante que fiquem no ponto certo, sem desmanchar no guisado."
+    ]
+  },
+];

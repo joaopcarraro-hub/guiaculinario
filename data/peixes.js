@@ -1,0 +1,206 @@
+// PEIXES
+window.RECIPES = window.RECIPES || {};
+window.RECIPES["peixes"] = [
+
+  // ===================== TÉCNICA MEUNIÈRE =====================
+  {
+    name: "Sole Meunière",
+    subgroup: "Técnica Meunière",
+    origin: "França",
+    time: { prep: "10 min", cook: "10 min", total: "20 min" },
+    yield: "2 porções",
+    difficulty: "Média",
+    ingredients: [
+      "2 filés de linguado (ou sole), com pele se possível",
+      "Farinha de trigo, para empanar levemente",
+      "60 g de manteiga (dividida)",
+      "1 colher (sopa) de óleo neutro",
+      "Suco de 1 limão",
+      "2 colheres (sopa) de salsinha picada",
+      "Sal e pimenta a gosto"
+    ],
+    steps: [
+      "Seque muito bem os filés com papel toalha. Tempere com sal e pimenta.",
+      "Passe os filés na farinha, sacudindo o excesso — deve ficar uma camada bem fina.",
+      "Aqueça o óleo com metade da manteiga numa frigideira em fogo médio-alto, até a manteiga espumar.",
+      "Coloque os filés na frigideira e cozinhe por 2-3 minutos de cada lado, até dourarem bem e ficarem opacos por dentro. Retire e disponha nos pratos.",
+      "Limpe rapidamente a frigideira com papel toalha, volte ao fogo médio e derreta o restante da manteiga.",
+      "Cozinhe a manteiga até ficar dourada e com cheiro de avelã (beurre noisette) — fique atento, o ponto passa rápido de dourado para queimado.",
+      "Retire do fogo, adicione o suco de limão (vai espumar) e a salsinha picada, misturando rapidamente.",
+      "Regue os filés imediatamente com essa manteiga dourada e sirva na hora."
+    ],
+    tips: [
+      "O nome 'meunière' (à moda da moleira) vem justamente da fina camada de farinha usada para empanar antes de dourar na manteiga.",
+      "O ponto da beurre noisette (manteiga avelã) é rápido e crucial — retire do fogo assim que sentir o cheiro de avelã torrada, antes de escurecer demais e queimar.",
+      "Linguado é o substituto brasileiro mais comum e acessível para a sole europeia tradicional, com resultado igualmente delicado."
+    ]
+  },
+  {
+    name: "Linguado à Belle Meunière",
+    subgroup: "Técnica Meunière",
+    origin: "França",
+    time: { prep: "20 min", cook: "20 min", total: "40 min" },
+    yield: "2 porções",
+    difficulty: "Média-alta",
+    ingredients: [
+      "2 filés de linguado",
+      "8 camarões médios, limpos",
+      "100 g de cogumelos paris, fatiados",
+      "1 tomate, sem pele e sem semente, em cubos pequenos (concassé)",
+      "Farinha de trigo, para empanar o peixe",
+      "80 g de manteiga (dividida)",
+      "1 colher (sopa) de óleo neutro",
+      "Suco de 1 limão",
+      "2 colheres (sopa) de salsinha picada",
+      "Sal e pimenta a gosto"
+    ],
+    steps: [
+      "Prepare o peixe como na receita de Sole Meunière: tempere, passe na farinha e doure na manteiga com óleo, 2-3 minutos de cada lado. Reserve nos pratos.",
+      "Na mesma frigideira, adicione um pouco mais de manteiga e salteie os camarões rapidamente, 1-2 minutos de cada lado, até ficarem rosados. Retire e reserve.",
+      "Na sequência, salteie os cogumelos fatiados até dourarem, 4-5 minutos. Retire e reserve com os camarões.",
+      "Junte o tomate concassé à frigideira só para aquecer, 1 minuto.",
+      "Limpe a frigideira, derreta o restante da manteiga até formar a beurre noisette (dourada, com cheiro de avelã).",
+      "Fora do fogo, junte o limão e a salsinha à manteiga dourada.",
+      "Monte o prato: o peixe na base, coroado com os camarões, cogumelos e o tomate concassé por cima, finalizando com a manteiga dourada regada por igual."
+    ],
+    tips: [
+      "'Belle Meunière' é a versão 'chique' da meunière simples — a mesma técnica de base, mas guarnecida com camarão, cogumelo e tomate.",
+      "Prepare todos os componentes da guarnição enquanto o peixe descansa, para que tudo chegue quente à mesa ao mesmo tempo.",
+      "Um clássico de restaurante de hotel francês tradicional, com apresentação generosa e elegante."
+    ]
+  },
+
+  // ===================== ASSADOS E CURADOS =====================
+  {
+    name: "Peixe en Papillote",
+    subgroup: "Assados e Curados",
+    origin: "França",
+    time: { prep: "20 min", cook: "18 min", total: "38 min" },
+    yield: "2 porções",
+    difficulty: "Fácil",
+    ingredients: [
+      "2 filés de peixe branco (robalo, badejo ou linguado), cerca de 180 g cada",
+      "1 abobrinha pequena, em fatias finas",
+      "1 cenoura pequena, em fitas finas (com descascador)",
+      "8 tomates cereja, cortados ao meio",
+      "2 échalotes fatiadas fino",
+      "4 fatias finas de limão-siciliano",
+      "Ervas frescas (endro, tomilho ou manjericão)",
+      "2 colheres (sopa) de azeite de oliva",
+      "50 ml de vinho branco seco (opcional)",
+      "Sal e pimenta a gosto",
+      "Papel manteiga ou papel-alumínio"
+    ],
+    steps: [
+      "Pré-aqueça o forno a 200°C. Corte dois grandes retângulos de papel manteiga (ou papel-alumínio), cerca de 40x30 cm cada.",
+      "No centro de cada retângulo, faça uma cama com metade dos vegetais fatiados (abobrinha, cenoura, tomate cereja e échalote).",
+      "Tempere os filés de peixe com sal e pimenta, e disponha sobre a cama de vegetais.",
+      "Cubra cada filé com 2 fatias de limão e ervas frescas. Regue com azeite e, se usar, um fio de vinho branco.",
+      "Dobre o papel sobre o peixe, selando as bordas com dobras apertadas (como um envelope), formando um pacote bem fechado que retenha o vapor.",
+      "Disponha os pacotes numa assadeira e leve ao forno por 15-18 minutos — o pacote vai inflar com o vapor, sinal de que está cozinhando corretamente.",
+      "Sirva os pacotes fechados diretamente à mesa, abrindo-os na frente de quem for comer, para liberar o aroma."
+    ],
+    tips: [
+      "A selagem bem feita das bordas é o que garante que o vapor fique retido dentro do pacote, cozinhando o peixe e os vegetais na própria umidade, sem ressecar.",
+      "É uma técnica extremamente leve e sem gordura excessiva, já que o peixe cozinha no próprio vapor dos vegetais e do vinho.",
+      "Ótima opção para jantar a dois com apresentação bonita e surpresa — abrir o papel à mesa é sempre um momento especial."
+    ]
+  },
+  {
+    name: "Salmão Gravlax (para servir)",
+    subgroup: "Assados e Curados",
+    origin: "Escandinávia",
+    time: { prep: "15 min (+ 48-72h de cura prévia)", cook: "0 min", total: "15 min" },
+    yield: "4-6 porções (entrada)",
+    difficulty: "Fácil",
+    ingredients: [
+      "1 receita de Gravlax já curado (ver receita, categoria Técnicas Contemporâneas Avançadas)",
+      "Para o molho hovmästarsås (mostarda e endro): 3 colheres (sopa) de mostarda Dijon, 1 colher (sopa) de mostarda em grãos, 2 colheres (sopa) de açúcar, 2 colheres (sopa) de vinagre branco, 100 ml de óleo neutro, endro fresco picado",
+      "Pão escuro (pumpernickel ou centeio) ou torradas, para servir",
+      "Endro fresco e limão para decorar"
+    ],
+    steps: [
+      "Prepare o gravlax com antecedência, seguindo a receita de cura (48-72 horas).",
+      "Prepare o molho: bata as duas mostardas com o açúcar e o vinagre até dissolver bem.",
+      "Adicione o óleo em fio fino, batendo sem parar, como uma maionese, até emulsionar e engrossar.",
+      "Junte bastante endro fresco picado ao molho.",
+      "Fatie o gravlax bem fino, na diagonal, começando pela cauda, com uma faca longa e afiada.",
+      "Disponha as fatias num prato, regue com o molho de mostarda e endro, ou sirva o molho à parte para cada convidado se servir.",
+      "Acompanhe com pão escuro ou torradas, decorado com mais endro fresco e rodelas de limão."
+    ],
+    tips: [
+      "O molho hovmästarsås (literalmente 'molho do mordomo') é o acompanhamento tradicional sueco do gravlax — mais doce e encorpado que uma mostarda comum.",
+      "Fatiar bem fino e na diagonal é essencial para a textura correta — fatias grossas ficam com textura de peixe cru comum, perdendo a delicadeza da cura.",
+      "Ótima entrada para ocasiões especiais, já que pode (e deve) ser preparada com dias de antecedência."
+    ]
+  },
+
+  // ===================== BACALHAU =====================
+  {
+    name: "Bacalhau à Brás",
+    subgroup: "Bacalhau",
+    origin: "Portugal",
+    time: { prep: "40 min (+ dessalgar o bacalhau)", cook: "20 min", total: "1h" },
+    yield: "4 porções",
+    difficulty: "Média",
+    ingredients: [
+      "500 g de bacalhau dessalgado e desfiado (deixe de molho na geladeira por 24-48h, trocando a água algumas vezes)",
+      "800 g de batata palha fina (pode ser comprada pronta ou feita em casa, fina como fósforos)",
+      "1 cebola grande, fatiada fina",
+      "3 dentes de alho picados",
+      "100 ml de azeite de oliva",
+      "6 ovos",
+      "Azeitonas pretas, para decorar",
+      "Salsinha picada",
+      "Sal (com cuidado, o bacalhau já salga) e pimenta a gosto"
+    ],
+    steps: [
+      "Após dessalgar, cozinhe o bacalhau em água fervente por 5 minutos (ou apenas escalde), escorra e desfie em lascas, removendo peles e espinhas.",
+      "Se for fazer a batata palha em casa, corte as batatas em palitos bem finos e frite em óleo quente até dourar e ficar crocante; escorra bem.",
+      "Numa frigideira grande, aqueça o azeite e refogue a cebola até dourar levemente, 8-10 minutos.",
+      "Junte o alho e refogue por 1 minuto. Adicione o bacalhau desfiado e refogue por 3-4 minutos, misturando bem com a cebola.",
+      "Bata os ovos numa tigela com uma pitada de sal e pimenta.",
+      "Baixe o fogo, junte a batata palha à frigideira, misturando delicadamente com o bacalhau e a cebola.",
+      "Despeje os ovos batidos por cima, mexendo delicadamente e continuamente, como um ovo mexido, até os ovos cozinharem mas ainda ficarem cremosos (não deixe secar).",
+      "Finalize com azeitonas pretas e salsinha picada. Sirva imediatamente."
+    ],
+    tips: [
+      "O ponto do ovo é crucial: deve envolver e 'ligar' todos os ingredientes, ficando cremoso, nunca seco como um ovo mexido comum — retire do fogo um pouco antes do que parece necessário.",
+      "Dessalgar bem o bacalhau (mínimo 24h, trocando a água 3-4 vezes) é essencial — bacalhau mal dessalgado deixa o prato salgado demais.",
+      "Um dos pratos mais populares e queridos de Portugal, criado como forma de aproveitar bacalhau e batatas de forma criativa e farta."
+    ]
+  },
+  {
+    name: "Bacalhau Gomes de Sá",
+    subgroup: "Bacalhau",
+    origin: "Portugal (Porto)",
+    time: { prep: "30 min (+ dessalgar)", cook: "45 min", total: "1h15" },
+    yield: "4-6 porções",
+    difficulty: "Média",
+    ingredients: [
+      "600 g de bacalhau dessalgado, em postas",
+      "800 g de batata, descascada e em rodelas",
+      "2 cebolas grandes, fatiadas",
+      "4 dentes de alho fatiados",
+      "150 ml de azeite de oliva (dividido)",
+      "4 ovos cozidos duros, em rodelas",
+      "Azeitonas pretas",
+      "Salsinha picada",
+      "Sal e pimenta a gosto"
+    ],
+    steps: [
+      "Após dessalgar, cozinhe o bacalhau em água ou leite por 15-20 minutos, até macio. Escorra, deixe amornar e desfie em lascas grandes, removendo peles e espinhas.",
+      "Cozinhe as rodelas de batata em água salgada até macias mas ainda firmes (não deixe desmanchar), 12-15 minutos. Escorra.",
+      "Numa frigideira grande, aqueça metade do azeite e refogue a cebola e o alho até dourarem levemente, 10 minutos.",
+      "Pré-aqueça o forno a 200°C. Num refratário, monte camadas alternadas de batata cozida, bacalhau desfiado e a cebola refogada, temperando levemente entre as camadas (cuidado com o sal, o bacalhau já salga).",
+      "Regue generosamente com o restante do azeite.",
+      "Leve ao forno por 20-25 minutos, até dourar levemente por cima.",
+      "Retire do forno, decore com as rodelas de ovo cozido, azeitonas pretas e salsinha picada por cima. Sirva quente."
+    ],
+    tips: [
+      "Diferente do Bacalhau à Brás (que leva batata palha e ovo mexido), este é montado em camadas e finalizado com ovo cozido por cima — são pratos irmãos, mas com identidades bem distintas.",
+      "Cozinhar o bacalhau em leite (em vez de só água) é um truque tradicional que deixa a carne ainda mais macia e suave.",
+      "Criado por José Luís Gomes de Sá, comerciante do Porto, no final do século XIX — um dos pratos de bacalhau mais consagrados de Portugal."
+    ]
+  },
+];
