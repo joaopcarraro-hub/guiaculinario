@@ -20,7 +20,8 @@
   sidebarBackdrop.addEventListener("click", closeMobileMenu);
 
   const firstReady = window.CATEGORIES.find((c) => c.ready) || window.CATEGORIES[0];
-  let activeCat = null; // null quando estamos em modo de busca global
+  let activeCat = null; // null quando estamos na home ou em modo de busca global
+  let homeSearchInput = null; // input de busca da tela home (recriado a cada render)
 
   // ---------- Sidebar ----------
   function renderSidebar() {
@@ -55,7 +56,101 @@
     });
   }
 
+  // ---------- Busca (compartilhada entre sidebar e home) ----------
+  let searchDebounce = null;
+  function wireSearchInput(el) {
+    el.addEventListener("input", () => {
+      const value = el.value;
+      [searchInput, homeSearchInput].forEach((other) => {
+        if (other && other !== el) other.value = value;
+      });
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(() => {
+        if (value.trim()) {
+          activeCat = null;
+          Router.replaceBusca(value);
+          renderSidebar();
+          renderSearchResults(value);
+        } else {
+          Router.replace("");
+          renderHome();
+        }
+      }, 200);
+    });
+  }
+  wireSearchInput(searchInput);
+
+  // ---------- Home ----------
+  function renderHome() {
+    activeCat = null;
+    searchInput.value = "";
+    renderSidebar();
+
+    header.innerHTML = "";
+    content.innerHTML = "";
+    progressEl.textContent = "";
+
+    const wrap = document.createElement("div");
+    wrap.className = "home-view";
+
+    const searchWrap = document.createElement("div");
+    searchWrap.className = "home-search-wrap";
+    const homeSearch = document.createElement("input");
+    homeSearch.type = "text";
+    homeSearch.className = "home-search";
+    homeSearch.placeholder = "Buscar prato, país ou ingrediente...";
+    searchWrap.appendChild(homeSearch);
+    wrap.appendChild(searchWrap);
+    homeSearchInput = homeSearch;
+    wireSearchInput(homeSearch);
+
+    const totalRecipes = Object.values(window.RECIPES).reduce((sum, list) => sum + list.length, 0);
+    const totalMade = Storage.getAllMade().length;
+    const prog = document.createElement("div");
+    prog.className = "home-progress";
+    prog.textContent = totalMade + " de " + totalRecipes + " receitas já feitas 🎉";
+    wrap.appendChild(prog);
+
+    const groups = {};
+    window.CATEGORIES.forEach((c) => {
+      if (!groups[c.group]) groups[c.group] = [];
+      groups[c.group].push(c);
+    });
+
+    Object.keys(groups).forEach((groupName) => {
+      const st = document.createElement("div");
+      st.className = "subgroup-title";
+      st.textContent = groupName;
+      wrap.appendChild(st);
+
+      const grid = document.createElement("div");
+      grid.className = "category-grid";
+      groups[groupName].forEach((cat) => {
+        const recipes = window.RECIPES[cat.id] || [];
+        const card = document.createElement("button");
+        card.className = "category-card";
+        card.innerHTML =
+          '<span class="category-card__icon">' + (cat.icon || "🍽") + "</span>" +
+          '<span class="category-card__title">' + cat.label + "</span>" +
+          '<span class="category-card__count">' + recipes.length + " receitas</span>";
+        card.addEventListener("click", () => Router.toCategoria(cat.id));
+        grid.appendChild(card);
+      });
+      wrap.appendChild(grid);
+    });
+
+    content.appendChild(wrap);
+  }
+
   // ---------- Categoria ----------
+  function showCategoria(catId) {
+    const cat = window.CATEGORIES.find((c) => c.id === catId) || firstReady;
+    activeCat = cat.id;
+    searchInput.value = "";
+    renderSidebar();
+    renderCategory(cat);
+  }
+
   function renderCategory(cat) {
     header.innerHTML =
       "<h2>" + cat.label + "</h2>" + (cat.desc ? '<div class="desc">' + cat.desc + "</div>" : "");
@@ -110,7 +205,7 @@
     });
   }
 
-  // ---------- Card de receita ----------
+  // ---------- Card de receita (usado na lista de categoria e na busca) ----------
   function renderRecipeCard(catId, recipe, opts) {
     opts = opts || {};
     const card = document.createElement("div");
@@ -182,24 +277,147 @@
     cardHeader.appendChild(chevron);
 
     cardHeader.addEventListener("click", () => {
-      card.classList.toggle("open");
+      Router.toReceita(catId, recipe.name);
     });
 
-    const body = document.createElement("div");
-    body.className = "recipe-body";
-    body.innerHTML = renderRecipeBody(recipe);
-
     card.appendChild(cardHeader);
-    card.appendChild(body);
     return card;
   }
 
-  function openRecipeCard(catId, name) {
-    const cardEl = content.querySelector('[data-recipe-name="' + CSS.escape(name) + '"]');
-    if (cardEl) {
-      cardEl.classList.add("open");
-      cardEl.scrollIntoView({ behavior: "instant", block: "start" });
+  // ---------- Página própria da receita ----------
+  function findRecipe(catId, name) {
+    const recipes = window.RECIPES[catId] || [];
+    return recipes.find((r) => r.name === name);
+  }
+
+  function renderReceita(catId, name) {
+    const cat = window.CATEGORIES.find((c) => c.id === catId);
+    const recipe = cat && findRecipe(catId, name);
+    if (!recipe) {
+      renderHome();
+      return;
     }
+
+    activeCat = catId;
+    searchInput.value = "";
+    renderSidebar();
+
+    header.innerHTML = "";
+    content.innerHTML = "";
+    progressEl.textContent = "";
+
+    const page = document.createElement("div");
+    page.className = "recipe-page";
+
+    const back = document.createElement("button");
+    back.className = "back-button";
+    back.textContent = "← Voltar para " + cat.label;
+    back.addEventListener("click", () => Router.toCategoria(catId));
+    page.appendChild(back);
+
+    const hero = document.createElement("div");
+    hero.className = "recipe-hero placeholder";
+    hero.textContent = "🍽";
+    loadRecipeImage(imageQuery(recipe), hero);
+    page.appendChild(hero);
+
+    const titleBlock = document.createElement("div");
+    titleBlock.className = "recipe-page-title";
+    titleBlock.innerHTML =
+      "<h2>" + recipe.name + "</h2>" +
+      (recipe.origin ? '<div class="origin">' + recipe.origin + "</div>" : "") +
+      (recipe.desc ? '<p class="page-desc">' + recipe.desc + "</p>" : "");
+    page.appendChild(titleBlock);
+
+    const metaRow = document.createElement("div");
+    metaRow.className = "recipe-page-meta";
+    let metaHtml = "";
+    if (recipe.time && recipe.time.total) metaHtml += "<span>⏱ Total: " + recipe.time.total + "</span>";
+    if (recipe.time && recipe.time.prep) metaHtml += "<span>🔪 Preparo: " + recipe.time.prep + "</span>";
+    if (recipe.time && recipe.time.cook) metaHtml += "<span>🔥 Cozimento: " + recipe.time.cook + "</span>";
+    if (recipe.yield) metaHtml += "<span>🍽 " + recipe.yield + "</span>";
+    if (recipe.difficulty) metaHtml += "<span>📊 " + recipe.difficulty + "</span>";
+    metaRow.innerHTML = metaHtml;
+    page.appendChild(metaRow);
+
+    const actions = document.createElement("div");
+    actions.className = "recipe-page-actions";
+
+    const isMade = Storage.isMade(catId, recipe.name);
+    const madeBtn = document.createElement("button");
+    madeBtn.className = "action-btn" + (isMade ? " active" : "");
+    madeBtn.textContent = isMade ? "✓ Já fiz" : "Marcar como feita";
+    madeBtn.addEventListener("click", () => {
+      const now = Storage.toggleMade(catId, recipe.name);
+      madeBtn.classList.toggle("active", now);
+      madeBtn.textContent = now ? "✓ Já fiz" : "Marcar como feita";
+    });
+
+    const isFav = Storage.isFavorite(catId, recipe.name);
+    const favBtn = document.createElement("button");
+    favBtn.className = "action-btn" + (isFav ? " active" : "");
+    favBtn.textContent = isFav ? "★ Favorito" : "☆ Favoritar";
+    favBtn.addEventListener("click", () => {
+      const now = Storage.toggleFavorite(catId, recipe.name);
+      favBtn.classList.toggle("active", now);
+      favBtn.textContent = now ? "★ Favorito" : "☆ Favoritar";
+    });
+
+    actions.appendChild(madeBtn);
+    actions.appendChild(favBtn);
+    page.appendChild(actions);
+
+    const ingSection = document.createElement("div");
+    ingSection.className = "recipe-page-section";
+    const checked = Storage.getCheckedIngredients(catId, recipe.name);
+    const ingItems = (recipe.ingredients || [])
+      .map((ing, i) => {
+        const isChecked = checked.indexOf(i) !== -1;
+        return (
+          '<li><label><input type="checkbox" data-idx="' +
+          i +
+          '"' +
+          (isChecked ? " checked" : "") +
+          '><span class="' +
+          (isChecked ? "struck" : "") +
+          '">' +
+          ing +
+          "</span></label></li>"
+        );
+      })
+      .join("");
+    ingSection.innerHTML = "<h4>Ingredientes</h4><ul class=\"ingredients-list checklist\">" + ingItems + "</ul>";
+    page.appendChild(ingSection);
+    ingSection.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
+      cb.addEventListener("change", () => {
+        const idx = parseInt(cb.dataset.idx, 10);
+        Storage.toggleIngredient(catId, recipe.name, idx);
+        cb.nextElementSibling.classList.toggle("struck", cb.checked);
+      });
+    });
+
+    const stepsSection = document.createElement("div");
+    stepsSection.className = "recipe-page-section";
+    const stepsHtml = (recipe.steps || []).map((s) => "<li>" + s + "</li>").join("");
+    stepsSection.innerHTML = "<h4>Modo de preparo</h4><ol class=\"steps-list\">" + stepsHtml + "</ol>";
+    page.appendChild(stepsSection);
+
+    if (recipe.tips && recipe.tips.length) {
+      const tipsBox = document.createElement("div");
+      tipsBox.className = "tips-box";
+      tipsBox.innerHTML = "<h4>Dicas</h4><ul>" + recipe.tips.map((t) => "<li>" + t + "</li>").join("") + "</ul>";
+      page.appendChild(tipsBox);
+    }
+
+    if (recipe.usedFor) {
+      const uf = document.createElement("div");
+      uf.className = "used-for";
+      uf.innerHTML = "<strong>Serve para / usar em:</strong> " + recipe.usedFor;
+      page.appendChild(uf);
+    }
+
+    content.appendChild(page);
+    window.scrollTo({ top: 0, behavior: "instant" });
   }
 
   // ---------- Fotos (Wikipedia, com cache local) ----------
@@ -306,61 +524,7 @@
     applyImage(el, url);
   }
 
-  function renderRecipeBody(recipe) {
-    const ingredientsHtml = (recipe.ingredients || [])
-      .map((i) => "<li>" + i + "</li>")
-      .join("");
-    const stepsHtml = (recipe.steps || []).map((s) => "<li>" + s + "</li>").join("");
-    const tipsHtml = (recipe.tips || []).map((t) => "<li>" + t + "</li>").join("");
-
-    let timeLine = "";
-    if (recipe.time) {
-      const parts = [];
-      if (recipe.time.prep) parts.push("Preparo: " + recipe.time.prep);
-      if (recipe.time.cook) parts.push("Cozimento: " + recipe.time.cook);
-      if (recipe.time.total) parts.push("Total: " + recipe.time.total);
-      timeLine = parts.join(" · ");
-    }
-    const extraParts = [];
-    if (recipe.yield) extraParts.push("Rendimento: " + recipe.yield);
-    if (recipe.difficulty) extraParts.push("Dificuldade: " + recipe.difficulty);
-    const extraLine = extraParts.join(" · ");
-
-    return (
-      '<div class="recipe-columns">' +
-      "<div>" +
-      "<h4>Ingredientes</h4>" +
-      '<ul class="ingredients-list">' +
-      ingredientsHtml +
-      "</ul>" +
-      (timeLine ? '<div class="used-for"><strong>Tempo:</strong> ' + timeLine + "</div>" : "") +
-      (extraLine ? '<div class="used-for mobile-only-info">' + extraLine + "</div>" : "") +
-      "</div>" +
-      "<div>" +
-      "<h4>Modo de preparo</h4>" +
-      '<ol class="steps-list">' +
-      stepsHtml +
-      "</ol>" +
-      (tipsHtml
-        ? '<div class="tips-box"><h4>Dicas</h4><ul>' + tipsHtml + "</ul></div>"
-        : "") +
-      (recipe.usedFor
-        ? '<div class="used-for"><strong>Serve para / usar em:</strong> ' + recipe.usedFor + "</div>"
-        : "") +
-      "</div>" +
-      "</div>"
-    );
-  }
-
   // ---------- Roteamento ----------
-  function showCategoria(catId) {
-    const cat = window.CATEGORIES.find((c) => c.id === catId) || firstReady;
-    activeCat = cat.id;
-    searchInput.value = "";
-    renderSidebar();
-    renderCategory(cat);
-  }
-
   function handleRoute(route) {
     if (route.name === "busca" && route.query) {
       activeCat = null;
@@ -370,33 +534,13 @@
     } else if (route.name === "categoria") {
       showCategoria(route.catId);
     } else if (route.name === "receita") {
-      showCategoria(route.catId);
-      openRecipeCard(route.catId, route.recipeName);
+      renderReceita(route.catId, route.recipeName);
     } else {
-      showCategoria(firstReady.id);
+      renderHome();
     }
   }
 
   Router.onChange(handleRoute);
-
-  // ---------- Busca (input) ----------
-  let searchDebounce = null;
-  searchInput.addEventListener("input", () => {
-    const value = searchInput.value;
-    clearTimeout(searchDebounce);
-    searchDebounce = setTimeout(() => {
-      if (value.trim()) {
-        activeCat = null;
-        Router.replaceBusca(value);
-        renderSidebar();
-        renderSearchResults(value);
-      } else {
-        const cat = window.CATEGORIES.find((c) => c.id === activeCat) || firstReady;
-        Router.replace("categoria/" + encodeURIComponent(cat.id));
-        showCategoria(cat.id);
-      }
-    }, 200);
-  });
 
   // ---------- Inicialização ----------
   handleRoute(Router.current());
