@@ -6,6 +6,7 @@ window.RECIPES["grecia"] = [
   {
     name: "Moussaka",
     subgroup: "Principais",
+    desc: "Camadas de berinjela grelhada e carne moída com canela, cobertas por molho béchamel e gratinadas no forno — a lasanha grega.",
     origin: "Grécia",
     time: { prep: "40 min", cook: "1h", total: "1h40" },
     yield: "6-8 porções",
@@ -42,6 +43,7 @@ window.RECIPES["grecia"] = [
   {
     name: "Souvlaki",
     subgroup: "Principais",
+    desc: "Espetinhos de carne marinada em azeite, limão e orégano, grelhados e servidos em pão pita com molho tzatziki.",
     origin: "Grécia",
     time: { prep: "20 min + 2h marinada", cook: "10 min", total: "2h30" },
     yield: "4 porções",
@@ -73,6 +75,7 @@ window.RECIPES["grecia"] = [
   {
     name: "Gyros",
     subgroup: "Principais",
+    desc: "Fatias finas de carne marinada e seladas na chapa, enroladas em pão pita com tomate, cebola, batata frita e tzatziki.",
     origin: "Grécia",
     time: { prep: "20 min + 4h marinada", cook: "15 min", total: "≈4h35" },
     yield: "4 porções",
@@ -107,6 +110,7 @@ window.RECIPES["grecia"] = [
   {
     name: "Spanakopita",
     subgroup: "Entradas e Acompanhamentos",
+    desc: "Torta salgada de massa filo crocante recheada com espinafre refogado, queijo feta e ricota.",
     origin: "Grécia",
     time: { prep: "35 min", cook: "35 min", total: "1h10" },
     yield: "8 porções",
@@ -143,6 +147,7 @@ window.RECIPES["grecia"] = [
   {
     name: "Dolmades",
     subgroup: "Entradas e Acompanhamentos",
+    desc: "Charutinhos de folha de parreira recheados com arroz temperado com limão, endro e hortelã, cozidos e servidos com iogurte.",
     origin: "Grécia",
     time: { prep: "45 min", cook: "45 min", total: "1h30" },
     yield: "≈30 unidades",
@@ -178,6 +183,7 @@ window.RECIPES["grecia"] = [
   {
     name: "Tzatziki",
     subgroup: "Entradas e Acompanhamentos",
+    desc: "Molho frio e cremoso de iogurte grego, pepino ralado escorrido, alho e endro — acompanhamento clássico de carnes grelhadas.",
     origin: "Grécia",
     time: { prep: "15 min", cook: "0 min", total: "15 min" },
     yield: "≈400 ml",

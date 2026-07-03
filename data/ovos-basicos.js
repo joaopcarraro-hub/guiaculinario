@@ -6,6 +6,7 @@ window.RECIPES["ovos-basicos"] = [
   {
     name: "Ovo Cozido (mole, médio e duro)",
     subgroup: "Cozidos em Água",
+    desc: "Ovo cozido com casca em água fervente — o tempo define se a gema fica líquida, cremosa ou totalmente firme.",
     origin: "Universal",
     time: { prep: "1 min", cook: "4 a 10 min", total: "5 a 11 min" },
     yield: "por ovo",
@@ -31,6 +32,7 @@ window.RECIPES["ovos-basicos"] = [
   {
     name: "Ovo Poché",
     subgroup: "Cozidos em Água",
+    desc: "Ovo sem casca cozido direto na água quente com vinagre, formando uma clara firme ao redor da gema mole — base do Eggs Benedict.",
     origin: "França",
     time: { prep: "2 min", cook: "3 min", total: "5 min" },
     yield: "por ovo",
@@ -59,6 +61,7 @@ window.RECIPES["ovos-basicos"] = [
   {
     name: "Ovo Mollet",
     subgroup: "Cozidos em Água",
+    desc: "Um meio-termo entre o poché e o cozido: ovo cozido com casca por 6 minutos, com clara firme e gema ainda cremosa.",
     origin: "França",
     time: { prep: "1 min", cook: "6 min", total: "7 min" },
     yield: "por ovo",
@@ -83,6 +86,7 @@ window.RECIPES["ovos-basicos"] = [
   {
     name: "Ovo a Baixa Temperatura (63°C)",
     subgroup: "Cozidos em Água",
+    desc: "Técnica sous-vide: ovo cozido com casca por até 1 hora num banho de água a 63°C, resultando em clara e gema igualmente cremosas, como veludo.",
     origin: "Técnica moderna (sous-vide)",
     time: { prep: "2 min", cook: "45-60 min", total: "≈1h" },
     yield: "por ovo",
@@ -110,6 +114,7 @@ window.RECIPES["ovos-basicos"] = [
   {
     name: "Ovo Frito Perfeito",
     subgroup: "Fritos e Confitados",
+    desc: "Ovo frito em fogo baixo na manteiga, com clara macia por igual e gema mole — a técnica clássica sem queimar as bordas.",
     origin: "Universal",
     time: { prep: "1 min", cook: "3 min", total: "4 min" },
     yield: "por ovo",
@@ -135,6 +140,7 @@ window.RECIPES["ovos-basicos"] = [
   {
     name: "Ovo Confitado",
     subgroup: "Fritos e Confitados",
+    desc: "Ovo cozinhado lentamente quase submerso em azeite morno (não fritando) — resulta numa clara extremamente macia e amanteigada.",
     origin: "Técnica clássica francesa",
     time: { prep: "2 min", cook: "8 min", total: "10 min" },
     yield: "por ovo",
@@ -163,6 +169,7 @@ window.RECIPES["ovos-basicos"] = [
   {
     name: "Ovo Cocotte",
     subgroup: "Assados",
+    desc: "Ovo assado em banho-maria dentro de um ramequim untado, sobre uma base de creme de leite, com clara firme e gema mole.",
     origin: "França",
     time: { prep: "5 min", cook: "12 min", total: "17 min" },
     yield: "por porção",
@@ -192,6 +199,7 @@ window.RECIPES["ovos-basicos"] = [
   {
     name: "Ovo no Ramequim (simples)",
     subgroup: "Assados",
+    desc: "Versão rústica e rápida do ovo assado, direto no ramequim untado, sem creme nem banho-maria — ótimo com pão torrado.",
     origin: "Universal",
     time: { prep: "3 min", cook: "10 min", total: "13 min" },
     yield: "por porção",
@@ -220,6 +228,7 @@ window.RECIPES["ovos-basicos"] = [
   {
     name: "Ovo Mexido Francês (cremoso)",
     subgroup: "Mexidos e Omeletes",
+    desc: "Ovos mexidos em fogo bem baixo, mexidos sem parar, formando pequenos grumos macios e cremosos como um creme — nunca dourados.",
     origin: "França",
     time: { prep: "2 min", cook: "6 min", total: "8 min" },
     yield: "1 porção (3 ovos)",
@@ -249,6 +258,7 @@ window.RECIPES["ovos-basicos"] = [
   {
     name: "Ovo Mexido Americano",
     subgroup: "Mexidos e Omeletes",
+    desc: "Ovos batidos com leite e mexidos em fogo médio, formando pedaços grandes e fofos — o estilo clássico de café da manhã americano.",
     origin: "EUA",
     time: { prep: "2 min", cook: "4 min", total: "6 min" },
     yield: "1 porção (3 ovos)",
@@ -276,6 +286,7 @@ window.RECIPES["ovos-basicos"] = [
   {
     name: "Omelete Francesa",
     subgroup: "Mexidos e Omeletes",
+    desc: "Ovos batidos e cozidos rapidamente em fogo alto, enrolados em formato de charuto sem dourar — interior cremoso, nunca seco.",
     origin: "França",
     time: { prep: "2 min", cook: "3 min", total: "5 min" },
     yield: "1 porção (3 ovos)",
@@ -305,6 +316,7 @@ window.RECIPES["ovos-basicos"] = [
   {
     name: "Tortilla Española",
     subgroup: "Mexidos e Omeletes",
+    desc: "Omelete espanhola grossa de ovos com batata e cebola confitadas lentamente no azeite — servida em fatias, quente ou em temperatura ambiente.",
     origin: "Espanha",
     time: { prep: "20 min", cook: "25 min", total: "45 min" },
     yield: "4-6 porções",
@@ -335,6 +347,7 @@ window.RECIPES["ovos-basicos"] = [
   {
     name: "Frittata",
     subgroup: "Mexidos e Omeletes",
+    desc: "Omelete italiana grossa com legumes e queijo, cozida devagar na frigideira e finalizada no forno — não precisa dobrar nem virar.",
     origin: "Itália",
     time: { prep: "10 min", cook: "20 min", total: "30 min" },
     yield: "4 porções",
@@ -368,6 +381,7 @@ window.RECIPES["ovos-basicos"] = [
   {
     name: "Tamagoyaki",
     subgroup: "Mexidos e Omeletes",
+    desc: "Omelete japonesa levemente adocicada (com dashi, shoyu e mirin), feita em camadas finas enroladas, formando um rolo compacto fatiado.",
     origin: "Japão",
     time: { prep: "10 min", cook: "10 min", total: "20 min" },
     yield: "2 porções",

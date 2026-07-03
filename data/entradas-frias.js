@@ -6,6 +6,7 @@ window.RECIPES["entradas-frias"] = [
   {
     name: "Steak Tartare",
     subgroup: "Crus Clássicos",
+    desc: "Filé mignon cru picado em cubos e temperado com mostarda, alcaparras e molho inglês, coroado com gema crua.",
     origin: "França",
     time: { prep: "20 min", cook: "0 min", total: "20 min" },
     yield: "2 porções",
@@ -40,6 +41,7 @@ window.RECIPES["entradas-frias"] = [
   {
     name: "Carpaccio",
     subgroup: "Crus Clássicos",
+    desc: "Fatias finíssimas de filé mignon cru, regadas com azeite e limão e finalizadas com parmesão e rúcula.",
     origin: "Itália",
     time: { prep: "20 min + 30 min congelador", cook: "0 min", total: "50 min" },
     yield: "2 porções",
@@ -70,6 +72,7 @@ window.RECIPES["entradas-frias"] = [
   {
     name: "Ceviche",
     subgroup: "Crus Clássicos",
+    desc: "Cubos de peixe branco 'cozidos' no suco de limão, com cebola roxa, pimenta e coentro — prato peruano fresco e ácido.",
     origin: "Peru",
     time: { prep: "20 min + 15 min marinada", cook: "0 min", total: "35 min" },
     yield: "2-3 porções",
@@ -101,6 +104,7 @@ window.RECIPES["entradas-frias"] = [
   {
     name: "Crudo",
     subgroup: "Crus Clássicos",
+    desc: "Fatias de peixe branco cru servidas puras, temperadas na hora com azeite, limão-siciliano e ervas frescas.",
     origin: "Itália",
     time: { prep: "15 min", cook: "0 min", total: "15 min" },
     yield: "2 porções",
@@ -130,6 +134,7 @@ window.RECIPES["entradas-frias"] = [
   {
     name: "Tartar de Salmão",
     subgroup: "Crus Clássicos",
+    desc: "Cubos de salmão cru temperados com shoyu, gengibre e óleo de gergelim, ao estilo oriental.",
     origin: "Contemporâneo",
     time: { prep: "20 min", cook: "0 min", total: "20 min" },
     yield: "2 porções",
@@ -164,6 +169,7 @@ window.RECIPES["entradas-frias"] = [
   {
     name: "Vitello Tonnato",
     subgroup: "Frios Compostos",
+    desc: "Fatias finas de vitela cozida e resfriada, cobertas com um molho cremoso de atum, anchova e maionese.",
     origin: "Itália (Piemonte)",
     time: { prep: "30 min + resfriar", cook: "1h", total: "1h30 + 3h geladeira" },
     yield: "4-6 porções",
@@ -199,6 +205,7 @@ window.RECIPES["entradas-frias"] = [
   {
     name: "Terrine",
     subgroup: "Frios Compostos",
+    desc: "Pâté compacto de fígado de frango e carne de porco moída, forrado com toucinho, assado em forma e servido frio fatiado.",
     origin: "França",
     time: { prep: "40 min + 24h descanso", cook: "1h30", total: "2h10 + 24h" },
     yield: "8-10 porções",
@@ -234,6 +241,7 @@ window.RECIPES["entradas-frias"] = [
   {
     name: "Galantine",
     subgroup: "Frios Compostos",
+    desc: "Frango desossado, recheado com carne de porco, presunto e pistache, enrolado na própria pele, cozido e servido frio em fatias.",
     origin: "França",
     time: { prep: "1h", cook: "1h30", total: "2h30 + resfriar" },
     yield: "6-8 porções",

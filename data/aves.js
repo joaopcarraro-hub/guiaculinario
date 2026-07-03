@@ -6,6 +6,7 @@ window.RECIPES["aves"] = [
   {
     name: "Coq au Vin",
     subgroup: "Frango",
+    desc: "Clássico francês de frango cozido lentamente em vinho tinto com bacon, cebolinhas e cogumelos, em molho encorpado.",
     origin: "França (Borgonha)",
     time: { prep: "25 min", cook: "1h30", total: "1h55" },
     yield: "4 porções",
@@ -43,6 +44,7 @@ window.RECIPES["aves"] = [
   {
     name: "Chicken Cordon Bleu",
     subgroup: "Frango",
+    desc: "Filé de frango recheado com presunto e queijo gruyère, empanado e frito (ou assado) até dourar e o queijo derreter por dentro.",
     origin: "Suíça / França",
     time: { prep: "25 min", cook: "20 min", total: "45 min" },
     yield: "4 porções",
@@ -73,6 +75,7 @@ window.RECIPES["aves"] = [
   {
     name: "Suprême de Frango",
     subgroup: "Frango",
+    desc: "Peito de frango com osso da asa, selado com a pele crocante e servido coberto pelo molho Suprême (creme de fundo de aves).",
     origin: "França",
     time: { prep: "10 min", cook: "20 min", total: "30 min" },
     yield: "4 porções",
@@ -102,6 +105,7 @@ window.RECIPES["aves"] = [
   {
     name: "Frango Recheado",
     subgroup: "Frango",
+    desc: "Frango inteiro assado com recheio de farofa, linguiça, damasco e castanhas, regado com os próprios sucos até dourar.",
     origin: "Internacional",
     time: { prep: "30 min", cook: "1h20", total: "1h50" },
     yield: "6 porções",
@@ -138,6 +142,7 @@ window.RECIPES["aves"] = [
   {
     name: "Confit de Pato",
     subgroup: "Pato",
+    desc: "Coxas de pato salgadas e depois cozidas lentamente submersas na própria gordura, até ficarem extremamente macias, e finalizadas crocantes na frigideira.",
     origin: "França (Gasconha)",
     time: { prep: "20 min + 12-24h salga", cook: "2h30", total: "≈15-27h" },
     yield: "4 porções (coxas)",
@@ -168,6 +173,7 @@ window.RECIPES["aves"] = [
   {
     name: "Magret de Canard",
     subgroup: "Pato",
+    desc: "Peito de pato com a pele cortada em losango, selado a frio até crocante e servido rosado, fatiado com molho agridoce de frutas.",
     origin: "França (Gasconha)",
     time: { prep: "10 min", cook: "15 min", total: "25 min" },
     yield: "2 porções",

@@ -6,6 +6,7 @@ window.RECIPES["hungria"] = [
   {
     name: "Chicken Paprikash",
     subgroup: "Principais",
+    desc: "Frango cozido em molho cremoso de páprica húngara, cebola e creme azedo, servido com Spätzle ou nhoque.",
     origin: "Hungria",
     time: { prep: "15 min", cook: "40 min", total: "55 min" },
     yield: "4 porções",
@@ -41,6 +42,7 @@ window.RECIPES["hungria"] = [
   {
     name: "Lángos",
     subgroup: "Pães e Petiscos",
+    desc: "Disco de massa fermentada frito em óleo até dourar, esfregado com alho e coberto com creme azedo e queijo — street food húngaro.",
     origin: "Hungria",
     time: { prep: "20 min + 1h fermentação", cook: "15 min", total: "1h35" },
     yield: "6 unidades",

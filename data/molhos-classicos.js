@@ -6,6 +6,7 @@ window.RECIPES["molhos"] = [
   {
     name: "Béchamel",
     subgroup: "Molhos-mãe",
+    desc: "Molho branco cremoso de manteiga, farinha e leite — a base de gratinados, lasanhas e croquetes.",
     origin: "França",
     time: { prep: "5 min", cook: "15 min", total: "20 min" },
     yield: "≈ 500 ml",
@@ -38,6 +39,7 @@ window.RECIPES["molhos"] = [
   {
     name: "Velouté",
     subgroup: "Molhos-mãe",
+    desc: "Molho claro feito com roux de manteiga e farinha diluído em caldo (frango, peixe ou vitela) — a base de molhos como Suprême e Vin Blanc.",
     origin: "França",
     time: { prep: "5 min", cook: "25 min", total: "30 min" },
     yield: "≈ 500 ml",
@@ -68,6 +70,7 @@ window.RECIPES["molhos"] = [
   {
     name: "Espagnole (Molho Espanhol)",
     subgroup: "Molhos-mãe",
+    desc: "Molho escuro e encorpado de roux tostado, mirepoix e fundo escuro de carne, cozido por horas — a base do Demi-glace e de molhos para carnes vermelhas.",
     origin: "França",
     time: { prep: "20 min", cook: "1h40", total: "2h" },
     yield: "≈ 700 ml",
@@ -105,6 +108,7 @@ window.RECIPES["molhos"] = [
   {
     name: "Sauce Tomate",
     subgroup: "Molhos-mãe",
+    desc: "Molho de tomate refogado com mirepoix, ervas e fundo claro, cozido até apurar — a versão francesa clássica do molho de tomate.",
     origin: "França",
     time: { prep: "10 min", cook: "45 min", total: "55 min" },
     yield: "≈ 600 ml",
@@ -142,6 +146,7 @@ window.RECIPES["molhos"] = [
   {
     name: "Hollandaise",
     subgroup: "Molhos-mãe",
+    desc: "Molho quente e cremoso de gemas emulsionadas com manteiga clarificada e limão — clássico sobre ovos poché e aspargos.",
     origin: "França",
     time: { prep: "5 min", cook: "15 min", total: "20 min" },
     yield: "≈ 300 ml",
@@ -173,6 +178,7 @@ window.RECIPES["molhos"] = [
   {
     name: "Mornay",
     subgroup: "Derivados da Béchamel",
+    desc: "Béchamel enriquecida com queijo gruyère, parmesão e gema — usada para gratinar pratos como Croque Monsieur e legumes.",
     origin: "França",
     time: { prep: "5 min", cook: "12 min", total: "17 min" },
     yield: "≈ 500 ml",
@@ -201,6 +207,7 @@ window.RECIPES["molhos"] = [
   {
     name: "Nantua",
     subgroup: "Derivados da Béchamel",
+    desc: "Béchamel rosada com manteiga de cascas de camarão ou lagostim e creme de leite — molho francês clássico para peixes e frutos do mar.",
     origin: "França (Nantua)",
     time: { prep: "20 min", cook: "30 min", total: "50 min" },
     yield: "≈ 500 ml",
@@ -234,6 +241,7 @@ window.RECIPES["molhos"] = [
   {
     name: "Suprême",
     subgroup: "Derivados do Velouté",
+    desc: "Velouté de frango enriquecido com creme de leite, manteiga e limão — molho aveludado clássico para frango poché.",
     origin: "França",
     time: { prep: "5 min", cook: "20 min", total: "25 min" },
     yield: "≈ 400 ml",
@@ -262,6 +270,7 @@ window.RECIPES["molhos"] = [
   {
     name: "Vin Blanc",
     subgroup: "Derivados do Velouté",
+    desc: "Velouté de peixe com redução de vinho branco e échalotes, finalizado com creme e manteiga — para cobrir peixes brancos escalfados.",
     origin: "França",
     time: { prep: "5 min", cook: "20 min", total: "25 min" },
     yield: "≈ 400 ml",
@@ -294,6 +303,7 @@ window.RECIPES["molhos"] = [
   {
     name: "Demi-glace",
     subgroup: "Derivados da Espagnole",
+    desc: "Espagnole reduzida pela metade com mais fundo escuro de carne — molho concentrado e brilhante, base de vários molhos clássicos de carne.",
     origin: "França",
     time: { prep: "10 min", cook: "1h30", total: "1h40" },
     yield: "≈ 500 ml",
@@ -322,6 +332,7 @@ window.RECIPES["molhos"] = [
   {
     name: "Bordelaise",
     subgroup: "Derivados da Espagnole",
+    desc: "Demi-glace com redução de vinho tinto, échalotes e ervas, finalizada com manteiga — clássica para acompanhar carnes bovinas grelhadas.",
     origin: "França (Bordeaux)",
     time: { prep: "10 min", cook: "30 min", total: "40 min" },
     yield: "≈ 350 ml",
@@ -354,6 +365,7 @@ window.RECIPES["molhos"] = [
   {
     name: "Sauce Robert",
     subgroup: "Derivados da Espagnole",
+    desc: "Demi-glace com cebola refogada, vinho branco e mostarda Dijon — molho picante clássico para acompanhar carne de porco.",
     origin: "França",
     time: { prep: "10 min", cook: "25 min", total: "35 min" },
     yield: "≈ 350 ml",
@@ -385,6 +397,7 @@ window.RECIPES["molhos"] = [
   {
     name: "Béarnaise",
     subgroup: "Derivados da Hollandaise",
+    desc: "Hollandaise aromatizada com redução de vinho, vinagre e estragão — a dupla clássica de filé com batata frita.",
     origin: "França",
     time: { prep: "10 min", cook: "20 min", total: "30 min" },
     yield: "≈ 300 ml",
@@ -419,6 +432,7 @@ window.RECIPES["molhos"] = [
   {
     name: "Choron",
     subgroup: "Derivados da Hollandaise",
+    desc: "Béarnaise misturada com purê de tomate concentrado — versão mais frutada para acompanhar carnes grelhadas.",
     origin: "França",
     time: { prep: "10 min", cook: "20 min", total: "30 min" },
     yield: "≈ 300 ml",
@@ -445,6 +459,7 @@ window.RECIPES["molhos"] = [
   {
     name: "Beurre Blanc",
     subgroup: "Manteigas Emulsionadas",
+    desc: "Emulsão leve de manteiga gelada com redução de vinho branco, vinagre e échalotes, sem gema — para peixes escalfados como sole e salmão.",
     origin: "França (Vale do Loire)",
     time: { prep: "5 min", cook: "15 min", total: "20 min" },
     yield: "≈ 250 ml",
@@ -478,6 +493,7 @@ window.RECIPES["molhos"] = [
   {
     name: "Jus de Viande",
     subgroup: "Fundos e Reduções",
+    desc: "Molho de carne 'limpo', sem farinha, feito reduzindo ossos e aparas dourados com mirepoix e vinho — sabor direto de assado.",
     origin: "França",
     time: { prep: "10 min", cook: "40 min", total: "50 min" },
     yield: "≈ 300 ml",
@@ -510,6 +526,7 @@ window.RECIPES["molhos"] = [
   {
     name: "Gastrique",
     subgroup: "Fundos e Reduções",
+    desc: "Xarope agridoce de caramelo dissolvido em vinagre, às vezes com frutas — usado para equilibrar molhos escuros de pato, porco e caça.",
     origin: "França",
     time: { prep: "2 min", cook: "10 min", total: "12 min" },
     yield: "≈ 150 ml (para usar como base em outro molho)",

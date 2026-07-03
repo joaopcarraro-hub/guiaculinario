@@ -6,6 +6,7 @@ window.RECIPES["cordeiro"] = [
   {
     name: "Carré de Cordeiro",
     subgroup: "Assados",
+    desc: "Costeletas de cordeiro seladas, pinceladas com mostarda e cobertas por uma crosta de farinha de rosca com ervas, assadas no ponto rosado.",
     origin: "Internacional",
     time: { prep: "20 min", cook: "25 min", total: "45 min" },
     yield: "2-3 porções",
@@ -39,6 +40,7 @@ window.RECIPES["cordeiro"] = [
   {
     name: "Pernil de Cordeiro Braseado",
     subgroup: "Braseados",
+    desc: "Pernil inteiro selado e cozido lentamente em vinho tinto com legumes até ficar macio e quase se soltar do osso, servido com o molho reduzido.",
     origin: "Mediterrâneo",
     time: { prep: "25 min", cook: "3h30", total: "3h55" },
     yield: "6-8 porções",
@@ -73,6 +75,7 @@ window.RECIPES["cordeiro"] = [
   {
     name: "Shank de Cordeiro",
     subgroup: "Braseados",
+    desc: "Jarrete de cordeiro (shank) selado e braseado por horas em vinho tinto e caldo, até desmanchar — servido inteiro sobre purê ou polenta.",
     origin: "Mediterrâneo / Internacional",
     time: { prep: "20 min", cook: "2h30", total: "2h50" },
     yield: "4 porções",
@@ -109,6 +112,7 @@ window.RECIPES["cordeiro"] = [
   {
     name: "Ragù de Cordeiro",
     subgroup: "Braseados",
+    desc: "Molho italiano de cordeiro desfiado, cozido lentamente com tomate e vinho tinto, para servir sobre massa larga (pappardelle) ou polenta.",
     origin: "Itália",
     time: { prep: "20 min", cook: "2h30", total: "2h50" },
     yield: "4-6 porções (para massa)",

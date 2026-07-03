@@ -8,6 +8,7 @@ window.RECIPES["portugal"] = [
   {
     name: "Bacalhau com Natas",
     subgroup: "Bacalhau",
+    desc: "Bacalhau desfiado com batata frita, gratinado no forno com molho Béchamel e creme de leite.",
     origin: "Portugal",
     time: { prep: "30 min (+ dessalgar)", cook: "40 min", total: "1h10" },
     yield: "6 porções",
@@ -43,6 +44,7 @@ window.RECIPES["portugal"] = [
   {
     name: "Pastéis de Bacalhau",
     subgroup: "Bacalhau",
+    desc: "Bolinhos fritos de bacalhau desfiado e purê de batata seco, moldados em formato oval e fritos por imersão.",
     origin: "Portugal",
     time: { prep: "40 min (+ dessalgar)", cook: "15 min", total: "55 min" },
     yield: "≈20 unidades",
@@ -78,6 +80,7 @@ window.RECIPES["portugal"] = [
   {
     name: "Cataplana de Marisco",
     subgroup: "Mar",
+    desc: "Frutos do mar, peixe e chouriço cozidos no vapor dentro da cataplana (panela de cobre que fecha hermeticamente) — mistura mar e terra do Algarve.",
     origin: "Portugal (Algarve)",
     time: { prep: "25 min", cook: "25 min", total: "50 min" },
     yield: "4 porções",
@@ -114,6 +117,7 @@ window.RECIPES["portugal"] = [
   {
     name: "Polvo à Lagareiro",
     subgroup: "Mar",
+    desc: "Polvo assado no forno com batatas amassadas ('a murro') e alho, regado com azeite abundante.",
     origin: "Portugal",
     time: { prep: "15 min", cook: "1h", total: "1h15" },
     yield: "4 porções",
@@ -147,6 +151,7 @@ window.RECIPES["portugal"] = [
   {
     name: "Pastel de Nata",
     subgroup: "Doces",
+    desc: "Tartelete de massa folhada crocante com creme de ovos, assado bem quente até formar manchas escuras no topo.",
     origin: "Portugal (Lisboa)",
     time: { prep: "40 min", cook: "20 min", total: "1h" },
     yield: "12 unidades",

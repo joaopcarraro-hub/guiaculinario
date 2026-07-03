@@ -6,6 +6,7 @@ window.RECIPES["entradas-quentes"] = [
   {
     name: "Soufflé de Queijo",
     subgroup: "Forno e Gratinados",
+    desc: "Base de Béchamel com gemas e queijo gruyère, aerada com claras batidas em neve e assada até crescer bem — serve-se na hora, antes de murchar.",
     origin: "França",
     time: { prep: "20 min", cook: "25 min", total: "45 min" },
     yield: "4 porções individuais",
@@ -40,6 +41,7 @@ window.RECIPES["entradas-quentes"] = [
   {
     name: "Croque Monsieur",
     subgroup: "Forno e Gratinados",
+    desc: "Sanduíche francês de presunto e queijo gruyère, dourado na frigideira e depois gratinado no forno com Béchamel por cima.",
     origin: "França",
     time: { prep: "15 min", cook: "15 min", total: "30 min" },
     yield: "2 porções",
@@ -72,6 +74,7 @@ window.RECIPES["entradas-quentes"] = [
   {
     name: "Croquetas",
     subgroup: "Fritos e Empanados",
+    desc: "Bolinhos espanhóis de Béchamel espessa com presunto, empanados e fritos até dourar por fora e cremosos por dentro.",
     origin: "Espanha",
     time: { prep: "30 min + 2h geladeira", cook: "15 min", total: "45 min + 2h" },
     yield: "≈ 20 croquetas",
@@ -106,6 +109,7 @@ window.RECIPES["entradas-quentes"] = [
   {
     name: "Arancini",
     subgroup: "Fritos e Empanados",
+    desc: "Bolinhas de risoto frio recheadas com muçarela, empanadas e fritas — jeito siciliano de aproveitar risoto do dia anterior.",
     origin: "Itália (Sicília)",
     time: { prep: "30 min + resfriar risoto", cook: "15 min", total: "45 min + tempo do risoto" },
     yield: "≈ 12 unidades",
@@ -137,6 +141,7 @@ window.RECIPES["entradas-quentes"] = [
   {
     name: "Camarão à Provençal",
     subgroup: "Frutos do Mar Salteados",
+    desc: "Camarão salteado com alho, manteiga e vinho branco, finalizado com limão e salsinha — para molhar com baguete.",
     origin: "França",
     time: { prep: "10 min", cook: "10 min", total: "20 min" },
     yield: "2-3 porções",
@@ -169,6 +174,7 @@ window.RECIPES["entradas-quentes"] = [
   {
     name: "Cogumelos Recheados",
     subgroup: "Forno e Gratinados",
+    desc: "Cogumelos Paris recheados com cream cheese, parmesão e os próprios talos picados, assados até dourar.",
     origin: "Contemporâneo",
     time: { prep: "20 min", cook: "20 min", total: "40 min" },
     yield: "≈ 16 unidades",
@@ -201,6 +207,7 @@ window.RECIPES["entradas-quentes"] = [
   {
     name: "Escargot",
     subgroup: "Forno e Gratinados",
+    desc: "Escargots (caracóis) assados em conchas ou ramequins com manteiga de alho, échalote e salsinha — clássico francês para molhar com baguete.",
     origin: "França",
     time: { prep: "20 min", cook: "10 min", total: "30 min" },
     yield: "2 porções (12 unidades)",
@@ -231,6 +238,7 @@ window.RECIPES["entradas-quentes"] = [
   {
     name: "Vieiras Gratinadas",
     subgroup: "Forno e Gratinados",
+    desc: "Vieiras seladas rapidamente, cobertas com molho Mornay e queijo, gratinadas em conchas até dourar por cima.",
     origin: "França",
     time: { prep: "15 min", cook: "12 min", total: "27 min" },
     yield: "2 porções",

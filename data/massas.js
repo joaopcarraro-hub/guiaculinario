@@ -6,6 +6,7 @@ window.RECIPES["massas"] = [
   {
     name: "Carbonara",
     subgroup: "Molhos Romanos Clássicos",
+    desc: "Massa com molho cremoso de ovo, pecorino e guanciale crocante, sem creme de leite — a cremosidade vem só do ovo e da água da massa.",
     origin: "Itália (Roma)",
     time: { prep: "10 min", cook: "15 min", total: "25 min" },
     yield: "2 porções",
@@ -37,6 +38,7 @@ window.RECIPES["massas"] = [
   {
     name: "Cacio e Pepe",
     subgroup: "Molhos Romanos Clássicos",
+    desc: "Massa num molho cremoso feito só de pecorino ralado, água do cozimento e pimenta-do-reino tostada — simples, mas exige técnica para não empelotar.",
     origin: "Itália (Roma)",
     time: { prep: "5 min", cook: "15 min", total: "20 min" },
     yield: "2 porções",
@@ -64,6 +66,7 @@ window.RECIPES["massas"] = [
   {
     name: "Amatriciana",
     subgroup: "Molhos Romanos Clássicos",
+    desc: "Massa com molho de tomate e guanciale crocante, sem alho ou cebola — a base tradicional de muitos molhos de tomate com carne curada da Itália central.",
     origin: "Itália (Amatrice)",
     time: { prep: "10 min", cook: "25 min", total: "35 min" },
     yield: "2-3 porções",
@@ -96,6 +99,7 @@ window.RECIPES["massas"] = [
   {
     name: "Puttanesca",
     subgroup: "Molhos do Sul",
+    desc: "Massa com molho de tomate, anchova, azeitona preta e alcaparras — sabor salgado e intenso, pronto rápido.",
     origin: "Itália (Nápoles)",
     time: { prep: "10 min", cook: "20 min", total: "30 min" },
     yield: "2-3 porções",
@@ -129,6 +133,7 @@ window.RECIPES["massas"] = [
   {
     name: "Aglio e Olio",
     subgroup: "Molhos do Sul",
+    desc: "Massa salteada só com azeite, alho dourado e pimenta — prato napolitano minimalista da 'cucina povera'.",
     origin: "Itália (Nápoles)",
     time: { prep: "5 min", cook: "12 min", total: "17 min" },
     yield: "2 porções",
@@ -160,6 +165,7 @@ window.RECIPES["massas"] = [
   {
     name: "Lasanha",
     subgroup: "Massa ao Forno",
+    desc: "Camadas de massa, ragù à bolonhesa e Béchamel gratinadas com queijo no forno — clássico italiano de conforto.",
     origin: "Itália (Emília-Romanha)",
     time: { prep: "40 min", cook: "45 min", total: "1h25" },
     yield: "6-8 porções",
@@ -192,6 +198,7 @@ window.RECIPES["massas"] = [
   {
     name: "Ravioli",
     subgroup: "Massas Recheadas",
+    desc: "Pequenos travesseirinhos de massa fresca recheados com ricota e espinafre, servidos com manteiga e sálvia.",
     origin: "Itália",
     time: { prep: "1h", cook: "5 min", total: "1h05" },
     yield: "4 porções",
@@ -223,6 +230,7 @@ window.RECIPES["massas"] = [
   {
     name: "Tortellini",
     subgroup: "Massas Recheadas",
+    desc: "Massa recheada com presunto, mortadela e lombo, dobrada em forma de pequeno anel — tradicionalmente servida na sopa ('in brodo').",
     origin: "Itália (Bolonha/Modena)",
     time: { prep: "1h15", cook: "5 min", total: "1h20" },
     yield: "4 porções",
@@ -255,6 +263,7 @@ window.RECIPES["massas"] = [
   {
     name: "Agnolotti",
     subgroup: "Massas Recheadas",
+    desc: "Massa recheada com sobras de carne assada e espinafre, em formato de pequenos retângulos — prato piemontês de aproveitamento.",
     origin: "Itália (Piemonte)",
     time: { prep: "1h", cook: "5 min", total: "1h05" },
     yield: "4 porções",
@@ -288,6 +297,7 @@ window.RECIPES["massas"] = [
   {
     name: "Tagliatelle",
     subgroup: "Massas Longas Frescas",
+    desc: "Massa fresca de ovos cortada em fitas, a acompanhante clássica do ragù à bolonhesa em Bolonha.",
     origin: "Itália (Emília-Romanha)",
     time: { prep: "45 min", cook: "3 min", total: "48 min" },
     yield: "4 porções",
@@ -318,6 +328,7 @@ window.RECIPES["massas"] = [
   {
     name: "Pappardelle",
     subgroup: "Massas Longas Frescas",
+    desc: "Massa fresca de ovos cortada em fitas bem largas, feita para segurar ragùs encorpados de caça ou cogumelos silvestres.",
     origin: "Itália (Toscana)",
     time: { prep: "45 min", cook: "3 min", total: "48 min" },
     yield: "4 porções",
@@ -348,6 +359,7 @@ window.RECIPES["massas"] = [
   {
     name: "Gnocchi",
     subgroup: "Massas Especiais",
+    desc: "Pequenos nhoques macios de batata amassada e farinha, cozidos em água e servidos com manteiga e sálvia ou molho de tomate.",
     origin: "Itália",
     time: { prep: "40 min", cook: "5 min", total: "45 min" },
     yield: "4 porções",
@@ -379,6 +391,7 @@ window.RECIPES["massas"] = [
   {
     name: "Spätzle",
     subgroup: "Massas Especiais",
+    desc: "Pequenos pedaços de massa de ovo mole, passados direto para a água fervente e depois salteados na manteiga — acompanhamento clássico do Goulash.",
     origin: "Alemanha / Áustria",
     time: { prep: "15 min", cook: "5 min", total: "20 min" },
     yield: "4 porções",

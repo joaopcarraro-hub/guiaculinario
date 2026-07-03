@@ -6,6 +6,7 @@ window.RECIPES["sobremesas-classicas"] = [
   {
     name: "Crème Brûlée",
     subgroup: "Cremes e Flans",
+    desc: "Creme de baunilha assado em banho-maria, gelado e coberto com uma fina camada de açúcar caramelizado crocante na hora de servir.",
     origin: "França",
     time: { prep: "15 min + 4h geladeira", cook: "40 min", total: "≈5h" },
     yield: "4 porções",
@@ -37,6 +38,7 @@ window.RECIPES["sobremesas-classicas"] = [
   {
     name: "Crème Caramel",
     subgroup: "Cremes e Flans",
+    desc: "Flan de leite e ovos assado sobre caramelo, que vira calda líquida ao desenformar de cabeça para baixo.",
     origin: "França / Espanha (flan)",
     time: { prep: "20 min + 4h geladeira", cook: "50 min", total: "≈5h" },
     yield: "6 porções",
@@ -68,6 +70,7 @@ window.RECIPES["sobremesas-classicas"] = [
   {
     name: "Panna Cotta",
     subgroup: "Cremes e Flans",
+    desc: "Sobremesa italiana de creme de leite e gelatina firmado na geladeira, com textura tremulante, servida com calda de frutas ou caramelo.",
     origin: "Itália (Piemonte)",
     time: { prep: "15 min + 4h geladeira", cook: "10 min", total: "≈4h30" },
     yield: "4 porções",
@@ -100,6 +103,7 @@ window.RECIPES["sobremesas-classicas"] = [
   {
     name: "Éclair",
     subgroup: "Massa Choux",
+    desc: "Bastão de massa choux assada, oco por dentro, recheado com creme de confeiteiro e coberto com chocolate.",
     origin: "França",
     time: { prep: "40 min", cook: "35 min", total: "1h15" },
     yield: "12 unidades",
@@ -128,6 +132,7 @@ window.RECIPES["sobremesas-classicas"] = [
   {
     name: "Profiteroles",
     subgroup: "Massa Choux",
+    desc: "Bolinhas de massa choux assadas, recheadas com sorvete e regadas com ganache de chocolate quente na hora de servir.",
     origin: "França",
     time: { prep: "40 min", cook: "30 min", total: "1h10" },
     yield: "20 unidades pequenas",
@@ -157,6 +162,7 @@ window.RECIPES["sobremesas-classicas"] = [
   {
     name: "Paris-Brest",
     subgroup: "Massa Choux",
+    desc: "Anel de massa choux com amêndoas, recheado com creme mousseline de praliné — criado em homenagem a uma corrida de bicicleta.",
     origin: "França",
     time: { prep: "50 min", cook: "35 min", total: "1h25" },
     yield: "1 torta grande (6-8 porções)",
@@ -185,6 +191,7 @@ window.RECIPES["sobremesas-classicas"] = [
   {
     name: "Saint-Honoré",
     subgroup: "Massa Choux",
+    desc: "Torta francesa elaborada com base de massa folhada, anel de massa choux, bolinhas caramelizadas e creme chantilly ou Chiboust.",
     origin: "França",
     time: { prep: "1h", cook: "40 min", total: "1h40" },
     yield: "1 torta grande (6-8 porções)",
@@ -215,6 +222,7 @@ window.RECIPES["sobremesas-classicas"] = [
   {
     name: "Tarte Tatin",
     subgroup: "Tortas e Tartes",
+    desc: "Torta francesa de maçãs caramelizadas cozidas sob a massa folhada e depois desenformada de cabeça para baixo, revelando as frutas por cima.",
     origin: "França",
     time: { prep: "25 min", cook: "45 min", total: "1h10" },
     yield: "6-8 porções",
@@ -245,6 +253,7 @@ window.RECIPES["sobremesas-classicas"] = [
   {
     name: "Lemon Tart",
     subgroup: "Tortas e Tartes",
+    desc: "Torta de massa amanteigada assada às cegas, recheada com creme ácido de limão (lemon curd), podendo levar merengue maçaricado por cima.",
     origin: "França / Reino Unido",
     time: { prep: "30 min + 1h geladeira", cook: "35 min", total: "≈2h05" },
     yield: "8 porções",
@@ -274,6 +283,7 @@ window.RECIPES["sobremesas-classicas"] = [
   {
     name: "Cheesecake",
     subgroup: "Tortas e Tartes",
+    desc: "Torta cremosa de cream cheese sobre base de biscoito triturado, assada em banho-maria no estilo Nova York.",
     origin: "EUA (estilo Nova York)",
     time: { prep: "20 min + 6h geladeira", cook: "1h", total: "≈7h20" },
     yield: "8-10 porções",
@@ -302,6 +312,7 @@ window.RECIPES["sobremesas-classicas"] = [
   {
     name: "Torta Sacher",
     subgroup: "Tortas e Tartes",
+    desc: "Bolo de chocolate austríaco recheado com geleia de damasco e coberto por ganache brilhante — criado no Hotel Sacher em Viena.",
     origin: "Áustria (Viena)",
     time: { prep: "40 min", cook: "45 min", total: "1h25 + resfriar" },
     yield: "8-10 porções",
@@ -331,6 +342,7 @@ window.RECIPES["sobremesas-classicas"] = [
   {
     name: "Torta Ópera",
     subgroup: "Tortas e Tartes",
+    desc: "Sobremesa francesa em camadas finas de bolo de amêndoas embebido em café, creme de manteiga de café e ganache, com glaçagem de chocolate.",
     origin: "França",
     time: { prep: "1h30", cook: "20 min", total: "1h50 + resfriar" },
     yield: "10-12 porções",
@@ -363,6 +375,7 @@ window.RECIPES["sobremesas-classicas"] = [
   {
     name: "Mille-feuille",
     subgroup: "Folhados",
+    desc: "Sobremesa francesa de camadas de massa folhada crocante intercaladas com creme de confeiteiro, geralmente decorada com fondant marmorizado.",
     origin: "França",
     time: { prep: "40 min", cook: "30 min", total: "1h10 + resfriar" },
     yield: "6-8 porções",
@@ -394,6 +407,7 @@ window.RECIPES["sobremesas-classicas"] = [
   {
     name: "Tiramisù",
     subgroup: "Clássicas Italianas",
+    desc: "Sobremesa italiana em camadas de biscoito champanhe embebido em café e creme de mascarpone, polvilhada com cacau — sem levar ao forno.",
     origin: "Itália (Vêneto)",
     time: { prep: "30 min + 4h geladeira", cook: "0 min", total: "≈4h30" },
     yield: "8 porções",
@@ -429,6 +443,7 @@ window.RECIPES["sobremesas-classicas"] = [
   {
     name: "Cannoli",
     subgroup: "Clássicas Italianas",
+    desc: "Casquinhas fritas e crocantes da Sicília, recheadas na hora com creme de ricota doce, chocolate e raspas de laranja.",
     origin: "Itália (Sicília)",
     time: { prep: "40 min + 30 min geladeira", cook: "15 min", total: "1h25" },
     yield: "16 unidades",
@@ -460,6 +475,7 @@ window.RECIPES["sobremesas-classicas"] = [
   {
     name: "Pavlova",
     subgroup: "Outras Sobremesas Clássicas",
+    desc: "Base de merengue assado, crocante por fora e macia como marshmallow por dentro, coberta com chantilly e frutas frescas.",
     origin: "Austrália / Nova Zelândia",
     time: { prep: "20 min", cook: "1h15 + esfriar no forno", total: "≈2h30" },
     yield: "8 porções",
@@ -490,6 +506,7 @@ window.RECIPES["sobremesas-classicas"] = [
   {
     name: "Baba au Rhum",
     subgroup: "Outras Sobremesas Clássicas",
+    desc: "Bolinho de massa fermentada levemente doce, encharcado numa calda quente de açúcar, laranja e rum até ficar bem úmido.",
     origin: "França / Polônia",
     time: { prep: "30 min + 1h30 fermentação", cook: "20 min", total: "≈2h30" },
     yield: "8 unidades",
@@ -519,6 +536,7 @@ window.RECIPES["sobremesas-classicas"] = [
   {
     name: "Brownie",
     subgroup: "Outras Sobremesas Clássicas",
+    desc: "Bolo denso e úmido de chocolate, com pouca farinha e mistura mínima para garantir a textura 'fudgy' característica.",
     origin: "EUA",
     time: { prep: "15 min", cook: "25 min", total: "40 min" },
     yield: "16 pedaços",
@@ -553,6 +571,7 @@ window.RECIPES["sobremesas-classicas"] = [
   {
     name: "Petit Gâteau",
     subgroup: "Outras Sobremesas Clássicas",
+    desc: "Bolinho individual de chocolate assado rapidamente para manter o centro líquido, servido quente com sorvete de creme.",
     origin: "França",
     time: { prep: "15 min", cook: "10 min", total: "25 min" },
     yield: "4 unidades",

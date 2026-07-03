@@ -6,6 +6,7 @@ window.RECIPES["suinos"] = [
   {
     name: "Porchetta",
     subgroup: "Assados",
+    desc: "Barriga de porco enrolada com lombo, alho e ervas, assada até a pele ficar bem crocante.",
     origin: "Itália",
     time: { prep: "40 min + 12h geladeira", cook: "2h30", total: "≈15h" },
     yield: "8-10 porções",
@@ -43,6 +44,7 @@ window.RECIPES["suinos"] = [
   {
     name: "Pernil Assado",
     subgroup: "Assados",
+    desc: "Pernil suíno marinado em alho, laranja e vinho branco, assado lentamente até ficar macio e com a pele crocante.",
     origin: "Brasil / Internacional",
     time: { prep: "20 min + 12h marinada", cook: "3h30", total: "≈16h" },
     yield: "10-12 porções",
@@ -77,6 +79,7 @@ window.RECIPES["suinos"] = [
   {
     name: "Lombo Recheado",
     subgroup: "Assados",
+    desc: "Lombo suíno aberto em manta, recheado com damasco, espinafre e queijo, enrolado e assado em rolo.",
     origin: "Internacional",
     time: { prep: "30 min", cook: "50 min", total: "1h20" },
     yield: "6 porções",
@@ -114,6 +117,7 @@ window.RECIPES["suinos"] = [
   {
     name: "Kassler",
     subgroup: "Defumados e Grelhados",
+    desc: "Posta de lombo suíno curado e defumado (à moda alemã), selada e servida com repolho roxo agridoce.",
     origin: "Alemanha",
     time: { prep: "15 min", cook: "35 min", total: "50 min" },
     yield: "4 porções",
@@ -146,6 +150,7 @@ window.RECIPES["suinos"] = [
   {
     name: "Costelinha Barbecue",
     subgroup: "Defumados e Grelhados",
+    desc: "Costelinha suína temperada com rub seco, assada lentamente e finalizada com molho barbecue caramelizado.",
     origin: "EUA",
     time: { prep: "20 min + 2h marinada", cook: "3h", total: "≈5h20" },
     yield: "4 porções",
@@ -175,6 +180,7 @@ window.RECIPES["suinos"] = [
   {
     name: "Schnitzel",
     subgroup: "Empanados",
+    desc: "Bife suíno fino empanado e frito até ficar crocante e dourado, ao estilo austríaco.",
     origin: "Áustria / Alemanha",
     time: { prep: "15 min", cook: "15 min", total: "30 min" },
     yield: "4 porções",

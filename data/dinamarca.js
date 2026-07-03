@@ -10,6 +10,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Rugbrød",
     subgroup: "Pães e Doces de Padaria",
+    desc: "Pão de centeio dinamarquês denso e escuro, fermentado por horas — a base fatiada fina de todo Smørrebrød.",
     origin: "Dinamarca",
     time: { prep: "20 min + 12h fermentação", cook: "1h", total: "≈13h" },
     yield: "1 pão grande",
@@ -41,6 +42,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Franskbrød",
     subgroup: "Pães e Doces de Padaria",
+    desc: "Pão branco dinamarquês do dia a dia, macio e alongado — o 'pão francês' usado em sanduíches e café da manhã.",
     origin: "Dinamarca",
     time: { prep: "20 min + 1h30 fermentação", cook: "30 min", total: "2h20" },
     yield: "1 pão grande",
@@ -70,6 +72,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Rundstykker",
     subgroup: "Pães e Doces de Padaria",
+    desc: "Pãezinhos de café da manhã dinamarqueses, crocantes por fora e macios por dentro — tipo pão francês em bolinha.",
     origin: "Dinamarca",
     time: { prep: "20 min + 1h fermentação", cook: "18 min", total: "1h40" },
     yield: "12 pãezinhos",
@@ -101,6 +104,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Boller",
     subgroup: "Pães e Doces de Padaria",
+    desc: "Pãezinhos macios e levemente doces, amanteigados — meio-termo entre pão e doce de padaria dinamarquês.",
     origin: "Dinamarca",
     time: { prep: "20 min + 1h fermentação", cook: "15 min", total: "1h35" },
     yield: "12 unidades",
@@ -132,6 +136,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Wienerbrød (Danish Pastry)",
     subgroup: "Pães e Doces de Padaria",
+    desc: "Massa folhada amanteigada (mesma técnica do croissant), recheada com creme, amêndoa ou geleia — a famosa 'folhada dinamarquesa'.",
     origin: "Dinamarca",
     time: { prep: "1h + 12h entre dobras", cook: "20 min", total: "≈14h" },
     yield: "12 unidades",
@@ -166,6 +171,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Kanelsnegle",
     subgroup: "Pães e Doces de Padaria",
+    desc: "Rolinho de canela escandinavo — massa amanteigada enrolada com açúcar mascavo e canela, em formato de espiral.",
     origin: "Dinamarca",
     time: { prep: "40 min + 1h30 fermentação", cook: "20 min", total: "2h30" },
     yield: "12 unidades",
@@ -202,6 +208,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Smørrebrød (a base)",
     subgroup: "Smørrebrød",
+    desc: "Guia-base do sanduíche aberto dinamarquês: fatia de pão de centeio com manteiga, coberta com um topping à escolha.",
     origin: "Dinamarca",
     time: { prep: "10 min", cook: "0 min", total: "10 min" },
     yield: "Por porção",
@@ -228,6 +235,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Smørrebrød de Arenque",
     subgroup: "Smørrebrød",
+    desc: "Sanduíche aberto de pão de centeio com arenque em conserva, cebola roxa e alcaparras — o mais tradicional dos smørrebrød.",
     origin: "Dinamarca",
     time: { prep: "10 min", cook: "0 min", total: "10 min" },
     yield: "4 porções",
@@ -255,6 +263,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Smørrebrød de Camarão",
     subgroup: "Smørrebrød",
+    desc: "Sanduíche aberto com uma montanha de camarão cozido e maionese sobre pão amanteigado, finalizado com limão e endro.",
     origin: "Dinamarca",
     time: { prep: "10 min", cook: "0 min", total: "10 min" },
     yield: "4 porções",
@@ -283,6 +292,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Smørrebrød de Roast Beef",
     subgroup: "Smørrebrød",
+    desc: "Sanduíche aberto com fatias finas de rosbife frio, molho remoulade dinamarquês e cebola roxa ou crispy.",
     origin: "Dinamarca",
     time: { prep: "10 min", cook: "0 min", total: "10 min" },
     yield: "4 porções",
@@ -312,6 +322,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Flæskesteg",
     subgroup: "Carnes",
+    desc: "Pernil de porco assado com a pele cortada e salgada até ficar crocante ('crackling') — prato central do Natal dinamarquês.",
     origin: "Dinamarca",
     time: { prep: "20 min", cook: "2h", total: "2h20" },
     yield: "8 porções",
@@ -341,6 +352,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Stegt Flæsk med Persillesovs",
     subgroup: "Carnes",
+    desc: "Fatias de barriga de porco fritas até crocantes, servidas com batata cozida e molho branco de salsinha — o 'prato nacional' informal.",
     origin: "Dinamarca",
     time: { prep: "10 min", cook: "25 min", total: "35 min" },
     yield: "4 porções",
@@ -367,6 +379,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Frikadeller",
     subgroup: "Carnes",
+    desc: "Almôndegas dinamarquesas ovaladas e achatadas, de carne de porco e boi moídas, fritas e servidas com batata e repolho roxo.",
     origin: "Dinamarca",
     time: { prep: "20 min + 20 min gelando", cook: "15 min", total: "55 min" },
     yield: "16 unidades",
@@ -400,6 +413,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Medisterpølse",
     subgroup: "Carnes",
+    desc: "Linguiça fresca de porco dinamarquesa, cozida na frigideira e servida com batata cozida e molho de salsinha ou repolho roxo.",
     origin: "Dinamarca",
     time: { prep: "20 min", cook: "20 min", total: "40 min" },
     yield: "4 porções",
@@ -425,6 +439,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Hakkebøf",
     subgroup: "Carnes",
+    desc: "Hambúrguer dinamarquês de carne moída, grelhado e servido de garfo e faca com cebola caramelizada e molho, sem pão.",
     origin: "Dinamarca",
     time: { prep: "15 min", cook: "15 min", total: "30 min" },
     yield: "4 porções",
@@ -456,6 +471,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Brændende Kærlighed",
     subgroup: "Carnes",
+    desc: "Literalmente 'amor em chamas': purê de batata cremoso coberto com bacon crocante e cebola refogada — prato de conforto dinamarquês.",
     origin: "Dinamarca",
     time: { prep: "15 min", cook: "30 min", total: "45 min" },
     yield: "4 porções",
@@ -485,6 +501,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Biksemad",
     subgroup: "Carnes",
+    desc: "Refogado dinamarquês de aproveitamento com sobras de carne assada e batata em cubos, coroado com ovo frito e picles.",
     origin: "Dinamarca",
     time: { prep: "15 min", cook: "20 min", total: "35 min" },
     yield: "4 porções",
@@ -515,6 +532,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Forloren Hare",
     subgroup: "Carnes",
+    desc: "Literalmente 'lebre falsa': bolo de carnes moídas com bacon e zimbro, moldado como um assado de caça e servido com geleia de groselha.",
     origin: "Dinamarca",
     time: { prep: "25 min", cook: "1h", total: "1h25" },
     yield: "6 porções",
@@ -550,6 +568,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Arenque em Conserva (Sild)",
     subgroup: "Peixes",
+    desc: "Filés de arenque salgado dessalgados e curtidos numa salmoura agridoce de vinagre — nas versões clássica, curry ou tomate.",
     origin: "Dinamarca",
     time: { prep: "20 min + 24h conserva", cook: "10 min", total: "≈24h30" },
     yield: "≈500 g",
@@ -581,6 +600,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Salmão Defumado à Dinamarquesa",
     subgroup: "Peixes",
+    desc: "Fatias de salmão defumado a frio sobre pão amanteigado, com ovo mexido cremoso e endro — topping clássico nórdico.",
     origin: "Dinamarca",
     time: { prep: "10 min", cook: "0 min", total: "10 min" },
     yield: "4 porções",
@@ -608,6 +628,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Rødspætte Stegt (Linguado Frito)",
     subgroup: "Peixes",
+    desc: "Filés de linguado empanados (farinha, ovo e farinha de rosca) e fritos na manteiga, servidos com remoulade e limão.",
     origin: "Dinamarca",
     time: { prep: "15 min", cook: "10 min", total: "25 min" },
     yield: "4 porções",
@@ -637,6 +658,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Fiskefrikadeller",
     subgroup: "Peixes",
+    desc: "Versão de peixe do Frikadeller: bolinhos ovalados de peixe branco moído com cebola e salsinha, fritos e servidos com remoulade.",
     origin: "Dinamarca",
     time: { prep: "20 min", cook: "15 min", total: "35 min" },
     yield: "16 unidades",
@@ -673,6 +695,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Aspargessuppe",
     subgroup: "Sopas",
+    desc: "Sopa cremosa de aspargos batida até ficar lisa, finalizada com pontas de aspargo escaldadas — clássico de primavera.",
     origin: "Dinamarca",
     time: { prep: "15 min", cook: "25 min", total: "40 min" },
     yield: "4 porções",
@@ -707,6 +730,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Fiskesuppe",
     subgroup: "Sopas",
+    desc: "Sopa cremosa de peixe branco e camarão com legumes, num caldo de peixe enriquecido com creme de leite e endro.",
     origin: "Dinamarca",
     time: { prep: "20 min", cook: "30 min", total: "50 min" },
     yield: "4 porções",
@@ -741,6 +765,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Klar Suppe",
     subgroup: "Sopas",
+    desc: "Caldo claro dinamarquês (tipo consommé), servido com mini-almôndegas, cenoura e ervilha — entrada leve tradicional.",
     origin: "Dinamarca",
     time: { prep: "15 min", cook: "1h30", total: "1h45" },
     yield: "6 porções",
@@ -772,6 +797,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Brunede Kartofler",
     subgroup: "Acompanhamentos",
+    desc: "Batatinhas cozidas envolvidas num caramelo de açúcar e manteiga — acompanhamento doce indispensável do Natal dinamarquês.",
     origin: "Dinamarca",
     time: { prep: "10 min", cook: "20 min", total: "30 min" },
     yield: "6 porções",
@@ -798,6 +824,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Persillesovs",
     subgroup: "Acompanhamentos",
+    desc: "Molho branco (tipo béchamel) bem carregado de salsinha fresca picada, servido sobre batata cozida ou barriga de porco frita.",
     origin: "Dinamarca",
     time: { prep: "5 min", cook: "15 min", total: "20 min" },
     yield: "≈500 ml",
@@ -826,6 +853,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Remoulade Dinamarquesa",
     subgroup: "Acompanhamentos",
+    desc: "Molho amarelado de maionese com picles, curry e mostarda — bem diferente do remoulade francês, acompanha peixe frito e hot dogs.",
     origin: "Dinamarca",
     time: { prep: "10 min", cook: "0 min", total: "10 min" },
     yield: "≈300 ml",
@@ -856,6 +884,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Agurkesalat",
     subgroup: "Acompanhamentos",
+    desc: "Salada rápida de pepino fatiado fino, salgado e curtido numa salmoura agridoce de vinagre e endro.",
     origin: "Dinamarca",
     time: { prep: "15 min", cook: "0 min", total: "15 min + descanso" },
     yield: "4 porções",
@@ -886,6 +915,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Rødkål",
     subgroup: "Acompanhamentos",
+    desc: "Repolho roxo refogado lentamente com maçã, vinagre e suco de groselha até ficar macio e brilhante — acompanha o Flæskesteg no Natal.",
     origin: "Dinamarca",
     time: { prep: "15 min", cook: "1h", total: "1h15" },
     yield: "6 porções",
@@ -916,6 +946,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Syltede Rødbeder",
     subgroup: "Acompanhamentos",
+    desc: "Conserva de beterraba cozida em salmoura de vinagre e especiarias — acompanhamento clássico de smørrebrød e carnes.",
     origin: "Dinamarca",
     time: { prep: "15 min", cook: "40 min", total: "55 min + conserva" },
     yield: "≈600 g",
@@ -946,6 +977,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Æbleskiver",
     subgroup: "Sobremesas",
+    desc: "Bolinhas fofas de massa levedada, assadas numa frigideira especial de cavidades até formarem esferas douradas — servidas com geleia.",
     origin: "Dinamarca",
     time: { prep: "15 min", cook: "15 min", total: "30 min" },
     yield: "≈20 unidades",
@@ -982,6 +1014,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Risalamande",
     subgroup: "Sobremesas",
+    desc: "Arroz doce frio misturado com chantilly e amêndoas picadas, servido com calda de cereja — sobremesa de Natal com uma amêndoa escondida de brincadeira.",
     origin: "Dinamarca",
     time: { prep: "20 min + 3h geladeira", cook: "40 min", total: "≈4h" },
     yield: "8 porções",
@@ -1013,6 +1046,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Drømmekage",
     subgroup: "Sobremesas",
+    desc: "Literalmente 'bolo dos sonhos': bolo simples de forno coberto com uma camada de coco caramelizado assada por cima.",
     origin: "Dinamarca",
     time: { prep: "20 min", cook: "35 min", total: "55 min" },
     yield: "12 porções",
@@ -1041,6 +1075,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Hindbærsnitter",
     subgroup: "Sobremesas",
+    desc: "Duas camadas de massa amanteigada recheadas com geleia de framboesa, cobertas com glacê e granulado colorido.",
     origin: "Dinamarca",
     time: { prep: "40 min + 30 min geladeira", cook: "15 min", total: "1h25" },
     yield: "16 unidades",
@@ -1071,6 +1106,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Lagkage",
     subgroup: "Sobremesas",
+    desc: "Bolo de aniversário dinamarquês em camadas de pão de ló, chantilly fresco e morango.",
     origin: "Dinamarca",
     time: { prep: "1h", cook: "35 min", total: "1h35 + resfriar" },
     yield: "10-12 porções",
@@ -1100,6 +1136,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Koldskål",
     subgroup: "Sobremesas",
+    desc: "Bebida/sobremesa fria de verão à base de leitelho adoçado com gemas e baunilha, servida com biscoitos amanteigados.",
     origin: "Dinamarca",
     time: { prep: "15 min", cook: "0 min", total: "15 min + gelar" },
     yield: "4 porções",
@@ -1128,6 +1165,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Rødgrød med Fløde",
     subgroup: "Sobremesas",
+    desc: "Literalmente 'papa vermelha com creme': frutas vermelhas cozidas e engrossadas, servidas frias com creme de leite puro por cima.",
     origin: "Dinamarca",
     time: { prep: "10 min", cook: "15 min", total: "25 min + gelar" },
     yield: "4 porções",
@@ -1155,6 +1193,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Citrontærte",
     subgroup: "Sobremesas",
+    desc: "Versão dinamarquesa da torta de limão: base amanteigada preenchida com lemon curd e finalizada com raspas de limão.",
     origin: "Dinamarca",
     time: { prep: "30 min + 1h geladeira", cook: "35 min", total: "2h05" },
     yield: "8 porções",
@@ -1181,6 +1220,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Brunsviger",
     subgroup: "Sobremesas",
+    desc: "Bolo de massa fermentada com covinhas cheias de manteiga e açúcar mascavo caramelizado, ao estilo focaccia doce.",
     origin: "Dinamarca (Fiônia)",
     time: { prep: "20 min + 1h fermentação", cook: "20 min", total: "1h40" },
     yield: "8-10 porções",
@@ -1213,6 +1253,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Kransekage",
     subgroup: "Sobremesas",
+    desc: "Torre cônica de anéis de massa de amêndoa (tipo marzipan) empilhados e decorados com glacê — para celebrações especiais.",
     origin: "Dinamarca",
     time: { prep: "40 min + 2h descanso", cook: "20 min", total: "3h" },
     yield: "1 torre (≈20 porções)",
@@ -1247,6 +1288,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Leverpostej",
     subgroup: "Conservas e Patês",
+    desc: "Patê de fígado de porco assado em banho-maria, cremoso e temperado com pimenta-da-jamaica — presença constante na geladeira dinamarquesa.",
     origin: "Dinamarca",
     time: { prep: "20 min", cook: "1h", total: "1h20" },
     yield: "≈800 g",
@@ -1282,6 +1324,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Syltede Agurker",
     subgroup: "Conservas e Patês",
+    desc: "Pepinos em conserva numa salmoura de vinagre com mostarda e endro — acompanhamento clássico de carnes e patês.",
     origin: "Dinamarca",
     time: { prep: "15 min", cook: "10 min", total: "25 min + conserva" },
     yield: "≈1 kg",
@@ -1314,6 +1357,7 @@ window.RECIPES["dinamarca"] = [
   {
     name: "Syltede Løg",
     subgroup: "Conservas e Patês",
+    desc: "Conserva rápida de cebola roxa fatiada fina em salmoura agridoce — ácida e crocante, para smørrebrød e hambúrgueres.",
     origin: "Dinamarca",
     time: { prep: "10 min", cook: "5 min", total: "15 min + conserva" },
     yield: "≈300 g",

@@ -6,6 +6,7 @@ window.RECIPES["arrozes"] = [
   {
     name: "Arroz Biro-Biro",
     subgroup: "Arrozes Secos",
+    desc: "Arroz soltinho finalizado com tiras de omelete, bacon crocante e cheiro-verde.",
     origin: "Brasil",
     time: { prep: "10 min", cook: "25 min", total: "35 min" },
     yield: "4 porções",
@@ -39,6 +40,7 @@ window.RECIPES["arrozes"] = [
   {
     name: "Arroz de Pato",
     subgroup: "Arrozes Secos",
+    desc: "Arroz assado no próprio caldo de pato desfiado, com chouriço, e finalizado com crosta crocante — clássico português.",
     origin: "Portugal",
     time: { prep: "20 min", cook: "1h40", total: "2h" },
     yield: "6 porções",
@@ -79,6 +81,7 @@ window.RECIPES["arrozes"] = [
   {
     name: "Arroz Caldoso",
     subgroup: "Arrozes Caldosos",
+    desc: "Como uma paella bem mais líquida — arroz com camarão, lula e mexilhão, cozido em fumet até ficar caldoso feito sopa espessa.",
     origin: "Espanha",
     time: { prep: "20 min", cook: "30 min", total: "50 min" },
     yield: "4 porções",
@@ -117,6 +120,7 @@ window.RECIPES["arrozes"] = [
   {
     name: "Arroz de Polvo",
     subgroup: "Arrozes Caldosos",
+    desc: "Arroz caldoso português cozido no próprio caldo de cozimento do polvo, com pedaços de polvo por cima.",
     origin: "Portugal",
     time: { prep: "20 min", cook: "1h", total: "1h20" },
     yield: "4-6 porções",
@@ -153,6 +157,7 @@ window.RECIPES["arrozes"] = [
   {
     name: "Arroz de Mariscos",
     subgroup: "Arrozes Caldosos",
+    desc: "Arroz caldoso português com mistura farta de camarão, mexilhão, amêijoa e lula, cozidos em fumet de peixe.",
     origin: "Portugal",
     time: { prep: "25 min", cook: "30 min", total: "55 min" },
     yield: "4-6 porções",

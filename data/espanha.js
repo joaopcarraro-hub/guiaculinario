@@ -8,6 +8,7 @@ window.RECIPES["espanha"] = [
   {
     name: "Arroz Negro",
     subgroup: "Arroz e Massa",
+    desc: "Arroz de frutos do mar cozido com tinta de lula, que deixa o grão preto, finalizado com uma colherada de aioli.",
     origin: "Espanha (Catalunha)",
     time: { prep: "20 min", cook: "35 min", total: "55 min" },
     yield: "4 porções",
@@ -45,6 +46,7 @@ window.RECIPES["espanha"] = [
   {
     name: "Fideuà",
     subgroup: "Arroz e Massa",
+    desc: "A 'paella de massa' valenciana — macarrão fino torrado e cozinhado com frutos do mar, servido com aioli.",
     origin: "Espanha (Valência)",
     time: { prep: "20 min", cook: "25 min", total: "45 min" },
     yield: "4 porções",
@@ -84,6 +86,7 @@ window.RECIPES["espanha"] = [
   {
     name: "Gambas al Ajillo",
     subgroup: "Tapas Clássicas",
+    desc: "Camarões salteados em azeite abundante com alho e pimenta, servidos borbulhando com pão para molhar.",
     origin: "Espanha",
     time: { prep: "10 min", cook: "8 min", total: "18 min" },
     yield: "2-3 porções (tapa)",
@@ -115,6 +118,7 @@ window.RECIPES["espanha"] = [
   {
     name: "Pulpo a la Gallega",
     subgroup: "Tapas Clássicas",
+    desc: "Polvo cozido e fatiado sobre rodelas de batata, temperado só com azeite, sal grosso e páprica — tapa clássica galega.",
     origin: "Espanha (Galícia)",
     time: { prep: "10 min", cook: "50 min", total: "1h" },
     yield: "4 porções (tapa)",
@@ -146,6 +150,7 @@ window.RECIPES["espanha"] = [
   {
     name: "Patatas Bravas",
     subgroup: "Tapas Clássicas",
+    desc: "Batatas fritas crocantes cobertas com molho bravas picante de páprica e um fio de aioli.",
     origin: "Espanha (Madrid)",
     time: { prep: "15 min", cook: "30 min", total: "45 min" },
     yield: "4 porções (tapa)",
@@ -174,6 +179,7 @@ window.RECIPES["espanha"] = [
   {
     name: "Jamón Ibérico (como servir)",
     subgroup: "Tapas Clássicas",
+    desc: "Guia para fatiar e servir o presunto cru espanhol de bolota em temperatura ambiente, puro ou sobre pão com tomate.",
     origin: "Espanha",
     time: { prep: "10 min", cook: "0 min", total: "10 min" },
     yield: "Para petiscar",
@@ -202,6 +208,7 @@ window.RECIPES["espanha"] = [
   {
     name: "Salmorejo",
     subgroup: "Sopas Frias e Guisados",
+    desc: "Creme frio e espesso de tomate batido com pão, mais encorpado que o gaspacho, servido com ovo cozido e presunto.",
     origin: "Espanha (Córdoba)",
     time: { prep: "15 min", cook: "0 min", total: "15 min + gelar" },
     yield: "4 porções",
@@ -235,6 +242,7 @@ window.RECIPES["espanha"] = [
   {
     name: "Fabada Asturiana",
     subgroup: "Sopas Frias e Guisados",
+    desc: "Ensopado espesso de feijão branco com chouriço, morcela e toucinho, prato de inverno das Astúrias.",
     origin: "Espanha (Astúrias)",
     time: { prep: "20 min + 8h molho", cook: "2h30", total: "≈11h" },
     yield: "6 porções",

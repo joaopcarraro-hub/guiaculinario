@@ -8,6 +8,7 @@ window.RECIPES["eua"] = [
   {
     name: "Lobster Roll",
     subgroup: "Sanduíches e Frituras",
+    desc: "Sanduíche de Nova Inglaterra com salada de lagosta e maionese, servido num pão tipo hot dog tostado na manteiga.",
     origin: "EUA (Nova Inglaterra)",
     time: { prep: "20 min", cook: "10 min", total: "30 min" },
     yield: "4 porções",
@@ -40,6 +41,7 @@ window.RECIPES["eua"] = [
   {
     name: "Fried Chicken",
     subgroup: "Sanduíches e Frituras",
+    desc: "Frango marinado em leitelho, empanado numa crosta grossa de farinha temperada e frito — o clássico frango frito sulista.",
     origin: "EUA (Sul)",
     time: { prep: "20 min + 4h marinada", cook: "20 min", total: "≈4h40" },
     yield: "4 porções",
@@ -72,6 +74,7 @@ window.RECIPES["eua"] = [
   {
     name: "Buffalo Wings",
     subgroup: "Sanduíches e Frituras",
+    desc: "Asas de frango fritas ou assadas, mergulhadas em molho picante de manteiga e pimenta — servidas com aipo e molho ranch.",
     origin: "EUA (Buffalo, Nova York)",
     time: { prep: "10 min", cook: "25 min", total: "35 min" },
     yield: "4 porções",
@@ -102,6 +105,7 @@ window.RECIPES["eua"] = [
   {
     name: "Clam Chowder",
     subgroup: "Pratos de Panela e Forno",
+    desc: "Sopa cremosa de Nova Inglaterra com amêijoas, batata e bacon, engrossada com creme de leite.",
     origin: "EUA (Nova Inglaterra)",
     time: { prep: "20 min", cook: "30 min", total: "50 min" },
     yield: "4-6 porções",
@@ -138,6 +142,7 @@ window.RECIPES["eua"] = [
   {
     name: "Mac and Cheese",
     subgroup: "Pratos de Panela e Forno",
+    desc: "Macarrão em molho cremoso de queijo cheddar e gruyère, opcionalmente gratinado no forno com farinha de rosca.",
     origin: "EUA",
     time: { prep: "15 min", cook: "30 min", total: "45 min" },
     yield: "6 porções",
@@ -172,6 +177,7 @@ window.RECIPES["eua"] = [
   {
     name: "Beef Brisket",
     subgroup: "Pratos de Panela e Forno",
+    desc: "Peito bovino temperado com rub seco e cozido lentamente por horas (defumado ou no forno) até ficar extremamente macio.",
     origin: "EUA (Texas)",
     time: { prep: "20 min + 8h defumação/forno", cook: "8h", total: "≈8h30" },
     yield: "8-10 porções",
@@ -204,6 +210,7 @@ window.RECIPES["eua"] = [
   {
     name: "Apple Pie",
     subgroup: "Sobremesas",
+    desc: "Torta clássica americana de massa amanteigada com recheio de maçã fatiada, canela e noz-moscada.",
     origin: "EUA",
     time: { prep: "40 min + 1h geladeira", cook: "50 min", total: "2h30" },
     yield: "8 porções",

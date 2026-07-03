@@ -6,6 +6,7 @@ window.RECIPES["ovos-classicos"] = [
   {
     name: "Eggs Benedict",
     subgroup: "Família Benedict",
+    desc: "Muffin inglês tostado com bacon canadense, ovo poché e molho Hollandaise por cima — o clássico americano de brunch.",
     origin: "EUA",
     time: { prep: "15 min", cook: "15 min", total: "30 min" },
     yield: "2 porções (4 unidades)",
@@ -37,6 +38,7 @@ window.RECIPES["ovos-classicos"] = [
   {
     name: "Eggs Florentine",
     subgroup: "Família Benedict",
+    desc: "Versão vegetariana do Eggs Benedict: muffin com espinafre refogado, ovo poché e Hollandaise, no lugar do bacon.",
     origin: "EUA / França",
     time: { prep: "15 min", cook: "15 min", total: "30 min" },
     yield: "2 porções (4 unidades)",
@@ -67,6 +69,7 @@ window.RECIPES["ovos-classicos"] = [
   {
     name: "Eggs Royale",
     subgroup: "Família Benedict",
+    desc: "Versão de luxo do Eggs Benedict, com salmão defumado no lugar do bacon, coberto de ovo poché, Hollandaise e endro.",
     origin: "Reino Unido",
     time: { prep: "15 min", cook: "15 min", total: "30 min" },
     yield: "2 porções (4 unidades)",
@@ -98,6 +101,7 @@ window.RECIPES["ovos-classicos"] = [
   {
     name: "Ovos en Meurette",
     subgroup: "Ovos com Molho",
+    desc: "Ovos pochê da Borgonha servidos sobre torradas de alho, cobertos com molho encorpado de vinho tinto, bacon e cogumelos.",
     origin: "França (Borgonha)",
     time: { prep: "15 min", cook: "40 min", total: "55 min" },
     yield: "2 porções",
@@ -137,6 +141,7 @@ window.RECIPES["ovos-classicos"] = [
   {
     name: "Shakshuka",
     subgroup: "Ovos com Molho",
+    desc: "Ovos cozidos inteiros num molho de tomate temperado com cominho e páprica — prato de brunch do Norte da África e Oriente Médio.",
     origin: "Norte da África / Oriente Médio",
     time: { prep: "10 min", cook: "25 min", total: "35 min" },
     yield: "2-3 porções",
@@ -174,6 +179,7 @@ window.RECIPES["ovos-classicos"] = [
   {
     name: "Menemen",
     subgroup: "Ovos com Molho",
+    desc: "Café da manhã turco parecido com a Shakshuka, mas com os ovos mexidos dentro do molho de tomate e pimentão, formando um creme.",
     origin: "Turquia",
     time: { prep: "10 min", cook: "15 min", total: "25 min" },
     yield: "2 porções",
@@ -206,6 +212,7 @@ window.RECIPES["ovos-classicos"] = [
   {
     name: "Huevos Rancheros",
     subgroup: "Ovos com Molho",
+    desc: "Tortilla de milho com feijão, molho de tomate e jalapeño, coroada com ovo frito, abacate e queijo fresco — clássico mexicano.",
     origin: "México",
     time: { prep: "15 min", cook: "20 min", total: "35 min" },
     yield: "2 porções",
@@ -239,6 +246,7 @@ window.RECIPES["ovos-classicos"] = [
   {
     name: "Ovos à Portuguesa",
     subgroup: "Ovos com Molho",
+    desc: "Ovos cozidos num molho de tomate com cebola, pimentão e chouriço ou presunto — parecido com a Shakshuka, mas com toque português.",
     origin: "Portugal",
     time: { prep: "15 min", cook: "25 min", total: "40 min" },
     yield: "2-3 porções",
@@ -275,6 +283,7 @@ window.RECIPES["ovos-classicos"] = [
   {
     name: "Œufs Mayonnaise",
     subgroup: "Ovos Frios e Especiais",
+    desc: "Ovos cozidos duros, cortados ao meio e cobertos com maionese caseira temperada — entrada simples e clássica dos bistrôs franceses.",
     origin: "França",
     time: { prep: "15 min", cook: "10 min", total: "25 min" },
     yield: "2 porções (4 unidades)",
@@ -304,6 +313,7 @@ window.RECIPES["ovos-classicos"] = [
   {
     name: "Scotch Egg",
     subgroup: "Ovos Frios e Especiais",
+    desc: "Ovo cozido envolto em carne de linguiça temperada, empanado e frito — clássico britânico de piquenique, ótimo frio.",
     origin: "Reino Unido",
     time: { prep: "30 min", cook: "15 min", total: "45 min" },
     yield: "4 unidades",
@@ -334,6 +344,7 @@ window.RECIPES["ovos-classicos"] = [
   {
     name: "Oeufs en Cocotte à la Forestière",
     subgroup: "Ovos Frios e Especiais",
+    desc: "Versão elevada do Ovo Cocotte, assado em ramequim sobre uma duxelles de cogumelos reduzidos com creme de leite.",
     origin: "França",
     time: { prep: "15 min", cook: "15 min", total: "30 min" },
     yield: "2 porções",

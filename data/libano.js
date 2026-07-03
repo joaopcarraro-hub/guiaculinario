@@ -6,6 +6,7 @@ window.RECIPES["libano"] = [
   {
     name: "Hommus",
     subgroup: "Pastas e Molhos",
+    desc: "Pasta cremosa de grão-de-bico batido com tahine, alho, limão e azeite — clássico dip árabe para pão pita.",
     origin: "Líbano",
     time: { prep: "15 min", cook: "0 min", total: "15 min" },
     yield: "≈500 ml",
@@ -38,6 +39,7 @@ window.RECIPES["libano"] = [
   {
     name: "Babaganuche",
     subgroup: "Pastas e Molhos",
+    desc: "Pasta de berinjela assada na chama, amassada com tahine, alho e limão — fumê e rústica, para petiscar com pão.",
     origin: "Líbano",
     time: { prep: "15 min", cook: "35 min", total: "50 min" },
     yield: "≈400 ml",
@@ -70,6 +72,7 @@ window.RECIPES["libano"] = [
   {
     name: "Quibe Cru",
     subgroup: "Carnes",
+    desc: "Carne bovina crua moída, sovada com trigo para quibe e cebola — entrada libanesa servida gelada, temperada com especiarias.",
     origin: "Líbano",
     time: { prep: "30 min", cook: "0 min", total: "30 min" },
     yield: "4 porções (entrada)",
@@ -100,6 +103,7 @@ window.RECIPES["libano"] = [
   {
     name: "Quibe Frito",
     subgroup: "Carnes",
+    desc: "Casca de carne moída com trigo, recheada com carne temperada e pinoli, moldada em torpedo e frita até dourar.",
     origin: "Líbano",
     time: { prep: "45 min", cook: "15 min", total: "1h" },
     yield: "20 unidades",
@@ -129,6 +133,7 @@ window.RECIPES["libano"] = [
   {
     name: "Kafta",
     subgroup: "Carnes",
+    desc: "Espetos de carne moída temperada com cebola, salsinha e especiarias, grelhados — servidos com pão pita e molho de alho.",
     origin: "Líbano",
     time: { prep: "20 min + 30 min gelando", cook: "15 min", total: "1h05" },
     yield: "4 porções (8 espetos)",
@@ -161,6 +166,7 @@ window.RECIPES["libano"] = [
   {
     name: "Tabule",
     subgroup: "Saladas e Pães",
+    desc: "Salada libanesa de ervas picadas — principalmente salsinha e hortelã — com pouco trigo, tomate e limão.",
     origin: "Líbano",
     time: { prep: "25 min", cook: "0 min", total: "25 min" },
     yield: "4 porções",
@@ -193,6 +199,7 @@ window.RECIPES["libano"] = [
   {
     name: "Fattoush",
     subgroup: "Saladas e Pães",
+    desc: "Salada libanesa de vegetais frescos com pedaços de pão pita tostado e molho de limão e melaço de romã.",
     origin: "Líbano",
     time: { prep: "20 min", cook: "10 min", total: "30 min" },
     yield: "4 porções",
@@ -225,6 +232,7 @@ window.RECIPES["libano"] = [
   {
     name: "Esfiha",
     subgroup: "Saladas e Pães",
+    desc: "Disquinho de massa de pão aberto, recheado com carne moída temperada com tomate e limão, assado no forno.",
     origin: "Líbano / Síria (adaptação brasileira)",
     time: { prep: "40 min + 1h fermentação", cook: "15 min", total: "1h55" },
     yield: "20 unidades",

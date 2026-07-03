@@ -4,6 +4,20 @@
   const content = document.getElementById("recipes-content");
   const searchInput = document.getElementById("search");
   const progressEl = document.getElementById("progress");
+  const sidebarNav = document.getElementById("sidebar");
+  const menuToggle = document.getElementById("menu-toggle");
+  const sidebarBackdrop = document.getElementById("sidebar-backdrop");
+
+  function openMobileMenu() {
+    sidebarNav.classList.add("open");
+    sidebarBackdrop.classList.add("open");
+  }
+  function closeMobileMenu() {
+    sidebarNav.classList.remove("open");
+    sidebarBackdrop.classList.remove("open");
+  }
+  menuToggle.addEventListener("click", openMobileMenu);
+  sidebarBackdrop.addEventListener("click", closeMobileMenu);
 
   const STORAGE_KEY = "cardapio-feitos-v1";
   const madeSet = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
@@ -56,6 +70,8 @@
           activeCat = cat.id;
           renderSidebar(searchInput.value);
           renderCategory(cat, q);
+          closeMobileMenu();
+          content.scrollIntoView({ behavior: "instant", block: "start" });
         });
         sidebar.appendChild(btn);
       });
@@ -115,6 +131,11 @@
     const header = document.createElement("div");
     header.className = "recipe-header";
 
+    const thumb = document.createElement("div");
+    thumb.className = "recipe-thumb placeholder";
+    thumb.textContent = "🍽";
+    loadRecipeImage(imageQuery(recipe), thumb);
+
     const toggle = document.createElement("button");
     toggle.className = "made-toggle" + (isMade ? " made" : "");
     toggle.title = "Marcar como já feito";
@@ -137,7 +158,8 @@
     title.className = "recipe-title";
     title.innerHTML =
       "<h3>" + recipe.name + "</h3>" +
-      (recipe.origin ? '<div class="origin">' + recipe.origin + "</div>" : "");
+      (recipe.origin ? '<div class="origin">' + recipe.origin + "</div>" : "") +
+      (recipe.desc ? '<div class="desc-line">' + recipe.desc + "</div>" : "");
 
     const meta = document.createElement("div");
     meta.className = "recipe-meta";
@@ -152,6 +174,7 @@
     chevron.textContent = "▶";
 
     header.appendChild(toggle);
+    header.appendChild(thumb);
     header.appendChild(title);
     header.appendChild(meta);
     header.appendChild(chevron);
@@ -169,6 +192,110 @@
     return card;
   }
 
+  // ---------- Fotos (Wikipedia, com cache local) ----------
+  function imageQuery(recipe) {
+    return recipe.name.replace(/\s*\([^)]*\)/g, "").trim();
+  }
+
+  // Descrições da Wikipedia que indicam que a página NÃO é sobre comida
+  // (evita fotos erradas quando o nome do prato coincide com cidade, pessoa, filme etc.)
+  const NOT_FOOD_PATTERN =
+    /(comuna|munic[ií]pio|cidade|vila|freguesia|distrito|prov[ií]ncia|departamento francês|commune|village|municipality|district|county|province|rio\b|river|montanha|mountain|banda musical|álbum|album|filme|film|canção|song|s[ée]rie de televis[ãa]o|tv series|futebolista|footballer|jogador de|ator\b|atriz\b|actor|actress|pol[ií]tico|politician|escritor|writer|cantor|singer|pintor|painter)/i;
+
+  function isFoodDescription(data) {
+    if (!data) return false;
+    const text = ((data.description || "") + " " + (data.extract || "").slice(0, 150)).toLowerCase();
+    return !NOT_FOOD_PATTERN.test(text);
+  }
+
+  async function fetchWikiThumb(query, lang) {
+    try {
+      const res = await fetch(
+        "https://" + lang + ".wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(query),
+        { headers: { Accept: "application/json" } }
+      );
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (data && data.thumbnail && data.thumbnail.source && isFoodDescription(data)) {
+        return data.thumbnail.source;
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  async function opensearchTitle(query, lang, bias) {
+    try {
+      const q = bias ? query + " " + bias : query;
+      const res = await fetch(
+        "https://" +
+          lang +
+          ".wikipedia.org/w/api.php?action=opensearch&format=json&origin=*&limit=1&namespace=0&search=" +
+          encodeURIComponent(q)
+      );
+      if (!res.ok) return null;
+      const data = await res.json();
+      return (data && data[1] && data[1][0]) || null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  async function findWikiImage(query) {
+    let url = await fetchWikiThumb(query, "pt");
+    if (url) return url;
+    url = await fetchWikiThumb(query, "en");
+    if (url) return url;
+    const ptTitle = await opensearchTitle(query, "pt", "prato culinária");
+    if (ptTitle) {
+      url = await fetchWikiThumb(ptTitle, "pt");
+      if (url) return url;
+    }
+    const enTitle = await opensearchTitle(query, "en", "dish food");
+    if (enTitle) {
+      url = await fetchWikiThumb(enTitle, "en");
+      if (url) return url;
+    }
+    return null;
+  }
+
+  function applyImage(el, url) {
+    if (url) {
+      el.classList.remove("placeholder");
+      el.innerHTML = "";
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = "";
+      img.loading = "lazy";
+      img.onerror = () => {
+        el.classList.add("placeholder");
+        el.innerHTML = "🍽";
+      };
+      el.appendChild(img);
+    } else {
+      el.classList.add("placeholder");
+      el.innerHTML = "🍽";
+    }
+  }
+
+  async function loadRecipeImage(query, el) {
+    const cacheKey = "imgcache-v1:" + query.toLowerCase();
+    let cached = null;
+    try {
+      cached = localStorage.getItem(cacheKey);
+    } catch (e) {}
+    if (cached) {
+      applyImage(el, cached === "__none__" ? null : cached);
+      return;
+    }
+    const url = await findWikiImage(query);
+    try {
+      localStorage.setItem(cacheKey, url || "__none__");
+    } catch (e) {}
+    applyImage(el, url);
+  }
+
   function renderRecipeBody(recipe) {
     const ingredientsHtml = (recipe.ingredients || [])
       .map((i) => "<li>" + i + "</li>")
@@ -184,6 +311,10 @@
       if (recipe.time.total) parts.push("Total: " + recipe.time.total);
       timeLine = parts.join(" · ");
     }
+    const extraParts = [];
+    if (recipe.yield) extraParts.push("Rendimento: " + recipe.yield);
+    if (recipe.difficulty) extraParts.push("Dificuldade: " + recipe.difficulty);
+    const extraLine = extraParts.join(" · ");
 
     return (
       '<div class="recipe-columns">' +
@@ -193,6 +324,7 @@
       ingredientsHtml +
       "</ul>" +
       (timeLine ? '<div class="used-for"><strong>Tempo:</strong> ' + timeLine + "</div>" : "") +
+      (extraLine ? '<div class="used-for mobile-only-info">' + extraLine + "</div>" : "") +
       "</div>" +
       "<div>" +
       "<h4>Modo de preparo</h4>" +

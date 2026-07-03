@@ -6,6 +6,7 @@ window.RECIPES["tailandia"] = [
   {
     name: "Green Curry (Gaeng Keow Wan)",
     subgroup: "Curries",
+    desc: "Curry tailandês verde e picante de frango, cozido em leite de coco com pasta de pimenta verde, berinjela e vagem — servido com arroz jasmim.",
     origin: "Tailândia",
     time: { prep: "20 min", cook: "25 min", total: "45 min" },
     yield: "4 porções",
@@ -42,6 +43,7 @@ window.RECIPES["tailandia"] = [
   {
     name: "Red Curry (Gaeng Phed)",
     subgroup: "Curries",
+    desc: "Curry tailandês vermelho de carne ou frango (ou camarão), cozido em leite de coco com pasta de pimentas vermelhas, pimentão e vagem — servido com arroz jasmim.",
     origin: "Tailândia",
     time: { prep: "20 min", cook: "25 min", total: "45 min" },
     yield: "4 porções",
@@ -76,6 +78,7 @@ window.RECIPES["tailandia"] = [
   {
     name: "Massaman Curry",
     subgroup: "Curries",
+    desc: "Curry tailandês suave e encorpado de carne bovina, batata e amendoim, cozido lentamente em leite de coco com especiarias tipo canela e cardamomo e um toque azedo de tamarindo.",
     origin: "Tailândia (influência persa/indiana)",
     time: { prep: "20 min", cook: "1h30", total: "1h50" },
     yield: "4-6 porções",
@@ -113,6 +116,7 @@ window.RECIPES["tailandia"] = [
   {
     name: "Tom Yum",
     subgroup: "Sopas",
+    desc: "Sopa tailandesa quente de camarão em caldo claro e picante, com capim-limão, galanga e cogumelos — equilíbrio intenso entre azedo, picante e salgado.",
     origin: "Tailândia",
     time: { prep: "15 min", cook: "20 min", total: "35 min" },
     yield: "4 porções",
@@ -146,6 +150,7 @@ window.RECIPES["tailandia"] = [
   {
     name: "Tom Kha Gai",
     subgroup: "Sopas",
+    desc: "Sopa tailandesa cremosa de frango em leite de coco, com capim-limão, galanga e cogumelos — como um Tom Yum mais suave e encorpado.",
     origin: "Tailândia",
     time: { prep: "15 min", cook: "20 min", total: "35 min" },
     yield: "4 porções",
@@ -182,6 +187,7 @@ window.RECIPES["tailandia"] = [
   {
     name: "Pad Thai",
     subgroup: "Salteados e Saladas",
+    desc: "Macarrão de arroz salteado na wok com camarão (ou tofu), ovo, broto de feijão e amendoim, num molho agridoce de molho de peixe, açúcar de palma e tamarindo.",
     origin: "Tailândia",
     time: { prep: "25 min", cook: "12 min", total: "37 min" },
     yield: "3-4 porções",
@@ -217,6 +223,7 @@ window.RECIPES["tailandia"] = [
   {
     name: "Larb",
     subgroup: "Salteados e Saladas",
+    desc: "Salada tailandesa/laociana de carne suína ou frango moído temperada com limão e molho de peixe, misturada com pó de arroz tostado — servida em folhas de alface ou com arroz.",
     origin: "Tailândia / Laos",
     time: { prep: "20 min", cook: "10 min", total: "30 min" },
     yield: "4 porções",
@@ -250,6 +257,7 @@ window.RECIPES["tailandia"] = [
   {
     name: "Som Tam",
     subgroup: "Salteados e Saladas",
+    desc: "Salada tailandesa crua de mamão verde ralado, socada em pilão com pimenta, alho, limão, molho de peixe e amendoim — picante, ácida e crocante.",
     origin: "Tailândia",
     time: { prep: "20 min", cook: "0 min", total: "20 min" },
     yield: "2-4 porções",

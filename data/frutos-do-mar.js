@@ -6,6 +6,7 @@ window.RECIPES["frutos-do-mar"] = [
   {
     name: "Paella",
     subgroup: "Arroz e Caldeiradas",
+    desc: "Arroz espanhol de grãos soltos, cozido com açafrão e frutos do mar (ou frango), com crosta dourada no fundo.",
     origin: "Espanha (Valência)",
     time: { prep: "25 min", cook: "35 min", total: "1h" },
     yield: "4-6 porções",
@@ -50,6 +51,7 @@ window.RECIPES["frutos-do-mar"] = [
   {
     name: "Moules Marinières",
     subgroup: "Mexilhões e Moluscos",
+    desc: "Mexilhões cozidos no vapor com vinho branco, échalote e alho — clássico francês servido com o caldo e pão.",
     origin: "França / Bélgica",
     time: { prep: "15 min", cook: "10 min", total: "25 min" },
     yield: "2-3 porções",
@@ -83,6 +85,7 @@ window.RECIPES["frutos-do-mar"] = [
   {
     name: "Polvo Grelhado",
     subgroup: "Mexilhões e Moluscos",
+    desc: "Polvo cozido até macio e depois grelhado rápido em fogo alto com azeite, alho e páprica defumada.",
     origin: "Portugal / Mediterrâneo",
     time: { prep: "10 min", cook: "1h10", total: "1h20" },
     yield: "4 porções",
@@ -116,6 +119,7 @@ window.RECIPES["frutos-do-mar"] = [
   {
     name: "Lula Recheada",
     subgroup: "Mexilhões e Moluscos",
+    desc: "Lulas inteiras recheadas com seus próprios tentáculos, farinha de rosca e parmesão, cozidas em molho de tomate.",
     origin: "Mediterrâneo",
     time: { prep: "30 min", cook: "35 min", total: "1h05" },
     yield: "4 porções",
@@ -155,6 +159,7 @@ window.RECIPES["frutos-do-mar"] = [
   {
     name: "Lagosta Thermidor",
     subgroup: "Crustáceos",
+    desc: "Carne de lagosta num molho cremoso de conhaque, mostarda e cogumelos, gratinada de volta na própria casca.",
     origin: "França",
     time: { prep: "25 min", cook: "25 min", total: "50 min" },
     yield: "2 porções",
@@ -193,6 +198,7 @@ window.RECIPES["frutos-do-mar"] = [
   {
     name: "Camarão ao Bisque",
     subgroup: "Crustáceos",
+    desc: "Camarão salteado num creme espesso feito da própria bisque (sopa de casca de camarão), servido sobre arroz.",
     origin: "França (adaptação)",
     time: { prep: "15 min", cook: "20 min", total: "35 min" },
     yield: "2-3 porções",
@@ -225,6 +231,7 @@ window.RECIPES["frutos-do-mar"] = [
   {
     name: "Camarão à Provençal (para servir com arroz)",
     subgroup: "Crustáceos",
+    desc: "Camarão salteado em molho de alho e manteiga, servido sobre arroz branco como prato principal.",
     origin: "França",
     time: { prep: "10 min", cook: "10 min", total: "20 min" },
     yield: "3-4 porções (prato principal)",

@@ -6,6 +6,7 @@ window.RECIPES["sopas"] = [
   {
     name: "Bisque",
     subgroup: "Sopas Francesas",
+    desc: "Creme aveludado de frutos do mar feito com as cascas de camarão, refogadas e batidas com creme de leite — sopa francesa rica e sedosa.",
     origin: "França",
     time: { prep: "20 min", cook: "50 min", total: "1h10" },
     yield: "4 porções",
@@ -44,6 +45,7 @@ window.RECIPES["sopas"] = [
   {
     name: "Consommé",
     subgroup: "Sopas Francesas",
+    desc: "Caldo de carne clarificado com claras de ovo e legumes até ficar perfeitamente transparente — sopa francesa refinada, límpida como chá.",
     origin: "França",
     time: { prep: "30 min", cook: "1h30", total: "2h" },
     yield: "4 porções",
@@ -75,6 +77,7 @@ window.RECIPES["sopas"] = [
   {
     name: "Vichyssoise",
     subgroup: "Sopas Francesas",
+    desc: "Creme de batata com alho-poró e creme de leite, servido bem gelado — clássico francês refrescante.",
     origin: "França",
     time: { prep: "15 min", cook: "30 min", total: "45 min + gelar" },
     yield: "4 porções",
@@ -106,6 +109,7 @@ window.RECIPES["sopas"] = [
   {
     name: "French Onion Soup",
     subgroup: "Sopas Francesas",
+    desc: "Sopa de cebolas bem caramelizadas em caldo de carne, coberta com torrada e queijo gruyère gratinado.",
     origin: "França",
     time: { prep: "10 min", cook: "1h15", total: "1h25" },
     yield: "4 porções",
@@ -142,6 +146,7 @@ window.RECIPES["sopas"] = [
   {
     name: "Minestrone",
     subgroup: "Sopas Italianas",
+    desc: "Sopa italiana de legumes variados com feijão branco e massa curta num caldo de tomate — receita flexível de 'geladeira'.",
     origin: "Itália",
     time: { prep: "20 min", cook: "45 min", total: "1h05" },
     yield: "6 porções",
@@ -181,6 +186,7 @@ window.RECIPES["sopas"] = [
   {
     name: "Bouillabaisse",
     subgroup: "Sopas Mediterrâneas",
+    desc: "Ensopado de peixes e frutos do mar variados num caldo aromatizado com açafrão e casca de laranja, servido com torrada e rouille.",
     origin: "França (Marselha)",
     time: { prep: "30 min", cook: "45 min", total: "1h15" },
     yield: "4-6 porções",
@@ -217,6 +223,7 @@ window.RECIPES["sopas"] = [
   {
     name: "Gazpacho",
     subgroup: "Sopas Mediterrâneas",
+    desc: "Sopa fria espanhola de tomate, pepino e pimentão batidos crus com azeite — como uma salada líquida temperada, sem cozimento.",
     origin: "Espanha",
     time: { prep: "15 min", cook: "0 min", total: "15 min + gelar" },
     yield: "4 porções",
@@ -253,6 +260,7 @@ window.RECIPES["sopas"] = [
   {
     name: "Caldo Verde",
     subgroup: "Sopas Portuguesas",
+    desc: "Creme de batata português com tiras finas de couve-galega e rodelas de chouriço douradas por cima.",
     origin: "Portugal",
     time: { prep: "15 min", cook: "30 min", total: "45 min" },
     yield: "4-6 porções",
@@ -286,6 +294,7 @@ window.RECIPES["sopas"] = [
   {
     name: "Canja",
     subgroup: "Sopas Brasileiras",
+    desc: "Sopa brasileira de frango desfiado, arroz e cenoura no caldo feito com o próprio frango — prato de conforto clássico.",
     origin: "Brasil",
     time: { prep: "15 min", cook: "45 min", total: "1h" },
     yield: "4-6 porções",

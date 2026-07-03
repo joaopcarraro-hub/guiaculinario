@@ -6,6 +6,7 @@ window.RECIPES["japao"] = [
   {
     name: "Arroz de Sushi (Shari) e Nigiri",
     subgroup: "Sushi e Crus",
+    desc: "Bolinhos de arroz temperado com vinagre, cobertos com uma fatia de peixe cru fresco (salmão ou atum) — a base do sushi tradicional.",
     origin: "Japão",
     time: { prep: "20 min", cook: "20 min", total: "40 min" },
     yield: "≈20 nigiris",
@@ -38,6 +39,7 @@ window.RECIPES["japao"] = [
   {
     name: "Sashimi",
     subgroup: "Sushi e Crus",
+    desc: "Fatias finas de peixe cru fresco (salmão, atum ou robalo), cortadas à faca e servidas com daikon ralado, wasabi e shoyu — sem arroz.",
     origin: "Japão",
     time: { prep: "15 min", cook: "0 min", total: "15 min" },
     yield: "2 porções",
@@ -65,6 +67,7 @@ window.RECIPES["japao"] = [
   {
     name: "Temaki",
     subgroup: "Sushi e Crus",
+    desc: "Cone de alga nori recheado à mão com arroz de sushi, peixe cru, pepino e abacate — servido e comido na hora, antes que a alga amoleça.",
     origin: "Japão",
     time: { prep: "20 min", cook: "0 min", total: "20 min" },
     yield: "8 unidades",
@@ -96,6 +99,7 @@ window.RECIPES["japao"] = [
   {
     name: "Chirashi",
     subgroup: "Sushi e Crus",
+    desc: "Tigela de arroz de sushi coberta com sashimi variado, tamagoyaki, pepino e ovas de peixe — um sushi 'desmontado', servido em camadas.",
     origin: "Japão",
     time: { prep: "25 min", cook: "0 min", total: "25 min" },
     yield: "2 porções",
@@ -125,6 +129,7 @@ window.RECIPES["japao"] = [
   {
     name: "Aburi e Tataki",
     subgroup: "Sushi e Crus",
+    desc: "Peixe cru com a superfície levemente selada ou queimada com maçarico, mantendo o interior cru — servido fatiado com molho ponzu.",
     origin: "Japão (técnica contemporânea)",
     time: { prep: "15 min", cook: "5 min", total: "20 min" },
     yield: "2 porções",
@@ -155,6 +160,7 @@ window.RECIPES["japao"] = [
   {
     name: "Tonkatsu",
     subgroup: "Pratos Quentes",
+    desc: "Filé de lombo de porco empanado em farinha panko e frito até crocante, fatiado e servido com repolho cru e molho tonkatsu.",
     origin: "Japão",
     time: { prep: "15 min", cook: "12 min", total: "27 min" },
     yield: "4 porções",
@@ -185,6 +191,7 @@ window.RECIPES["japao"] = [
   {
     name: "Katsudon",
     subgroup: "Pratos Quentes",
+    desc: "Tonkatsu fatiado, cozido em cebola e caldo de shoyu com ovo cremoso por cima, servido sobre uma tigela de arroz japonês.",
     origin: "Japão",
     time: { prep: "10 min", cook: "20 min", total: "30 min" },
     yield: "2 porções",
@@ -219,6 +226,7 @@ window.RECIPES["japao"] = [
   {
     name: "Yakitori",
     subgroup: "Pratos Quentes",
+    desc: "Espetinhos de coxa de frango e cebolinha grelhados, pincelados com molho tare (shoyu, mirin e sake) caramelizado.",
     origin: "Japão",
     time: { prep: "20 min + 30 min marinada", cook: "15 min", total: "1h05" },
     yield: "4 porções (12 espetos)",
@@ -245,6 +253,7 @@ window.RECIPES["japao"] = [
   {
     name: "Sukiyaki",
     subgroup: "Pratos Quentes",
+    desc: "Fondue japonês de carne bovina fatiada fina, tofu, cogumelos e legumes cozidos aos poucos numa panela com molho doce de shoyu, mergulhados em gema crua antes de comer.",
     origin: "Japão",
     time: { prep: "25 min", cook: "20 min", total: "45 min" },
     yield: "4 porções",
@@ -278,6 +287,7 @@ window.RECIPES["japao"] = [
   {
     name: "Shabu-Shabu",
     subgroup: "Pratos Quentes",
+    desc: "Fondue japonês de carne bovina fatiada bem fina, cozida rapidamente em caldo dashi e mergulhada em molho ponzu ou de gergelim, junto com tofu e legumes.",
     origin: "Japão",
     time: { prep: "25 min", cook: "20 min", total: "45 min" },
     yield: "4 porções",
@@ -308,6 +318,7 @@ window.RECIPES["japao"] = [
   {
     name: "Tempurá",
     subgroup: "Pratos Quentes",
+    desc: "Camarões e legumes envolvidos numa massa leve de farinha e água gelada, fritos até crocantes e claros — servidos com molho tentsuyu e daikon ralado.",
     origin: "Japão",
     time: { prep: "20 min", cook: "15 min", total: "35 min" },
     yield: "4 porções",
@@ -339,6 +350,7 @@ window.RECIPES["japao"] = [
   {
     name: "Chawanmushi",
     subgroup: "Pratos Quentes",
+    desc: "Flan salgado japonês de ovo e dashi, cozido no vapor com camarão, shiitake e espinafre — textura extremamente lisa e macia, comido de colher.",
     origin: "Japão",
     time: { prep: "10 min", cook: "15 min", total: "25 min" },
     yield: "4 porções",
@@ -375,6 +387,7 @@ window.RECIPES["japao"] = [
   {
     name: "Ramen",
     subgroup: "Caldos e Macarrão",
+    desc: "Sopa de macarrão japonês em caldo turvo e encorpado de ossos de porco fervidos por horas, com fatias de chashu (porco braseado), ovo marinado e nori.",
     origin: "Japão",
     time: { prep: "30 min", cook: "3h (caldo) + 20 min (montagem)", total: "≈3h30" },
     yield: "4 porções",
@@ -408,6 +421,7 @@ window.RECIPES["japao"] = [
   {
     name: "Udon",
     subgroup: "Caldos e Macarrão",
+    desc: "Sopa de macarrão japonês grosso e elástico em caldo claro de dashi e shoyu, finalizada com kamaboko (bolinho de peixe) e cebolinha.",
     origin: "Japão",
     time: { prep: "15 min", cook: "20 min", total: "35 min" },
     yield: "4 porções",
@@ -439,6 +453,7 @@ window.RECIPES["japao"] = [
   {
     name: "Soba",
     subgroup: "Caldos e Macarrão",
+    desc: "Macarrão japonês de trigo sarraceno, servido frio com molho tsuyu para mergulhar ou quente em caldo de dashi, como uma sopa.",
     origin: "Japão",
     time: { prep: "10 min", cook: "10 min", total: "20 min" },
     yield: "2 porções",

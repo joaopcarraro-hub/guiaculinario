@@ -7,6 +7,7 @@ window.RECIPES["peru"] = [
   {
     name: "Tiradito",
     subgroup: "Crus",
+    desc: "Fatias finas de peixe cru (estilo sashimi) regadas na hora com molho cítrico de limão, alho e pimenta amarela.",
     origin: "Peru",
     time: { prep: "20 min", cook: "0 min", total: "20 min" },
     yield: "2 porções",
@@ -40,6 +41,7 @@ window.RECIPES["peru"] = [
   {
     name: "Ají de Gallina",
     subgroup: "Guisados e Frios Compostos",
+    desc: "Frango desfiado num creme espesso de pimenta amarela peruana, pão amolecido no leite, nozes e queijo, servido sobre arroz.",
     origin: "Peru",
     time: { prep: "20 min", cook: "40 min", total: "1h" },
     yield: "4 porções",
@@ -75,6 +77,7 @@ window.RECIPES["peru"] = [
   {
     name: "Causa Limeña",
     subgroup: "Guisados e Frios Compostos",
+    desc: "Terrine frio em camadas de purê de batata temperado com limão e pimenta amarela, recheado com frango ou atum e maionese.",
     origin: "Peru (Lima)",
     time: { prep: "40 min", cook: "20 min", total: "1h" },
     yield: "6 porções",
@@ -112,6 +115,7 @@ window.RECIPES["peru"] = [
   {
     name: "Lomo Saltado",
     subgroup: "Salteados e Arroz",
+    desc: "Tiras de carne salteadas em fogo alto com cebola, tomate e shoyu, finalizadas com batata frita crocante — fusão peruano-chinesa.",
     origin: "Peru",
     time: { prep: "20 min", cook: "12 min", total: "32 min" },
     yield: "4 porções",
@@ -148,6 +152,7 @@ window.RECIPES["peru"] = [
   {
     name: "Arroz Chaufa",
     subgroup: "Salteados e Arroz",
+    desc: "Arroz frito na wok com carne, ovo mexido, cebolinha e shoyu — a versão peruana do arroz chinês, herança da comunidade chifa.",
     origin: "Peru (fusão chinesa-peruana)",
     time: { prep: "15 min", cook: "15 min", total: "30 min" },
     yield: "4 porções",
@@ -184,6 +189,7 @@ window.RECIPES["peru"] = [
   {
     name: "Anticuchos",
     subgroup: "Grelhados",
+    desc: "Espetos de coração de boi (ou carne bovina) marinados em pimenta vermelha peruana e grelhados, servidos com batata e milho.",
     origin: "Peru",
     time: { prep: "20 min + 4h marinada", cook: "10 min", total: "≈4h30" },
     yield: "4 porções (12 espetos)",

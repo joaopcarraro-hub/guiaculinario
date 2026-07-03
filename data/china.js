@@ -6,6 +6,7 @@ window.RECIPES["china"] = [
   {
     name: "Pato Laqueado (Pequim)",
     subgroup: "Carnes e Aves",
+    desc: "Pato assado inteiro com glacê de mel, vinagre e shoyu, de pele bem crocante — fatiado e servido em panquecas com molho hoisin e pepino.",
     origin: "China (Pequim)",
     time: { prep: "30 min + 24h secagem", cook: "1h30", total: "≈26h" },
     yield: "4-6 porções",
@@ -39,6 +40,7 @@ window.RECIPES["china"] = [
   {
     name: "Char Siu (Porco Assado à Moda Cantonesa)",
     subgroup: "Carnes e Aves",
+    desc: "Tiras de lombo ou paleta de porco marinadas em hoisin, mel e cinco-especiarias e assadas até dourar — clássico cantonês servido com arroz branco.",
     origin: "China (Cantão)",
     time: { prep: "15 min + 4h marinada", cook: "35 min", total: "≈5h" },
     yield: "4 porções",
@@ -71,6 +73,7 @@ window.RECIPES["china"] = [
   {
     name: "Kung Pao Chicken",
     subgroup: "Carnes e Aves",
+    desc: "Frango em cubos salteado com pimentas secas, amendoim torrado e molho agridoce de shoyu e vinagre — prato picante típico de Sichuan.",
     origin: "China (Sichuan)",
     time: { prep: "20 min", cook: "10 min", total: "30 min" },
     yield: "4 porções",
@@ -108,6 +111,7 @@ window.RECIPES["china"] = [
   {
     name: "Mapo Tofu",
     subgroup: "Pratos Salteados",
+    desc: "Cubos de tofu macio cozidos em molho picante de carne moída e pasta de feijão fermentado (doubanjiang), finalizado com pimenta de Sichuan.",
     origin: "China (Sichuan)",
     time: { prep: "15 min", cook: "15 min", total: "30 min" },
     yield: "4 porções",
@@ -143,6 +147,7 @@ window.RECIPES["china"] = [
   {
     name: "Chow Mein",
     subgroup: "Pratos Salteados",
+    desc: "Macarrão de ovo salteado na wok em fogo alto com frango (ou carne/camarão), legumes crocantes e molho de shoyu e ostra.",
     origin: "China",
     time: { prep: "20 min", cook: "12 min", total: "32 min" },
     yield: "4 porções",
@@ -177,6 +182,7 @@ window.RECIPES["china"] = [
   {
     name: "Xiaolongbao",
     subgroup: "Massas Recheadas",
+    desc: "Trouxinha de massa fina cozida no vapor, recheada com carne suína e uma gelatina de caldo que derrete e vira sopa quente dentro do pastel.",
     origin: "China (Xangai)",
     time: { prep: "1h + 4h gelatina", cook: "10 min", total: "≈5h30" },
     yield: "20 unidades",
@@ -209,6 +215,7 @@ window.RECIPES["china"] = [
   {
     name: "Dumplings (Jiaozi)",
     subgroup: "Massas Recheadas",
+    desc: "Pastelzinho de massa fina recheado com carne suína e repolho, cozido no vapor ou frito na frigideira (potsticker) com fundo crocante.",
     origin: "China",
     time: { prep: "50 min", cook: "10 min", total: "1h" },
     yield: "30 unidades",
@@ -242,6 +249,7 @@ window.RECIPES["china"] = [
   {
     name: "Hot Pot (Fondue Chinês)",
     subgroup: "Sopas e Caldeirões",
+    desc: "Panela de caldo fervente na mesa onde cada um cozinha carne fatiada fina, camarão, tofu, legumes e macarrão, mergulhando em molhos individuais.",
     origin: "China",
     time: { prep: "40 min", cook: "30 min (na mesa)", total: "≈1h10" },
     yield: "4-6 porções",
@@ -272,6 +280,7 @@ window.RECIPES["china"] = [
   {
     name: "Wonton Soup",
     subgroup: "Sopas e Caldeirões",
+    desc: "Sopa de caldo de galinha com pequenos pastéis de massa recheados de camarão e porco, finalizada com folhas verdes e cebolinha.",
     origin: "China (Cantão)",
     time: { prep: "40 min", cook: "15 min", total: "55 min" },
     yield: "4 porções",

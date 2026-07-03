@@ -6,6 +6,7 @@ window.RECIPES["padaria"] = [
   {
     name: "Baguete",
     subgroup: "Pães Franceses Clássicos",
+    desc: "Pão francês longo e fino, com casca crocante gerada por vapor no forno e miolo macio e alveolado.",
     origin: "França",
     time: { prep: "30 min + 3h fermentação", cook: "25 min", total: "≈4h" },
     yield: "3 baguetes",
@@ -36,6 +37,7 @@ window.RECIPES["padaria"] = [
   {
     name: "Brioche",
     subgroup: "Pães Franceses Clássicos",
+    desc: "Pão francês rico e macio, levado por muita manteiga e ovo, com fermentação longa na geladeira — base para pão de hambúrguer gourmet.",
     origin: "França",
     time: { prep: "30 min + 12h fermentação na geladeira", cook: "30 min", total: "≈13h" },
     yield: "1 pão grande (forma de bolo inglês)",
@@ -69,6 +71,7 @@ window.RECIPES["padaria"] = [
   {
     name: "Croissant",
     subgroup: "Pães Franceses Clássicos",
+    desc: "Pão folhado em formato de crescente, com camadas amanteigadas criadas por dobras sucessivas de massa e manteiga (laminação).",
     origin: "França / Áustria",
     time: { prep: "1h + 12h entre dobras e descanso", cook: "20 min", total: "≈14h" },
     yield: "12 croissants",
@@ -105,6 +108,7 @@ window.RECIPES["padaria"] = [
   {
     name: "Pain de Campagne",
     subgroup: "Pães Franceses Clássicos",
+    desc: "Pão rústico francês de casca grossa e escura, feito com farinha branca e integral, assado dentro de panela para gerar vapor.",
     origin: "França",
     time: { prep: "30 min + 4h fermentação", cook: "45 min", total: "≈5h30" },
     yield: "1 pão grande",
@@ -138,6 +142,7 @@ window.RECIPES["padaria"] = [
   {
     name: "Focaccia",
     subgroup: "Pães Italianos",
+    desc: "Pão italiano achatado e macio, generosamente regado com azeite, com furos característicos e coberturas como tomate e alecrim.",
     origin: "Itália (Ligúria)",
     time: { prep: "20 min + 3h fermentação", cook: "25 min", total: "≈3h45" },
     yield: "1 assadeira grande",
@@ -171,6 +176,7 @@ window.RECIPES["padaria"] = [
   {
     name: "Ciabatta",
     subgroup: "Pães Italianos",
+    desc: "Pão italiano de casca crocante e miolo bem alveolado, feito com massa de alta hidratação e fermento prévio (poolish).",
     origin: "Itália",
     time: { prep: "20 min + 4h fermentação (+ poolish 12h)", cook: "25 min", total: "≈16h" },
     yield: "4 pães pequenos",
@@ -201,6 +207,7 @@ window.RECIPES["padaria"] = [
   {
     name: "Pão de Fermentação Natural",
     subgroup: "Fermentação Natural",
+    desc: "Pão rústico (sourdough) fermentado só com levain, sem fermento comercial, de casca escura e crocante e miolo irregular.",
     origin: "Tradição mundial (sourdough)",
     time: { prep: "40 min + 4-6h fermentação + 12h geladeira", cook: "45 min", total: "≈18-20h" },
     yield: "1 pão grande",
@@ -235,6 +242,7 @@ window.RECIPES["padaria"] = [
   {
     name: "Pão de Leite",
     subgroup: "Pães do Dia a Dia",
+    desc: "Pãezinhos macios e levemente adocicados, assados grudados um no outro para ficarem com laterais fofas — ótimos para mini-sanduíches.",
     origin: "Brasil / Internacional",
     time: { prep: "20 min + 2h fermentação", cook: "20 min", total: "≈2h40" },
     yield: "12 pãezinhos",
@@ -269,6 +277,7 @@ window.RECIPES["padaria"] = [
   {
     name: "Pretzel",
     subgroup: "Pães do Dia a Dia",
+    desc: "Pão alemão torcido característico, mergulhado em banho de bicarbonato antes de assar — dá a casca escura, brilhante e o sabor alcalino.",
     origin: "Alemanha",
     time: { prep: "20 min + 1h fermentação", cook: "15 min", total: "≈1h35" },
     yield: "8 pretzels",

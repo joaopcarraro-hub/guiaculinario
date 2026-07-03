@@ -6,6 +6,7 @@ window.RECIPES["india"] = [
   {
     name: "Tandoori Chicken",
     subgroup: "Frango",
+    desc: "Frango marinado em iogurte, gengibre, alho e especiarias (garam masala, páprica), assado em forno bem quente até ficar com marcas escurecidas — servido com naan.",
     origin: "Índia (Punjab)",
     time: { prep: "20 min + 6h marinada", cook: "35 min", total: "≈7h" },
     yield: "4 porções",
@@ -41,6 +42,7 @@ window.RECIPES["india"] = [
   {
     name: "Butter Chicken (Murgh Makhani)",
     subgroup: "Frango",
+    desc: "Frango grelhado após marinar em iogurte e especiarias, finalizado num molho cremoso de tomate, manteiga e creme de leite — servido com arroz basmati ou naan.",
     origin: "Índia (Delhi)",
     time: { prep: "20 min + 2h marinada", cook: "35 min", total: "≈3h" },
     yield: "4 porções",
@@ -79,6 +81,7 @@ window.RECIPES["india"] = [
   {
     name: "Chicken Tikka Masala",
     subgroup: "Frango",
+    desc: "Pedaços de frango marinado e grelhado (tikka) num molho cremoso de tomate com creme de leite e especiarias — parecido com o Butter Chicken, porém mais picante e defumado.",
     origin: "Reino Unido / Índia",
     time: { prep: "20 min + 2h marinada", cook: "35 min", total: "≈3h" },
     yield: "4 porções",
@@ -119,6 +122,7 @@ window.RECIPES["india"] = [
   {
     name: "Rogan Josh",
     subgroup: "Carnes e Arroz",
+    desc: "Ensopado de cordeiro cozido lentamente em molho encorpado de cebola, iogurte, páprica e especiarias inteiras (canela, cravo, cardamomo) — de cor vermelha intensa, servido com arroz basmati.",
     origin: "Índia (Caxemira)",
     time: { prep: "20 min", cook: "1h40", total: "2h" },
     yield: "4-6 porções",
@@ -155,6 +159,7 @@ window.RECIPES["india"] = [
   {
     name: "Biryani",
     subgroup: "Carnes e Arroz",
+    desc: "Arroz basmati cozido em camadas com carne (frango ou cordeiro) marinada e especiarias, finalizado em fogo baixo e tampa lacrada (técnica 'dum') para os sabores se infundirem no arroz.",
     origin: "Índia",
     time: { prep: "30 min + 1h marinada", cook: "1h", total: "2h30" },
     yield: "6 porções",
@@ -194,6 +199,7 @@ window.RECIPES["india"] = [
   {
     name: "Dal Makhani",
     subgroup: "Vegetarianos e Pães",
+    desc: "Ensopado cremoso de feijão preto (urad dal) e feijão vermelho, cozidos lentamente em molho de tomate com manteiga (ghee) e creme de leite — prato vegetariano rico e amanteigado.",
     origin: "Índia (Punjab)",
     time: { prep: "15 min + 8h molho", cook: "1h30", total: "≈10h" },
     yield: "4-6 porções",
@@ -228,6 +234,7 @@ window.RECIPES["india"] = [
   {
     name: "Samosa",
     subgroup: "Vegetarianos e Pães",
+    desc: "Pastel triangular de massa crocante, recheado com batata amassada, ervilha e especiarias, frito até dourar — servido com chutney de hortelã ou tamarindo.",
     origin: "Índia",
     time: { prep: "45 min", cook: "20 min", total: "1h05" },
     yield: "16 unidades",
@@ -263,6 +270,7 @@ window.RECIPES["india"] = [
   {
     name: "Naan",
     subgroup: "Vegetarianos e Pães",
+    desc: "Pão chato de fermentação com iogurte, assado em frigideira bem quente até formar bolhas douradas — pincelado com manteiga (ou ghee) e alho ao sair do fogo.",
     origin: "Índia",
     time: { prep: "20 min + 1h fermentação", cook: "10 min", total: "1h30" },
     yield: "8 unidades",

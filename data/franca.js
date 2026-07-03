@@ -9,6 +9,7 @@ window.RECIPES["franca"] = [
   {
     name: "Foie Gras Poêlé",
     subgroup: "Entradas",
+    desc: "Fígado de pato ou ganso selado rapidamente na própria gordura, servido sobre torrada com frutas e redução de Porto.",
     origin: "França",
     time: { prep: "15 min", cook: "5 min", total: "20 min" },
     yield: "2 porções",
@@ -38,6 +39,7 @@ window.RECIPES["franca"] = [
   {
     name: "Salade Niçoise",
     subgroup: "Entradas",
+    desc: "Salada fria de Nice com atum, ovo mollet, vagem, tomate, azeitonas e anchova — sem batata, na receita clássica.",
     origin: "França (Nice)",
     time: { prep: "25 min", cook: "15 min", total: "40 min" },
     yield: "2-4 porções",
@@ -72,6 +74,7 @@ window.RECIPES["franca"] = [
   {
     name: "Cassoulet",
     subgroup: "Principais",
+    desc: "Ensopado francês de feijão branco com confit de pato, linguiça e bacon, gratinado no forno em camadas de crosta.",
     origin: "França (Languedoc)",
     time: { prep: "30 min + 8h molho do feijão", cook: "3h", total: "≈12h" },
     yield: "6-8 porções",
@@ -109,6 +112,7 @@ window.RECIPES["franca"] = [
   {
     name: "Blanquette de Veau",
     subgroup: "Principais",
+    desc: "Guisado branco de vitela cozida sem dourar, com cogumelos e cebolinhas em molho aveludado de creme e gemas.",
     origin: "França",
     time: { prep: "25 min", cook: "1h30", total: "1h55" },
     yield: "4-6 porções",
@@ -149,6 +153,7 @@ window.RECIPES["franca"] = [
   {
     name: "Navarin d'Agneau",
     subgroup: "Principais",
+    desc: "Guisado francês de cordeiro com legumes de primavera (cenoura baby, nabo, batatinha) em molho encorpado de tomate.",
     origin: "França",
     time: { prep: "25 min", cook: "1h30", total: "1h55" },
     yield: "4-6 porções",

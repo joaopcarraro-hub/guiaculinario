@@ -6,6 +6,7 @@ window.RECIPES["austria"] = [
   {
     name: "Wiener Schnitzel",
     subgroup: "Principais",
+    desc: "Filé de vitela batido fino, empanado e frito na manteiga até formar uma crosta dourada e ondulada — servido só com limão.",
     origin: "Áustria (Viena)",
     time: { prep: "15 min", cook: "10 min", total: "25 min" },
     yield: "4 porções",
@@ -34,6 +35,7 @@ window.RECIPES["austria"] = [
   {
     name: "Apfelstrudel",
     subgroup: "Sobremesas",
+    desc: "Rolo de massa filo fina recheado com maçã fatiada, canela, passas e nozes, assado até dourar — sobremesa clássica austríaca.",
     origin: "Áustria",
     time: { prep: "40 min", cook: "35 min", total: "1h15" },
     yield: "8 porções",
@@ -69,6 +71,7 @@ window.RECIPES["austria"] = [
   {
     name: "Kaiserschmarrn",
     subgroup: "Sobremesas",
+    desc: "Panqueca fofa e grossa, rasgada em pedaços e caramelizada na manteiga, polvilhada com açúcar e servida com compota de frutas.",
     origin: "Áustria",
     time: { prep: "15 min", cook: "15 min", total: "30 min" },
     yield: "2-3 porções",

@@ -9,6 +9,7 @@ window.RECIPES["brasil-regional"] = [
   {
     name: "Pato no Tucupi",
     subgroup: "Norte",
+    desc: "Pato cozido no caldo amarelo de mandioca (tucupi) com folhas de jambu — prato de festa típico do Pará.",
     origin: "Brasil (Pará)",
     time: { prep: "30 min + 2h marinada", cook: "1h30", total: "≈4h" },
     yield: "6 porções",
@@ -42,6 +43,7 @@ window.RECIPES["brasil-regional"] = [
   {
     name: "Maniçoba",
     subgroup: "Norte",
+    desc: "A 'feijoada preta' do Pará — folha de mandioca cozida por dias com várias carnes de porco, até perder a toxicidade.",
     origin: "Brasil (Pará)",
     time: { prep: "20 min", cook: "5-7 dias (folha) + 3h (montagem final)", total: "Vários dias" },
     yield: "10 porções",
@@ -75,6 +77,7 @@ window.RECIPES["brasil-regional"] = [
   {
     name: "Pirarucu de Casaca",
     subgroup: "Norte",
+    desc: "Camadas de peixe amazônico desfiado, purê de mandioca e banana frita, gratinadas no forno — o 'shepherd's pie' amazônico.",
     origin: "Brasil (Amazônia)",
     time: { prep: "30 min", cook: "45 min", total: "1h15" },
     yield: "6 porções",
@@ -111,6 +114,7 @@ window.RECIPES["brasil-regional"] = [
   {
     name: "Sarapatel",
     subgroup: "Nordeste",
+    desc: "Guisado de miúdos de porco (fígado, coração, rim, bucho) em molho apurado, tradicionalmente engrossado com sangue.",
     origin: "Brasil (Pernambuco)",
     time: { prep: "30 min", cook: "1h30", total: "2h" },
     yield: "6 porções",
@@ -146,6 +150,7 @@ window.RECIPES["brasil-regional"] = [
   {
     name: "Carne de Sol com Macaxeira",
     subgroup: "Nordeste",
+    desc: "Carne salgada e curada, selada na manteiga de garrafa e servida sobre mandioca cozida.",
     origin: "Brasil (Nordeste)",
     time: { prep: "15 min + dessalgar", cook: "30 min", total: "≈1h" },
     yield: "4 porções",
@@ -179,6 +184,7 @@ window.RECIPES["brasil-regional"] = [
   {
     name: "Arroz com Pequi",
     subgroup: "Centro-Oeste",
+    desc: "Arroz refogado com pequi, fruto aromático do Cerrado de caroço espinhoso — clássico goiano.",
     origin: "Brasil (Goiás)",
     time: { prep: "15 min", cook: "30 min", total: "45 min" },
     yield: "6 porções",
@@ -208,6 +214,7 @@ window.RECIPES["brasil-regional"] = [
   {
     name: "Pintado na Brasa",
     subgroup: "Centro-Oeste",
+    desc: "Postas de peixe pintado marinadas em limão e alho, grelhadas com páprica defumada — prato do Pantanal.",
     origin: "Brasil (Pantanal)",
     time: { prep: "20 min + 1h marinada", cook: "25 min", total: "1h45" },
     yield: "4 porções",
@@ -237,6 +244,7 @@ window.RECIPES["brasil-regional"] = [
   {
     name: "Mojica",
     subgroup: "Centro-Oeste",
+    desc: "Caldo pantaneiro de peixe de água doce engrossado com mandioca amassada, receita tradicional de pescadores.",
     origin: "Brasil (Pantanal / Mato Grosso)",
     time: { prep: "20 min", cook: "30 min", total: "50 min" },
     yield: "4 porções",
@@ -273,6 +281,7 @@ window.RECIPES["brasil-regional"] = [
   {
     name: "Frango com Quiabo",
     subgroup: "Sudeste",
+    desc: "Frango caipira ensopado com quiabo salteado à parte para reduzir a baba — clássico mineiro de domingo.",
     origin: "Brasil (Minas Gerais)",
     time: { prep: "20 min", cook: "40 min", total: "1h" },
     yield: "6 porções",
@@ -305,6 +314,7 @@ window.RECIPES["brasil-regional"] = [
   {
     name: "Picadinho",
     subgroup: "Sudeste",
+    desc: "Cubos de carne bovina refogados com tomate e pimentão, servidos com arroz, feijão, farofa e ovo frito por cima.",
     origin: "Brasil",
     time: { prep: "15 min", cook: "35 min", total: "50 min" },
     yield: "4 porções",
@@ -342,6 +352,7 @@ window.RECIPES["brasil-regional"] = [
   {
     name: "Entrevero",
     subgroup: "Sul",
+    desc: "Mistura de carne, linguiça e miúdos grelhados com ovos mexidos — jeito gaúcho de aproveitar sobras de churrasco.",
     origin: "Brasil (Rio Grande do Sul)",
     time: { prep: "15 min", cook: "20 min", total: "35 min" },
     yield: "4 porções",
@@ -375,6 +386,7 @@ window.RECIPES["brasil-regional"] = [
   {
     name: "Galeto Al Primo Canto",
     subgroup: "Sul",
+    desc: "Frango jovem aberto em borboleta, marinado e assado, servido com polenta e molho de campanha — herança italiana da Serra Gaúcha.",
     origin: "Brasil (Serra Gaúcha, imigração italiana)",
     time: { prep: "20 min + 2h marinada", cook: "40 min", total: "3h" },
     yield: "4 porções",

@@ -7,6 +7,7 @@ window.RECIPES["mexico"] = [
   {
     name: "Birria",
     subgroup: "Carnes de Panela",
+    desc: "Carne bovina cozida lentamente num molho de pimentas secas tostadas, servida desfiada em tacos com o caldo (consomê) para mergulhar.",
     origin: "México (Jalisco)",
     time: { prep: "30 min + 1h marinada", cook: "3h", total: "≈4h30" },
     yield: "6-8 porções",
@@ -42,6 +43,7 @@ window.RECIPES["mexico"] = [
   {
     name: "Mole Poblano",
     subgroup: "Carnes de Panela",
+    desc: "Frango em molho escuro e encorpado de pimentas secas, especiarias, oleaginosas e um toque de chocolate amargo.",
     origin: "México (Puebla)",
     time: { prep: "40 min", cook: "1h30", total: "2h10" },
     yield: "6-8 porções",
@@ -81,6 +83,7 @@ window.RECIPES["mexico"] = [
   {
     name: "Pozole",
     subgroup: "Carnes de Panela",
+    desc: "Sopa/caldo de porco com milho pozole (hominy) em molho de pimentas, servida com repolho, rabanete e limão à parte.",
     origin: "México",
     time: { prep: "25 min", cook: "2h30", total: "2h55" },
     yield: "6-8 porções",
@@ -116,6 +119,7 @@ window.RECIPES["mexico"] = [
   {
     name: "Tacos al Pastor",
     subgroup: "Tortillas Recheadas",
+    desc: "Tortillas de milho com porco marinado em pimentas e grelhado, finalizadas com abacaxi caramelizado, cebola e coentro.",
     origin: "México (Cidade do México)",
     time: { prep: "25 min + 4h marinada", cook: "20 min", total: "≈4h45" },
     yield: "4 porções (≈16 tacos)",
@@ -150,6 +154,7 @@ window.RECIPES["mexico"] = [
   {
     name: "Enchiladas",
     subgroup: "Tortillas Recheadas",
+    desc: "Tortillas de milho recheadas com frango desfiado, mergulhadas em molho de pimenta e gratinadas com queijo no forno.",
     origin: "México",
     time: { prep: "25 min", cook: "30 min", total: "55 min" },
     yield: "4 porções (12 unidades)",
@@ -184,6 +189,7 @@ window.RECIPES["mexico"] = [
   {
     name: "Quesadillas",
     subgroup: "Tortillas Recheadas",
+    desc: "Tortilla dobrada recheada com queijo derretido (e recheio opcional), selada na frigideira até dourar por fora.",
     origin: "México",
     time: { prep: "10 min", cook: "10 min", total: "20 min" },
     yield: "4 unidades",
@@ -211,6 +217,7 @@ window.RECIPES["mexico"] = [
   {
     name: "Chiles Rellenos",
     subgroup: "Tortillas Recheadas",
+    desc: "Pimentão poblano assado e descascado, recheado com queijo, empanado em massa de ovo aerada e frito, servido com molho de tomate.",
     origin: "México (Puebla)",
     time: { prep: "30 min", cook: "20 min", total: "50 min" },
     yield: "6 unidades",
@@ -245,6 +252,7 @@ window.RECIPES["mexico"] = [
   {
     name: "Tamales",
     subgroup: "Tortillas Recheadas",
+    desc: "Massa de milho fofa recheada com frango ou porco em molho, embrulhada em folha de milho e cozida no vapor.",
     origin: "México",
     time: { prep: "1h + hidratar folhas", cook: "1h30", total: "2h30" },
     yield: "16 unidades",
@@ -279,6 +287,7 @@ window.RECIPES["mexico"] = [
   {
     name: "Guacamole",
     subgroup: "Molhos e Acompanhamentos",
+    desc: "Pasta cremosa de abacate amassado com cebola, pimenta, tomate, coentro e limão, servida com totopos ou tacos.",
     origin: "México",
     time: { prep: "15 min", cook: "0 min", total: "15 min" },
     yield: "4 porções",

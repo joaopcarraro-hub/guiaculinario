@@ -7,6 +7,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   {
     name: "Leite de Tigre",
     subgroup: "Crus e Marinados",
+    desc: "Líquido ácido peruano batido com limão, aparas de peixe cru e pimenta — a marinada do ceviche servida por si só, como um 'shot' de abertura.",
     origin: "Peru",
     time: { prep: "15 min", cook: "0 min", total: "15 min" },
     yield: "≈300 ml",
@@ -38,6 +39,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   {
     name: "Gravlax",
     subgroup: "Crus e Marinados",
+    desc: "Salmão curado por dias em sal, açúcar e endro, sem cozimento, fatiado bem fino e servido com pão escuro e mostarda.",
     origin: "Escandinávia",
     time: { prep: "15 min + 48-72h cura", cook: "0 min", total: "2-3 dias" },
     yield: "≈600 g",
@@ -70,6 +72,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   {
     name: "Cura de Peixes e Carnes",
     subgroup: "Crus e Marinados",
+    desc: "Técnica de curar peixe ou carne em sal e açúcar por horas, concentrando sabor e firmando a textura para servir como carpaccio ou crudo.",
     origin: "Técnica internacional",
     time: { prep: "10 min + 1-24h cura (varia)", cook: "0 min", total: "1-24h" },
     yield: "Conforme a peça",
@@ -98,6 +101,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   {
     name: "Sous-vide (Técnica Geral)",
     subgroup: "Cozimentos de Precisão",
+    desc: "Técnica de cozinhar a peça selada a vácuo em banho de água com temperatura controlada, garantindo o ponto interno exato antes de selar rapidamente.",
     origin: "Técnica moderna (França)",
     time: { prep: "10 min", cook: "1-24h (varia por corte)", total: "Varia" },
     yield: "Conforme a peça",
@@ -126,6 +130,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   {
     name: "Dry Aging (Maturação Seca)",
     subgroup: "Cozimentos de Precisão",
+    desc: "Técnica de maturar carne bovina por semanas em câmara com temperatura e umidade controladas, concentrando sabor e maciez antes de aparar a crosta seca.",
     origin: "Técnica internacional",
     time: { prep: "10 min", cook: "14-45 dias de maturação", total: "Semanas" },
     yield: "Conforme a peça",
@@ -152,6 +157,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   {
     name: "Defumação Caseira",
     subgroup: "Cozimentos de Precisão",
+    desc: "Técnica de dar sabor defumado a carnes, peixes ou queijos usando lascas de madeira em fogo baixo, com equipamento próprio ou uma panela adaptada.",
     origin: "Técnica internacional",
     time: { prep: "15 min", cook: "20 min a várias horas (varia)", total: "Varia" },
     yield: "Conforme a peça",
@@ -181,6 +187,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   {
     name: "Esferificação de Frutas",
     subgroup: "Esferificação e Texturas Moleculares",
+    desc: "Técnica de gastronomia molecular que transforma suco de fruta em pequenas esferas com membrana fina e interior líquido, que 'explodem' ao morder.",
     origin: "Espanha (elBulli, gastronomia molecular)",
     time: { prep: "20 min", cook: "10 min", total: "30 min" },
     yield: "≈30 esferas pequenas",
@@ -208,6 +215,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   {
     name: "Aires (Espumas de Ar)",
     subgroup: "Esferificação e Texturas Moleculares",
+    desc: "Camada extremamente leve e efêmera de bolhas de ar batidas com lecitina sobre um líquido saboroso, mais sutil que uma espuma comum.",
     origin: "Espanha (elBulli, gastronomia molecular)",
     time: { prep: "10 min", cook: "0 min", total: "10 min" },
     yield: "Cobertura para 4 pratos",
@@ -236,6 +244,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   {
     name: "Braseados Longos",
     subgroup: "Braseados e Confits",
+    desc: "Técnica de selar e cozinhar lentamente cortes duros de carne em vinho e caldo por horas, até ficarem extremamente macios, servidos com o molho reduzido.",
     origin: "Técnica clássica internacional",
     time: { prep: "20 min", cook: "3-4h", total: "≈4h" },
     yield: "4-6 porções",
@@ -269,6 +278,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   {
     name: "Confit (Alho, Tomate e Cebola)",
     subgroup: "Braseados e Confits",
+    desc: "Técnica de cozinhar alho, tomate ou cebola submersos em azeite morno até ficarem extremamente macios e suaves, guardados no próprio azeite aromatizado.",
     origin: "Técnica clássica francesa",
     time: { prep: "10 min", cook: "1h-1h30", total: "≈1h30" },
     yield: "≈300 g",
@@ -298,6 +308,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   {
     name: "Pó de Vegetais",
     subgroup: "Pós e Crocantes",
+    desc: "Cascas e aparas de vegetais desidratadas e trituradas em pó fino, usadas para polvilhar cor e sabor concentrado sobre os pratos.",
     origin: "Gastronomia contemporânea",
     time: { prep: "10 min", cook: "2-3h desidratando", total: "≈3h" },
     yield: "≈50 g de pó",
@@ -323,6 +334,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   {
     name: "Pó de Azeitona",
     subgroup: "Pós e Crocantes",
+    desc: "Azeitonas pretas desidratadas e trituradas em pó escuro e umami, polvilhado sobre saladas, peixes grelhados ou risotos.",
     origin: "Gastronomia contemporânea (Espanha)",
     time: { prep: "10 min", cook: "2-3h desidratando", total: "≈3h" },
     yield: "≈40 g de pó",
@@ -348,6 +360,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   {
     name: "Crocante de Arroz",
     subgroup: "Pós e Crocantes",
+    desc: "Discos finos de creme de arroz secos e depois fritos rapidamente, que incham e ficam crocantes como um cracker decorativo.",
     origin: "Ásia / Gastronomia contemporânea",
     time: { prep: "10 min + secagem 4h ou durante a noite", cook: "3 min", total: "≈4h15" },
     yield: "≈15 unidades",
@@ -376,6 +389,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   {
     name: "Crosta de Especiarias",
     subgroup: "Pós e Crocantes",
+    desc: "Mistura de especiarias tostadas e moídas grosseiramente, pressionada sobre a carne antes de selar, formando uma crosta aromática crocante.",
     origin: "Técnica internacional",
     time: { prep: "10 min", cook: "3 min (tostar)", total: "13 min" },
     yield: "Para cobrir 1 peça de carne média",
@@ -406,6 +420,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   {
     name: "Manteiga Composta",
     subgroup: "Molhos e Manteigas Avançados",
+    desc: "Manteiga amolecida misturada com ervas, alho assado ou limão, moldada em cilindro e fatiada para derreter sobre carnes, peixes ou vegetais quentes.",
     origin: "Técnica clássica francesa",
     time: { prep: "10 min + 1h geladeira", cook: "0 min", total: "1h10" },
     yield: "≈200 g",
@@ -432,6 +447,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   {
     name: "Velouté Moderno",
     subgroup: "Molhos e Manteigas Avançados",
+    desc: "Releitura do molho clássico de caldo reduzido com creme, engrossado sem farinha (com goma xantana), resultando num molho mais leve e brilhante.",
     origin: "Gastronomia contemporânea (releitura do clássico)",
     time: { prep: "10 min", cook: "20 min", total: "30 min" },
     yield: "≈400 ml",
@@ -461,6 +477,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   {
     name: "Espelho de Molho",
     subgroup: "Molhos e Manteigas Avançados",
+    desc: "Técnica de emplatamento que espalha um molho encorpado no prato em camada fina e uniforme, como base visual para os demais componentes.",
     origin: "Gastronomia contemporânea (técnica de emplatamento)",
     time: { prep: "5 min", cook: "0 min (usa molho já pronto)", total: "5 min" },
     yield: "Para 1 prato",
@@ -485,6 +502,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   {
     name: "Glace de Viande",
     subgroup: "Molhos e Manteigas Avançados",
+    desc: "Fundo escuro de carne reduzido por horas até virar um xarope concentrado e gelatinoso, usado em pequenas doses para intensificar molhos.",
     origin: "França",
     time: { prep: "5 min", cook: "2-3h (redução)", total: "≈3h" },
     yield: "≈150 ml (bem concentrado)",
@@ -511,6 +529,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   {
     name: "Legumes Fermentados",
     subgroup: "Fermentação",
+    desc: "Vegetais salgados e fermentados naturalmente por dias em seu próprio líquido, desenvolvendo acidez complexa e benefícios probióticos.",
     origin: "Técnica internacional (fermentação lática)",
     time: { prep: "20 min", cook: "0 min", total: "3-14 dias fermentando" },
     yield: "≈1 pote grande",

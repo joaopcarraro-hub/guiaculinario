@@ -6,6 +6,7 @@ window.RECIPES["carnes-bovinas"] = [
   {
     name: "Beef Wellington",
     subgroup: "Assados e Grelhados Nobres",
+    desc: "Filé mignon selado, envolto em duxelles de cogumelos e presunto de Parma, coberto com massa folhada e assado até dourar.",
     origin: "Reino Unido",
     time: { prep: "1h + 1h geladeira", cook: "35 min", total: "≈2h45" },
     yield: "4-6 porções",
@@ -40,6 +41,7 @@ window.RECIPES["carnes-bovinas"] = [
   {
     name: "Chateaubriand",
     subgroup: "Assados e Grelhados Nobres",
+    desc: "Peça central e mais grossa do filé mignon, selada e regada com manteiga, finalizada no forno e servida fatiada para compartilhar.",
     origin: "França",
     time: { prep: "10 min", cook: "25 min", total: "35 min" },
     yield: "2-3 porções",
@@ -71,6 +73,7 @@ window.RECIPES["carnes-bovinas"] = [
   {
     name: "Steak au Poivre",
     subgroup: "Assados e Grelhados Nobres",
+    desc: "Filé com crosta grosseira de pimenta-do-reino, selado e servido com molho cremoso de conhaque flambado e creme de leite.",
     origin: "França",
     time: { prep: "10 min", cook: "15 min", total: "25 min" },
     yield: "2 porções",
@@ -104,6 +107,7 @@ window.RECIPES["carnes-bovinas"] = [
   {
     name: "Steak Diane",
     subgroup: "Assados e Grelhados Nobres",
+    desc: "Filé fino selado rapidamente e servido com molho de cogumelos, conhaque flambado, mostarda Dijon e creme de leite.",
     origin: "EUA / Reino Unido (bistrô clássico)",
     time: { prep: "10 min", cook: "15 min", total: "25 min" },
     yield: "2 porções",
@@ -140,6 +144,7 @@ window.RECIPES["carnes-bovinas"] = [
   {
     name: "Tornedor Rossini",
     subgroup: "Assados e Grelhados Nobres",
+    desc: "Medalhão de filé mignon sobre torrada de brioche, coroado com foie gras selado e regado com molho de Madeira e Demi-glace.",
     origin: "França / Itália",
     time: { prep: "15 min", cook: "20 min", total: "35 min" },
     yield: "2 porções",
@@ -176,6 +181,7 @@ window.RECIPES["carnes-bovinas"] = [
   {
     name: "Boeuf Bourguignon",
     subgroup: "Ensopados e Braseados",
+    desc: "Ensopado francês clássico de carne bovina cozida lentamente em vinho tinto com bacon, cogumelos e cebolinhas pérola.",
     origin: "França (Borgonha)",
     time: { prep: "30 min", cook: "3h", total: "3h30" },
     yield: "6 porções",
@@ -216,6 +222,7 @@ window.RECIPES["carnes-bovinas"] = [
   {
     name: "Ossobuco",
     subgroup: "Ensopados e Braseados",
+    desc: "Posta de canela bovina com osso e tutano, braseada em vinho branco e tomate até desmanchar, finalizada com gremolata fresca.",
     origin: "Itália (Milão)",
     time: { prep: "20 min", cook: "2h", total: "2h20" },
     yield: "4 porções",
@@ -253,6 +260,7 @@ window.RECIPES["carnes-bovinas"] = [
   {
     name: "Goulash",
     subgroup: "Ensopados e Braseados",
+    desc: "Ensopado húngaro caldoso de carne bovina com páprica, cebola, tomate e pimentão, tradicionalmente servido com creme azedo.",
     origin: "Hungria",
     time: { prep: "20 min", cook: "2h", total: "2h20" },
     yield: "6 porções",
@@ -291,6 +299,7 @@ window.RECIPES["carnes-bovinas"] = [
   {
     name: "Bife à Parmigiana",
     subgroup: "Pratos do Dia a Dia",
+    desc: "Bife empanado e frito, coberto com molho de tomate, muçarela e parmesão, gratinado no forno até derreter.",
     origin: "Brasil / Itália (adaptação)",
     time: { prep: "20 min", cook: "25 min", total: "45 min" },
     yield: "4 porções",
@@ -323,6 +332,7 @@ window.RECIPES["carnes-bovinas"] = [
   {
     name: "Filé ao Molho Madeira",
     subgroup: "Pratos do Dia a Dia",
+    desc: "Medalhões de filé mignon selados, servidos com molho encorpado de vinho Madeira, échalote e cogumelos.",
     origin: "Portugal / Internacional",
     time: { prep: "10 min", cook: "20 min", total: "30 min" },
     yield: "2-4 porções",

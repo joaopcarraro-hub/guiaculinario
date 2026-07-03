@@ -6,6 +6,7 @@ window.RECIPES["coreia"] = [
   {
     name: "Bulgogi",
     subgroup: "Carnes Grelhadas",
+    desc: "Fatias finas de carne bovina marinadas em shoyu, pera ralada e óleo de gergelim, grelhadas rapidamente — servidas com arroz e kimchi.",
     origin: "Coreia",
     time: { prep: "20 min + 2h marinada", cook: "10 min", total: "2h30" },
     yield: "4 porções",
@@ -38,6 +39,7 @@ window.RECIPES["coreia"] = [
   {
     name: "Galbi",
     subgroup: "Carnes Grelhadas",
+    desc: "Costela bovina cortada fina, marinada em shoyu, pera e cebola ralada, e grelhada — tradicionalmente enrolada em folha de alface com arroz.",
     origin: "Coreia",
     time: { prep: "20 min + 4h marinada", cook: "10 min", total: "4h30" },
     yield: "4 porções",
@@ -72,6 +74,7 @@ window.RECIPES["coreia"] = [
   {
     name: "Bibimbap",
     subgroup: "Arroz e Macarrão",
+    desc: "Tigela de arroz coberta com legumes temperados separadamente, carne salteada e ovo frito — tudo misturado à mesa com pasta de pimenta gochujang.",
     origin: "Coreia",
     time: { prep: "35 min", cook: "20 min", total: "55 min" },
     yield: "4 porções",
@@ -107,6 +110,7 @@ window.RECIPES["coreia"] = [
   {
     name: "Japchae",
     subgroup: "Arroz e Macarrão",
+    desc: "Macarrão de batata-doce salteado com carne, cogumelo e legumes coloridos, temperado com shoyu e óleo de gergelim.",
     origin: "Coreia",
     time: { prep: "25 min", cook: "15 min", total: "40 min" },
     yield: "4 porções",
@@ -142,6 +146,7 @@ window.RECIPES["coreia"] = [
   {
     name: "Tteokbokki",
     subgroup: "Arroz e Macarrão",
+    desc: "Bolinhos de arroz cilíndricos cozidos em molho picante e adocicado de gochujang — o street food coreano mais popular.",
     origin: "Coreia",
     time: { prep: "10 min", cook: "15 min", total: "25 min" },
     yield: "3-4 porções",
@@ -174,6 +179,7 @@ window.RECIPES["coreia"] = [
   {
     name: "Kimchi Fried Rice (Kimchi Bokkeumbap)",
     subgroup: "Arroz e Macarrão",
+    desc: "Arroz frito com kimchi fermentado, bacon e gochujang, coroado com ovo frito — prato coreano de aproveitamento do kimchi maduro.",
     origin: "Coreia",
     time: { prep: "10 min", cook: "15 min", total: "25 min" },
     yield: "2 porções",
@@ -208,6 +214,7 @@ window.RECIPES["coreia"] = [
   {
     name: "Kimchi",
     subgroup: "Fermentados e Sopas",
+    desc: "Repolho napa salgado e fermentado com pasta de pimenta coreana (gochugaru), alho e gengibre — a base picante e ácida de vários pratos coreanos.",
     origin: "Coreia",
     time: { prep: "40 min + 2h salga", cook: "0 min", total: "≈3h + fermentação" },
     yield: "≈1,5 kg",
@@ -238,6 +245,7 @@ window.RECIPES["coreia"] = [
   {
     name: "Sundubu Jjigae",
     subgroup: "Fermentados e Sopas",
+    desc: "Sopa borbulhante e picante de tofu macio (sedoso, quebrado em pedaços) com carne, kimchi e ovo cru cozido na própria sopa quente.",
     origin: "Coreia",
     time: { prep: "15 min", cook: "20 min", total: "35 min" },
     yield: "2 porções",

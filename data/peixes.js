@@ -6,6 +6,7 @@ window.RECIPES["peixes"] = [
   {
     name: "Sole Meunière",
     subgroup: "Técnica Meunière",
+    desc: "Filé de linguado empanado em farinha fina, dourado na manteiga e finalizado com manteiga avelã e limão.",
     origin: "França",
     time: { prep: "10 min", cook: "10 min", total: "20 min" },
     yield: "2 porções",
@@ -38,6 +39,7 @@ window.RECIPES["peixes"] = [
   {
     name: "Linguado à Belle Meunière",
     subgroup: "Técnica Meunière",
+    desc: "Versão elaborada da meunière — linguado na manteiga dourada, coroado com camarão, cogumelo e tomate.",
     origin: "França",
     time: { prep: "20 min", cook: "20 min", total: "40 min" },
     yield: "2 porções",
@@ -74,6 +76,7 @@ window.RECIPES["peixes"] = [
   {
     name: "Peixe en Papillote",
     subgroup: "Assados e Curados",
+    desc: "Filé de peixe branco assado num pacote selado de papel com legumes, limão e ervas, cozinhando no próprio vapor.",
     origin: "França",
     time: { prep: "20 min", cook: "18 min", total: "38 min" },
     yield: "2 porções",
@@ -109,6 +112,7 @@ window.RECIPES["peixes"] = [
   {
     name: "Salmão Gravlax (para servir)",
     subgroup: "Assados e Curados",
+    desc: "Salmão curado (sem cozimento) fatiado fino, servido com molho de mostarda e endro, à moda escandinava.",
     origin: "Escandinávia",
     time: { prep: "15 min (+ 48-72h de cura prévia)", cook: "0 min", total: "15 min" },
     yield: "4-6 porções (entrada)",
@@ -139,6 +143,7 @@ window.RECIPES["peixes"] = [
   {
     name: "Bacalhau à Brás",
     subgroup: "Bacalhau",
+    desc: "Bacalhau desfiado refogado com cebola, batata palha e ovos mexidos cremosos — clássico português.",
     origin: "Portugal",
     time: { prep: "40 min (+ dessalgar o bacalhau)", cook: "20 min", total: "1h" },
     yield: "4 porções",
@@ -173,6 +178,7 @@ window.RECIPES["peixes"] = [
   {
     name: "Bacalhau Gomes de Sá",
     subgroup: "Bacalhau",
+    desc: "Bacalhau desfiado montado em camadas com batata e cebola, gratinado e coberto com ovo cozido e azeitonas.",
     origin: "Portugal (Porto)",
     time: { prep: "30 min (+ dessalgar)", cook: "45 min", total: "1h15" },
     yield: "4-6 porções",

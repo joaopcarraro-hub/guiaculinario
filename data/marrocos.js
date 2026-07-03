@@ -5,6 +5,7 @@ window.RECIPES["marrocos"] = [
   {
     name: "Tajine de Cordeiro com Damasco",
     subgroup: "Principais",
+    desc: "Cordeiro cozido lentamente com especiarias doces, damasco seco, mel e amêndoas — o clássico doce-salgado marroquino, servido com cuscuz.",
     origin: "Marrocos",
     time: { prep: "25 min", cook: "1h45", total: "2h10" },
     yield: "6 porções",
@@ -42,6 +43,7 @@ window.RECIPES["marrocos"] = [
   {
     name: "Cuscuz Marroquino",
     subgroup: "Acompanhamentos",
+    desc: "Sêmola hidratada em caldo fervente, soltada com garfo e misturada com amêndoas tostadas e passas — acompanhamento de tajines.",
     origin: "Marrocos",
     time: { prep: "10 min", cook: "15 min", total: "25 min" },
     yield: "6 porções",
@@ -73,6 +75,7 @@ window.RECIPES["marrocos"] = [
   {
     name: "Pastilla",
     subgroup: "Principais",
+    desc: "Torta de massa filo crocante recheada com frango desfiado, creme de ovo especiado e amêndoas, polvilhada com açúcar e canela.",
     origin: "Marrocos",
     time: { prep: "50 min", cook: "45 min", total: "1h35" },
     yield: "6-8 porções",
@@ -111,6 +114,7 @@ window.RECIPES["marrocos"] = [
   {
     name: "Harira",
     subgroup: "Sopas",
+    desc: "Sopa encorpada de carne, lentilha, grão-de-bico e tomate com especiarias e limão — tradicional para quebrar o jejum do Ramadã.",
     origin: "Marrocos",
     time: { prep: "20 min", cook: "1h", total: "1h20" },
     yield: "6 porções",

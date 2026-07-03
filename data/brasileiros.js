@@ -6,6 +6,7 @@ window.RECIPES["brasileiros"] = [
   {
     name: "Feijoada",
     subgroup: "Feijões e Carnes de Panela",
+    desc: "Feijão preto cozido com carnes salgadas e defumadas de porco, servido com arroz, couve, farofa e laranja.",
     origin: "Brasil",
     time: { prep: "30 min + 8h molho", cook: "3h", total: "≈12h" },
     yield: "8-10 porções",
@@ -43,6 +44,7 @@ window.RECIPES["brasileiros"] = [
   {
     name: "Tutu de Feijão",
     subgroup: "Feijões e Carnes de Panela",
+    desc: "Feijão cozido engrossado com farinha de mandioca até virar um purê cremoso, típico mineiro.",
     origin: "Brasil (Minas Gerais)",
     time: { prep: "15 min", cook: "20 min", total: "35 min" },
     yield: "4-6 porções",
@@ -72,6 +74,7 @@ window.RECIPES["brasileiros"] = [
   {
     name: "Dobradinha",
     subgroup: "Feijões e Carnes de Panela",
+    desc: "Bucho bovino cozido até macio e guisado com feijão branco, linguiça e tomate — herança portuguesa.",
     origin: "Brasil / Portugal",
     time: { prep: "20 min + pré-cozimento longo", cook: "2h", total: "≈3h30" },
     yield: "6 porções",
@@ -106,6 +109,7 @@ window.RECIPES["brasileiros"] = [
   {
     name: "Rabada",
     subgroup: "Feijões e Carnes de Panela",
+    desc: "Rabo bovino cozido bem lentamente em molho de tomate até a carne soltar do osso e o caldo engrossar naturalmente.",
     origin: "Brasil",
     time: { prep: "20 min", cook: "2h30", total: "2h50" },
     yield: "4-6 porções",
@@ -141,6 +145,7 @@ window.RECIPES["brasileiros"] = [
   {
     name: "Vaca Atolada",
     subgroup: "Feijões e Carnes de Panela",
+    desc: "Costela bovina cozida em caldo até macia, com mandioca que desmancha e engrossa o molho — prato mineiro.",
     origin: "Brasil (Minas Gerais)",
     time: { prep: "20 min", cook: "2h", total: "2h20" },
     yield: "4-6 porções",
@@ -175,6 +180,7 @@ window.RECIPES["brasileiros"] = [
   {
     name: "Moqueca",
     subgroup: "Peixes e Frutos do Mar Brasileiros",
+    desc: "Peixe cozido em camadas de legumes com leite de coco e dendê (baiana) ou só azeite (capixaba), na panela de barro.",
     origin: "Brasil (Bahia / Espírito Santo)",
     time: { prep: "20 min + 30 min marinada", cook: "25 min", total: "1h15" },
     yield: "4 porções",
@@ -209,6 +215,7 @@ window.RECIPES["brasileiros"] = [
   {
     name: "Bobó de Camarão",
     subgroup: "Peixes e Frutos do Mar Brasileiros",
+    desc: "Camarão num creme liso de purê de mandioca, leite de coco e dendê — prato baiano.",
     origin: "Brasil (Bahia)",
     time: { prep: "20 min", cook: "35 min", total: "55 min" },
     yield: "4-6 porções",
@@ -245,6 +252,7 @@ window.RECIPES["brasileiros"] = [
   {
     name: "Vatapá",
     subgroup: "Peixes e Frutos do Mar Brasileiros",
+    desc: "Creme espesso de pão, castanha, camarão seco e fresco cozidos no leite de coco e dendê — prato afro-baiano.",
     origin: "Brasil (Bahia)",
     time: { prep: "20 min", cook: "40 min", total: "1h" },
     yield: "6 porções",
@@ -280,6 +288,7 @@ window.RECIPES["brasileiros"] = [
   {
     name: "Acarajé",
     subgroup: "Peixes e Frutos do Mar Brasileiros",
+    desc: "Bolinho de massa de feijão-fradinho frito no dendê, recheado com vatapá e camarão seco — tradição baiana.",
     origin: "Brasil (Bahia)",
     time: { prep: "20 min + 12h de molho do feijão", cook: "20 min", total: "≈13h" },
     yield: "12 unidades",
@@ -313,6 +322,7 @@ window.RECIPES["brasileiros"] = [
   {
     name: "Escondidinho",
     subgroup: "Pratos de Panela e Acompanhamentos",
+    desc: "Carne seca desfiada 'escondida' entre camadas de purê de mandioca, gratinada com queijo no forno.",
     origin: "Brasil",
     time: { prep: "25 min", cook: "35 min", total: "1h" },
     yield: "6 porções",
@@ -347,6 +357,7 @@ window.RECIPES["brasileiros"] = [
   {
     name: "Virado à Paulista",
     subgroup: "Pratos de Panela e Acompanhamentos",
+    desc: "Combinado paulista de bife suíno, tutu de feijão, couve refogada e ovo com gema mole.",
     origin: "Brasil (São Paulo)",
     time: { prep: "20 min", cook: "25 min", total: "45 min" },
     yield: "4 porções",
@@ -381,6 +392,7 @@ window.RECIPES["brasileiros"] = [
   {
     name: "Galinhada",
     subgroup: "Pratos de Panela e Acompanhamentos",
+    desc: "Arroz cozido junto com frango caipira, colorido com açafrão-da-terra — prato de festa do interior de Minas e Goiás.",
     origin: "Brasil (Minas Gerais / Goiás)",
     time: { prep: "20 min", cook: "40 min", total: "1h" },
     yield: "6 porções",
@@ -416,6 +428,7 @@ window.RECIPES["brasileiros"] = [
   {
     name: "Barreado",
     subgroup: "Pratos de Panela e Acompanhamentos",
+    desc: "Carne bovina cozida por horas numa panela vedada com massa de farinha, até desmanchar num molho concentrado — prato do litoral do Paraná.",
     origin: "Brasil (Paraná, litoral)",
     time: { prep: "30 min", cook: "6-8h", total: "≈7-8h30" },
     yield: "8 porções",
@@ -448,6 +461,7 @@ window.RECIPES["brasileiros"] = [
   {
     name: "Baião de Dois",
     subgroup: "Pratos de Panela e Acompanhamentos",
+    desc: "Arroz e feijão-de-corda cozidos juntos com carne seca e queijo coalho — clássico nordestino.",
     origin: "Brasil (Nordeste)",
     time: { prep: "15 min + 8h molho do feijão", cook: "40 min", total: "≈9h" },
     yield: "6 porções",
@@ -481,6 +495,7 @@ window.RECIPES["brasileiros"] = [
   {
     name: "Arroz Carreteiro",
     subgroup: "Pratos de Panela e Acompanhamentos",
+    desc: "Arroz refogado com charque desfiado e dourado — prato gaúcho de origem tropeira.",
     origin: "Brasil (Rio Grande do Sul)",
     time: { prep: "15 min + dessalgar a carne", cook: "40 min", total: "≈1h" },
     yield: "6 porções",
@@ -516,6 +531,7 @@ window.RECIPES["brasileiros"] = [
   {
     name: "Tacacá",
     subgroup: "Pratos do Norte",
+    desc: "Caldo quente de tucupi fervido com goma de tapioca, camarão seco e folha de jambu — servido numa cuia, típico da Amazônia.",
     origin: "Brasil (Amazônia)",
     time: { prep: "20 min", cook: "20 min", total: "40 min" },
     yield: "4 porções",

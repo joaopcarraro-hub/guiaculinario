@@ -11,6 +11,7 @@ window.RECIPES["italia"] = [
   {
     name: "Pasta alla Norma",
     subgroup: "Massas",
+    desc: "Massa siciliana com molho de tomate, berinjela frita e ricota salata ralada por cima.",
     origin: "Itália (Sicília)",
     time: { prep: "20 min", cook: "30 min", total: "50 min" },
     yield: "4 porções",
@@ -45,6 +46,7 @@ window.RECIPES["italia"] = [
   {
     name: "Pasta alla Gricia",
     subgroup: "Massas",
+    desc: "Massa romana só com guanciale crocante, pecorino e pimenta — a 'mãe' da Carbonara e da Amatriciana, sem ovo e sem tomate.",
     origin: "Itália (Roma)",
     time: { prep: "10 min", cook: "15 min", total: "25 min" },
     yield: "2 porções",
@@ -73,6 +75,7 @@ window.RECIPES["italia"] = [
   {
     name: "Ragù alla Bolognese",
     subgroup: "Massas",
+    desc: "Molho de carne moída cozido lentamente por horas com vinho, leite e tomate, servido sobre tagliatelle fresco.",
     origin: "Itália (Bolonha)",
     time: { prep: "20 min", cook: "3h", total: "3h20" },
     yield: "6 porções (para massa)",
@@ -111,6 +114,7 @@ window.RECIPES["italia"] = [
   {
     name: "Saltimbocca alla Romana",
     subgroup: "Carnes",
+    desc: "Filés de vitela enrolados com presunto de Parma e sálvia, selados na manteiga e finalizados com molho de vinho branco.",
     origin: "Itália (Roma)",
     time: { prep: "15 min", cook: "10 min", total: "25 min" },
     yield: "4 porções",
@@ -146,6 +150,7 @@ window.RECIPES["italia"] = [
   {
     name: "Zabaglione",
     subgroup: "Sobremesas",
+    desc: "Creme aerado de gemas batidas em banho-maria com vinho Marsala, servido morno sobre frutas ou biscoitos.",
     origin: "Itália (Piemonte)",
     time: { prep: "5 min", cook: "10 min", total: "15 min" },
     yield: "4 porções",
@@ -172,6 +177,7 @@ window.RECIPES["italia"] = [
   {
     name: "Semifreddo",
     subgroup: "Sobremesas",
+    desc: "Sobremesa gelada e aerada de gemas, claras em neve e creme batido, congelada sem precisar de máquina de sorvete.",
     origin: "Itália",
     time: { prep: "30 min + 6h congelador", cook: "5 min", total: "≈6h30" },
     yield: "6-8 porções",
@@ -204,6 +210,7 @@ window.RECIPES["italia"] = [
   {
     name: "Affogato",
     subgroup: "Sobremesas",
+    desc: "Bolas de sorvete de creme 'afogadas' em espresso quente na hora de servir.",
     origin: "Itália",
     time: { prep: "5 min", cook: "0 min", total: "5 min" },
     yield: "1 porção",

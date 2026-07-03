@@ -6,6 +6,7 @@ window.RECIPES["risotos"] = [
   {
     name: "Risotto alla Milanese",
     subgroup: "Clássicos",
+    desc: "Arroz cremoso cozido aos poucos em caldo, com açafrão e finalizado com manteiga e parmesão — o clássico de Milão que acompanha o Ossobuco.",
     origin: "Itália (Milão)",
     time: { prep: "10 min", cook: "25 min", total: "35 min" },
     yield: "2-3 porções",
@@ -42,6 +43,7 @@ window.RECIPES["risotos"] = [
   {
     name: "Risotto ai Funghi",
     subgroup: "Clássicos",
+    desc: "Risoto cremoso de arroz arbóreo com cogumelos frescos e secos (porcini), finalizado com manteiga e parmesão.",
     origin: "Itália",
     time: { prep: "20 min (+ hidratar cogumelos secos)", cook: "25 min", total: "45 min" },
     yield: "2-3 porções",
@@ -79,6 +81,7 @@ window.RECIPES["risotos"] = [
   {
     name: "Risotto al Parmigiano",
     subgroup: "Clássicos",
+    desc: "O risoto mais simples e puro: só arroz, caldo e bastante parmesão envelhecido, cremoso pela mantecatura final.",
     origin: "Itália",
     time: { prep: "5 min", cook: "20 min", total: "25 min" },
     yield: "2-3 porções",
@@ -112,6 +115,7 @@ window.RECIPES["risotos"] = [
   {
     name: "Risotto ai Frutti di Mare",
     subgroup: "Contemporâneos e Frutos do Mar",
+    desc: "Risoto de frutos do mar (camarão, mexilhão e lula) cozido em fumet de peixe caseiro, tradicionalmente servido sem queijo.",
     origin: "Itália",
     time: { prep: "20 min", cook: "25 min", total: "45 min" },
     yield: "3-4 porções",
@@ -149,6 +153,7 @@ window.RECIPES["risotos"] = [
   {
     name: "Risotto al Limone",
     subgroup: "Contemporâneos e Frutos do Mar",
+    desc: "Risoto cremoso com raspas e suco de limão-siciliano — leve e cítrico, típico da Costa Amalfitana, ótimo com peixes grelhados.",
     origin: "Itália (Amalfi)",
     time: { prep: "10 min", cook: "20 min", total: "30 min" },
     yield: "2-3 porções",
@@ -183,6 +188,7 @@ window.RECIPES["risotos"] = [
   {
     name: "Risotto alla Barbabietola (Beterraba)",
     subgroup: "Contemporâneos e Frutos do Mar",
+    desc: "Risoto rosa vibrante feito com purê e cubos de beterraba assada, finalizado com queijo de cabra e nozes tostadas.",
     origin: "Itália (contemporâneo)",
     time: { prep: "15 min", cook: "30 min", total: "45 min" },
     yield: "2-3 porções",
@@ -218,6 +224,7 @@ window.RECIPES["risotos"] = [
   {
     name: "Risotto alla Zucca (Abóbora)",
     subgroup: "Contemporâneos e Frutos do Mar",
+    desc: "Risoto cremoso de abóbora assada e em purê, com toque de noz-moscada e sálvia crocante frita na manteiga.",
     origin: "Itália (Norte)",
     time: { prep: "15 min", cook: "30 min", total: "45 min" },
     yield: "2-3 porções",

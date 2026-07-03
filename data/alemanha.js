@@ -6,6 +6,7 @@ window.RECIPES["alemanha"] = [
   {
     name: "Sauerbraten",
     subgroup: "Carnes de Panela",
+    desc: "Carne bovina marinada por dias em vinagre e especiarias, cozida lentamente em molho agridoce engrossado com pão de gengibre.",
     origin: "Alemanha",
     time: { prep: "30 min + 3 dias marinada", cook: "2h30", total: "≈3 dias" },
     yield: "6 porções",
@@ -41,6 +42,7 @@ window.RECIPES["alemanha"] = [
   {
     name: "Eisbein",
     subgroup: "Carnes de Panela",
+    desc: "Joelho de porco cozido lentamente em caldo temperado até ficar macio, com a pele finalizada crocante no forno, servido com chucrute.",
     origin: "Alemanha",
     time: { prep: "20 min", cook: "2h30", total: "2h50" },
     yield: "4 porções",
@@ -71,6 +73,7 @@ window.RECIPES["alemanha"] = [
   {
     name: "Kartoffelsalat",
     subgroup: "Acompanhamentos",
+    desc: "Salada de batata morna com bacon, cebola e molho de vinagre e mostarda — versão alemã sem maionese.",
     origin: "Alemanha",
     time: { prep: "15 min", cook: "20 min", total: "35 min" },
     yield: "6 porções",
