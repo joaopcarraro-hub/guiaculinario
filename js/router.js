@@ -24,6 +24,9 @@
     if (parts[0] === "receita" && parts[1] && parts[2]) {
       return { name: "receita", catId: parts[1], recipeName: parts[2] };
     }
+    if (parts[0] === "cozinhar" && parts[1] && parts[2]) {
+      return { name: "cozinhar", catId: parts[1], recipeName: parts[2] };
+    }
     return { name: "home" };
   }
 
@@ -67,6 +70,9 @@
     },
     toReceita: function (catId, name) {
       navigate("receita/" + encodeURIComponent(catId) + "/" + encodeURIComponent(name));
+    },
+    toCozinhar: function (catId, name) {
+      navigate("cozinhar/" + encodeURIComponent(catId) + "/" + encodeURIComponent(name));
     },
   };
 })();

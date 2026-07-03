@@ -367,6 +367,14 @@
     actions.appendChild(favBtn);
     page.appendChild(actions);
 
+    if (recipe.steps && recipe.steps.length) {
+      const cookBtn = document.createElement("button");
+      cookBtn.className = "primary-cta";
+      cookBtn.textContent = "👩‍🍳 Começar preparo";
+      cookBtn.addEventListener("click", () => Router.toCozinhar(catId, recipe.name));
+      page.appendChild(cookBtn);
+    }
+
     const ingSection = document.createElement("div");
     ingSection.className = "recipe-page-section";
     const checked = Storage.getCheckedIngredients(catId, recipe.name);
@@ -417,6 +425,184 @@
     }
 
     content.appendChild(page);
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }
+
+  // ---------- Modo cozinhar ----------
+  function playBeep() {
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      const ctx = new Ctx();
+      [0, 0.35].forEach((delay) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.001, ctx.currentTime + delay);
+        gain.gain.linearRampToValueAtTime(0.25, ctx.currentTime + delay + 0.02);
+        gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + delay + 0.3);
+        osc.start(ctx.currentTime + delay);
+        osc.stop(ctx.currentTime + delay + 0.3);
+      });
+    } catch (e) {}
+  }
+
+  function renderCookMode(catId, name) {
+    const cat = window.CATEGORIES.find((c) => c.id === catId);
+    const recipe = cat && findRecipe(catId, name);
+    if (!recipe || !recipe.steps || !recipe.steps.length) {
+      Router.toReceita(catId, name);
+      return;
+    }
+
+    activeCat = catId;
+    searchInput.value = "";
+    renderSidebar();
+
+    header.innerHTML = "";
+    content.innerHTML = "";
+    progressEl.textContent = "";
+
+    let stepIndex = 0;
+    const totalSteps = recipe.steps.length;
+    let timerInterval = null;
+    let timerSeconds = 0;
+
+    const page = document.createElement("div");
+    page.className = "cook-page";
+
+    const exitBtn = document.createElement("button");
+    exitBtn.className = "back-button";
+    exitBtn.textContent = "✕ Sair do modo cozinhar";
+    exitBtn.addEventListener("click", () => Router.toReceita(catId, name));
+    page.appendChild(exitBtn);
+
+    const titleEl = document.createElement("div");
+    titleEl.className = "cook-title";
+    titleEl.textContent = recipe.name;
+    page.appendChild(titleEl);
+
+    const progressWrap = document.createElement("div");
+    progressWrap.className = "cook-progress";
+    page.appendChild(progressWrap);
+
+    const stepLabel = document.createElement("div");
+    stepLabel.className = "cook-step-label";
+    page.appendChild(stepLabel);
+
+    const stepText = document.createElement("div");
+    stepText.className = "cook-step-text";
+    page.appendChild(stepText);
+
+    const navRow = document.createElement("div");
+    navRow.className = "cook-nav";
+    const prevBtn = document.createElement("button");
+    prevBtn.className = "cook-nav-btn";
+    prevBtn.textContent = "← Anterior";
+    const nextBtn = document.createElement("button");
+    nextBtn.className = "cook-nav-btn primary";
+    navRow.appendChild(prevBtn);
+    navRow.appendChild(nextBtn);
+    page.appendChild(navRow);
+
+    const timerBox = document.createElement("div");
+    timerBox.className = "cook-timer";
+    page.appendChild(timerBox);
+
+    content.appendChild(page);
+
+    function renderTimer() {
+      const mm = String(Math.floor(timerSeconds / 60)).padStart(2, "0");
+      const ss = String(timerSeconds % 60).padStart(2, "0");
+      timerBox.innerHTML =
+        '<div class="cook-timer-display">' +
+        mm +
+        ":" +
+        ss +
+        "</div>" +
+        '<div class="cook-timer-presets">' +
+        '<button type="button" data-min="1">1 min</button>' +
+        '<button type="button" data-min="5">5 min</button>' +
+        '<button type="button" data-min="10">10 min</button>' +
+        '<button type="button" data-min="15">15 min</button>' +
+        "</div>" +
+        '<div class="cook-timer-controls">' +
+        '<button type="button" class="timer-toggle">' +
+        (timerInterval ? "Pausar" : "Iniciar") +
+        "</button>" +
+        '<button type="button" class="timer-reset">Zerar</button>' +
+        "</div>";
+
+      timerBox.querySelectorAll("[data-min]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          timerSeconds = parseInt(btn.dataset.min, 10) * 60;
+          renderTimer();
+        });
+      });
+      timerBox.querySelector(".timer-toggle").addEventListener("click", () => {
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          renderTimer();
+          return;
+        }
+        if (timerSeconds <= 0) return;
+        timerInterval = setInterval(() => {
+          timerSeconds--;
+          if (timerSeconds <= 0) {
+            timerSeconds = 0;
+            clearInterval(timerInterval);
+            timerInterval = null;
+            playBeep();
+          }
+          renderTimer();
+        }, 1000);
+        renderTimer();
+      });
+      timerBox.querySelector(".timer-reset").addEventListener("click", () => {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        timerSeconds = 0;
+        renderTimer();
+      });
+    }
+    renderTimer();
+
+    function renderStep() {
+      stepLabel.textContent = "Passo " + (stepIndex + 1) + " de " + totalSteps;
+      stepText.textContent = recipe.steps[stepIndex];
+      progressWrap.innerHTML = recipe.steps
+        .map(function (_, i) {
+          return '<span class="cook-dot' + (i === stepIndex ? " active" : i < stepIndex ? " done" : "") + '"></span>';
+        })
+        .join("");
+      prevBtn.disabled = stepIndex === 0;
+      nextBtn.textContent = stepIndex === totalSteps - 1 ? "Finalizar ✓" : "Próximo →";
+    }
+    renderStep();
+
+    prevBtn.addEventListener("click", () => {
+      if (stepIndex > 0) {
+        stepIndex--;
+        renderStep();
+        window.scrollTo({ top: 0, behavior: "instant" });
+      }
+    });
+    nextBtn.addEventListener("click", () => {
+      if (stepIndex < totalSteps - 1) {
+        stepIndex++;
+        renderStep();
+        window.scrollTo({ top: 0, behavior: "instant" });
+      } else {
+        if (!Storage.isMade(catId, name)) Storage.toggleMade(catId, name);
+        clearInterval(timerInterval);
+        Router.toReceita(catId, name);
+      }
+    });
+
     window.scrollTo({ top: 0, behavior: "instant" });
   }
 
@@ -535,6 +721,8 @@
       showCategoria(route.catId);
     } else if (route.name === "receita") {
       renderReceita(route.catId, route.recipeName);
+    } else if (route.name === "cozinhar") {
+      renderCookMode(route.catId, route.recipeName);
     } else {
       renderHome();
     }

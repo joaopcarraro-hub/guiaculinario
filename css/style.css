@@ -515,6 +515,100 @@ body {
 .checklist .struck { text-decoration: line-through; color: var(--ink-soft); }
 .checklist li:before { display: none; }
 
+.primary-cta {
+  display: block;
+  width: 100%;
+  min-height: 52px;
+  border-radius: 999px;
+  border: none;
+  background: var(--gold);
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 20px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+.primary-cta:hover { background: #8f6624; }
+
+/* ---------- Modo cozinhar ---------- */
+.cook-page { max-width: 600px; }
+.cook-title { font-size: 1.2rem; margin: 4px 0 18px; color: var(--ink-soft); }
+.cook-progress { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+.cook-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--line); flex-shrink: 0; }
+.cook-dot.active { background: var(--gold); }
+.cook-dot.done { background: var(--green); }
+.cook-step-label {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+.cook-step-text {
+  font-size: 1.35rem;
+  line-height: 1.55;
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 26px;
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+  min-height: 120px;
+}
+.cook-timer {
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+.cook-timer-display {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 2.2rem;
+  font-weight: bold;
+  color: var(--ink);
+  margin-bottom: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.cook-timer-presets, .cook-timer-controls {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.cook-timer-presets { margin-bottom: 12px; }
+.cook-timer-presets button,
+.cook-timer-controls button {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid var(--gold-soft);
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.cook-timer-controls .timer-toggle { background: var(--gold); border-color: var(--gold); color: #fff; }
+
+.cook-nav { display: flex; gap: 12px; margin-bottom: 20px; }
+.cook-nav-btn {
+  flex: 1;
+  min-height: 52px;
+  border-radius: 999px;
+  border: 2px solid var(--gold-soft);
+  background: var(--bg-panel);
+  color: var(--ink);
+  font-size: 1rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+.cook-nav-btn.primary { background: var(--gold); border-color: var(--gold); color: #fff; font-weight: bold; }
+.cook-nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
 #progress {
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.75rem;
