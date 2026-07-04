@@ -113,7 +113,7 @@ window.RECIPES["eua"] = [
     time: { prep: "20 min", cook: "30 min", total: "50 min" },
     yield: "4-6 porções",
     difficulty: "Fácil",
-    tags: ["protein:frutos-do-mar", "protein:suino", "ingredient:batata"],
+    tags: ["protein:frutos-do-mar", "contains:suino", "ingredient:batata"],
     ingredients: [
       "500 g de amêijoas (ou vôngole), limpas (ou 2 latas de amêijoa em conserva, com o líquido)",
       "150 g de bacon em cubos",

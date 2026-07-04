@@ -11,7 +11,7 @@ window.RECIPES["ovos-classicos"] = [
     time: { prep: "15 min", cook: "15 min", total: "30 min" },
     yield: "2 porções (4 unidades)",
     difficulty: "Média-alta",
-    tags: ["protein:ovo", "protein:suino", "ingredient:ovo"],
+    tags: ["protein:ovo", "contains:suino", "ingredient:ovo"],
     ingredients: [
       "2 English muffins, cortados ao meio",
       "4 fatias de bacon canadense (ou presunto grosso)",
@@ -109,7 +109,7 @@ window.RECIPES["ovos-classicos"] = [
     time: { prep: "15 min", cook: "40 min", total: "55 min" },
     yield: "2 porções",
     difficulty: "Média-alta",
-    tags: ["protein:ovo", "protein:suino", "ingredient:ovo", "ingredient:cogumelo", "ingredient:vinho"],
+    tags: ["protein:ovo", "contains:suino", "ingredient:ovo", "ingredient:cogumelo", "ingredient:vinho"],
     ingredients: [
       "4 ovos bem frescos",
       "500 ml de vinho tinto encorpado (Borgonha, se possível)",
@@ -258,7 +258,7 @@ window.RECIPES["ovos-classicos"] = [
     time: { prep: "15 min", cook: "25 min", total: "40 min" },
     yield: "2-3 porções",
     difficulty: "Fácil",
-    tags: ["protein:ovo", "protein:suino", "ingredient:ovo", "ingredient:tomate", "ingredient:pimentao"],
+    tags: ["protein:ovo", "contains:suino", "ingredient:ovo", "ingredient:tomate", "ingredient:pimentao"],
     ingredients: [
       "3 colheres (sopa) de azeite de oliva",
       "1 cebola fatiada",
@@ -327,7 +327,7 @@ window.RECIPES["ovos-classicos"] = [
     time: { prep: "30 min", cook: "15 min", total: "45 min" },
     yield: "4 unidades",
     difficulty: "Média",
-    tags: ["protein:ovo", "protein:suino", "ingredient:ovo"],
+    tags: ["protein:ovo", "contains:suino", "ingredient:ovo"],
     ingredients: [
       "4 ovos cozidos no ponto mollet ou médio (ver receita), descascados",
       "400 g de linguiça de porco fresca (sem a tripa) ou carne de salsicha temperada",

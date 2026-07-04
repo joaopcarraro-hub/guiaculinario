@@ -119,7 +119,7 @@ window.RECIPES["china"] = [
     time: { prep: "15 min", cook: "15 min", total: "30 min" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["protein:suino", "protein:boi", "ingredient:feijao", "ingredient:molho-de-soja", "ingredient:gengibre"],
+    tags: ["contains:suino", "ingredient:feijao", "ingredient:molho-de-soja", "ingredient:gengibre"],
     ingredients: [
       "400 g de tofu macio (silken ou firme), em cubos",
       "150 g de carne suína ou bovina moída",

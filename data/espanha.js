@@ -219,7 +219,7 @@ window.RECIPES["espanha"] = [
     time: { prep: "15 min", cook: "0 min", total: "15 min + gelar" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["protein:suino", "ingredient:tomate", "ingredient:ovo"],
+    tags: ["contains:suino", "ingredient:tomate", "ingredient:ovo"],
     ingredients: [
       "1 kg de tomate bem maduro, picado",
       "150 g de pão amanhecido, sem casca, picado",

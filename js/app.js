@@ -112,6 +112,7 @@
   // ---------- Home ----------
   function renderHome() {
     activeCat = null;
+    refreshActiveCounts = null;
 
     header.innerHTML = "";
     content.innerHTML = "";
@@ -173,22 +174,26 @@
       const grid = document.createElement("div");
       grid.className = "category-grid";
       groups[groupName].forEach((collection) => {
-        const items = TagModel.getRecipesByCollection(collection.id);
-        const doneCount = Storage.countMade(items.map((i) => i.id));
-        const pct = items.length ? Math.round((doneCount / items.length) * 100) : 0;
+        const { primaryRecipes, allRecipes } = TagModel.getRecipesByCollection(collection.id);
+        const doneCount = Storage.countMade(allRecipes.map((i) => i.id));
+        const pct = allRecipes.length ? Math.round((doneCount / allRecipes.length) * 100) : 0;
+        const countLabel =
+          allRecipes.length !== primaryRecipes.length
+            ? primaryRecipes.length + " principais · " + allRecipes.length + " no total"
+            : allRecipes.length + " receitas";
         const card = document.createElement("button");
         card.className = "category-card";
         card.innerHTML =
           '<span class="category-card__icon">' + (collection.icon || "🍽") + "</span>" +
           '<span class="category-card__title">' + collection.label + "</span>" +
-          '<span class="category-card__count">' + items.length + " receitas</span>" +
-          (items.length
+          '<span class="category-card__count">' + countLabel + "</span>" +
+          (allRecipes.length
             ? '<span class="category-card__progress"><span class="category-card__progress-bar" style="width:' +
               pct +
               '%"></span></span><span class="category-card__progress-label">' +
               doneCount +
               "/" +
-              items.length +
+              allRecipes.length +
               " feitas</span>"
             : "");
         card.addEventListener("click", () => Router.toCategoria(collection.id));
@@ -201,6 +206,8 @@
   }
 
   // ---------- Categoria (coleção) ----------
+  let refreshActiveCounts = null; // atualiza contadores/toolbar sem re-renderizar os cards (chamado ao marcar feito/favorito)
+
   function showCategoria(collectionId) {
     const collection = window.COLLECTIONS.find((c) => c.id === collectionId) || firstCollection;
     activeCat = collection.id;
@@ -208,37 +215,147 @@
   }
 
   function renderCategory(collection) {
+    refreshActiveCounts = null;
     header.innerHTML =
       "<h2>" + collection.label + "</h2>" + (collection.desc ? '<div class="desc">' + collection.desc + "</div>" : "");
     content.innerHTML = "";
+    progressEl.textContent = "";
 
-    const items = TagModel.getRecipesByCollection(collection.id);
+    const { primaryRecipes, relatedRecipes, allRecipes } = TagModel.getRecipesByCollection(collection.id);
 
-    if (!items.length) {
-      content.innerHTML =
-        '<div class="empty-state">Essa coleção ainda não tem receitas — em breve. 🍳</div>';
-      progressEl.textContent = "";
+    if (!allRecipes.length) {
+      content.innerHTML = '<div class="empty-state">Essa coleção ainda não tem receitas — em breve. 🍳</div>';
       return;
     }
 
-    let lastSubgroup = null;
-    items.forEach((item) => {
-      if (item.recipe.subgroup && item.recipe.subgroup !== lastSubgroup) {
-        const st = document.createElement("div");
-        st.className = "subgroup-title";
-        st.textContent = item.recipe.subgroup;
-        content.appendChild(st);
-        lastSubgroup = item.recipe.subgroup;
+    const hasRelated = relatedRecipes.length > 0;
+    let activeTab = hasRelated && collection.defaultView === "all" ? "all" : hasRelated ? "primary" : "all";
+    let sortKey = TagModel.getCollectionSort(collection.id) || "relevance";
+
+    const toolbar = document.createElement("div");
+    toolbar.className = "collection-toolbar";
+
+    const countEl = document.createElement("div");
+    countEl.className = "collection-count";
+    toolbar.appendChild(countEl);
+
+    let tabsEl = null;
+    if (hasRelated) {
+      tabsEl = document.createElement("div");
+      tabsEl.className = "collection-tabs";
+      tabsEl.innerHTML =
+        '<button type="button" data-tab="primary">Principais</button><button type="button" data-tab="all">Todas</button>';
+      toolbar.appendChild(tabsEl);
+    }
+
+    const sortWrap = document.createElement("label");
+    sortWrap.className = "sort-control";
+    sortWrap.innerHTML =
+      "<span>Ordenar por</span><select>" +
+      TagModel.SORT_OPTIONS.map((o) => '<option value="' + o.key + '">' + o.label + "</option>").join("") +
+      "</select>";
+    toolbar.appendChild(sortWrap);
+    const sortSelect = sortWrap.querySelector("select");
+    sortSelect.value = sortKey;
+    content.appendChild(toolbar);
+
+    const refineEl = document.createElement("div");
+    refineEl.className = "collection-refine";
+    content.appendChild(refineEl);
+
+    const listEl = document.createElement("div");
+    content.appendChild(listEl);
+
+    function currentItems() {
+      return activeTab === "primary" ? primaryRecipes : allRecipes;
+    }
+
+    function renderToolbarState() {
+      countEl.innerHTML = hasRelated
+        ? "<strong>" + primaryRecipes.length + " principais</strong><span>" + allRecipes.length + " no total</span>"
+        : "<strong>" + allRecipes.length + " receita" + (allRecipes.length === 1 ? "" : "s") + "</strong>";
+      if (tabsEl) {
+        tabsEl.querySelectorAll("button").forEach((btn) => btn.classList.toggle("active", btn.dataset.tab === activeTab));
       }
-      content.appendChild(renderRecipeCard(item));
+      const doneCount = Storage.countMade(currentItems().map((i) => i.id));
+      progressEl.textContent = doneCount + " de " + currentItems().length + " já feitas ✓";
+    }
+
+    function renderRefine() {
+      const related = TagModel.getRelatedTags(collection.primaryFilterTags).slice(0, 8);
+      if (!related.length) {
+        refineEl.innerHTML = "";
+        return;
+      }
+      refineEl.innerHTML =
+        '<div class="tagsearch-group-label">Refinar</div><div class="tagsearch-taglist">' +
+        related.map((r) => '<button type="button" class="tag-suggestion" data-tag="' + r.tag.id + '">' + r.tag.label + " (" + r.count + ")</button>").join("") +
+        "</div>";
+      refineEl.querySelectorAll(".tag-suggestion").forEach((btn) => {
+        btn.addEventListener("click", () => Router.toBusca(collection.primaryFilterTags.concat([btn.dataset.tag])));
+      });
+    }
+
+    function renderList() {
+      listEl.innerHTML = "";
+      const sortedItems = TagModel.sortRecipeItems(currentItems(), sortKey, collection);
+      const primaryIds = new Set(primaryRecipes.map((i) => i.id));
+
+      if (sortKey === "relevance" && activeTab === "all" && hasRelated) {
+        const primaryItems = sortedItems.filter((i) => primaryIds.has(i.id));
+        const relatedItems = sortedItems.filter((i) => !primaryIds.has(i.id));
+        if (primaryItems.length) {
+          const st = document.createElement("div");
+          st.className = "subgroup-title";
+          st.textContent = "Principais";
+          listEl.appendChild(st);
+          primaryItems.forEach((item) => listEl.appendChild(renderRecipeCard(item, { fromCollectionId: collection.id })));
+        }
+        if (relatedItems.length) {
+          const st = document.createElement("div");
+          st.className = "subgroup-title";
+          st.textContent = "Relacionadas";
+          listEl.appendChild(st);
+          relatedItems.forEach((item) => listEl.appendChild(renderRecipeCard(item, { fromCollectionId: collection.id })));
+        }
+      } else if (sortKey === "category-az") {
+        let lastLabel = null;
+        sortedItems.forEach((item) => {
+          const label = TagModel.getCategoryLabel(item);
+          if (label !== lastLabel) {
+            const st = document.createElement("div");
+            st.className = "subgroup-title";
+            st.textContent = label;
+            listEl.appendChild(st);
+            lastLabel = label;
+          }
+          listEl.appendChild(renderRecipeCard(item, { fromCollectionId: collection.id }));
+        });
+      } else {
+        sortedItems.forEach((item) => listEl.appendChild(renderRecipeCard(item, { fromCollectionId: collection.id })));
+      }
+    }
+
+    if (tabsEl) {
+      tabsEl.querySelectorAll("button").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          activeTab = btn.dataset.tab;
+          renderToolbarState();
+          renderList();
+        });
+      });
+    }
+    sortSelect.addEventListener("change", () => {
+      sortKey = sortSelect.value;
+      TagModel.setCollectionSort(collection.id, sortKey);
+      renderList();
     });
 
-    updateProgress(collection, items);
-  }
+    refreshActiveCounts = renderToolbarState;
 
-  function updateProgress(collection, items) {
-    const doneCount = Storage.countMade(items.map((i) => i.id));
-    progressEl.textContent = doneCount + " de " + items.length + " já feitas nessa coleção ✓";
+    renderToolbarState();
+    renderRefine();
+    renderList();
   }
 
   // ---------- Busca facetada por tags ----------
@@ -251,6 +368,7 @@
 
   function renderBusca(tagIds) {
     activeCat = null;
+    refreshActiveCounts = null;
     header.innerHTML = "<h2>🔎 Buscar por tags</h2>";
     content.innerHTML = "";
     progressEl.textContent = "";
@@ -276,9 +394,22 @@
     relatedEl.className = "tagsearch-related";
     wrap.appendChild(relatedEl);
 
+    const countRow = document.createElement("div");
+    countRow.className = "tagsearch-count-row";
     const countEl = document.createElement("div");
     countEl.className = "tagsearch-count";
-    wrap.appendChild(countEl);
+    countRow.appendChild(countEl);
+    const sortWrap = document.createElement("label");
+    sortWrap.className = "sort-control";
+    sortWrap.innerHTML =
+      "<span>Ordenar por</span><select>" +
+      TagModel.SORT_OPTIONS.map((o) => '<option value="' + o.key + '">' + o.label + "</option>").join("") +
+      "</select>";
+    countRow.appendChild(sortWrap);
+    const sortSelect = sortWrap.querySelector("select");
+    let sortKey = "recipe-az";
+    sortSelect.value = sortKey;
+    wrap.appendChild(countRow);
 
     content.appendChild(wrap);
 
@@ -367,11 +498,17 @@
         return;
       }
       countEl.textContent = items.length + (items.length === 1 ? " receita encontrada" : " receitas encontradas");
-      items.forEach((item) => {
+      const sortedItems = TagModel.sortRecipeItems(items, sortKey, null);
+      sortedItems.forEach((item) => {
         const cat = window.CATEGORIES.find((c) => c.id === item.catId);
         resultsEl.appendChild(renderRecipeCard(item, { catLabel: cat ? cat.label : item.catId }));
       });
     }
+
+    sortSelect.addEventListener("change", () => {
+      sortKey = sortSelect.value;
+      renderResults();
+    });
 
     wireTagSearchInput(input, suggestionsEl, {
       onSelectTag: (tagId) => {
@@ -398,6 +535,7 @@
   function renderListView(view) {
     const cfg = LIST_VIEWS[view];
     activeCat = null;
+    refreshActiveCounts = null;
 
     header.innerHTML = "<h2>" + cfg.title + "</h2>";
     content.innerHTML = "";
@@ -449,10 +587,7 @@
       const nowMade = Storage.toggleMade(item.id);
       toggle.classList.toggle("made", nowMade);
       card.classList.toggle("made-card", nowMade);
-      if (activeCat) {
-        const collection = window.COLLECTIONS.find((c) => c.id === activeCat);
-        if (collection) updateProgress(collection, TagModel.getRecipesByCollection(activeCat));
-      }
+      if (refreshActiveCounts) refreshActiveCounts();
     });
 
     const favToggle = document.createElement("button");
@@ -510,7 +645,7 @@
     cardHeader.appendChild(chevron);
 
     cardHeader.addEventListener("click", () => {
-      Router.toReceita(item.id);
+      Router.toReceita(item.id, opts.fromCollectionId);
     });
 
     card.appendChild(cardHeader);
@@ -518,7 +653,7 @@
   }
 
   // ---------- Página própria da receita ----------
-  function renderReceita(id) {
+  function renderReceita(id, fromCollectionId) {
     const item = TagModel.findRecipeById(id);
     if (!item) {
       renderHome();
@@ -527,8 +662,10 @@
     const recipe = item.recipe;
     const catId = item.catId;
     const cat = window.CATEGORIES.find((c) => c.id === catId);
+    const backCollection = fromCollectionId && window.COLLECTIONS.find((c) => c.id === fromCollectionId);
 
     activeCat = catId;
+    refreshActiveCounts = null;
 
     header.innerHTML = "";
     content.innerHTML = "";
@@ -539,8 +676,8 @@
 
     const back = document.createElement("button");
     back.className = "back-button";
-    back.textContent = "← Voltar para " + (cat ? cat.label : catId);
-    back.addEventListener("click", () => Router.toCategoria(catId));
+    back.textContent = "← Voltar para " + (backCollection ? backCollection.label : cat ? cat.label : catId);
+    back.addEventListener("click", () => Router.toCategoria(backCollection ? backCollection.id : catId));
     page.appendChild(back);
 
     const hero = document.createElement("div");
@@ -619,7 +756,7 @@
       const cookBtn = document.createElement("button");
       cookBtn.className = "primary-cta";
       cookBtn.textContent = "👩‍🍳 Começar preparo";
-      cookBtn.addEventListener("click", () => Router.toCozinhar(item.id));
+      cookBtn.addEventListener("click", () => Router.toCozinhar(item.id, fromCollectionId));
       page.appendChild(cookBtn);
     }
 
@@ -696,16 +833,17 @@
     } catch (e) {}
   }
 
-  function renderCookMode(id) {
+  function renderCookMode(id, fromCollectionId) {
     const item = TagModel.findRecipeById(id);
     const recipe = item && item.recipe;
     if (!recipe || !recipe.steps || !recipe.steps.length) {
-      Router.toReceita(id);
+      Router.toReceita(id, fromCollectionId);
       return;
     }
     const catId = item.catId;
 
     activeCat = catId;
+    refreshActiveCounts = null;
 
     header.innerHTML = "";
     content.innerHTML = "";
@@ -722,7 +860,7 @@
     const exitBtn = document.createElement("button");
     exitBtn.className = "back-button";
     exitBtn.textContent = "✕ Sair do modo cozinhar";
-    exitBtn.addEventListener("click", () => Router.toReceita(id));
+    exitBtn.addEventListener("click", () => Router.toReceita(id, fromCollectionId));
     page.appendChild(exitBtn);
 
     const titleEl = document.createElement("div");
@@ -846,7 +984,7 @@
       } else {
         if (!Storage.isMade(id)) Storage.toggleMade(id);
         clearInterval(timerInterval);
-        Router.toReceita(id);
+        Router.toReceita(id, fromCollectionId);
       }
     });
 
@@ -964,9 +1102,9 @@
     } else if (route.name === "categoria") {
       showCategoria(route.catId);
     } else if (route.name === "receita") {
-      renderReceita(route.id);
+      renderReceita(route.id, route.from);
     } else if (route.name === "cozinhar") {
-      renderCookMode(route.id);
+      renderCookMode(route.id, route.from);
     } else if (route.name === "favoritos" || route.name === "quero-fazer" || route.name === "historico") {
       renderListView(route.name);
     } else {

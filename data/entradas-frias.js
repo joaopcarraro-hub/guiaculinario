@@ -253,7 +253,7 @@ window.RECIPES["entradas-frias"] = [
     time: { prep: "1h", cook: "1h30", total: "2h30 + resfriar" },
     yield: "6-8 porções",
     difficulty: "Alta",
-    tags: ["protein:frango", "protein:suino", "ingredient:castanha"],
+    tags: ["protein:frango", "contains:suino", "ingredient:castanha"],
     ingredients: [
       "1 frango inteiro, desossado (pele inteira, mantida aberta)",
       "300 g de carne de porco moída",

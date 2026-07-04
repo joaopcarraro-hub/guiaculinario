@@ -33,11 +33,24 @@
       }
       return { name: "busca", tags: tags };
     }
+    let from = null;
+    if (queryPart) {
+      queryPart.split("&").forEach(function (pair) {
+        const [k, v] = pair.split("=");
+        if (k === "from" && v) {
+          try {
+            from = decodeURIComponent(v);
+          } catch (e) {
+            from = v;
+          }
+        }
+      });
+    }
     if (parts[0] === "receita" && parts[1]) {
-      return { name: "receita", id: parts[1] };
+      return { name: "receita", id: parts[1], from: from };
     }
     if (parts[0] === "cozinhar" && parts[1]) {
-      return { name: "cozinhar", id: parts[1] };
+      return { name: "cozinhar", id: parts[1], from: from };
     }
     if (parts[0] === "favoritos") {
       return { name: "favoritos" };
@@ -87,11 +100,11 @@
       const q = (tagIds || []).map(encodeURIComponent).join(",");
       navigate("busca" + (q ? "?tags=" + q : ""));
     },
-    toReceita: function (id) {
-      navigate("receita/" + encodeURIComponent(id));
+    toReceita: function (id, fromCollectionId) {
+      navigate("receita/" + encodeURIComponent(id) + (fromCollectionId ? "?from=" + encodeURIComponent(fromCollectionId) : ""));
     },
-    toCozinhar: function (id) {
-      navigate("cozinhar/" + encodeURIComponent(id));
+    toCozinhar: function (id, fromCollectionId) {
+      navigate("cozinhar/" + encodeURIComponent(id) + (fromCollectionId ? "?from=" + encodeURIComponent(fromCollectionId) : ""));
     },
     toFavoritos: function () {
       navigate("favoritos");

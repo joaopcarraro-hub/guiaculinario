@@ -234,7 +234,7 @@ window.RECIPES["tailandia"] = [
     time: { prep: "20 min", cook: "10 min", total: "30 min" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["protein:suino", "protein:frango", "ingredient:limao"],
+    tags: ["contains:suino", "protein:frango", "ingredient:limao"],
     ingredients: [
       "500 g de carne suína ou frango moído",
       "3 colheres (sopa) de arroz cru (para tostar e moer)",

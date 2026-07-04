@@ -367,7 +367,7 @@ window.RECIPES["brasil-regional"] = [
     time: { prep: "15 min", cook: "20 min", total: "35 min" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["protein:boi", "protein:suino", "protein:frango", "ingredient:ovo"],
+    tags: ["protein:boi", "contains:suino", "protein:frango", "ingredient:ovo"],
     ingredients: [
       "300 g de carne bovina grelhada (sobras de churrasco ou carne fresca), em cubos ou tiras",
       "200 g de linguiça, em rodelas",

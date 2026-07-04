@@ -49,7 +49,7 @@ window.RECIPES["grecia"] = [
     time: { prep: "20 min + 2h marinada", cook: "10 min", total: "2h30" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["protein:frango", "protein:suino", "ingredient:limao", "ingredient:iogurte"],
+    tags: ["protein:frango", "contains:suino", "ingredient:limao", "ingredient:iogurte"],
     ingredients: [
       "600 g de peito de frango ou pernil de porco, em cubos",
       "80 ml de azeite de oliva",
@@ -82,7 +82,7 @@ window.RECIPES["grecia"] = [
     time: { prep: "20 min + 4h marinada", cook: "15 min", total: "≈4h35" },
     yield: "4 porções",
     difficulty: "Média",
-    tags: ["protein:suino", "protein:frango", "ingredient:tomate", "ingredient:batata", "ingredient:iogurte"],
+    tags: ["contains:suino", "protein:frango", "ingredient:tomate", "ingredient:batata", "ingredient:iogurte"],
     ingredients: [
       "600 g de pernil de porco (ou frango), fatiado bem fino",
       "80 ml de azeite de oliva",

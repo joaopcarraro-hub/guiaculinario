@@ -11,7 +11,7 @@ window.RECIPES["massas"] = [
     time: { prep: "10 min", cook: "15 min", total: "25 min" },
     yield: "2 porções",
     difficulty: "Média",
-    tags: ["protein:suino", "protein:ovo", "ingredient:queijo"],
+    tags: ["contains:suino", "protein:ovo", "ingredient:queijo"],
     ingredients: [
       "200 g de spaghetti ou rigatoni",
       "120 g de guanciale (ou pancetta), em tiras",
@@ -73,7 +73,7 @@ window.RECIPES["massas"] = [
     time: { prep: "10 min", cook: "25 min", total: "35 min" },
     yield: "2-3 porções",
     difficulty: "Fácil",
-    tags: ["protein:suino", "ingredient:tomate", "ingredient:queijo"],
+    tags: ["contains:suino", "ingredient:tomate", "ingredient:queijo"],
     ingredients: [
       "250 g de bucatini ou spaghetti",
       "150 g de guanciale em tiras",
@@ -276,7 +276,7 @@ window.RECIPES["massas"] = [
     time: { prep: "1h", cook: "5 min", total: "1h05" },
     yield: "4 porções",
     difficulty: "Média-alta",
-    tags: ["protein:boi", "protein:suino", "ingredient:espinafre"],
+    tags: ["protein:boi", "contains:suino", "ingredient:espinafre"],
     ingredients: [
       "Para a massa: 300 g de farinha tipo 00, 3 ovos grandes, 1 pitada de sal",
       "Para o recheio: 300 g de sobras de assado (vitela, porco ou coelho, desfiado)",

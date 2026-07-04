@@ -81,7 +81,7 @@ window.RECIPES["entradas-quentes"] = [
     time: { prep: "30 min + 2h geladeira", cook: "15 min", total: "45 min + 2h" },
     yield: "≈ 20 croquetas",
     difficulty: "Média",
-    tags: ["protein:suino"],
+    tags: ["contains:suino"],
     ingredients: [
       "50 g de manteiga",
       "60 g de farinha de trigo",

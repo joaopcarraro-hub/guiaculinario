@@ -87,7 +87,7 @@ window.RECIPES["portugal"] = [
     time: { prep: "25 min", cook: "25 min", total: "50 min" },
     yield: "4 porções",
     difficulty: "Média",
-    tags: ["protein:frutos-do-mar", "protein:peixe", "protein:suino", "ingredient:tomate"],
+    tags: ["protein:frutos-do-mar", "protein:peixe", "contains:suino", "ingredient:tomate"],
     ingredients: [
       "300 g de camarão médio, limpo",
       "500 g de amêijoas (ou vôngole), limpas",

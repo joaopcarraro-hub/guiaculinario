@@ -272,7 +272,7 @@ window.RECIPES["sopas"] = [
     time: { prep: "15 min", cook: "30 min", total: "45 min" },
     yield: "4-6 porções",
     difficulty: "Fácil",
-    tags: ["protein:suino", "ingredient:batata"],
+    tags: ["contains:suino", "ingredient:batata"],
     ingredients: [
       "1 kg de batata, descascada e em pedaços",
       "1 cebola picada",

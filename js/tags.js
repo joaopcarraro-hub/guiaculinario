@@ -56,6 +56,9 @@
     { id: "protein:ovo", label: "Ovo (proteína)", group: "Proteína", synonyms: ["ovo", "ovos"] },
     { id: "protein:vegetariana", label: "Vegetariana", group: "Proteína", synonyms: ["vegetariano", "sem carne"] },
 
+    // ---------- contains (ingrediente presente, mas secundário à identidade do prato) ----------
+    { id: "contains:suino", label: "Leva Suíno (secundário)", group: "Contém", synonyms: ["bacon", "pancetta", "guanciale", "presunto", "linguiça", "toucinho"] },
+
     // ---------- ingredient (ingredientes decisivos) ----------
     { id: "ingredient:ovo", label: "Ovo", group: "Ingrediente", synonyms: ["ovos", "gema", "clara"] },
     { id: "ingredient:tomate", label: "Tomate", group: "Ingrediente", synonyms: ["tomates", "molho de tomate"] },

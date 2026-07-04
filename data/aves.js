@@ -11,7 +11,7 @@ window.RECIPES["aves"] = [
     time: { prep: "25 min", cook: "1h30", total: "1h55" },
     yield: "4 porções",
     difficulty: "Média",
-    tags: ["protein:suino", "ingredient:vinho", "ingredient:cogumelo"],
+    tags: ["protein:frango", "contains:suino", "ingredient:vinho", "ingredient:cogumelo"],
     ingredients: [
       "1 frango caipira, cortado em 8 pedaços (ou 6-8 sobrecoxas com pele)",
       "150 g de bacon em cubos",
@@ -50,7 +50,7 @@ window.RECIPES["aves"] = [
     time: { prep: "25 min", cook: "20 min", total: "45 min" },
     yield: "4 porções",
     difficulty: "Média",
-    tags: ["protein:suino", "ingredient:queijo"],
+    tags: ["protein:frango", "contains:suino", "ingredient:queijo"],
     ingredients: [
       "4 filés de peito de frango grandes",
       "4 fatias de presunto",
@@ -113,7 +113,7 @@ window.RECIPES["aves"] = [
     time: { prep: "30 min", cook: "1h20", total: "1h50" },
     yield: "6 porções",
     difficulty: "Média",
-    tags: ["protein:suino", "ingredient:castanha"],
+    tags: ["protein:frango", "contains:suino", "ingredient:castanha"],
     ingredients: [
       "1 frango inteiro (1,8-2 kg)",
       "200 g de farofa ou farinha de rosca temperada",

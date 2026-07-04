@@ -189,7 +189,7 @@ window.RECIPES["coreia"] = [
     time: { prep: "10 min", cook: "15 min", total: "25 min" },
     yield: "2 porções",
     difficulty: "Fácil",
-    tags: ["protein:suino", "protein:ovo", "ingredient:arroz"],
+    tags: ["contains:suino", "protein:ovo", "ingredient:arroz"],
     ingredients: [
       "2 xícaras de arroz cozido, de preferência do dia anterior (mais seco)",
       "200 g de kimchi bem fermentado, picado (ver receita)",
@@ -257,7 +257,7 @@ window.RECIPES["coreia"] = [
     time: { prep: "15 min", cook: "20 min", total: "35 min" },
     yield: "2 porções",
     difficulty: "Fácil",
-    tags: ["protein:suino", "protein:boi", "protein:ovo"],
+    tags: ["contains:suino", "protein:ovo"],
     ingredients: [
       "400 g de tofu macio (silken tofu), não escorrido",
       "100 g de carne suína ou bovina em tiras finas (ou camarão)",

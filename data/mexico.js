@@ -264,7 +264,7 @@ window.RECIPES["mexico"] = [
     time: { prep: "1h + hidratar folhas", cook: "1h30", total: "2h30" },
     yield: "16 unidades",
     difficulty: "Alta",
-    tags: ["protein:frango", "protein:suino", "ingredient:milho"],
+    tags: ["protein:frango", "contains:suino", "ingredient:milho"],
     ingredients: [
       "20 folhas de milho secas (para tamales), hidratadas em água morna por 30 minutos",
       "500 g de massa de milho (masa harina, hidratada com caldo conforme instrução da embalagem)",

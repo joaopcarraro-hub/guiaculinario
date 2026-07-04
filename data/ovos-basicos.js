@@ -364,7 +364,7 @@ window.RECIPES["ovos-basicos"] = [
     time: { prep: "10 min", cook: "20 min", total: "30 min" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["protein:ovo", "protein:suino", "ingredient:ovo", "ingredient:queijo"],
+    tags: ["protein:ovo", "contains:suino", "ingredient:ovo", "ingredient:queijo"],
     ingredients: [
       "8 ovos",
       "80 ml de leite ou creme de leite",

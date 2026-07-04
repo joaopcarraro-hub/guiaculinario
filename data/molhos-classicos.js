@@ -381,7 +381,7 @@ window.RECIPES["molhos"] = [
     time: { prep: "10 min", cook: "25 min", total: "35 min" },
     yield: "≈ 350 ml",
     difficulty: "Média",
-    tags: ["protein:boi", "protein:suino"],
+    tags: ["protein:boi", "contains:suino"],
     ingredients: [
       "1 cebola média picada bem fina",
       "20 g de manteiga",

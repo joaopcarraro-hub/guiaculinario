@@ -11,7 +11,7 @@ window.RECIPES["carnes-bovinas"] = [
     time: { prep: "1h + 1h geladeira", cook: "35 min", total: "≈2h45" },
     yield: "4-6 porções",
     difficulty: "Alta",
-    tags: ["protein:suino", "ingredient:cogumelo"],
+    tags: ["contains:suino", "ingredient:cogumelo"],
     ingredients: [
       "800 g de filé mignon em peça central (parte mais uniforme)",
       "1 receita de duxelles (ver receita, categoria Clássicos Contemporâneos)",
@@ -191,7 +191,7 @@ window.RECIPES["carnes-bovinas"] = [
     time: { prep: "30 min", cook: "3h", total: "3h30" },
     yield: "6 porções",
     difficulty: "Média",
-    tags: ["protein:suino", "ingredient:vinho", "ingredient:cogumelo"],
+    tags: ["contains:suino", "ingredient:vinho", "ingredient:cogumelo"],
     ingredients: [
       "1,5 kg de acém ou músculo bovino, em cubos grandes",
       "200 g de bacon em cubos",

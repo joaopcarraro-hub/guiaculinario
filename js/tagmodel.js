@@ -86,12 +86,24 @@
 
   function parseMinutes(timeStr) {
     if (!timeStr) return null;
+    const text = timeStr
+      .toString()
+      .toLowerCase()
+      .replace("≈", "")
+      .replace("cerca de", "")
+      .replace("aprox.", "")
+      .replace("aproximadamente", "")
+      .trim();
     let total = 0;
-    const hMatch = timeStr.match(/(\d+)\s*h/i);
-    const mMatch = timeStr.match(/(\d+)\s*min/i);
+    const hMatch = text.match(/(\d+)\s*h/);
+    const mMatch = text.match(/(\d+)\s*min/);
     if (hMatch) total += parseInt(hMatch[1], 10) * 60;
     if (mMatch) total += parseInt(mMatch[1], 10);
-    if (!hMatch && !mMatch) return null;
+    if (!hMatch && !mMatch) {
+      const numericOnly = text.match(/^(\d+)$/);
+      if (numericOnly) return parseInt(numericOnly[1], 10);
+      return null;
+    }
     return total;
   }
 
@@ -179,16 +191,127 @@
     return (window.TAGS || []).find((t) => t.id === tagId);
   }
 
+  // AND — usado pela busca facetada (o usuário escolhe cada tag deliberadamente, quer todas juntas).
   function getRecipesByTags(tagIds) {
     const all = getAllRecipesFlat();
     if (!tagIds || !tagIds.length) return all;
     return all.filter((item) => tagIds.every((tagId) => item.tags.indexOf(tagId) !== -1));
   }
 
+  // OR — usado pelas coleções (uma coleção é definida por "qualquer uma destas tags", não todas).
+  function matchesAnyTag(itemTags, filterTags) {
+    return (filterTags || []).some((tagId) => itemTags.indexOf(tagId) !== -1);
+  }
+
+  // Retorna as receitas de uma coleção já separadas por relevância:
+  // principais (bateram em primaryFilterTags) e relacionadas (só bateram em relatedFilterTags).
   function getRecipesByCollection(collectionId) {
     const collection = (window.COLLECTIONS || []).find((c) => c.id === collectionId);
-    if (!collection) return [];
-    return getRecipesByTags(collection.filterTags);
+    if (!collection) return { collection: null, primaryRecipes: [], relatedRecipes: [], allRecipes: [] };
+    const all = getAllRecipesFlat();
+    const primaryRecipes = all.filter((item) => matchesAnyTag(item.tags, collection.primaryFilterTags));
+    const primaryIds = new Set(primaryRecipes.map((item) => item.id));
+    const relatedRecipes = collection.relatedFilterTags
+      ? all.filter((item) => !primaryIds.has(item.id) && matchesAnyTag(item.tags, collection.relatedFilterTags))
+      : [];
+    return { collection, primaryRecipes, relatedRecipes, allRecipes: primaryRecipes.concat(relatedRecipes) };
+  }
+
+  // ---------- relevância e ordenação ----------
+  function getCollectionRelevanceScore(item, collection) {
+    if (!collection) return 0;
+    let score = 0;
+    if (matchesAnyTag(item.tags, collection.primaryFilterTags)) score += 100;
+    if (collection.relatedFilterTags && matchesAnyTag(item.tags, collection.relatedFilterTags)) score += 40;
+    return score;
+  }
+
+  const DIFFICULTY_RANK = { facil: 1, media: 2, dificil: 3 };
+  function getDifficultyRank(recipe) {
+    const d = (recipe.difficulty || "").toLowerCase();
+    if (d.indexOf("difícil") !== -1 || d.indexOf("dificil") !== -1) return 3;
+    if (d.indexOf("média") !== -1 || d.indexOf("media") !== -1) return 2;
+    if (d.indexOf("fácil") !== -1 || d.indexOf("facil") !== -1) return 1;
+    return 99;
+  }
+
+  function normalizeForSort(value) {
+    return (value || "")
+      .toString()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(new RegExp("[" + String.fromCharCode(92) + "u0300-" + String.fromCharCode(92) + "u036f]", "g"), "");
+  }
+
+  const SORT_OPTIONS = [
+    { key: "relevance", label: "Relevância" },
+    { key: "category-az", label: "Categoria original" },
+    { key: "recipe-az", label: "Nome da receita A-Z" },
+    { key: "time-asc", label: "Tempo: menor primeiro" },
+    { key: "time-desc", label: "Tempo: maior primeiro" },
+    { key: "difficulty-asc", label: "Dificuldade: fácil primeiro" },
+    { key: "difficulty-desc", label: "Dificuldade: difícil primeiro" },
+    { key: "favorites-first", label: "Favoritas primeiro" },
+    { key: "not-made-first", label: "Não feitas primeiro" },
+  ];
+
+  function getCategoryLabel(item) {
+    const cat = (window.CATEGORIES || []).find((c) => c.id === item.catId);
+    return cat ? cat.label : item.catId || "";
+  }
+
+  function sortRecipeItems(items, sortKey, collection) {
+    const sorted = items.slice();
+    const Storage = window.Storage;
+    sorted.sort((a, b) => {
+      if (sortKey === "category-az") {
+        return (
+          normalizeForSort(getCategoryLabel(a)).localeCompare(normalizeForSort(getCategoryLabel(b))) ||
+          normalizeForSort(a.recipe.name).localeCompare(normalizeForSort(b.recipe.name))
+        );
+      }
+      if (sortKey === "recipe-az") {
+        return normalizeForSort(a.recipe.name).localeCompare(normalizeForSort(b.recipe.name));
+      }
+      if (sortKey === "time-asc" || sortKey === "time-desc") {
+        const ta = parseMinutes(a.recipe.time && a.recipe.time.total);
+        const tb = parseMinutes(b.recipe.time && b.recipe.time.total);
+        const va = ta === null ? 99999 : ta;
+        const vb = tb === null ? 99999 : tb;
+        return sortKey === "time-asc" ? va - vb : vb - va;
+      }
+      if (sortKey === "difficulty-asc") return getDifficultyRank(a.recipe) - getDifficultyRank(b.recipe);
+      if (sortKey === "difficulty-desc") return getDifficultyRank(b.recipe) - getDifficultyRank(a.recipe);
+      if (sortKey === "favorites-first" && Storage) {
+        return Number(Storage.isFavorite(b.id)) - Number(Storage.isFavorite(a.id));
+      }
+      if (sortKey === "not-made-first" && Storage) {
+        return Number(Storage.isMade(a.id)) - Number(Storage.isMade(b.id));
+      }
+      // relevância (padrão)
+      return getCollectionRelevanceScore(b, collection) - getCollectionRelevanceScore(a, collection);
+    });
+    return sorted;
+  }
+
+  // ---------- preferência de ordenação por coleção (localStorage) ----------
+  const SORT_PREF_KEY = "cardapio-collection-sort";
+  function getCollectionSort(collectionId) {
+    try {
+      const raw = localStorage.getItem(SORT_PREF_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw)[collectionId] || null;
+    } catch (e) {
+      return null;
+    }
+  }
+  function setCollectionSort(collectionId, sortKey) {
+    try {
+      const raw = localStorage.getItem(SORT_PREF_KEY);
+      const data = raw ? JSON.parse(raw) : {};
+      data[collectionId] = sortKey;
+      localStorage.setItem(SORT_PREF_KEY, JSON.stringify(data));
+    } catch (e) {}
   }
 
   function getRelatedTags(selectedTagIds) {
@@ -251,7 +374,14 @@
     findRecipeById,
     getIdForCatAndName,
     slugify,
+    parseMinutes,
     validateRecipeTags,
     findDuplicateIds,
+    getCollectionRelevanceScore,
+    sortRecipeItems,
+    SORT_OPTIONS,
+    getCollectionSort,
+    setCollectionSort,
+    getCategoryLabel,
   };
 })();

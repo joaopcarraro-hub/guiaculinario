@@ -50,7 +50,7 @@ window.RECIPES["brasileiros"] = [
     time: { prep: "15 min", cook: "20 min", total: "35 min" },
     yield: "4-6 porções",
     difficulty: "Fácil",
-    tags: ["protein:suino", "ingredient:feijao", "ingredient:mandioca"],
+    tags: ["contains:suino", "ingredient:feijao", "ingredient:mandioca"],
     ingredients: [
       "500 g de feijão carioca ou preto, já cozido e com bastante caldo",
       "100 g de bacon em cubos",
@@ -81,7 +81,7 @@ window.RECIPES["brasileiros"] = [
     time: { prep: "20 min + pré-cozimento longo", cook: "2h", total: "≈3h30" },
     yield: "6 porções",
     difficulty: "Média",
-    tags: ["protein:boi", "protein:suino", "ingredient:feijao", "ingredient:tomate"],
+    tags: ["protein:boi", "contains:suino", "ingredient:feijao", "ingredient:tomate"],
     ingredients: [
       "1,2 kg de dobradinha (bucho bovino), bem limpa",
       "300 g de feijão branco (de molho por 8h)",
@@ -445,7 +445,7 @@ window.RECIPES["brasileiros"] = [
     time: { prep: "30 min", cook: "6-8h", total: "≈7-8h30" },
     yield: "8 porções",
     difficulty: "Média",
-    tags: ["protein:boi", "protein:suino"],
+    tags: ["protein:boi", "contains:suino"],
     ingredients: [
       "2 kg de carne bovina para cozimento longo (músculo, acém), em pedaços grandes",
       "300 g de bacon em fatias",

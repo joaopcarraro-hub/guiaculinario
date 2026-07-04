@@ -11,7 +11,7 @@ window.RECIPES["arrozes"] = [
     time: { prep: "10 min", cook: "25 min", total: "35 min" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["protein:suino", "ingredient:arroz", "ingredient:ovo"],
+    tags: ["contains:suino", "ingredient:arroz", "ingredient:ovo"],
     ingredients: [
       "2 xícaras de arroz branco",
       "3 colheres (sopa) de manteiga (dividida)",
@@ -46,7 +46,7 @@ window.RECIPES["arrozes"] = [
     time: { prep: "20 min", cook: "1h40", total: "2h" },
     yield: "6 porções",
     difficulty: "Média",
-    tags: ["protein:ave", "protein:suino", "ingredient:arroz"],
+    tags: ["protein:ave", "contains:suino", "ingredient:arroz"],
     ingredients: [
       "1 pato inteiro (1,8-2 kg), em pedaços",
       "200 g de chouriço/linguiça calabresa fatiado",
