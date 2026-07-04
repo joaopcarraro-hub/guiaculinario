@@ -47,7 +47,7 @@ window.RECIPES["entradas-quentes"] = [
     time: { prep: "15 min", cook: "15 min", total: "30 min" },
     yield: "2 porções",
     difficulty: "Fácil",
-    tags: ["protein:suino", "ingredient:queijo"],
+    tags: ["contains:suino", "ingredient:queijo"],
     ingredients: [
       "4 fatias de pão de forma (tipo brioche ou pão de fôrma grosso)",
       "4 fatias de presunto de boa qualidade",
@@ -117,7 +117,7 @@ window.RECIPES["entradas-quentes"] = [
     time: { prep: "30 min + resfriar risoto", cook: "15 min", total: "45 min + tempo do risoto" },
     yield: "≈ 12 unidades",
     difficulty: "Média",
-    tags: ["protein:vegetariana", "ingredient:arroz", "ingredient:queijo"],
+    tags: ["diet:vegetariana", "ingredient:arroz", "ingredient:queijo"],
     ingredients: [
       "500 g de risoto pronto e frio (idealmente à milanese ou simples, com parmesão)",
       "100 g de queijo muçarela em cubos pequenos",
@@ -184,7 +184,7 @@ window.RECIPES["entradas-quentes"] = [
     time: { prep: "20 min", cook: "20 min", total: "40 min" },
     yield: "≈ 16 unidades",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana", "ingredient:cogumelo", "ingredient:queijo"],
+    tags: ["diet:vegetariana", "ingredient:cogumelo", "ingredient:queijo"],
     ingredients: [
       "16 cogumelos Paris grandes, limpos, com os talos separados",
       "2 colheres (sopa) de azeite",

@@ -11,7 +11,7 @@ window.RECIPES["massas"] = [
     time: { prep: "10 min", cook: "15 min", total: "25 min" },
     yield: "2 porções",
     difficulty: "Média",
-    tags: ["contains:suino", "protein:ovo", "ingredient:queijo"],
+    tags: ["contains:suino", "contains:ovo", "ingredient:queijo"],
     ingredients: [
       "200 g de spaghetti ou rigatoni",
       "120 g de guanciale (ou pancetta), em tiras",
@@ -44,7 +44,7 @@ window.RECIPES["massas"] = [
     time: { prep: "5 min", cook: "15 min", total: "20 min" },
     yield: "2 porções",
     difficulty: "Média-alta",
-    tags: ["protein:vegetariana", "ingredient:queijo"],
+    tags: ["diet:vegetariana", "ingredient:queijo"],
     ingredients: [
       "200 g de tonnarelli ou spaghetti",
       "100 g de pecorino romano ralado bem fino",
@@ -107,7 +107,7 @@ window.RECIPES["massas"] = [
     time: { prep: "10 min", cook: "20 min", total: "30 min" },
     yield: "2-3 porções",
     difficulty: "Fácil",
-    tags: ["protein:peixe", "ingredient:tomate", "ingredient:azeitona"],
+    tags: ["contains:peixe", "ingredient:tomate", "ingredient:azeitona"],
     ingredients: [
       "250 g de spaghetti",
       "3 colheres (sopa) de azeite de oliva",
@@ -142,7 +142,7 @@ window.RECIPES["massas"] = [
     time: { prep: "5 min", cook: "12 min", total: "17 min" },
     yield: "2 porções",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana"],
+    tags: ["diet:vegetariana"],
     ingredients: [
       "200 g de spaghetti",
       "80 ml de azeite de oliva extra virgem",
@@ -175,7 +175,7 @@ window.RECIPES["massas"] = [
     time: { prep: "40 min", cook: "45 min", total: "1h25" },
     yield: "6-8 porções",
     difficulty: "Média",
-    tags: ["protein:boi", "ingredient:queijo"],
+    tags: ["contains:boi", "ingredient:queijo"],
     ingredients: [
       "12 folhas de lasanha (fresca ou seca pré-cozida)",
       "800 g de ragù à bolonhesa pronto (carne moída, tomate, mirepoix, vinho — cozido lentamente)",
@@ -209,7 +209,7 @@ window.RECIPES["massas"] = [
     time: { prep: "1h", cook: "5 min", total: "1h05" },
     yield: "4 porções",
     difficulty: "Média-alta",
-    tags: ["protein:vegetariana", "ingredient:queijo", "ingredient:espinafre"],
+    tags: ["diet:vegetariana", "ingredient:queijo", "ingredient:espinafre"],
     ingredients: [
       "Para a massa: 300 g de farinha de trigo tipo 00 (ou comum), 3 ovos grandes, 1 pitada de sal",
       "Para o recheio: 250 g de ricota escorrida, 100 g de espinafre cozido e bem espremido, picado",
@@ -242,7 +242,7 @@ window.RECIPES["massas"] = [
     time: { prep: "1h15", cook: "5 min", total: "1h20" },
     yield: "4 porções",
     difficulty: "Alta",
-    tags: ["protein:suino", "ingredient:queijo"],
+    tags: ["contains:suino", "ingredient:queijo"],
     ingredients: [
       "Para a massa: 300 g de farinha tipo 00, 3 ovos grandes, 1 pitada de sal",
       "Para o recheio: 150 g de presunto parma picado bem fino",
@@ -276,7 +276,7 @@ window.RECIPES["massas"] = [
     time: { prep: "1h", cook: "5 min", total: "1h05" },
     yield: "4 porções",
     difficulty: "Média-alta",
-    tags: ["protein:boi", "contains:suino", "ingredient:espinafre"],
+    tags: ["contains:boi", "contains:suino", "ingredient:espinafre"],
     ingredients: [
       "Para a massa: 300 g de farinha tipo 00, 3 ovos grandes, 1 pitada de sal",
       "Para o recheio: 300 g de sobras de assado (vitela, porco ou coelho, desfiado)",
@@ -311,7 +311,7 @@ window.RECIPES["massas"] = [
     time: { prep: "45 min", cook: "3 min", total: "48 min" },
     yield: "4 porções",
     difficulty: "Média",
-    tags: ["protein:vegetariana"],
+    tags: ["diet:vegetariana"],
     ingredients: [
       "300 g de farinha tipo 00 (ou comum)",
       "3 ovos grandes",
@@ -343,7 +343,7 @@ window.RECIPES["massas"] = [
     time: { prep: "45 min", cook: "3 min", total: "48 min" },
     yield: "4 porções",
     difficulty: "Média",
-    tags: ["protein:vegetariana"],
+    tags: ["diet:vegetariana"],
     ingredients: [
       "300 g de farinha tipo 00 (ou comum)",
       "3 ovos grandes",
@@ -375,7 +375,7 @@ window.RECIPES["massas"] = [
     time: { prep: "40 min", cook: "5 min", total: "45 min" },
     yield: "4 porções",
     difficulty: "Média",
-    tags: ["protein:vegetariana", "ingredient:batata"],
+    tags: ["diet:vegetariana", "ingredient:batata"],
     ingredients: [
       "1 kg de batata (tipo asterix ou inglesa), com casca",
       "200-250 g de farinha de trigo (a quantidade exata depende da umidade da batata)",
@@ -408,7 +408,7 @@ window.RECIPES["massas"] = [
     time: { prep: "15 min", cook: "5 min", total: "20 min" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana"],
+    tags: ["diet:vegetariana"],
     ingredients: [
       "300 g de farinha de trigo",
       "4 ovos",

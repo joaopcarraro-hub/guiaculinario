@@ -190,7 +190,7 @@ window.RECIPES["brasileiros"] = [
     time: { prep: "20 min + 30 min marinada", cook: "25 min", total: "1h15" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["protein:peixe", "protein:frutos-do-mar", "ingredient:coco", "ingredient:tomate", "ingredient:limao", "ingredient:pimentao"],
+    tags: ["protein:peixe", "contains:frutos-do-mar", "ingredient:coco", "ingredient:tomate", "ingredient:limao", "ingredient:pimentao"],
     ingredients: [
       "800 g de peixe branco firme (robalo, badejo ou cação), em postas",
       "Suco de 2 limões",
@@ -301,7 +301,7 @@ window.RECIPES["brasileiros"] = [
     time: { prep: "20 min + 12h de molho do feijão", cook: "20 min", total: "≈13h" },
     yield: "12 unidades",
     difficulty: "Média",
-    tags: ["protein:frutos-do-mar", "ingredient:feijao"],
+    tags: ["contains:frutos-do-mar", "ingredient:feijao"],
     ingredients: [
       "500 g de feijão-fradinho, deixado de molho por 12h",
       "1 cebola picada",
@@ -479,7 +479,7 @@ window.RECIPES["brasileiros"] = [
     time: { prep: "15 min + 8h molho do feijão", cook: "40 min", total: "≈9h" },
     yield: "6 porções",
     difficulty: "Fácil",
-    tags: ["protein:boi", "ingredient:feijao", "ingredient:arroz", "ingredient:queijo"],
+    tags: ["contains:boi", "ingredient:feijao", "ingredient:arroz", "ingredient:queijo"],
     ingredients: [
       "300 g de feijão-de-corda (feijão fradinho), de molho por 8h",
       "200 g de carne seca dessalgada e desfiada",
@@ -514,7 +514,7 @@ window.RECIPES["brasileiros"] = [
     time: { prep: "15 min + dessalgar a carne", cook: "40 min", total: "≈1h" },
     yield: "6 porções",
     difficulty: "Fácil",
-    tags: ["protein:boi", "ingredient:arroz", "ingredient:tomate", "ingredient:pimentao"],
+    tags: ["contains:boi", "ingredient:arroz", "ingredient:tomate", "ingredient:pimentao"],
     ingredients: [
       "400 g de charque ou carne seca, dessalgada e desfiada",
       "3 colheres (sopa) de óleo ou banha",
@@ -551,7 +551,7 @@ window.RECIPES["brasileiros"] = [
     time: { prep: "20 min", cook: "20 min", total: "40 min" },
     yield: "4 porções",
     difficulty: "Média",
-    tags: ["protein:frutos-do-mar"],
+    tags: ["contains:frutos-do-mar"],
     ingredients: [
       "1 L de tucupi (líquido extraído da mandioca brava, já cozido e pronto para consumo — encontrado congelado ou fresco em mercados do Norte)",
       "150 g de goma de tapioca (goma de mandioca fresca)",

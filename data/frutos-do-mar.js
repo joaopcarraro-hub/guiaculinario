@@ -11,7 +11,7 @@ window.RECIPES["frutos-do-mar"] = [
     time: { prep: "25 min", cook: "35 min", total: "1h" },
     yield: "4-6 porções",
     difficulty: "Média-alta",
-    tags: ["protein:frango", "ingredient:arroz", "ingredient:tomate", "ingredient:ervilha", "ingredient:pimentao"],
+    tags: ["contains:frango", "ingredient:arroz", "ingredient:tomate", "ingredient:ervilha", "ingredient:pimentao"],
     ingredients: [
       "400 g de arroz tipo bomba (ou arbóreo, na falta do original)",
       "300 g de camarão médio, limpo (cascas reservadas)",

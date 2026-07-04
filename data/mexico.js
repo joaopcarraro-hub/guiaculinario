@@ -199,7 +199,7 @@ window.RECIPES["mexico"] = [
     time: { prep: "10 min", cook: "10 min", total: "20 min" },
     yield: "4 unidades",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana", "ingredient:queijo", "ingredient:cogumelo"],
+    tags: ["diet:vegetariana", "ingredient:queijo", "ingredient:cogumelo"],
     ingredients: [
       "4 tortillas de trigo ou milho grandes",
       "300 g de queijo tipo mussarela ou queijo Oaxaca, ralado",
@@ -228,7 +228,7 @@ window.RECIPES["mexico"] = [
     time: { prep: "30 min", cook: "20 min", total: "50 min" },
     yield: "6 unidades",
     difficulty: "Média-alta",
-    tags: ["protein:vegetariana", "protein:ovo", "ingredient:queijo", "ingredient:pimentao", "ingredient:tomate"],
+    tags: ["diet:vegetariana", "contains:ovo", "ingredient:queijo", "ingredient:pimentao", "ingredient:tomate"],
     ingredients: [
       "6 pimentões poblano (ou pimentão verde grande, na falta do poblano)",
       "300 g de queijo tipo Oaxaca ou muçarela, em tiras",
@@ -300,7 +300,7 @@ window.RECIPES["mexico"] = [
     time: { prep: "15 min", cook: "0 min", total: "15 min" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana", "ingredient:tomate", "ingredient:limao"],
+    tags: ["diet:vegetariana", "ingredient:tomate", "ingredient:limao"],
     ingredients: [
       "3 abacates maduros",
       "1/2 cebola roxa picada bem fina",

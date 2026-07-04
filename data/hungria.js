@@ -48,7 +48,7 @@ window.RECIPES["hungria"] = [
     time: { prep: "20 min + 1h fermentação", cook: "15 min", total: "1h35" },
     yield: "6 unidades",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana", "ingredient:queijo"],
+    tags: ["diet:vegetariana", "ingredient:queijo"],
     ingredients: [
       "500 g de farinha de trigo",
       "7 g de fermento biológico seco",

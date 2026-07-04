@@ -655,6 +655,48 @@ body {
   color: var(--ink-soft);
 }
 
+/* ---------- Home: blocos macro (Fundamentos/Proteínas/Cozinhas/Tempo/Dificuldade) ---------- */
+.home-grupo-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.home-grupo-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 76px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-panel);
+  padding: 16px 18px;
+  text-align: left;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  font-family: inherit;
+}
+.home-grupo-card:hover { border-color: var(--gold-soft); }
+.home-grupo-card__icon { font-size: 1.8rem; flex-shrink: 0; }
+.home-grupo-card__text { display: flex; flex-direction: column; min-width: 0; }
+.home-grupo-card__title {
+  display: block;
+  font-weight: bold;
+  color: var(--ink);
+  font-size: 1.05rem;
+}
+.home-grupo-card__desc {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  line-height: 1.35;
+  margin-top: 2px;
+}
+
+/* ---------- Página de grupo ---------- */
+.grupo-view h2 { margin: 0 0 2px; }
+.grupo-view .desc { margin-bottom: 18px; }
+
 /* ---------- Página de receita ---------- */
 .recipe-page { max-width: 720px; }
 .back-button {

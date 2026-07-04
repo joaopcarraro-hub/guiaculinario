@@ -156,7 +156,7 @@ window.RECIPES["china"] = [
     time: { prep: "20 min", cook: "12 min", total: "32 min" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["protein:frango", "protein:frutos-do-mar", "ingredient:ovo", "ingredient:molho-de-soja", "ingredient:gengibre"],
+    tags: ["contains:frango", "contains:frutos-do-mar", "ingredient:ovo", "ingredient:molho-de-soja", "ingredient:gengibre"],
     ingredients: [
       "400 g de macarrão chow mein (ou macarrão de ovo chinês)",
       "200 g de peito de frango (ou carne/camarão), em tiras finas",
@@ -192,7 +192,7 @@ window.RECIPES["china"] = [
     time: { prep: "1h + 4h gelatina", cook: "10 min", total: "≈5h30" },
     yield: "20 unidades",
     difficulty: "Alta",
-    tags: ["protein:suino", "ingredient:gengibre", "ingredient:molho-de-soja"],
+    tags: ["contains:suino", "ingredient:gengibre", "ingredient:molho-de-soja"],
     ingredients: [
       "Para a gelatina de caldo: 500 ml de caldo de porco/frango bem encorpado, 10 g de gelatina em folha (ou pele de porco cozida, técnica tradicional)",
       "300 g de carne suína moída",
@@ -226,7 +226,7 @@ window.RECIPES["china"] = [
     time: { prep: "50 min", cook: "10 min", total: "1h" },
     yield: "30 unidades",
     difficulty: "Média",
-    tags: ["protein:suino", "ingredient:gengibre", "ingredient:molho-de-soja"],
+    tags: ["contains:suino", "ingredient:gengibre", "ingredient:molho-de-soja"],
     ingredients: [
       "300 g de carne suína moída",
       "200 g de repolho picado bem fino, salgado e espremido (para remover água)",
@@ -261,7 +261,7 @@ window.RECIPES["china"] = [
     time: { prep: "40 min", cook: "30 min (na mesa)", total: "≈1h10" },
     yield: "4-6 porções",
     difficulty: "Fácil",
-    tags: ["protein:boi", "protein:frutos-do-mar", "ingredient:cogumelo", "ingredient:molho-de-soja"],
+    tags: ["contains:boi", "contains:frutos-do-mar", "ingredient:cogumelo", "ingredient:molho-de-soja"],
     ingredients: [
       "1,5 L de caldo base (pode ser dividido em dois: um mais suave de galinha/kombu, outro picante com doubanjiang e pimentas)",
       "400 g de carne bovina fatiada bem fina",
@@ -293,7 +293,7 @@ window.RECIPES["china"] = [
     time: { prep: "40 min", cook: "15 min", total: "55 min" },
     yield: "4 porções",
     difficulty: "Média",
-    tags: ["protein:frutos-do-mar", "protein:suino", "protein:ave", "ingredient:gengibre", "ingredient:molho-de-soja", "ingredient:espinafre"],
+    tags: ["contains:frutos-do-mar", "contains:suino", "contains:ave", "ingredient:gengibre", "ingredient:molho-de-soja", "ingredient:espinafre"],
     ingredients: [
       "200 g de camarão picado bem fino",
       "150 g de carne suína moída",

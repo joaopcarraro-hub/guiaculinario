@@ -41,8 +41,11 @@
     const excludeTagIds = (handlers && handlers.excludeTagIds) || [];
     const tagResults = Search.searchTags(q).filter((t) => excludeTagIds.indexOf(t.id) === -1).slice(0, 6);
     const recipeResults = Search.searchRecipes(q, { limit: 5 });
+    // Filtro de texto combinável: só oferecido quando o termo não bateu em nenhuma tag formal
+    // (senão a tag já resolve melhor) e o caller aceita esse tipo de sugestão (busca facetada).
+    const textFacetCount = handlers && handlers.onSelectText && !tagResults.length ? Search.countByIngredientText(q) : 0;
 
-    if (!tagResults.length && !recipeResults.length) {
+    if (!tagResults.length && !recipeResults.length && !textFacetCount) {
       suggestionsEl.innerHTML = '<div class="tagsearch-empty">Nenhuma tag ou prato encontrado para "' + query + '".</div>';
       return;
     }
@@ -53,6 +56,17 @@
         '<div class="tagsearch-group-label">Tags</div><div class="tagsearch-taglist">' +
         tagResults.map((t) => '<button type="button" class="tag-suggestion" data-tag="' + t.id + '">' + t.label + "</button>").join("") +
         "</div>";
+    }
+    if (textFacetCount > 0) {
+      html +=
+        '<div class="tagsearch-group-label">Filtro de texto</div><div class="tagsearch-taglist">' +
+        '<button type="button" class="text-suggestion" data-text="' +
+        encodeURIComponent(q) +
+        '">Contém "' +
+        q +
+        '" nos ingredientes (' +
+        textFacetCount +
+        ")</button></div>";
     }
     if (recipeResults.length) {
       html +=
@@ -69,6 +83,9 @@
     });
     suggestionsEl.querySelectorAll(".recipe-suggestion").forEach((btn) => {
       btn.addEventListener("click", () => handlers.onSelectRecipe(btn.dataset.cat, decodeURIComponent(btn.dataset.name)));
+    });
+    suggestionsEl.querySelectorAll(".text-suggestion").forEach((btn) => {
+      btn.addEventListener("click", () => handlers.onSelectText(decodeURIComponent(btn.dataset.text)));
     });
   }
 
@@ -109,6 +126,122 @@
     return wrap;
   }
 
+  // ---------- Grupos macro (home -> página de grupo -> coleção -> receita) ----------
+  const GRUPOS = [
+    { id: "fundamentos", label: "Fundamentos", icon: "🥣", desc: "Aprenda as bases, técnicas e preparos essenciais da culinária.", collectionGroup: "Fundamentos" },
+    { id: "proteinas", label: "Proteínas", icon: "🍗", desc: "Encontre receitas pelo tipo de proteína principal ou ingrediente usado.", collectionGroup: "Proteínas" },
+    { id: "cozinhas", label: "Cozinhas do mundo", icon: "🌍", desc: "Navegue por receitas do Brasil e de diferentes países.", collectionGroup: "Cozinhas do Mundo" },
+    { id: "tempo", label: "Por tempo", icon: "⏱️", desc: "Escolha receitas de acordo com o tempo que você tem para cozinhar.", collectionGroup: "Por tempo" },
+    { id: "dificuldade", label: "Por dificuldade", icon: "🎯", desc: "Encontre receitas fáceis, intermediárias ou mais técnicas.", collectionGroup: "Por dificuldade" },
+  ];
+
+  function normText(s) {
+    return (s || "").toString().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  }
+
+  function renderCollectionCard(collection) {
+    const { primaryRecipes, allRecipes } = TagModel.getRecipesByCollection(collection.id);
+    const doneCount = Storage.countMade(allRecipes.map((i) => i.id));
+    const pct = allRecipes.length ? Math.round((doneCount / allRecipes.length) * 100) : 0;
+    const countLabel =
+      allRecipes.length !== primaryRecipes.length
+        ? primaryRecipes.length + " de foco · " + allRecipes.length + " no total"
+        : allRecipes.length + " receitas";
+    const card = document.createElement("button");
+    card.className = "category-card";
+    card.innerHTML =
+      '<span class="category-card__icon">' + (collection.icon || "🍽") + "</span>" +
+      '<span class="category-card__title">' + collection.label + "</span>" +
+      '<span class="category-card__count">' + countLabel + "</span>" +
+      (allRecipes.length
+        ? '<span class="category-card__progress"><span class="category-card__progress-bar" style="width:' +
+          pct +
+          '%"></span></span><span class="category-card__progress-label">' +
+          doneCount +
+          "/" +
+          allRecipes.length +
+          " feitas</span>"
+        : "");
+    card.addEventListener("click", () => Router.toCategoria(collection.id));
+    return card;
+  }
+
+  // Busca contextual: só considera as coleções do próprio grupo (label da coleção
+  // ou label/sinônimos das tags que ela filtra) — nunca busca receitas diretamente.
+  function renderGrupo(grupoId) {
+    const grupo = GRUPOS.find((g) => g.id === grupoId);
+    if (!grupo) {
+      renderHome();
+      return;
+    }
+    activeCat = null;
+    refreshActiveCounts = null;
+
+    header.innerHTML = "";
+    content.innerHTML = "";
+    progressEl.textContent = "";
+
+    const wrap = document.createElement("div");
+    wrap.className = "grupo-view";
+
+    const back = document.createElement("button");
+    back.className = "back-button";
+    back.textContent = "← Voltar";
+    back.addEventListener("click", () => Router.toHome());
+    wrap.appendChild(back);
+
+    const titleEl = document.createElement("h2");
+    titleEl.textContent = grupo.icon + " " + grupo.label;
+    wrap.appendChild(titleEl);
+
+    const descEl = document.createElement("div");
+    descEl.className = "desc";
+    descEl.textContent = grupo.desc;
+    wrap.appendChild(descEl);
+
+    const searchWrap = document.createElement("div");
+    searchWrap.className = "home-search-wrap";
+    const search = document.createElement("input");
+    search.type = "text";
+    search.className = "home-search";
+    search.placeholder = "Buscar em " + grupo.label.toLowerCase() + "...";
+    searchWrap.appendChild(search);
+    wrap.appendChild(searchWrap);
+
+    const grid = document.createElement("div");
+    grid.className = "category-grid";
+    wrap.appendChild(grid);
+
+    const collections = window.COLLECTIONS.filter((c) => c.group === grupo.collectionGroup);
+
+    function matchesQuery(collection, q) {
+      if (!q) return true;
+      const nq = normText(q);
+      if (normText(collection.label).indexOf(nq) !== -1) return true;
+      return (collection.primaryFilterTags || []).some((tagId) => {
+        const tag = TagModel.getTagById(tagId);
+        if (!tag) return false;
+        if (normText(tag.label).indexOf(nq) !== -1) return true;
+        return (tag.synonyms || []).some((syn) => normText(syn).indexOf(nq) !== -1);
+      });
+    }
+
+    function renderGrid(query) {
+      grid.innerHTML = "";
+      const filtered = collections.filter((c) => matchesQuery(c, query));
+      if (!filtered.length) {
+        grid.innerHTML = '<div class="empty-state">Nenhuma opção encontrada para "' + query + '".</div>';
+        return;
+      }
+      filtered.forEach((collection) => grid.appendChild(renderCollectionCard(collection)));
+    }
+
+    search.addEventListener("input", () => renderGrid(search.value.trim()));
+    renderGrid("");
+
+    content.appendChild(wrap);
+  }
+
   // ---------- Home ----------
   function renderHome() {
     activeCat = null;
@@ -135,6 +268,7 @@
     wireTagSearchInput(homeSearch, homeSuggestions, {
       onSelectTag: (tagId) => Router.toBusca([tagId]),
       onSelectRecipe: goToRecipeByCatAndName,
+      onSelectText: (text) => Router.toBusca([], [text]),
     });
 
     const totalRecipes = TagModel.getAllRecipesFlat().length;
@@ -159,48 +293,21 @@
     });
     wrap.appendChild(quickGrid);
 
-    const groups = {};
-    window.COLLECTIONS.forEach((c) => {
-      if (!groups[c.group]) groups[c.group] = [];
-      groups[c.group].push(c);
+    const grupoGrid = document.createElement("div");
+    grupoGrid.className = "home-grupo-grid";
+    GRUPOS.forEach((grupo) => {
+      const card = document.createElement("button");
+      card.className = "home-grupo-card";
+      card.innerHTML =
+        '<span class="home-grupo-card__icon">' + grupo.icon + "</span>" +
+        '<span class="home-grupo-card__text">' +
+        '<span class="home-grupo-card__title">' + grupo.label + "</span>" +
+        '<span class="home-grupo-card__desc">' + grupo.desc + "</span>" +
+        "</span>";
+      card.addEventListener("click", () => Router.toGrupo(grupo.id));
+      grupoGrid.appendChild(card);
     });
-
-    Object.keys(groups).forEach((groupName) => {
-      const st = document.createElement("div");
-      st.className = "subgroup-title";
-      st.textContent = groupName;
-      wrap.appendChild(st);
-
-      const grid = document.createElement("div");
-      grid.className = "category-grid";
-      groups[groupName].forEach((collection) => {
-        const { primaryRecipes, allRecipes } = TagModel.getRecipesByCollection(collection.id);
-        const doneCount = Storage.countMade(allRecipes.map((i) => i.id));
-        const pct = allRecipes.length ? Math.round((doneCount / allRecipes.length) * 100) : 0;
-        const countLabel =
-          allRecipes.length !== primaryRecipes.length
-            ? primaryRecipes.length + " principais · " + allRecipes.length + " no total"
-            : allRecipes.length + " receitas";
-        const card = document.createElement("button");
-        card.className = "category-card";
-        card.innerHTML =
-          '<span class="category-card__icon">' + (collection.icon || "🍽") + "</span>" +
-          '<span class="category-card__title">' + collection.label + "</span>" +
-          '<span class="category-card__count">' + countLabel + "</span>" +
-          (allRecipes.length
-            ? '<span class="category-card__progress"><span class="category-card__progress-bar" style="width:' +
-              pct +
-              '%"></span></span><span class="category-card__progress-label">' +
-              doneCount +
-              "/" +
-              allRecipes.length +
-              " feitas</span>"
-            : "");
-        card.addEventListener("click", () => Router.toCategoria(collection.id));
-        grid.appendChild(card);
-      });
-      wrap.appendChild(grid);
-    });
+    wrap.appendChild(grupoGrid);
 
     content.appendChild(wrap);
   }
@@ -244,7 +351,7 @@
       tabsEl = document.createElement("div");
       tabsEl.className = "collection-tabs";
       tabsEl.innerHTML =
-        '<button type="button" data-tab="primary">Principais</button><button type="button" data-tab="all">Todas</button>';
+        '<button type="button" data-tab="primary">Foco da receita</button><button type="button" data-tab="all">Todas</button>';
       toolbar.appendChild(tabsEl);
     }
 
@@ -272,7 +379,7 @@
 
     function renderToolbarState() {
       countEl.innerHTML = hasRelated
-        ? "<strong>" + primaryRecipes.length + " principais</strong><span>" + allRecipes.length + " no total</span>"
+        ? "<strong>" + primaryRecipes.length + " de foco</strong><span>" + allRecipes.length + " no total</span>"
         : "<strong>" + allRecipes.length + " receita" + (allRecipes.length === 1 ? "" : "s") + "</strong>";
       if (tabsEl) {
         tabsEl.querySelectorAll("button").forEach((btn) => btn.classList.toggle("active", btn.dataset.tab === activeTab));
@@ -282,7 +389,7 @@
     }
 
     function renderRefine() {
-      const related = TagModel.getRelatedTags(collection.primaryFilterTags).slice(0, 8);
+      const related = TagModel.getGuidedRelatedTags(collection.primaryFilterTags, collection.collectionType).slice(0, 8);
       if (!related.length) {
         refineEl.innerHTML = "";
         return;
@@ -307,14 +414,14 @@
         if (primaryItems.length) {
           const st = document.createElement("div");
           st.className = "subgroup-title";
-          st.textContent = "Principais";
+          st.textContent = "Foco da receita";
           listEl.appendChild(st);
           primaryItems.forEach((item) => listEl.appendChild(renderRecipeCard(item, { fromCollectionId: collection.id })));
         }
         if (relatedItems.length) {
           const st = document.createElement("div");
           st.className = "subgroup-title";
-          st.textContent = "Relacionadas";
+          st.textContent = "Também leva";
           listEl.appendChild(st);
           relatedItems.forEach((item) => {
             const contextTagId = (collection.relatedFilterTags || []).find((t) => item.tags.indexOf(t) !== -1);
@@ -363,13 +470,14 @@
 
   // ---------- Busca facetada por tags ----------
   const POPULAR_TAG_GROUPS = [
-    { label: "Proteínas", ids: ["protein:frango", "protein:boi", "protein:suino", "protein:peixe", "protein:frutos-do-mar", "protein:ovo", "protein:vegetariana"] },
+    { label: "Proteínas", ids: ["protein:frango", "protein:boi", "protein:suino", "protein:peixe", "protein:frutos-do-mar", "protein:ovo", "diet:vegetariana"] },
     { label: "Tipos de prato", ids: ["dish_type:massa", "dish_type:sopa", "dish_type:sobremesa", "dish_type:arroz", "dish_type:pao"] },
     { label: "Cozinhas", ids: ["country:italia", "country:brasil", "country:japao", "country:mexico", "country:franca"] },
     { label: "Tempo e dificuldade", ids: ["time:ate-30-min", "difficulty:facil"] },
   ];
 
-  function renderBusca(tagIds) {
+  function renderBusca(tagIds, textFilters) {
+    textFilters = textFilters || [];
     activeCat = null;
     refreshActiveCounts = null;
     header.innerHTML = "<h2>🔎 Buscar por tags</h2>";
@@ -392,6 +500,10 @@
     const chipsEl = document.createElement("div");
     chipsEl.className = "tagsearch-chips";
     wrap.appendChild(chipsEl);
+
+    const textChipsEl = document.createElement("div");
+    textChipsEl.className = "tagsearch-chips";
+    wrap.appendChild(textChipsEl);
 
     const relatedEl = document.createElement("div");
     relatedEl.className = "tagsearch-related";
@@ -420,9 +532,13 @@
     resultsEl.className = "tagsearch-results";
     content.appendChild(resultsEl);
 
+    function goTo(newTagIds, newTextFilters) {
+      const dedupedTags = newTagIds.filter((id, i) => newTagIds.indexOf(id) === i);
+      const dedupedText = (newTextFilters || textFilters).filter((t, i) => (newTextFilters || textFilters).indexOf(t) === i);
+      Router.toBusca(dedupedTags, dedupedText);
+    }
     function goToTags(newTagIds) {
-      const deduped = newTagIds.filter((id, i) => newTagIds.indexOf(id) === i);
-      Router.toBusca(deduped);
+      goTo(newTagIds, textFilters);
     }
 
     function renderChips() {
@@ -447,12 +563,33 @@
       });
     }
 
+    function renderTextChips() {
+      if (!textFilters.length) {
+        textChipsEl.innerHTML = "";
+        return;
+      }
+      textChipsEl.innerHTML = textFilters
+        .map(
+          (text) =>
+            '<button type="button" class="tag-chip tag-chip--selected tag-chip--text" data-text="' +
+            encodeURIComponent(text) +
+            '">Contém "' +
+            text +
+            '" <span aria-hidden="true">×</span></button>'
+        )
+        .join("");
+      textChipsEl.querySelectorAll(".tag-chip").forEach((btn) => {
+        const text = decodeURIComponent(btn.dataset.text);
+        btn.addEventListener("click", () => goTo(tagIds, textFilters.filter((t) => t !== text)));
+      });
+    }
+
     function renderRelated() {
       if (!tagIds.length) {
         relatedEl.innerHTML = "";
         return;
       }
-      const related = TagModel.getRelatedTags(tagIds).slice(0, 10);
+      const related = TagModel.getGuidedRelatedTags(tagIds, TagModel.inferCollectionTypeFromTags(tagIds)).slice(0, 10);
       if (!related.length) {
         relatedEl.innerHTML = "";
         return;
@@ -487,17 +624,23 @@
 
     function renderResults() {
       resultsEl.innerHTML = "";
-      if (!tagIds.length) {
+      if (!tagIds.length && !textFilters.length) {
         countEl.textContent = "";
         resultsEl.innerHTML = '<div class="empty-state">Escolha uma tag abaixo (ou digite acima) pra começar a buscar.</div>';
         renderPopularTags();
         return;
       }
-      const items = TagModel.getRecipesByTags(tagIds);
+      let items = tagIds.length ? TagModel.getRecipesByTags(tagIds) : TagModel.getAllRecipesFlat();
+      if (textFilters.length) {
+        items = items.filter((item) => {
+          const ingredientsText = normText((item.recipe.ingredients || []).join(" "));
+          return textFilters.every((t) => ingredientsText.indexOf(normText(t)) !== -1);
+        });
+      }
       if (!items.length) {
         countEl.textContent = "";
         resultsEl.innerHTML =
-          '<div class="empty-state">Nenhuma receita encontrada com essas tags.<br>Remova uma tag pra ampliar os resultados.</div>';
+          '<div class="empty-state">Nenhuma receita encontrada com esses filtros.<br>Remova um filtro pra ampliar os resultados.</div>';
         return;
       }
       countEl.textContent = items.length + (items.length === 1 ? " receita encontrada" : " receitas encontradas");
@@ -520,10 +663,16 @@
         goToTags(tagIds.concat([tagId]));
       },
       onSelectRecipe: goToRecipeByCatAndName,
+      onSelectText: (text) => {
+        input.value = "";
+        suggestionsEl.innerHTML = "";
+        goTo(tagIds, textFilters.concat([text]));
+      },
       excludeTagIds: tagIds,
     });
 
     renderChips();
+    renderTextChips();
     renderRelated();
     renderResults();
   }
@@ -1128,7 +1277,9 @@
   // ---------- Roteamento ----------
   function handleRoute(route) {
     if (route.name === "busca") {
-      renderBusca(route.tags || []);
+      renderBusca(route.tags || [], route.textFilters || []);
+    } else if (route.name === "grupo") {
+      renderGrupo(route.grupoId);
     } else if (route.name === "categoria") {
       showCategoria(route.catId);
     } else if (route.name === "receita") {

@@ -15,7 +15,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "20 min + 12h fermentação", cook: "1h", total: "≈13h" },
     yield: "1 pão grande",
     difficulty: "Média",
-    tags: ["protein:vegetariana"],
+    tags: ["diet:vegetariana"],
     ingredients: [
       "300 g de grãos de centeio inteiros (ou centeio em flocos grossos)",
       "200 g de farinha de centeio integral",
@@ -48,7 +48,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "20 min + 1h30 fermentação", cook: "30 min", total: "2h20" },
     yield: "1 pão grande",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana"],
+    tags: ["diet:vegetariana"],
     ingredients: [
       "500 g de farinha de trigo",
       "10 g de fermento biológico seco",
@@ -79,7 +79,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "20 min + 1h fermentação", cook: "18 min", total: "1h40" },
     yield: "12 pãezinhos",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana", "ingredient:ovo"],
+    tags: ["diet:vegetariana", "ingredient:ovo"],
     ingredients: [
       "500 g de farinha de trigo",
       "10 g de fermento biológico seco",
@@ -112,7 +112,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "20 min + 1h fermentação", cook: "15 min", total: "1h35" },
     yield: "12 unidades",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana", "ingredient:ovo"],
+    tags: ["diet:vegetariana", "ingredient:ovo"],
     ingredients: [
       "500 g de farinha de trigo",
       "10 g de fermento biológico seco",
@@ -145,7 +145,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "1h + 12h entre dobras", cook: "20 min", total: "≈14h" },
     yield: "12 unidades",
     difficulty: "Alta",
-    tags: ["protein:vegetariana", "ingredient:ovo", "ingredient:castanha"],
+    tags: ["diet:vegetariana", "ingredient:ovo", "ingredient:castanha"],
     ingredients: [
       "500 g de farinha de trigo",
       "10 g de sal, 60 g de açúcar",
@@ -181,7 +181,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "40 min + 1h30 fermentação", cook: "20 min", total: "2h30" },
     yield: "12 unidades",
     difficulty: "Média",
-    tags: ["protein:vegetariana", "ingredient:ovo"],
+    tags: ["diet:vegetariana", "ingredient:ovo"],
     ingredients: [
       "500 g de farinha de trigo",
       "10 g de fermento biológico seco",
@@ -491,7 +491,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "15 min", cook: "30 min", total: "45 min" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["protein:suino", "ingredient:batata"],
+    tags: ["contains:suino", "ingredient:batata"],
     ingredients: [
       "1 kg de batata, descascada e em pedaços",
       "150 ml de leite, 50 g de manteiga (para o purê)",
@@ -522,7 +522,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "15 min", cook: "20 min", total: "35 min" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["protein:boi", "ingredient:ovo", "ingredient:batata"],
+    tags: ["contains:boi", "ingredient:ovo", "ingredient:batata"],
     ingredients: [
       "400 g de sobras de carne assada (rosbife, flæskesteg ou similar), em cubos",
       "600 g de batata, cozida e em cubos",
@@ -722,7 +722,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "15 min", cook: "25 min", total: "40 min" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana", "ingredient:ovo"],
+    tags: ["diet:vegetariana", "ingredient:ovo"],
     ingredients: [
       "800 g de aspargos brancos ou verdes, com as pontas reservadas",
       "40 g de manteiga",
@@ -794,7 +794,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "15 min", cook: "1h30", total: "1h45" },
     yield: "6 porções",
     difficulty: "Fácil",
-    tags: ["protein:frango", "ingredient:ervilha"],
+    tags: ["contains:frango", "ingredient:ervilha"],
     ingredients: [
       "1,5 kg de ossos ou carcaça de galinha (ou carne com osso)",
       "2 L de água",
@@ -827,7 +827,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "10 min", cook: "20 min", total: "30 min" },
     yield: "6 porções",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana", "ingredient:batata"],
+    tags: ["diet:vegetariana", "ingredient:batata"],
     ingredients: [
       "1 kg de batatas pequenas, cozidas e descascadas",
       "100 g de açúcar",
@@ -855,7 +855,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "5 min", cook: "15 min", total: "20 min" },
     yield: "≈500 ml",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana"],
+    tags: ["diet:vegetariana"],
     ingredients: [
       "40 g de manteiga",
       "40 g de farinha de trigo",
@@ -885,7 +885,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "10 min", cook: "0 min", total: "10 min" },
     yield: "≈300 ml",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana", "ingredient:ovo", "ingredient:limao", "ingredient:curry"],
+    tags: ["diet:vegetariana", "ingredient:ovo", "ingredient:limao", "ingredient:curry"],
     ingredients: [
       "250 g de maionese",
       "80 g de picles (pepino em conserva), picado bem fino",
@@ -917,7 +917,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "15 min", cook: "0 min", total: "15 min + descanso" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana"],
+    tags: ["diet:vegetariana"],
     ingredients: [
       "1 pepino grande, fatiado bem fino",
       "1 colher (chá) de sal",
@@ -949,7 +949,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "15 min", cook: "1h", total: "1h15" },
     yield: "6 porções",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana"],
+    tags: ["diet:vegetariana"],
     ingredients: [
       "1 repolho roxo grande, fatiado fino",
       "2 maçãs, descascadas e picadas",
@@ -981,7 +981,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "15 min", cook: "40 min", total: "55 min + conserva" },
     yield: "≈600 g",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana"],
+    tags: ["diet:vegetariana"],
     ingredients: [
       "1 kg de beterraba, com casca",
       "300 ml de vinagre branco",
@@ -1013,7 +1013,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "15 min", cook: "15 min", total: "30 min" },
     yield: "≈20 unidades",
     difficulty: "Média",
-    tags: ["protein:vegetariana", "ingredient:ovo"],
+    tags: ["diet:vegetariana", "ingredient:ovo"],
     ingredients: [
       "250 g de farinha de trigo",
       "1 colher (chá) de fermento em pó",
@@ -1051,7 +1051,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "20 min + 3h geladeira", cook: "40 min", total: "≈4h" },
     yield: "8 porções",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana", "ingredient:arroz", "ingredient:castanha"],
+    tags: ["diet:vegetariana", "ingredient:arroz", "ingredient:castanha"],
     ingredients: [
       "200 g de arroz arbóreo (ou arroz para doce)",
       "1 L de leite integral",
@@ -1084,7 +1084,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "20 min", cook: "35 min", total: "55 min" },
     yield: "12 porções",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana", "ingredient:ovo", "ingredient:coco"],
+    tags: ["diet:vegetariana", "ingredient:ovo", "ingredient:coco"],
     ingredients: [
       "Para o bolo: 4 ovos, 250 g de açúcar, 250 g de farinha de trigo, 1 colher (sopa) de fermento em pó, 150 ml de leite, 50 g de manteiga",
       "Para a cobertura: 150 g de manteiga, 200 g de açúcar mascavo, 100 ml de leite, 150 g de coco ralado"
@@ -1114,7 +1114,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "40 min + 30 min geladeira", cook: "15 min", total: "1h25" },
     yield: "16 unidades",
     difficulty: "Média",
-    tags: ["protein:vegetariana", "ingredient:ovo"],
+    tags: ["diet:vegetariana", "ingredient:ovo"],
     ingredients: [
       "Para a massa: 300 g de farinha de trigo, 150 g de manteiga gelada, 100 g de açúcar, 1 ovo, 1 pitada de sal",
       "200 g de geleia de framboesa",
@@ -1146,7 +1146,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "1h", cook: "35 min", total: "1h35 + resfriar" },
     yield: "10-12 porções",
     difficulty: "Média",
-    tags: ["protein:vegetariana", "ingredient:ovo", "ingredient:castanha"],
+    tags: ["diet:vegetariana", "ingredient:ovo", "ingredient:castanha"],
     ingredients: [
       "Para o bolo: 6 ovos, 200 g de açúcar, 200 g de farinha de trigo, 1 colher (chá) de fermento em pó",
       "Para o recheio: 500 ml de creme de leite fresco batido em chantilly, 300 g de morango fatiado (ou outras frutas vermelhas)",
@@ -1177,7 +1177,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "15 min", cook: "0 min", total: "15 min + gelar" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana", "ingredient:ovo", "ingredient:limao"],
+    tags: ["diet:vegetariana", "ingredient:ovo", "ingredient:limao"],
     ingredients: [
       "1 L de leitelho (buttermilk/kærnemælk)",
       "3 gemas",
@@ -1207,7 +1207,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "10 min", cook: "15 min", total: "25 min + gelar" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana"],
+    tags: ["diet:vegetariana"],
     ingredients: [
       "500 g de frutas vermelhas variadas (morango, framboesa, groselha, cereja), frescas ou congeladas",
       "150 ml de água",
@@ -1236,7 +1236,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "30 min + 1h geladeira", cook: "35 min", total: "2h05" },
     yield: "8 porções",
     difficulty: "Média",
-    tags: ["protein:vegetariana", "ingredient:ovo", "ingredient:limao"],
+    tags: ["diet:vegetariana", "ingredient:ovo", "ingredient:limao"],
     ingredients: [
       "1 receita de massa pâte sucrée (ver receita Lemon Tart, categoria Sobremesas Clássicas)",
       "1 receita de lemon curd (ver receita Lemon Tart)",
@@ -1264,7 +1264,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "20 min + 1h fermentação", cook: "20 min", total: "1h40" },
     yield: "8-10 porções",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana", "ingredient:ovo"],
+    tags: ["diet:vegetariana", "ingredient:ovo"],
     ingredients: [
       "400 g de farinha de trigo",
       "7 g de fermento biológico seco",
@@ -1298,7 +1298,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "40 min + 2h descanso", cook: "20 min", total: "3h" },
     yield: "1 torre (≈20 porções)",
     difficulty: "Alta",
-    tags: ["protein:vegetariana", "ingredient:ovo", "ingredient:castanha", "ingredient:limao"],
+    tags: ["diet:vegetariana", "ingredient:ovo", "ingredient:castanha", "ingredient:limao"],
     ingredients: [
       "500 g de amêndoas moídas (farinha de amêndoas)",
       "500 g de açúcar de confeiteiro",
@@ -1334,7 +1334,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "20 min", cook: "1h", total: "1h20" },
     yield: "≈800 g",
     difficulty: "Média",
-    tags: ["protein:suino", "protein:peixe", "ingredient:ovo"],
+    tags: ["protein:suino", "contains:peixe", "ingredient:ovo"],
     ingredients: [
       "500 g de fígado de porco, limpo",
       "200 g de toucinho, em cubos",
@@ -1371,7 +1371,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "15 min", cook: "10 min", total: "25 min + conserva" },
     yield: "≈1 kg",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana"],
+    tags: ["diet:vegetariana"],
     ingredients: [
       "1 kg de pepinos pequenos (ou pepino comum, em rodelas grossas)",
       "500 ml de vinagre branco",
@@ -1405,7 +1405,7 @@ window.RECIPES["dinamarca"] = [
     time: { prep: "10 min", cook: "5 min", total: "15 min + conserva" },
     yield: "≈300 g",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana"],
+    tags: ["diet:vegetariana"],
     ingredients: [
       "2 cebolas roxas, fatiadas bem fino",
       "200 ml de vinagre branco",

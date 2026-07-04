@@ -1,6 +1,6 @@
 // router.js — navegação baseada em hash (#/...), sem depender de servidor.
-// Rotas: home | categoria/:id (id de coleção) | busca?tags=a,b,c | receita/:id | cozinhar/:id
-//        favoritos | quero-fazer | historico
+// Rotas: home | grupo/:id (grupo macro) | categoria/:id (id de coleção) | busca?tags=a,b,c
+//        receita/:id | cozinhar/:id | favoritos | quero-fazer | historico
 // :id de receita/cozinhar é o id único global da receita (TagModel), não mais catId+nome.
 (function () {
   const listeners = [];
@@ -18,20 +18,27 @@
       }
     });
 
+    if (parts[0] === "grupo" && parts[1]) {
+      return { name: "grupo", grupoId: parts[1] };
+    }
     if (parts[0] === "categoria" && parts[1]) {
       return { name: "categoria", catId: parts[1] };
     }
     if (parts[0] === "busca") {
       let tags = [];
+      let textFilters = [];
       if (queryPart) {
         queryPart.split("&").forEach(function (pair) {
           const [k, v] = pair.split("=");
           if (k === "tags" && v) {
             tags = v.split(",").map(decodeURIComponent).filter(Boolean);
           }
+          if (k === "text" && v) {
+            textFilters = v.split(",").map(decodeURIComponent).filter(Boolean);
+          }
         });
       }
-      return { name: "busca", tags: tags };
+      return { name: "busca", tags: tags, textFilters: textFilters };
     }
     let from = null;
     if (queryPart) {
@@ -93,12 +100,19 @@
     toHome: function () {
       navigate("");
     },
+    toGrupo: function (grupoId) {
+      navigate("grupo/" + encodeURIComponent(grupoId));
+    },
     toCategoria: function (catId) {
       navigate("categoria/" + encodeURIComponent(catId));
     },
-    toBusca: function (tagIds) {
+    toBusca: function (tagIds, textFilters) {
       const q = (tagIds || []).map(encodeURIComponent).join(",");
-      navigate("busca" + (q ? "?tags=" + q : ""));
+      const t = (textFilters || []).map(encodeURIComponent).join(",");
+      const params = [];
+      if (q) params.push("tags=" + q);
+      if (t) params.push("text=" + t);
+      navigate("busca" + (params.length ? "?" + params.join("&") : ""));
     },
     toReceita: function (id, fromCollectionId) {
       navigate("receita/" + encodeURIComponent(id) + (fromCollectionId ? "?from=" + encodeURIComponent(fromCollectionId) : ""));

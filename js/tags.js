@@ -1,5 +1,5 @@
 // tags.js — taxonomia central de tags. Toda tag usada em receitas/coleções precisa existir aqui.
-// Prefixos: country:, dish_type:, course:, protein:, ingredient:, time:, difficulty:
+// Prefixos: country:, dish_type:, course:, format:, technique:, protein:, contains:, ingredient:, diet:, time:, difficulty:
 (function () {
   window.TAGS = [
     // ---------- country (país / cozinha) ----------
@@ -37,6 +37,23 @@
     { id: "dish_type:arroz", label: "Arrozes", group: "Tipo de prato", synonyms: ["arroz"] },
     { id: "dish_type:contemporaneo", label: "Clássicos Contemporâneos", group: "Tipo de prato", synonyms: ["contemporâneo"] },
     { id: "dish_type:tecnica-avancada", label: "Técnica Avançada", group: "Tipo de prato", synonyms: ["técnica avançada"] },
+    { id: "dish_type:sanduiche", label: "Sanduíches", group: "Tipo de prato", synonyms: ["sanduiche", "sandubas", "lanche natural"] },
+
+    // ---------- format (papel do preparo — técnica/base/componente, não necessariamente um prato) ----------
+    { id: "format:tecnica", label: "Técnica", group: "Formato", synonyms: ["técnica culinária"] },
+    { id: "format:base", label: "Base", group: "Formato", synonyms: ["fundo", "caldo base"] },
+    { id: "format:componente", label: "Componente", group: "Formato", synonyms: ["elemento", "guarnição técnica"] },
+    { id: "format:molho", label: "Molho", group: "Formato", synonyms: ["molho"] },
+    { id: "format:preparo-basico", label: "Preparo Básico", group: "Formato", synonyms: [] },
+    { id: "format:prato-completo", label: "Prato Completo", group: "Formato", synonyms: ["prato completo"] },
+
+    // ---------- technique (técnica de cocção — refinamento de 2ª camada em países) ----------
+    { id: "technique:assado", label: "Assado", group: "Técnica", synonyms: ["assar", "no forno"] },
+    { id: "technique:grelhado", label: "Grelhado", group: "Técnica", synonyms: ["grelhar", "na grelha", "na brasa"] },
+    { id: "technique:braseado", label: "Braseado", group: "Técnica", synonyms: ["brasear"] },
+    { id: "technique:frito", label: "Frito", group: "Técnica", synonyms: ["fritar", "frito de imersão"] },
+    { id: "technique:cozimento-lento", label: "Cozimento Lento", group: "Técnica", synonyms: ["low and slow", "cozimento longo"] },
+    { id: "technique:fermentado", label: "Fermentado", group: "Técnica", synonyms: ["fermentação"] },
 
     // ---------- course (momento da refeição) ----------
     { id: "course:entrada", label: "Entrada", group: "Curso", synonyms: [] },
@@ -45,7 +62,7 @@
     { id: "course:acompanhamento", label: "Acompanhamento", group: "Curso", synonyms: [] },
     { id: "course:cafe-da-manha", label: "Café da Manhã", group: "Curso", synonyms: ["café da manhã"] },
 
-    // ---------- protein (proteína) ----------
+    // ---------- protein (proteína — só quando é o foco real da receita) ----------
     { id: "protein:frango", label: "Frango", group: "Proteína", synonyms: ["galinha", "peito de frango", "coxa", "sobrecoxa"] },
     { id: "protein:ave", label: "Aves", group: "Proteína", synonyms: ["pato", "peru", "aves"] },
     { id: "protein:boi", label: "Carne Bovina", group: "Proteína", synonyms: ["carne bovina", "vaca", "boi"] },
@@ -54,10 +71,24 @@
     { id: "protein:peixe", label: "Peixe", group: "Proteína", synonyms: ["peixe"] },
     { id: "protein:frutos-do-mar", label: "Frutos do Mar", group: "Proteína", synonyms: ["camarão", "lula", "polvo", "mexilhão", "marisco"] },
     { id: "protein:ovo", label: "Ovo (proteína)", group: "Proteína", synonyms: ["ovo", "ovos"] },
-    { id: "protein:vegetariana", label: "Vegetariana", group: "Proteína", synonyms: ["vegetariano", "sem carne"] },
+    // proteína vegetal específica — uso opcional, só quando leguminosa/laticínio é claramente o foco
+    // proteico do prato (ex: um prato de lentilhas como prato principal), não pra todo prato vegetariano.
+    { id: "protein:leguminosa", label: "Leguminosa", group: "Proteína", synonyms: ["feijão", "lentilha", "grão-de-bico"] },
+    { id: "protein:laticinio", label: "Laticínio", group: "Proteína", synonyms: ["queijo", "iogurte"] },
 
-    // ---------- contains (ingrediente presente, mas secundário à identidade do prato) ----------
+    // ---------- diet (dieta/restrição — não é proteína) ----------
+    { id: "diet:vegetariana", label: "Vegetariana", group: "Dieta", synonyms: ["vegetariano", "sem carne"] },
+    { id: "diet:vegana", label: "Vegana", group: "Dieta", synonyms: ["vegano", "plant-based"] },
+
+    // ---------- contains (ingrediente/proteína presente, mas secundário à identidade do prato) ----------
     { id: "contains:suino", label: "Leva Suíno (secundário)", group: "Contém", synonyms: ["bacon", "pancetta", "guanciale", "presunto", "linguiça", "toucinho"] },
+    { id: "contains:boi", label: "Leva Carne Bovina (secundário)", group: "Contém", synonyms: [] },
+    { id: "contains:ave", label: "Leva Ave (secundário)", group: "Contém", synonyms: [] },
+    { id: "contains:frango", label: "Leva Frango (secundário)", group: "Contém", synonyms: [] },
+    { id: "contains:peixe", label: "Leva Peixe (secundário)", group: "Contém", synonyms: [] },
+    { id: "contains:frutos-do-mar", label: "Leva Frutos do Mar (secundário)", group: "Contém", synonyms: [] },
+    { id: "contains:cordeiro", label: "Leva Cordeiro (secundário)", group: "Contém", synonyms: [] },
+    { id: "contains:ovo", label: "Leva Ovo (secundário)", group: "Contém", synonyms: [] },
 
     // ---------- ingredient (ingredientes decisivos) ----------
     { id: "ingredient:ovo", label: "Ovo", group: "Ingrediente", synonyms: ["ovos", "gema", "clara"] },
@@ -90,12 +121,18 @@
     { id: "ingredient:gengibre", label: "Gengibre", group: "Ingrediente", synonyms: [] },
     { id: "ingredient:curry", label: "Curry", group: "Ingrediente", synonyms: [] },
     { id: "ingredient:molho-de-soja", label: "Molho de Soja", group: "Ingrediente", synonyms: ["shoyu"] },
+    { id: "ingredient:brocolis", label: "Brócolis", group: "Ingrediente", synonyms: ["brocolis"] },
+    // alho/cebola: úteis pra busca textual, mas propositalmente não aparecem como refinamento
+    // em destaque (lowPriority) — são ingredientes comuns demais pra ajudar a decidir o que cozinhar.
+    { id: "ingredient:alho", label: "Alho", group: "Ingrediente", synonyms: [], lowPriority: true },
+    { id: "ingredient:cebola", label: "Cebola", group: "Ingrediente", synonyms: [], lowPriority: true },
 
     // ---------- time (tempo total, derivado automaticamente) ----------
     { id: "time:ate-15-min", label: "Até 15 min", group: "Tempo", synonyms: ["rápida", "rápido"] },
     { id: "time:ate-30-min", label: "Até 30 min", group: "Tempo", synonyms: ["rápida", "rápido"] },
     { id: "time:ate-1h", label: "Até 1h", group: "Tempo", synonyms: [] },
-    { id: "time:mais-de-1h", label: "Mais de 1h", group: "Tempo", synonyms: ["demorada", "preparo longo"] },
+    { id: "time:mais-de-1h", label: "Mais de 1h", group: "Tempo", synonyms: ["demorada"] },
+    { id: "time:preparo-longo", label: "Preparo Longo", group: "Tempo", synonyms: ["preparo longo", "demora horas"] },
 
     // ---------- difficulty (derivado automaticamente) ----------
     { id: "difficulty:facil", label: "Fácil", group: "Dificuldade", synonyms: ["simples", "iniciante"] },

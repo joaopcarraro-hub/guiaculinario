@@ -45,7 +45,7 @@ window.RECIPES["peixes"] = [
     time: { prep: "20 min", cook: "20 min", total: "40 min" },
     yield: "2 porções",
     difficulty: "Média-alta",
-    tags: ["protein:frutos-do-mar", "ingredient:tomate", "ingredient:cogumelo", "ingredient:limao"],
+    tags: ["contains:frutos-do-mar", "ingredient:tomate", "ingredient:cogumelo", "ingredient:limao"],
     ingredients: [
       "2 filés de linguado",
       "8 camarões médios, limpos",

@@ -159,7 +159,7 @@ window.RECIPES["espanha"] = [
     time: { prep: "15 min", cook: "30 min", total: "45 min" },
     yield: "4 porções (tapa)",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana", "ingredient:batata"],
+    tags: ["diet:vegetariana", "ingredient:batata"],
     ingredients: [
       "800 g de batata, descascada e em cubos grandes",
       "Óleo, o suficiente para fritar",

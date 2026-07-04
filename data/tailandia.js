@@ -197,7 +197,7 @@ window.RECIPES["tailandia"] = [
     time: { prep: "25 min", cook: "12 min", total: "37 min" },
     yield: "3-4 porções",
     difficulty: "Média",
-    tags: ["protein:frutos-do-mar", "protein:ovo", "ingredient:amendoim"],
+    tags: ["contains:frutos-do-mar", "contains:ovo", "ingredient:amendoim"],
     ingredients: [
       "250 g de macarrão de arroz plano (tipo pad thai)",
       "250 g de camarão médio, limpo (ou tofu firme, em cubos)",
@@ -269,7 +269,7 @@ window.RECIPES["tailandia"] = [
     time: { prep: "20 min", cook: "0 min", total: "20 min" },
     yield: "2-4 porções",
     difficulty: "Fácil",
-    tags: ["protein:frutos-do-mar", "ingredient:tomate", "ingredient:limao", "ingredient:amendoim"],
+    tags: ["contains:frutos-do-mar", "ingredient:tomate", "ingredient:limao", "ingredient:amendoim"],
     ingredients: [
       "400 g de mamão verde, ralado em tiras finas (num ralador especial ou faca)",
       "2-4 pimentas tailandesas (a gosto)",

@@ -6,7 +6,7 @@
   // ---------- tags automáticas por categoria (dish_type / course / country / protein "base") ----------
   const CATEGORY_BASE_TAGS = {
     // Fundamentos
-    molhos: ["dish_type:molho", "course:acompanhamento"],
+    molhos: ["dish_type:molho", "format:molho", "course:acompanhamento"],
     sopas: ["dish_type:sopa", "course:entrada"],
     "entradas-frias": ["dish_type:entrada-fria", "course:entrada"],
     "entradas-quentes": ["dish_type:entrada-quente", "course:entrada"],
@@ -16,8 +16,10 @@
     "ovos-classicos": ["dish_type:ovo", "course:principal"],
     padaria: ["dish_type:pao", "course:cafe-da-manha"],
     "sobremesas-classicas": ["dish_type:sobremesa", "course:sobremesa"],
-    contemporaneos: ["dish_type:contemporaneo", "course:principal"],
-    "tecnicas-contemporaneas-2": ["dish_type:tecnica-avancada", "course:principal"],
+    // contemporaneos: mistura pratos de verdade e técnicas/componentes — course:principal
+    // não é aplicado automaticamente aqui, cada receita tem sua tag manual (course: ou format:).
+    contemporaneos: ["dish_type:contemporaneo"],
+    "tecnicas-contemporaneas-2": ["dish_type:tecnica-avancada", "format:tecnica"],
     // Proteínas (a categoria já indica a proteína principal)
     aves: ["protein:ave", "course:principal"],
     "carnes-bovinas": ["protein:boi", "course:principal"],
@@ -118,6 +120,7 @@
     if (minutes <= 30) tags.push("time:ate-30-min");
     if (minutes <= 60) tags.push("time:ate-1h");
     if (minutes > 60) tags.push("time:mais-de-1h");
+    if (minutes > 180) tags.push("time:preparo-longo");
     return tags;
   }
 
@@ -326,7 +329,72 @@
     return Object.keys(counts)
       .map((tagId) => ({ tag: getTagById(tagId), count: counts[tagId] }))
       .filter((item) => item.tag)
-      .sort((a, b) => b.count - a.count);
+      .sort((a, b) => {
+        // tags lowPriority (ex: ingredient:alho, ingredient:cebola) afundam pro final
+        // mesmo com contagem alta — servem pra busca textual, não pra poluir os chips de refino.
+        const aLow = !!a.tag.lowPriority;
+        const bLow = !!b.tag.lowPriority;
+        if (aLow !== bLow) return aLow ? 1 : -1;
+        return b.count - a.count;
+      });
+  }
+
+  // ---------- camadas de tags (primary/secondary/search) ----------
+  // Derivadas em tempo de execução a partir do array de tags já existente — não migra dado
+  // armazenado, só reclassifica o que já existe. primary = identidade do prato; secondary =
+  // o que o prato leva/contém mas não define o que ele é; search = auxiliar (lowPriority),
+  // serve pra busca textual mas não deve poluir chips de refino.
+  const PRIMARY_TAG_PREFIXES = ["country:", "dish_type:", "course:", "format:", "technique:", "protein:", "diet:"];
+  const SECONDARY_TAG_PREFIXES = ["contains:", "ingredient:"];
+  function getTagLayers(item) {
+    const tagIds = (item && item.tags) || [];
+    const primaryTags = [];
+    const secondaryTags = [];
+    const searchTags = [];
+    tagIds.forEach((tagId) => {
+      const tag = getTagById(tagId);
+      if (!tag) return;
+      if (tag.lowPriority) {
+        searchTags.push(tagId);
+      } else if (PRIMARY_TAG_PREFIXES.some((p) => tagId.indexOf(p) === 0)) {
+        primaryTags.push(tagId);
+      } else if (SECONDARY_TAG_PREFIXES.some((p) => tagId.indexOf(p) === 0)) {
+        secondaryTags.push(tagId);
+      }
+    });
+    return { primaryTags: primaryTags, secondaryTags: secondaryTags, searchTags: searchTags };
+  }
+
+  // ---------- refinamento guiado por tipo de coleção ----------
+  // País: 1ª camada = identidade (tipo de prato/proteína/formato/dieta), só depois de escolher
+  // uma delas é que tempo/dificuldade/técnica aparecem — evita jogar 20 filtros de uma vez.
+  // Outros tipos usam a mesma ideia com prefixos diferentes (ver spec de collectionType).
+  const GUIDED_LAYER1_BY_TYPE = {
+    country: ["dish_type:", "protein:", "format:", "diet:"],
+    protein: ["dish_type:", "country:"],
+    dishType: ["country:", "protein:"],
+    time: ["dish_type:", "protein:", "country:"],
+    difficulty: ["dish_type:", "time:", "protein:"],
+  };
+  function getGuidedRelatedTags(selectedTagIds, collectionType) {
+    const related = getRelatedTags(selectedTagIds);
+    const layer1Prefixes = GUIDED_LAYER1_BY_TYPE[collectionType];
+    if (!layer1Prefixes) return related;
+    const hasLayer1 = selectedTagIds.some((id) => layer1Prefixes.some((p) => id.indexOf(p) === 0));
+    if (hasLayer1) return related;
+    const layer1Related = related.filter((r) => layer1Prefixes.some((p) => r.tag.id.indexOf(p) === 0));
+    return layer1Related.length ? layer1Related : related;
+  }
+
+  // Heurística pra saber "que tipo de busca é essa" quando não há uma coleção fixa (ex: busca
+  // facetada livre) — olha a primeira tag reconhecida na seleção atual, país > proteína > tipo > tempo > dificuldade.
+  function inferCollectionTypeFromTags(tagIds) {
+    if (tagIds.some((id) => id.indexOf("country:") === 0)) return "country";
+    if (tagIds.some((id) => id.indexOf("protein:") === 0)) return "protein";
+    if (tagIds.some((id) => id.indexOf("dish_type:") === 0)) return "dishType";
+    if (tagIds.some((id) => id.indexOf("time:") === 0)) return "time";
+    if (tagIds.some((id) => id.indexOf("difficulty:") === 0)) return "difficulty";
+    return null;
   }
 
   function findRecipeById(id) {
@@ -371,6 +439,9 @@
     getRecipesByTags,
     getRecipesByCollection,
     getRelatedTags,
+    getTagLayers,
+    getGuidedRelatedTags,
+    inferCollectionTypeFromTags,
     findRecipeById,
     getIdForCatAndName,
     slugify,

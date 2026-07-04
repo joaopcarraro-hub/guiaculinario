@@ -118,7 +118,7 @@ window.RECIPES["grecia"] = [
     time: { prep: "35 min", cook: "35 min", total: "1h10" },
     yield: "8 porções",
     difficulty: "Média",
-    tags: ["protein:vegetariana", "protein:ovo", "ingredient:espinafre", "ingredient:queijo"],
+    tags: ["diet:vegetariana", "contains:ovo", "ingredient:espinafre", "ingredient:queijo"],
     ingredients: [
       "500 g de espinafre fresco, picado",
       "1 cebola picada, 3 talos de cebolinha picados",
@@ -156,7 +156,7 @@ window.RECIPES["grecia"] = [
     time: { prep: "45 min", cook: "45 min", total: "1h30" },
     yield: "≈30 unidades",
     difficulty: "Média",
-    tags: ["protein:vegetariana", "ingredient:arroz", "ingredient:limao", "ingredient:iogurte"],
+    tags: ["diet:vegetariana", "ingredient:arroz", "ingredient:limao", "ingredient:iogurte"],
     ingredients: [
       "40 folhas de parreira (uva) em conserva, enxaguadas",
       "1 xícara de arroz",
@@ -193,7 +193,7 @@ window.RECIPES["grecia"] = [
     time: { prep: "15 min", cook: "0 min", total: "15 min" },
     yield: "≈400 ml",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana", "ingredient:iogurte"],
+    tags: ["diet:vegetariana", "ingredient:iogurte"],
     ingredients: [
       "1 pepino grande, ralado",
       "500 g de iogurte grego bem espesso",

@@ -44,7 +44,7 @@ window.RECIPES["ovos-classicos"] = [
     time: { prep: "15 min", cook: "15 min", total: "30 min" },
     yield: "2 porções (4 unidades)",
     difficulty: "Média-alta",
-    tags: ["protein:ovo", "protein:vegetariana", "ingredient:ovo", "ingredient:espinafre"],
+    tags: ["protein:ovo", "diet:vegetariana", "ingredient:ovo", "ingredient:espinafre"],
     ingredients: [
       "2 English muffins, cortados ao meio",
       "300 g de espinafre fresco",
@@ -76,7 +76,7 @@ window.RECIPES["ovos-classicos"] = [
     time: { prep: "15 min", cook: "15 min", total: "30 min" },
     yield: "2 porções (4 unidades)",
     difficulty: "Média-alta",
-    tags: ["protein:ovo", "protein:peixe", "ingredient:ovo"],
+    tags: ["protein:ovo", "contains:peixe", "ingredient:ovo"],
     ingredients: [
       "2 English muffins, cortados ao meio",
       "150 g de salmão defumado, fatiado",
@@ -150,7 +150,7 @@ window.RECIPES["ovos-classicos"] = [
     time: { prep: "10 min", cook: "25 min", total: "35 min" },
     yield: "2-3 porções",
     difficulty: "Fácil",
-    tags: ["protein:ovo", "protein:vegetariana", "ingredient:ovo", "ingredient:tomate", "ingredient:pimentao"],
+    tags: ["protein:ovo", "diet:vegetariana", "ingredient:ovo", "ingredient:tomate", "ingredient:pimentao"],
     ingredients: [
       "3 colheres (sopa) de azeite de oliva",
       "1 cebola picada",
@@ -189,7 +189,7 @@ window.RECIPES["ovos-classicos"] = [
     time: { prep: "10 min", cook: "15 min", total: "25 min" },
     yield: "2 porções",
     difficulty: "Fácil",
-    tags: ["protein:ovo", "protein:vegetariana", "ingredient:ovo", "ingredient:tomate", "ingredient:pimentao"],
+    tags: ["protein:ovo", "diet:vegetariana", "ingredient:ovo", "ingredient:tomate", "ingredient:pimentao"],
     ingredients: [
       "3 colheres (sopa) de azeite de oliva ou manteiga",
       "1 pimentão verde longo (tipo italiano), picado",
@@ -223,7 +223,7 @@ window.RECIPES["ovos-classicos"] = [
     time: { prep: "15 min", cook: "20 min", total: "35 min" },
     yield: "2 porções",
     difficulty: "Fácil",
-    tags: ["protein:ovo", "protein:vegetariana", "ingredient:ovo", "ingredient:tomate", "ingredient:milho", "ingredient:feijao", "ingredient:queijo"],
+    tags: ["protein:ovo", "diet:vegetariana", "ingredient:ovo", "ingredient:tomate", "ingredient:milho", "ingredient:feijao", "ingredient:queijo"],
     ingredients: [
       "4 tortillas de milho",
       "2 colheres (sopa) de óleo (dividido)",
@@ -296,7 +296,7 @@ window.RECIPES["ovos-classicos"] = [
     time: { prep: "15 min", cook: "10 min", total: "25 min" },
     yield: "2 porções (4 unidades)",
     difficulty: "Fácil",
-    tags: ["protein:ovo", "protein:vegetariana", "ingredient:ovo"],
+    tags: ["protein:ovo", "diet:vegetariana", "ingredient:ovo"],
     ingredients: [
       "4 ovos cozidos duros (ver receita Ovo Cozido, ponto duro), descascados e cortados ao meio",
       "150 g de maionese caseira (gemas, óleo, mostarda, limão)",
@@ -359,7 +359,7 @@ window.RECIPES["ovos-classicos"] = [
     time: { prep: "15 min", cook: "15 min", total: "30 min" },
     yield: "2 porções",
     difficulty: "Média",
-    tags: ["protein:ovo", "protein:vegetariana", "ingredient:ovo", "ingredient:cogumelo"],
+    tags: ["protein:ovo", "diet:vegetariana", "ingredient:ovo", "ingredient:cogumelo"],
     ingredients: [
       "4 ovos",
       "200 g de cogumelos variados (paris, shitake, portobello), picados bem fino (duxelles)",

@@ -112,5 +112,14 @@
     return scored.slice(0, limit);
   }
 
-  window.Search = { searchRecipes: searchRecipes, searchTags: searchTags };
+  // ---------- filtro textual combinável (fallback quando o termo não é uma tag formal) ----------
+  // Usado pela busca facetada pra oferecer "Contém <termo> nos ingredientes — N receitas"
+  // quando o usuário digita algo sem tag correspondente (ex: um ingrediente fora da taxonomia).
+  function countByIngredientText(query) {
+    const q = norm(query).trim();
+    if (q.length < 2) return 0;
+    return buildIndex().filter((item) => norm((item.recipe.ingredients || []).join(" ")).indexOf(q) !== -1).length;
+  }
+
+  window.Search = { searchRecipes: searchRecipes, searchTags: searchTags, countByIngredientText: countByIngredientText };
 })();

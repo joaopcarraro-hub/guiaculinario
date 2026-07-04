@@ -51,7 +51,7 @@ window.RECIPES["sopas"] = [
     time: { prep: "30 min", cook: "1h30", total: "2h" },
     yield: "4 porções",
     difficulty: "Alta",
-    tags: ["protein:boi", "protein:frango"],
+    tags: ["contains:boi", "contains:frango"],
     ingredients: [
       "1,5 L de caldo de carne ou frango, frio e desengordurado",
       "300 g de carne moída magra (patinho ou peito de frango)",
@@ -84,7 +84,7 @@ window.RECIPES["sopas"] = [
     time: { prep: "15 min", cook: "30 min", total: "45 min + gelar" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana", "ingredient:batata"],
+    tags: ["diet:vegetariana", "ingredient:batata"],
     ingredients: [
       "3 talos de alho-poró (só a parte branca), fatiados",
       "1 cebola pequena picada",
@@ -117,7 +117,7 @@ window.RECIPES["sopas"] = [
     time: { prep: "10 min", cook: "1h15", total: "1h25" },
     yield: "4 porções",
     difficulty: "Média",
-    tags: ["protein:boi", "ingredient:queijo"],
+    tags: ["contains:boi", "ingredient:queijo"],
     ingredients: [
       "1 kg de cebola (cerca de 5-6 grandes), fatiada fina",
       "50 g de manteiga + 1 fio de azeite",
@@ -155,7 +155,7 @@ window.RECIPES["sopas"] = [
     time: { prep: "20 min", cook: "45 min", total: "1h05" },
     yield: "6 porções",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana", "ingredient:feijao", "ingredient:tomate"],
+    tags: ["diet:vegetariana", "ingredient:feijao", "ingredient:tomate"],
     ingredients: [
       "3 colheres (sopa) de azeite de oliva",
       "1 cebola picada, 2 cenouras em cubos, 2 talos de salsão em cubos",
@@ -234,7 +234,7 @@ window.RECIPES["sopas"] = [
     time: { prep: "15 min", cook: "0 min", total: "15 min + gelar" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana", "ingredient:tomate", "ingredient:pimentao"],
+    tags: ["diet:vegetariana", "ingredient:tomate", "ingredient:pimentao"],
     ingredients: [
       "1 kg de tomate bem maduro, picado",
       "1 pepino, descascado e picado",

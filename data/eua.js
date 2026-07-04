@@ -151,7 +151,7 @@ window.RECIPES["eua"] = [
     time: { prep: "15 min", cook: "30 min", total: "45 min" },
     yield: "6 porções",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana", "ingredient:queijo"],
+    tags: ["diet:vegetariana", "ingredient:queijo"],
     ingredients: [
       "400 g de macarrão tipo cotovelo (elbow) ou penne",
       "60 g de manteiga",
@@ -221,7 +221,7 @@ window.RECIPES["eua"] = [
     time: { prep: "40 min + 1h geladeira", cook: "50 min", total: "2h30" },
     yield: "8 porções",
     difficulty: "Média",
-    tags: ["protein:vegetariana", "ingredient:ovo"],
+    tags: ["diet:vegetariana", "ingredient:ovo"],
     ingredients: [
       "Para a massa: 350 g de farinha de trigo, 250 g de manteiga gelada em cubos, 1 pitada de sal, 1 colher (sopa) de açúcar, 100 ml de água gelada",
       "Para o recheio: 1 kg de maçã (mistura de tipos ácidos e doces), descascada e fatiada",

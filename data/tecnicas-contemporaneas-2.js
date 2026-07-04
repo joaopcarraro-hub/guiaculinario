@@ -198,7 +198,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
     time: { prep: "20 min", cook: "10 min", total: "30 min" },
     yield: "≈30 esferas pequenas",
     difficulty: "Alta (exige ingredientes específicos)",
-    tags: ["protein:vegetariana"],
+    tags: ["diet:vegetariana"],
     ingredients: [
       "250 ml de purê ou suco de fruta (morango, manga, maracujá), coado",
       "2,5 g de alginato de sódio",
@@ -292,7 +292,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
     time: { prep: "10 min", cook: "1h-1h30", total: "≈1h30" },
     yield: "≈300 g",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana"],
+    tags: ["diet:vegetariana"],
     ingredients: [
       "2 cabeças de alho, dentes separados e descascados (ou 4 tomates, ou 3 cebolas em pétalas — escolha um)",
       "300-400 ml de azeite de oliva, o suficiente para cobrir",
@@ -323,7 +323,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
     time: { prep: "10 min", cook: "2-3h desidratando", total: "≈3h" },
     yield: "≈50 g de pó",
     difficulty: "Fácil (exige tempo)",
-    tags: ["protein:vegetariana"],
+    tags: ["diet:vegetariana"],
     ingredients: [
       "300 g de casca ou aparas de vegetal (casca de beterraba, folhas de cenoura, casca de cebola), bem lavadas",
       "Sal (opcional)"
@@ -350,7 +350,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
     time: { prep: "10 min", cook: "2-3h desidratando", total: "≈3h" },
     yield: "≈40 g de pó",
     difficulty: "Fácil (exige tempo)",
-    tags: ["protein:vegetariana", "ingredient:azeitona"],
+    tags: ["diet:vegetariana", "ingredient:azeitona"],
     ingredients: [
       "200 g de azeitonas pretas sem caroço",
       "1 colher (sopa) de açúcar (opcional, ajuda a desidratar mais rápido)"
@@ -377,7 +377,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
     time: { prep: "10 min + secagem 4h ou durante a noite", cook: "3 min", total: "≈4h15" },
     yield: "≈15 unidades",
     difficulty: "Média",
-    tags: ["protein:vegetariana", "ingredient:arroz"],
+    tags: ["diet:vegetariana", "ingredient:arroz"],
     ingredients: [
       "200 g de arroz branco cozido (de preferência do dia anterior, mais seco)",
       "300 ml de água",
@@ -439,7 +439,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
     time: { prep: "10 min + 1h geladeira", cook: "0 min", total: "1h10" },
     yield: "≈200 g",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana"],
+    tags: ["diet:vegetariana"],
     ingredients: [
       "200 g de manteiga sem sal, em temperatura ambiente",
       "2 colheres (sopa) de ervas frescas picadas (salsinha, estragão, cebolinha) ou 2 dentes de alho assado, ou raspas e suco de limão — escolha uma direção de sabor",
@@ -552,7 +552,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
     time: { prep: "20 min", cook: "0 min", total: "3-14 dias fermentando" },
     yield: "≈1 pote grande",
     difficulty: "Fácil (exige tempo e paciência)",
-    tags: ["protein:vegetariana"],
+    tags: ["diet:vegetariana"],
     ingredients: [
       "500 g de vegetal firme (repolho, cenoura, pepino, rabanete), fatiado ou ralado",
       "10 g de sal não iodado (2% do peso do vegetal)",

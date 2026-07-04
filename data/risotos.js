@@ -49,7 +49,7 @@ window.RECIPES["risotos"] = [
     time: { prep: "20 min (+ hidratar cogumelos secos)", cook: "25 min", total: "45 min" },
     yield: "2-3 porções",
     difficulty: "Média",
-    tags: ["ingredient:arroz", "ingredient:cogumelo", "ingredient:queijo", "protein:vegetariana"],
+    tags: ["ingredient:arroz", "ingredient:cogumelo", "ingredient:queijo", "diet:vegetariana"],
     ingredients: [
       "300 g de arroz arbóreo ou carnaroli",
       "30 g de cogumelos secos (porcini), hidratados em 300 ml de água morna",
@@ -88,7 +88,7 @@ window.RECIPES["risotos"] = [
     time: { prep: "5 min", cook: "20 min", total: "25 min" },
     yield: "2-3 porções",
     difficulty: "Fácil",
-    tags: ["ingredient:arroz", "ingredient:queijo", "protein:vegetariana"],
+    tags: ["ingredient:arroz", "ingredient:queijo", "diet:vegetariana"],
     ingredients: [
       "300 g de arroz arbóreo ou carnaroli",
       "1 L de caldo de galinha ou legumes, bem quente",
@@ -162,7 +162,7 @@ window.RECIPES["risotos"] = [
     time: { prep: "10 min", cook: "20 min", total: "30 min" },
     yield: "2-3 porções",
     difficulty: "Fácil",
-    tags: ["ingredient:arroz", "ingredient:limao", "ingredient:queijo", "protein:vegetariana"],
+    tags: ["ingredient:arroz", "ingredient:limao", "ingredient:queijo", "diet:vegetariana"],
     ingredients: [
       "300 g de arroz arbóreo ou carnaroli",
       "1 L de caldo de legumes, bem quente",
@@ -198,7 +198,7 @@ window.RECIPES["risotos"] = [
     time: { prep: "15 min", cook: "30 min", total: "45 min" },
     yield: "2-3 porções",
     difficulty: "Média",
-    tags: ["ingredient:arroz", "ingredient:queijo", "ingredient:castanha", "protein:vegetariana"],
+    tags: ["ingredient:arroz", "ingredient:queijo", "ingredient:castanha", "diet:vegetariana"],
     ingredients: [
       "300 g de arroz arbóreo ou carnaroli",
       "2 beterrabas médias",
@@ -235,7 +235,7 @@ window.RECIPES["risotos"] = [
     time: { prep: "15 min", cook: "30 min", total: "45 min" },
     yield: "2-3 porções",
     difficulty: "Média",
-    tags: ["ingredient:arroz", "ingredient:abobora", "ingredient:queijo", "protein:vegetariana"],
+    tags: ["ingredient:arroz", "ingredient:abobora", "ingredient:queijo", "diet:vegetariana"],
     ingredients: [
       "300 g de arroz arbóreo ou carnaroli",
       "400 g de abóbora (kabocha ou moranga), em cubos",

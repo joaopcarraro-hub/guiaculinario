@@ -366,7 +366,7 @@ window.RECIPES["japao"] = [
     time: { prep: "10 min", cook: "15 min", total: "25 min" },
     yield: "4 porções",
     difficulty: "Média",
-    tags: ["protein:ovo", "protein:frutos-do-mar", "ingredient:ovo", "ingredient:cogumelo", "ingredient:espinafre", "ingredient:molho-de-soja"],
+    tags: ["protein:ovo", "contains:frutos-do-mar", "ingredient:ovo", "ingredient:cogumelo", "ingredient:espinafre", "ingredient:molho-de-soja"],
     ingredients: [
       "3 ovos",
       "500 ml de dashi (caldo japonês), frio ou em temperatura ambiente",
@@ -439,7 +439,7 @@ window.RECIPES["japao"] = [
     time: { prep: "15 min", cook: "20 min", total: "35 min" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["protein:peixe", "protein:frutos-do-mar", "ingredient:molho-de-soja"],
+    tags: ["contains:peixe", "contains:frutos-do-mar", "ingredient:molho-de-soja"],
     ingredients: [
       "600 g de macarrão udon fresco (ou seco, cozido conforme a embalagem)",
       "1 L de dashi",
@@ -472,7 +472,7 @@ window.RECIPES["japao"] = [
     time: { prep: "10 min", cook: "10 min", total: "20 min" },
     yield: "2 porções",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana", "ingredient:molho-de-soja"],
+    tags: ["diet:vegetariana", "ingredient:molho-de-soja"],
     ingredients: [
       "200 g de macarrão soba (trigo sarraceno)",
       "Para o molho tsuyu (para soba fria): 200 ml de dashi, 60 ml de shoyu, 60 ml de mirin, 1 colher (sopa) de açúcar",

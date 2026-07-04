@@ -45,7 +45,7 @@ window.RECIPES["franca"] = [
     time: { prep: "25 min", cook: "15 min", total: "40 min" },
     yield: "2-4 porções",
     difficulty: "Fácil",
-    tags: ["protein:peixe", "ingredient:tomate", "ingredient:azeitona", "ingredient:ovo"],
+    tags: ["contains:peixe", "ingredient:tomate", "ingredient:azeitona", "ingredient:ovo"],
     ingredients: [
       "200 g de atum fresco (ou em conserva de boa qualidade, em azeite)",
       "200 g de vagem, cozida al dente",

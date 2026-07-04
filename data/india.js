@@ -209,7 +209,7 @@ window.RECIPES["india"] = [
     time: { prep: "15 min + 8h molho", cook: "1h30", total: "≈10h" },
     yield: "4-6 porções",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana", "ingredient:feijao", "ingredient:tomate", "ingredient:lentilha"],
+    tags: ["diet:vegetariana", "ingredient:feijao", "ingredient:tomate", "ingredient:lentilha"],
     ingredients: [
       "200 g de feijão preto pequeno (urad dal inteiro), de molho por 8h",
       "50 g de feijão vermelho (rajma), de molho junto",
@@ -245,7 +245,7 @@ window.RECIPES["india"] = [
     time: { prep: "45 min", cook: "20 min", total: "1h05" },
     yield: "16 unidades",
     difficulty: "Média",
-    tags: ["protein:vegetariana", "ingredient:batata", "ingredient:ervilha"],
+    tags: ["diet:vegetariana", "ingredient:batata", "ingredient:ervilha"],
     ingredients: [
       "Para a massa: 300 g de farinha de trigo, 60 ml de óleo, 1 pitada de sal, água morna o suficiente para formar a massa",
       "Para o recheio: 3 batatas médias, cozidas e amassadas grosseiramente",
@@ -282,7 +282,7 @@ window.RECIPES["india"] = [
     time: { prep: "20 min + 1h fermentação", cook: "10 min", total: "1h30" },
     yield: "8 unidades",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana", "ingredient:iogurte"],
+    tags: ["diet:vegetariana", "ingredient:iogurte"],
     ingredients: [
       "500 g de farinha de trigo",
       "7 g de fermento biológico seco",

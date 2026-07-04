@@ -16,7 +16,7 @@ window.RECIPES["italia"] = [
     time: { prep: "20 min", cook: "30 min", total: "50 min" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana", "ingredient:berinjela", "ingredient:tomate", "ingredient:queijo"],
+    tags: ["diet:vegetariana", "ingredient:berinjela", "ingredient:tomate", "ingredient:queijo"],
     ingredients: [
       "350 g de rigatoni ou penne",
       "1 berinjela grande, em cubos",
@@ -187,7 +187,7 @@ window.RECIPES["italia"] = [
     time: { prep: "30 min + 6h congelador", cook: "5 min", total: "≈6h30" },
     yield: "6-8 porções",
     difficulty: "Média",
-    tags: ["protein:vegetariana", "ingredient:ovo"],
+    tags: ["diet:vegetariana", "ingredient:ovo"],
     ingredients: [
       "4 gemas",
       "100 g de açúcar (dividido)",
@@ -221,7 +221,7 @@ window.RECIPES["italia"] = [
     time: { prep: "5 min", cook: "0 min", total: "5 min" },
     yield: "1 porção",
     difficulty: "Fácil",
-    tags: ["protein:vegetariana", "ingredient:cafe"],
+    tags: ["diet:vegetariana", "ingredient:cafe"],
     ingredients: [
       "2 bolas de sorvete de creme (ou baunilha) de boa qualidade",
       "1 dose de café espresso, bem quente e recém-tirado",
