@@ -210,6 +210,12 @@
     return getAllRecipesFlat().find((item) => item.id === id);
   }
 
+  // usado para migrar chaves antigas ("catId::nome") e para casar resultados do search.js
+  function getIdForCatAndName(catId, name) {
+    const item = getAllRecipesFlat().find((i) => i.catId === catId && i.recipe.name === name);
+    return item ? item.id : null;
+  }
+
   // ---------- validação (uso manual/console, não roda em produção) ----------
   function validateRecipeTags() {
     const validIds = new Set((window.TAGS || []).map((t) => t.id));
@@ -243,6 +249,7 @@
     getRecipesByCollection,
     getRelatedTags,
     findRecipeById,
+    getIdForCatAndName,
     slugify,
     validateRecipeTags,
     findDuplicateIds,

@@ -1,6 +1,7 @@
 // router.js — navegação baseada em hash (#/...), sem depender de servidor.
-// Rotas: home | categoria/:id | busca/:query | receita/:catId/:nome | cozinhar/:catId/:nome
+// Rotas: home | categoria/:id (id de coleção) | busca/:query | receita/:id | cozinhar/:id
 //        favoritos | quero-fazer | historico
+// :id de receita/cozinhar é o id único global da receita (TagModel), não mais catId+nome.
 (function () {
   const listeners = [];
 
@@ -22,11 +23,11 @@
     if (parts[0] === "busca") {
       return { name: "busca", query: parts.slice(1).join("/") || "" };
     }
-    if (parts[0] === "receita" && parts[1] && parts[2]) {
-      return { name: "receita", catId: parts[1], recipeName: parts[2] };
+    if (parts[0] === "receita" && parts[1]) {
+      return { name: "receita", id: parts[1] };
     }
-    if (parts[0] === "cozinhar" && parts[1] && parts[2]) {
-      return { name: "cozinhar", catId: parts[1], recipeName: parts[2] };
+    if (parts[0] === "cozinhar" && parts[1]) {
+      return { name: "cozinhar", id: parts[1] };
     }
     if (parts[0] === "favoritos") {
       return { name: "favoritos" };
@@ -78,11 +79,11 @@
     replaceBusca: function (query) {
       replace("busca/" + encodeURIComponent(query));
     },
-    toReceita: function (catId, name) {
-      navigate("receita/" + encodeURIComponent(catId) + "/" + encodeURIComponent(name));
+    toReceita: function (id) {
+      navigate("receita/" + encodeURIComponent(id));
     },
-    toCozinhar: function (catId, name) {
-      navigate("cozinhar/" + encodeURIComponent(catId) + "/" + encodeURIComponent(name));
+    toCozinhar: function (id) {
+      navigate("cozinhar/" + encodeURIComponent(id));
     },
     toFavoritos: function () {
       navigate("favoritos");

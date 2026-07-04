@@ -1,7 +1,32 @@
 // storage.js — estado local do usuário (localStorage), com migração do formato antigo.
+// Formato atual: cada receita é identificada pelo seu `id` único global (TagModel).
+// Formato antigo (pré-coleções): chave era "catId::nome" — migrada automaticamente no load.
 (function () {
   const KEY = "cardapio-state-v2";
   const LEGACY_MADE_KEY = "cardapio-feitos-v1";
+
+  function migrateOldId(oldId) {
+    const sep = oldId.indexOf("::");
+    if (sep === -1) return oldId; // já é um id novo
+    const catId = oldId.slice(0, sep);
+    const name = oldId.slice(sep + 2);
+    const newId = window.TagModel && window.TagModel.getIdForCatAndName(catId, name);
+    return newId || oldId; // se não achar a receita, mantém a chave antiga em vez de perder o dado
+  }
+
+  function migrateIdList(list) {
+    const migrated = list.map(migrateOldId);
+    return migrated.filter((id, i) => migrated.indexOf(id) === i); // dedupe
+  }
+
+  function migrateCheckedIngredients(obj) {
+    const out = {};
+    Object.keys(obj).forEach((oldId) => {
+      const newId = migrateOldId(oldId);
+      out[newId] = obj[oldId];
+    });
+    return out;
+  }
 
   function load() {
     try {
@@ -9,19 +34,19 @@
       if (raw) {
         const parsed = JSON.parse(raw);
         return {
-          made: parsed.made || [],
-          favorites: parsed.favorites || [],
-          wantToCook: parsed.wantToCook || [],
-          checkedIngredients: parsed.checkedIngredients || {},
+          made: migrateIdList(parsed.made || []),
+          favorites: migrateIdList(parsed.favorites || []),
+          wantToCook: migrateIdList(parsed.wantToCook || []),
+          checkedIngredients: migrateCheckedIngredients(parsed.checkedIngredients || {}),
         };
       }
     } catch (e) {}
 
-    // Migração do formato antigo (só tinha "feitos")
+    // Migração do formato ainda mais antigo (só tinha "feitos", sem coleções)
     let made = [];
     try {
       const legacy = localStorage.getItem(LEGACY_MADE_KEY);
-      if (legacy) made = JSON.parse(legacy);
+      if (legacy) made = migrateIdList(JSON.parse(legacy));
     } catch (e) {}
     return { made, favorites: [], wantToCook: [], checkedIngredients: {} };
   }
@@ -34,10 +59,6 @@
     } catch (e) {}
   }
   save(); // já grava o resultado da migração, se houve
-
-  function recipeId(catId, name) {
-    return catId + "::" + name;
-  }
 
   function has(list, id) {
     return list.indexOf(id) !== -1;
@@ -52,30 +73,27 @@
     return has(list, id);
   }
 
-  function countIn(listName, catId, recipes) {
-    return recipes.filter((r) => has(state[listName], recipeId(catId, r.name))).length;
+  function countIn(listName, ids) {
+    return ids.filter((id) => has(state[listName], id)).length;
   }
 
   window.Storage = {
-    recipeId: recipeId,
+    isMade: (id) => has(state.made, id),
+    toggleMade: (id) => toggleIn("made", id),
+    countMade: (ids) => countIn("made", ids),
 
-    isMade: (catId, name) => has(state.made, recipeId(catId, name)),
-    toggleMade: (catId, name) => toggleIn("made", recipeId(catId, name)),
-    countMade: (catId, recipes) => countIn("made", catId, recipes),
+    isFavorite: (id) => has(state.favorites, id),
+    toggleFavorite: (id) => toggleIn("favorites", id),
 
-    isFavorite: (catId, name) => has(state.favorites, recipeId(catId, name)),
-    toggleFavorite: (catId, name) => toggleIn("favorites", recipeId(catId, name)),
+    isWantToCook: (id) => has(state.wantToCook, id),
+    toggleWantToCook: (id) => toggleIn("wantToCook", id),
 
-    isWantToCook: (catId, name) => has(state.wantToCook, recipeId(catId, name)),
-    toggleWantToCook: (catId, name) => toggleIn("wantToCook", recipeId(catId, name)),
-
-    getCheckedIngredients: (catId, name) => state.checkedIngredients[recipeId(catId, name)] || [],
-    isIngredientChecked: (catId, name, index) => {
-      const arr = state.checkedIngredients[recipeId(catId, name)] || [];
+    getCheckedIngredients: (id) => state.checkedIngredients[id] || [],
+    isIngredientChecked: (id, index) => {
+      const arr = state.checkedIngredients[id] || [];
       return arr.indexOf(index) !== -1;
     },
-    toggleIngredient: (catId, name, index) => {
-      const id = recipeId(catId, name);
+    toggleIngredient: (id, index) => {
       const arr = (state.checkedIngredients[id] || []).slice();
       const i = arr.indexOf(index);
       if (i === -1) arr.push(index);
