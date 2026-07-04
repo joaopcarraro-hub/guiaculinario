@@ -82,5 +82,35 @@
     return results.slice(0, limit);
   }
 
-  window.Search = { searchRecipes: searchRecipes };
+  // ---------- Busca de tags (usada pela busca facetada) ----------
+  function searchTags(query, opts) {
+    const q = norm(query).trim();
+    if (q.length < 2) return [];
+    const limit = (opts && opts.limit) || 8;
+    const tags = window.TAGS || [];
+
+    const scored = tags
+      .map(function (tag) {
+        const label = norm(tag.label);
+        const id = norm(tag.id);
+        const group = norm(tag.group);
+        const synonyms = (tag.synonyms || []).map(norm);
+        const searchableValues = [label, id, group].concat(synonyms);
+
+        let score = 0;
+        if (label === q) score += 100;
+        if (label.indexOf(q) === 0) score += 60;
+        if (label.indexOf(q) !== -1) score += 40;
+        if (searchableValues.some((v) => v.indexOf(q) !== -1)) score += 25;
+
+        return { tag: tag, score: score };
+      })
+      .filter((r) => r.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .map((r) => r.tag);
+
+    return scored.slice(0, limit);
+  }
+
+  window.Search = { searchRecipes: searchRecipes, searchTags: searchTags };
 })();

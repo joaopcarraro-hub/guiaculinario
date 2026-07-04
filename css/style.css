@@ -322,6 +322,99 @@ body {
 }
 .home-search:focus { outline: 2px solid var(--gold-soft); }
 
+/* ---------- Busca facetada por tags ---------- */
+.tagsearch { margin-bottom: 24px; }
+.tagsearch-input {
+  width: 100%;
+  min-height: 50px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  padding: 0 20px;
+  font-family: inherit;
+  font-size: 1rem;
+  background: var(--bg-panel);
+  box-shadow: var(--shadow);
+}
+.tagsearch-input:focus { outline: 2px solid var(--gold-soft); }
+
+.tagsearch-suggestions { margin-top: 10px; }
+.tagsearch-empty {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  font-style: italic;
+  padding: 4px 2px;
+}
+.tagsearch-group-label {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  margin: 10px 0 6px;
+}
+.tagsearch-taglist, .tagsearch-recipelist { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.tag-suggestion {
+  min-height: 38px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid var(--gold-soft);
+  background: var(--bg-panel);
+  color: var(--ink);
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.tag-suggestion:hover { background: #f6efdd; }
+
+.recipe-suggestion {
+  min-height: 38px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--bg-panel);
+  color: var(--ink);
+  font-family: inherit;
+  font-style: italic;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.recipe-suggestion:hover { border-color: var(--gold-soft); }
+
+.tagsearch-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.tag-chip--selected {
+  min-height: 38px;
+  padding: 0 8px 0 16px;
+  border-radius: 999px;
+  border: none;
+  background: var(--gold);
+  color: #fff;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 0.85rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.tag-chip--selected span { font-size: 1.1rem; line-height: 1; opacity: 0.85; }
+.tag-chip--selected:hover { background: #8f6624; }
+
+.tagsearch-related { margin-top: 4px; }
+
+.tagsearch-count {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin-top: 14px;
+}
+.tagsearch-popular { margin-top: 4px; }
+
 .home-progress {
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.85rem;

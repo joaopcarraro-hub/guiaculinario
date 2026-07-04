@@ -1,5 +1,5 @@
 // router.js — navegação baseada em hash (#/...), sem depender de servidor.
-// Rotas: home | categoria/:id (id de coleção) | busca/:query | receita/:id | cozinhar/:id
+// Rotas: home | categoria/:id (id de coleção) | busca?tags=a,b,c | receita/:id | cozinhar/:id
 //        favoritos | quero-fazer | historico
 // :id de receita/cozinhar é o id único global da receita (TagModel), não mais catId+nome.
 (function () {
@@ -9,7 +9,8 @@
     const raw = location.hash.replace(/^#\/?/, "");
     if (!raw) return { name: "home" };
 
-    const parts = raw.split("/").map(function (p) {
+    const [pathPart, queryPart] = raw.split("?");
+    const parts = pathPart.split("/").map(function (p) {
       try {
         return decodeURIComponent(p);
       } catch (e) {
@@ -21,7 +22,16 @@
       return { name: "categoria", catId: parts[1] };
     }
     if (parts[0] === "busca") {
-      return { name: "busca", query: parts.slice(1).join("/") || "" };
+      let tags = [];
+      if (queryPart) {
+        queryPart.split("&").forEach(function (pair) {
+          const [k, v] = pair.split("=");
+          if (k === "tags" && v) {
+            tags = v.split(",").map(decodeURIComponent).filter(Boolean);
+          }
+        });
+      }
+      return { name: "busca", tags: tags };
     }
     if (parts[0] === "receita" && parts[1]) {
       return { name: "receita", id: parts[1] };
@@ -73,11 +83,9 @@
     toCategoria: function (catId) {
       navigate("categoria/" + encodeURIComponent(catId));
     },
-    toBusca: function (query) {
-      navigate("busca/" + encodeURIComponent(query));
-    },
-    replaceBusca: function (query) {
-      replace("busca/" + encodeURIComponent(query));
+    toBusca: function (tagIds) {
+      const q = (tagIds || []).map(encodeURIComponent).join(",");
+      navigate("busca" + (q ? "?tags=" + q : ""));
     },
     toReceita: function (id) {
       navigate("receita/" + encodeURIComponent(id));

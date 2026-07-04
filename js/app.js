@@ -8,7 +8,6 @@
 
   const firstCollection = window.COLLECTIONS[0];
   let activeCat = null; // id da coleção atual; null quando estamos na home, busca global ou telas de lista
-  let homeSearchInput = null; // input de busca da tela home (recriado a cada render)
 
   const QUICK_LINKS = [
     { view: "favoritos", icon: "★", label: "Favoritos", go: () => Router.toFavoritos() },
@@ -21,23 +20,61 @@
     return Storage.getAllMade().length;
   }
 
-  // ---------- Busca (usada na tela home) ----------
-  let searchDebounce = null;
-  function wireSearchInput(el) {
-    el.addEventListener("input", () => {
-      const value = el.value;
-      clearTimeout(searchDebounce);
-      searchDebounce = setTimeout(() => {
-        if (value.trim()) {
-          activeCat = null;
-          Router.replaceBusca(value);
-          renderSearchResults(value);
-        } else {
-          Router.replace("");
-          renderHome();
-        }
-      }, 200);
+  // ---------- Busca facetada: sugestões (tags + receitas por nome) ----------
+  // O texto digitado só gera sugestões — nunca filtra a lista de receitas sozinho.
+  // Selecionar uma tag sugerida é que muda o resultado (e a URL).
+  let tagSearchDebounce = null;
+  function wireTagSearchInput(inputEl, suggestionsEl, handlers) {
+    inputEl.addEventListener("input", () => {
+      const q = inputEl.value;
+      clearTimeout(tagSearchDebounce);
+      tagSearchDebounce = setTimeout(() => renderTagSuggestions(q, suggestionsEl, handlers), 220);
     });
+  }
+
+  function renderTagSuggestions(query, suggestionsEl, handlers) {
+    const q = query.trim();
+    if (!q) {
+      suggestionsEl.innerHTML = "";
+      return;
+    }
+    const excludeTagIds = (handlers && handlers.excludeTagIds) || [];
+    const tagResults = Search.searchTags(q).filter((t) => excludeTagIds.indexOf(t.id) === -1).slice(0, 6);
+    const recipeResults = Search.searchRecipes(q, { limit: 5 });
+
+    if (!tagResults.length && !recipeResults.length) {
+      suggestionsEl.innerHTML = '<div class="tagsearch-empty">Nenhuma tag ou prato encontrado para "' + query + '".</div>';
+      return;
+    }
+
+    let html = "";
+    if (tagResults.length) {
+      html +=
+        '<div class="tagsearch-group-label">Tags</div><div class="tagsearch-taglist">' +
+        tagResults.map((t) => '<button type="button" class="tag-suggestion" data-tag="' + t.id + '">' + t.label + "</button>").join("") +
+        "</div>";
+    }
+    if (recipeResults.length) {
+      html +=
+        '<div class="tagsearch-group-label">Receitas</div><div class="tagsearch-recipelist">' +
+        recipeResults
+          .map((r) => '<button type="button" class="recipe-suggestion" data-cat="' + r.catId + '" data-name="' + encodeURIComponent(r.recipe.name) + '">' + r.recipe.name + "</button>")
+          .join("") +
+        "</div>";
+    }
+    suggestionsEl.innerHTML = html;
+
+    suggestionsEl.querySelectorAll(".tag-suggestion").forEach((btn) => {
+      btn.addEventListener("click", () => handlers.onSelectTag(btn.dataset.tag));
+    });
+    suggestionsEl.querySelectorAll(".recipe-suggestion").forEach((btn) => {
+      btn.addEventListener("click", () => handlers.onSelectRecipe(btn.dataset.cat, decodeURIComponent(btn.dataset.name)));
+    });
+  }
+
+  function goToRecipeByCatAndName(catId, name) {
+    const id = TagModel.getIdForCatAndName(catId, name);
+    if (id) Router.toReceita(id);
   }
 
   // ---------- Home ----------
@@ -56,11 +93,16 @@
     const homeSearch = document.createElement("input");
     homeSearch.type = "text";
     homeSearch.className = "home-search";
-    homeSearch.placeholder = "Buscar prato, país ou ingrediente...";
+    homeSearch.placeholder = "Buscar por ingrediente, país, proteína ou nome do prato...";
     searchWrap.appendChild(homeSearch);
+    const homeSuggestions = document.createElement("div");
+    homeSuggestions.className = "tagsearch-suggestions";
+    searchWrap.appendChild(homeSuggestions);
     wrap.appendChild(searchWrap);
-    homeSearchInput = homeSearch;
-    wireSearchInput(homeSearch);
+    wireTagSearchInput(homeSearch, homeSuggestions, {
+      onSelectTag: (tagId) => Router.toBusca([tagId]),
+      onSelectRecipe: goToRecipeByCatAndName,
+    });
 
     const totalRecipes = TagModel.getAllRecipesFlat().length;
     const totalMade = Storage.getAllMade().length;
@@ -167,25 +209,151 @@
     progressEl.textContent = doneCount + " de " + items.length + " já feitas nessa coleção ✓";
   }
 
-  // ---------- Busca global ----------
-  function renderSearchResults(query) {
-    header.innerHTML =
-      "<h2>Busca: “" + query + "”</h2>" +
-      '<div class="desc">Procurando em nome, categoria, origem, ingredientes, dificuldade e descrição.</div>';
+  // ---------- Busca facetada por tags ----------
+  const POPULAR_TAG_GROUPS = [
+    { label: "Proteínas", ids: ["protein:frango", "protein:boi", "protein:suino", "protein:peixe", "protein:frutos-do-mar", "protein:ovo", "protein:vegetariana"] },
+    { label: "Tipos de prato", ids: ["dish_type:massa", "dish_type:sopa", "dish_type:sobremesa", "dish_type:arroz", "dish_type:pao"] },
+    { label: "Cozinhas", ids: ["country:italia", "country:brasil", "country:japao", "country:mexico", "country:franca"] },
+    { label: "Tempo e dificuldade", ids: ["time:ate-30-min", "difficulty:facil"] },
+  ];
+
+  function renderBusca(tagIds) {
+    activeCat = null;
+    header.innerHTML = "<h2>🔎 Buscar por tags</h2>";
     content.innerHTML = "";
     progressEl.textContent = "";
 
-    const results = Search.searchRecipes(query);
+    const wrap = document.createElement("div");
+    wrap.className = "tagsearch";
 
-    if (!results.length) {
-      content.innerHTML = '<div class="empty-state">Nenhum prato encontrado para "' + query + '".</div>';
-      return;
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "tagsearch-input";
+    input.placeholder = "Buscar por ingrediente, país, proteína ou nome do prato...";
+    wrap.appendChild(input);
+
+    const suggestionsEl = document.createElement("div");
+    suggestionsEl.className = "tagsearch-suggestions";
+    wrap.appendChild(suggestionsEl);
+
+    const chipsEl = document.createElement("div");
+    chipsEl.className = "tagsearch-chips";
+    wrap.appendChild(chipsEl);
+
+    const relatedEl = document.createElement("div");
+    relatedEl.className = "tagsearch-related";
+    wrap.appendChild(relatedEl);
+
+    const countEl = document.createElement("div");
+    countEl.className = "tagsearch-count";
+    wrap.appendChild(countEl);
+
+    content.appendChild(wrap);
+
+    const resultsEl = document.createElement("div");
+    resultsEl.className = "tagsearch-results";
+    content.appendChild(resultsEl);
+
+    function goToTags(newTagIds) {
+      const deduped = newTagIds.filter((id, i) => newTagIds.indexOf(id) === i);
+      Router.toBusca(deduped);
     }
 
-    results.forEach((res) => {
-      const id = TagModel.getIdForCatAndName(res.catId, res.recipe.name);
-      content.appendChild(renderRecipeCard({ id, catId: res.catId, recipe: res.recipe }, { catLabel: res.catLabel }));
+    function renderChips() {
+      if (!tagIds.length) {
+        chipsEl.innerHTML = "";
+        return;
+      }
+      chipsEl.innerHTML = tagIds
+        .map((id) => {
+          const tag = TagModel.getTagById(id);
+          return (
+            '<button type="button" class="tag-chip tag-chip--selected" data-tag="' +
+            id +
+            '">' +
+            (tag ? tag.label : id) +
+            ' <span aria-hidden="true">×</span></button>'
+          );
+        })
+        .join("");
+      chipsEl.querySelectorAll(".tag-chip").forEach((btn) => {
+        btn.addEventListener("click", () => goToTags(tagIds.filter((t) => t !== btn.dataset.tag)));
+      });
+    }
+
+    function renderRelated() {
+      if (!tagIds.length) {
+        relatedEl.innerHTML = "";
+        return;
+      }
+      const related = TagModel.getRelatedTags(tagIds).slice(0, 10);
+      if (!related.length) {
+        relatedEl.innerHTML = "";
+        return;
+      }
+      relatedEl.innerHTML =
+        '<div class="tagsearch-group-label">Refinar</div><div class="tagsearch-taglist">' +
+        related.map((r) => '<button type="button" class="tag-suggestion" data-tag="' + r.tag.id + '">' + r.tag.label + " (" + r.count + ")</button>").join("") +
+        "</div>";
+      relatedEl.querySelectorAll(".tag-suggestion").forEach((btn) => {
+        btn.addEventListener("click", () => goToTags(tagIds.concat([btn.dataset.tag])));
+      });
+    }
+
+    function renderPopularTags() {
+      const html = POPULAR_TAG_GROUPS.map((group) => {
+        const chips = group.ids
+          .map((id) => {
+            const tag = TagModel.getTagById(id);
+            return tag ? '<button type="button" class="tag-suggestion" data-tag="' + id + '">' + tag.label + "</button>" : "";
+          })
+          .join("");
+        return '<div class="tagsearch-group-label">' + group.label + '</div><div class="tagsearch-taglist">' + chips + "</div>";
+      }).join("");
+      const popularWrap = document.createElement("div");
+      popularWrap.className = "tagsearch-popular";
+      popularWrap.innerHTML = html;
+      resultsEl.appendChild(popularWrap);
+      popularWrap.querySelectorAll(".tag-suggestion").forEach((btn) => {
+        btn.addEventListener("click", () => goToTags([btn.dataset.tag]));
+      });
+    }
+
+    function renderResults() {
+      resultsEl.innerHTML = "";
+      if (!tagIds.length) {
+        countEl.textContent = "";
+        resultsEl.innerHTML = '<div class="empty-state">Escolha uma tag abaixo (ou digite acima) pra começar a buscar.</div>';
+        renderPopularTags();
+        return;
+      }
+      const items = TagModel.getRecipesByTags(tagIds);
+      if (!items.length) {
+        countEl.textContent = "";
+        resultsEl.innerHTML =
+          '<div class="empty-state">Nenhuma receita encontrada com essas tags.<br>Remova uma tag pra ampliar os resultados.</div>';
+        return;
+      }
+      countEl.textContent = items.length + (items.length === 1 ? " receita encontrada" : " receitas encontradas");
+      items.forEach((item) => {
+        const cat = window.CATEGORIES.find((c) => c.id === item.catId);
+        resultsEl.appendChild(renderRecipeCard(item, { catLabel: cat ? cat.label : item.catId }));
+      });
+    }
+
+    wireTagSearchInput(input, suggestionsEl, {
+      onSelectTag: (tagId) => {
+        input.value = "";
+        suggestionsEl.innerHTML = "";
+        goToTags(tagIds.concat([tagId]));
+      },
+      onSelectRecipe: goToRecipeByCatAndName,
+      excludeTagIds: tagIds,
     });
+
+    renderChips();
+    renderRelated();
+    renderResults();
   }
 
   // ---------- Telas de lista (Favoritos / Quero fazer / Histórico) ----------
@@ -750,9 +918,8 @@
 
   // ---------- Roteamento ----------
   function handleRoute(route) {
-    if (route.name === "busca" && route.query) {
-      activeCat = null;
-      renderSearchResults(route.query);
+    if (route.name === "busca") {
+      renderBusca(route.tags || []);
     } else if (route.name === "categoria") {
       showCategoria(route.catId);
     } else if (route.name === "receita") {
