@@ -480,6 +480,25 @@ body {
   gap: 6px;
 }
 
+.clear-filters-wrap {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 18px;
+}
+.clear-filters-wrap:empty { margin-bottom: 0; }
+.btn-clear-filters {
+  min-height: 44px;
+  padding: 0 6px;
+  border: none;
+  background: none;
+  color: var(--gold);
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 0.82rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.btn-clear-filters:hover { color: var(--gold-soft); }
+
 .tagsearch-count-row {
   display: flex;
   justify-content: space-between;

@@ -687,6 +687,10 @@
     facetBarEl.className = "facet-bar";
     content.appendChild(facetBarEl);
 
+    const clearFiltersEl = document.createElement("div");
+    clearFiltersEl.className = "clear-filters-wrap";
+    content.appendChild(clearFiltersEl);
+
     const listEl = document.createElement("div");
     content.appendChild(listEl);
 
@@ -700,6 +704,30 @@
       countEl.innerHTML = "<strong>" + currentItems().length + " receita" + (currentItems().length === 1 ? "" : "s") + "</strong>";
       const doneCount = Storage.countMade(currentItems().map((i) => i.id));
       progressEl.textContent = doneCount + " de " + currentItems().length + " já feitas ✓";
+    }
+
+    // Só aparece quando há pelo menos 1 faceta ativa (nunca polui a view default). Reseta pro
+    // mesmo estado que cada dropdown já reseta individualmente (facetState vazio, proteinRole
+    // null) — reaproveita o mesmo pipeline applyFacets/syncUrl/renderFacets/renderList que o
+    // onChange de qualquer dropdown já dispara, não é um mecanismo novo.
+    function renderClearFilters() {
+      const active = selectedFacetTags.length > 0 || proteinRole !== null;
+      if (!active) {
+        clearFiltersEl.innerHTML = "";
+        return;
+      }
+      clearFiltersEl.innerHTML = '<button type="button" class="btn-clear-filters">Limpar filtros</button>';
+      clearFiltersEl.querySelector(".btn-clear-filters").addEventListener("click", () => {
+        selectedFacetTags = [];
+        proteinRole = null;
+        ingredientOrFallback = false;
+        applyFacets();
+        syncUrl();
+        renderFacets();
+        renderToolbarState();
+        renderClearFilters();
+        renderList();
+      });
     }
 
     function renderProteinRoleControl() {
@@ -726,6 +754,7 @@
         syncUrl();
         renderToolbarState();
         renderFacets();
+        renderClearFilters();
         renderList();
       });
       facetBarEl.appendChild(wrap);
@@ -741,6 +770,7 @@
         syncUrl();
         renderFacets();
         renderToolbarState();
+        renderClearFilters();
         renderList();
       });
       renderProteinRoleControl();
@@ -818,6 +848,7 @@
 
     renderToolbarState();
     renderFacets();
+    renderClearFilters();
     renderList();
   }
 

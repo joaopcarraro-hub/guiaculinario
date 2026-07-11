@@ -99,6 +99,10 @@ Selecionar um filtro atualiza a lista na mesma página (nunca navega pra outra r
 "Papel da proteína" (Principal / Secundário / Tanto faz) substitui as antigas abas "Foco da
 receita / Também leva / Todas".
 
+Um botão de texto "Limpar filtros" (área de toque de 44px, sem parecer outro dropdown) aparece
+logo abaixo da barra só quando pelo menos 1 faceta está ativa — nunca no estado default, pra
+não poluir a view limpa.
+
 ## Critérios de aceite
 
 - A home deve parecer limpa em telas de 360px a 430px.
@@ -106,3 +110,7 @@ receita / Também leva / Todas".
 - A listagem não deve parecer desktop adaptado.
 - O usuário não deve ver 30 opções de filtro ao mesmo tempo.
 - O fluxo deve reduzir indecisão, não aumentar.
+
+Todo prompt de design/UI também precisa passar pelo checklist de Heurísticas de Nielsen em
+`.claude/skills/product-navigation-ux/SKILL.md` (seção "Checklist de aceite — Heurísticas de
+Nielsen") antes de ser considerado concluído.

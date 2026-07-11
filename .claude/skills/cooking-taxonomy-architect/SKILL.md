@@ -76,6 +76,11 @@ filtros facetada, refinando in-place (sem navegar de rota, sem camadas sequencia
 Cada dropdown lista só os valores presentes no resultado ATUAL (já filtrado pelas outras
 facetas ativas), com contagem. Nada vem pré-selecionado — o default é sempre "todos".
 
+Um botão "Limpar filtros" aparece na barra só quando pelo menos 1 faceta está ativa (nunca no
+estado default) e reseta todas de uma vez — País, Complexidade, Tempo, Equipamento, Ingrediente
+e Papel da proteína — reaproveitando o mesmo pipeline de reset que cada dropdown já dispara
+individualmente.
+
 ### Papel da proteína
 
 Substitui o antigo conceito de abas "Foco da receita / Também leva / Todas". É um dropdown

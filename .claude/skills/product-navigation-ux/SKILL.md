@@ -87,6 +87,9 @@ escolhido por vez, sem AND/OR/fallback (isso é exclusivo de Ingrediente).
 Proteínas usam um dropdown extra, "Papel da proteína": Principal / Secundário / Tanto faz
 (default). Isso substituiu o antigo conceito de abas "Foco da receita / Também leva / Todas".
 
+Um botão "Limpar filtros" aparece na barra só quando há pelo menos 1 faceta ativa, resetando
+todas de uma vez (heurística de Nielsen #3 — controle e liberdade do usuário).
+
 ## Critérios de aceite
 
 - A home deve ficar curta.
@@ -95,3 +98,31 @@ Proteínas usam um dropdown extra, "Papel da proteína": Principal / Secundário
 - Categorias duplicadas devem ser eliminadas.
 - Brasil deve entrar dentro de Cozinhas do mundo.
 - Tempo e dificuldade devem existir como caminhos próprios.
+
+## Checklist de aceite — Heurísticas de Nielsen
+
+Todo prompt de design/UI a partir de agora deve ser avaliado contra esta lista antes de ser
+considerado concluído — não é opcional, é parte do critério de "pronto".
+
+1. **Visibilidade do status do sistema** — o usuário sempre sabe o que está acontecendo (contagem
+   de receitas, filtros ativos, estado de carregamento), sem precisar adivinhar.
+2. **Correspondência entre o sistema e o mundo real** — linguagem, ícones e fluxo usam os termos
+   e a lógica de quem cozinha, não jargão técnico do sistema de tags.
+3. **Controle e liberdade do usuário** — sempre existe uma saída clara (voltar, desfazer, limpar
+   filtros) sem precisar recarregar a página ou navegar às cegas.
+4. **Consistência e padrões** — o mesmo tipo de controle se comporta do mesmo jeito em toda a
+   navegação (ex.: todos os dropdowns single-select funcionam igual, exceto Ingrediente, que é a
+   exceção documentada e assumida).
+5. **Prevenção de erros** — a interface evita que o usuário chegue a um estado inválido ou vazio
+   sem explicação (ex.: o fallback OU do Ingrediente antes de simplesmente mostrar "0 receitas").
+6. **Reconhecimento em vez de memorização** — opções e filtros ficam visíveis e com contagem, o
+   usuário não precisa lembrar o que já selecionou em outra tela.
+7. **Flexibilidade e eficiência de uso** — atalhos pra quem sabe o que quer (busca direta, tags
+   clicáveis) sem obrigar todo mundo a passar pelo funil completo.
+8. **Design estético e minimalista** — só mostra o que ajuda a decidir nesse momento; informação
+   extra fica escondida até ser relevante (princípio anti-overwhelm já documentado acima).
+9. **Ajudar o usuário a reconhecer, diagnosticar e se recuperar de erros** — mensagens de estado
+   vazio ("Nenhuma receita com esses filtros") sempre vêm com uma ação clara pra sair do buraco,
+   não só a constatação do problema.
+10. **Ajuda e documentação** — quando a interface não é auto-explicativa, o texto de apoio
+    (descrição do grupo/coleção, placeholder de busca) cobre a lacuna sem exigir manual.
