@@ -287,17 +287,17 @@ window.RECIPES["molhos"] = [
     ingredients: [
       "300 ml de Velouté de peixe (ver receita, feito com fumet de peixe)",
       "150 ml de vinho branco seco",
-      "2 échalotes picadas finas",
+      "2 cebolas picadas finas",
       "100 ml de creme de leite fresco",
       "30 g de manteiga gelada",
       "Sal, pimenta branca a gosto",
       "Suco de limão a gosto"
     ],
     steps: [
-      "Numa panela, reduza o vinho branco com as échalotes até restar 1/3 do volume.",
+      "Numa panela, reduza o vinho branco com as cebolas até restar 1/3 do volume.",
       "Junte o Velouté de peixe e cozinhe em fogo baixo por 8-10 minutos, mexendo de vez em quando.",
       "Adicione o creme de leite e deixe reduzir até encorpar levemente, mais 5 minutos.",
-      "Coe o molho para retirar as échalotes, se preferir um acabamento liso.",
+      "Coe o molho para retirar as cebolas, se preferir um acabamento liso.",
       "Fora do fogo, monte com a manteiga gelada em cubos para dar brilho.",
       "Ajuste sal, pimenta branca e um toque de limão."
     ],
@@ -349,7 +349,7 @@ window.RECIPES["molhos"] = [
     difficulty: "Média",
     tags: ["contains:boi"],
     ingredients: [
-      "2 échalotes (ou 1 cebola pequena) picadas finas",
+      "1 cebola pequena picada fina",
       "300 ml de vinho tinto encorpado (idealmente Bordeaux)",
       "1 ramo de tomilho, 1 folha de louro",
       "4 grãos de pimenta-do-reino amassados",
@@ -359,7 +359,7 @@ window.RECIPES["molhos"] = [
       "Sal e pimenta a gosto"
     ],
     steps: [
-      "Numa panela, junte échalotes, vinho, tomilho, louro e pimenta-do-reino.",
+      "Numa panela, junte a cebola, vinho, tomilho, louro e pimenta-do-reino.",
       "Reduza em fogo médio até restar cerca de 1/4 do volume (bem concentrado), 15-20 minutos.",
       "Adicione a Demi-glace e cozinhe por mais 10 minutos em fogo baixo.",
       "Se for usar tutano, escalde os cubos em água quente por 1 minuto e junte ao molho nos últimos 2 minutos.",
@@ -416,7 +416,7 @@ window.RECIPES["molhos"] = [
     difficulty: "Média-alta",
     tags: ["contains:ovo"],
     ingredients: [
-      "2 échalotes picadas finas",
+      "2 cebolas picadas finas",
       "100 ml de vinagre de vinho branco",
       "100 ml de vinho branco seco",
       "1 ramo de estragão fresco + 1 colher (sopa) picado para finalizar",
@@ -428,7 +428,7 @@ window.RECIPES["molhos"] = [
       "1 fio de suco de limão (opcional)"
     ],
     steps: [
-      "Numa panela pequena, junte échalotes, vinagre, vinho, o ramo de estragão e a pimenta.",
+      "Numa panela pequena, junte as cebolas, vinagre, vinho, o ramo de estragão e a pimenta.",
       "Reduza em fogo médio até restar cerca de 2 colheres (sopa) de líquido concentrado.",
       "Coe essa redução, descartando os sólidos, e deixe amornar.",
       "Em banho-maria, bata as gemas com a água fria e a redução coada até formar fita, como na Hollandaise.",
@@ -480,7 +480,7 @@ window.RECIPES["molhos"] = [
     difficulty: "Média",
     tags: [],
     ingredients: [
-      "2 échalotes picadas finas",
+      "2 cebolas picadas finas",
       "100 ml de vinho branco seco",
       "50 ml de vinagre de vinho branco (ou vinagre de champagne)",
       "1 colher (sopa) de creme de leite fresco (opcional, ajuda a estabilizar)",
@@ -489,7 +489,7 @@ window.RECIPES["molhos"] = [
       "Suco de limão a gosto (opcional)"
     ],
     steps: [
-      "Numa panela pequena, junte as échalotes, o vinho e o vinagre.",
+      "Numa panela pequena, junte as cebolas, o vinho e o vinagre.",
       "Reduza em fogo médio até restar quase seco — cerca de 2 colheres (sopa) de líquido concentrado, 8-10 minutos.",
       "Se for usar, junte o creme de leite e deixe ferver por 30 segundos (isso estabiliza a emulsão e deixa o molho mais 'seguro').",
       "Abaixe bem o fogo. Vá adicionando a manteiga gelada, cubo a cubo, batendo sem parar com fouet até cada cubo derreter antes de adicionar o próximo.",

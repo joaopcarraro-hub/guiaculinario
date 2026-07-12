@@ -189,8 +189,8 @@ window.RECIPES["entradas-quentes"] = [
       "16 cogumelos Paris grandes, limpos, com os talos separados",
       "2 colheres (sopa) de azeite",
       "2 dentes de alho picados",
-      "1 échalote picada",
-      "100 g de queijo cream cheese",
+      "1 cebola picada",
+      "100 g de queijo cremoso",
       "50 g de parmesão ralado (+ extra para polvilhar)",
       "2 colheres (sopa) de farinha de rosca",
       "Salsinha picada",
@@ -198,8 +198,8 @@ window.RECIPES["entradas-quentes"] = [
     ],
     steps: [
       "Pré-aqueça o forno a 200°C. Pique os talos dos cogumelos bem fino.",
-      "Aqueça o azeite numa frigideira e refogue o alho, échalote e os talos picados até dourarem levemente, 5 minutos.",
-      "Fora do fogo, misture com o cream cheese, parmesão, farinha de rosca e salsinha. Tempere com sal e pimenta.",
+      "Aqueça o azeite numa frigideira e refogue o alho, cebola e os talos picados até dourarem levemente, 5 minutos.",
+      "Fora do fogo, misture com o queijo cremoso, parmesão, farinha de rosca e salsinha. Tempere com sal e pimenta.",
       "Recheie generosamente cada chapéu de cogumelo com essa mistura.",
       "Disponha numa assadeira, polvilhe com parmesão extra por cima.",
       "Asse por 15-18 minutos até os cogumelos ficarem macios e o recheio dourado por cima. Sirva quente."
@@ -223,14 +223,14 @@ window.RECIPES["entradas-quentes"] = [
       "12 escargots em conserva, escorridos (+ 12 conchas, se for usar conchas de verdade)",
       "120 g de manteiga em temperatura ambiente",
       "3 dentes de alho picados bem fino (ou ralados)",
-      "2 échalotes picadas bem fino",
+      "2 cebolas picadas bem fino",
       "2 colheres (sopa) de salsinha picada",
       "1 fio de conhaque (opcional)",
       "Sal e pimenta a gosto",
       "Baguete para servir"
     ],
     steps: [
-      "Prepare a manteiga composta: misture a manteiga amolecida com alho, échalote, salsinha, conhaque (se usar), sal e pimenta até homogêneo.",
+      "Prepare a manteiga composta: misture a manteiga amolecida com alho, cebola, salsinha, conhaque (se usar), sal e pimenta até homogêneo.",
       "Se for usar conchas, coloque um pouco da manteiga no fundo de cada uma, insira o escargot e cubra com mais manteiga, selando a abertura.",
       "Se não tiver conchas, use uma forma própria para escargot ou pequenos ramequins: coloque um pouco de manteiga, o escargot, e cubra com mais manteiga.",
       "Disponha num prato para forno ou na forma própria e leve ao forno pré-aquecido a 220°C por 8-10 minutos, até a manteiga borbulhar.",

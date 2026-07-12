@@ -89,7 +89,7 @@ window.RECIPES["peixes"] = [
       "1 abobrinha pequena, em fatias finas",
       "1 cenoura pequena, em fitas finas (com descascador)",
       "8 tomates cereja, cortados ao meio",
-      "2 échalotes fatiadas fino",
+      "2 cebolas fatiadas fino",
       "4 fatias finas de limão-siciliano",
       "Ervas frescas (endro, tomilho ou manjericão)",
       "2 colheres (sopa) de azeite de oliva",
@@ -99,7 +99,7 @@ window.RECIPES["peixes"] = [
     ],
     steps: [
       "Pré-aqueça o forno a 200°C. Corte dois grandes retângulos de papel manteiga (ou papel-alumínio), cerca de 40x30 cm cada.",
-      "No centro de cada retângulo, faça uma cama com metade dos vegetais fatiados (abobrinha, cenoura, tomate cereja e échalote).",
+      "No centro de cada retângulo, faça uma cama com metade dos vegetais fatiados (abobrinha, cenoura, tomate cereja e cebola).",
       "Tempere os filés de peixe com sal e pimenta, e disponha sobre a cama de vegetais.",
       "Cubra cada filé com 2 fatias de limão e ervas frescas. Regue com azeite e, se usar, um fio de vinho branco.",
       "Dobre o papel sobre o peixe, selando as bordas com dobras apertadas (como um envelope), formando um pacote bem fechado que retenha o vapor.",

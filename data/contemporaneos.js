@@ -338,13 +338,13 @@ window.RECIPES["contemporaneos"] = [
       "150 g de farinha de mandioca crua",
       "80 g de castanha-do-pará (ou castanha de caju, amêndoas), picada grosseiramente",
       "50 g de manteiga",
-      "1 échalote ou cebola pequena picada bem fina",
+      "1 cebola pequena picada bem fina",
       "Sal a gosto",
       "Ervas frescas picadas (opcional)"
     ],
     steps: [
       "Toste levemente as castanhas picadas numa frigideira seca, em fogo médio, por 3-4 minutos, até perfumarem. Reserve.",
-      "Na mesma frigideira, derreta a manteiga e refogue a échalote até dourar levemente.",
+      "Na mesma frigideira, derreta a manteiga e refogue a cebola até dourar levemente.",
       "Adicione a farinha de mandioca aos poucos, mexendo sempre, até dourar por igual e ficar crocante, 6-8 minutos.",
       "Volte as castanhas tostadas à farofa, misture bem, tempere com sal.",
       "Finalize com ervas frescas picadas, se desejar. Sirva morna ou em temperatura ambiente, polvilhada sobre o prato."
@@ -427,14 +427,14 @@ window.RECIPES["contemporaneos"] = [
       "3 partes de azeite de oliva extra virgem",
       "1 parte de ácido (vinagre balsâmico, vinagre de xerez ou suco cítrico)",
       "1 colher (chá) de mostarda Dijon (agente emulsificante)",
-      "1 échalote picada bem fina (opcional)",
+      "1 cebola picada bem fina (opcional)",
       "Sal, pimenta e ervas frescas picadas a gosto",
       "1 fio de mel ou xarope (opcional, para equilibrar acidez)"
     ],
     steps: [
       "Numa tigela ou vidro com tampa, junte o ácido, a mostarda, sal e pimenta, misturando bem.",
       "Adicione o azeite aos poucos, batendo vigorosamente com um fouet (ou balançando o vidro fechado com força) até emulsionar e engrossar levemente.",
-      "Junte a échalote picada, ervas e o mel, se usar.",
+      "Junte a cebola picada, ervas e o mel, se usar.",
       "Prove e ajuste o equilíbrio entre ácido, gordura e doçura — o segredo de um vinagrete moderno é esse equilíbrio fino, não a receita fixa.",
       "Guarda-se na geladeira por até 1 semana; misture bem antes de cada uso, já que a emulsão se separa naturalmente com o tempo."
     ],
@@ -746,14 +746,14 @@ window.RECIPES["contemporaneos"] = [
     tags: ["format:base", "diet:vegetariana", "ingredient:cogumelo"],
     ingredients: [
       "500 g de cogumelos (paris ou uma mistura), picados bem fino",
-      "1 échalote picada bem fina",
+      "1 cebola picada bem fina",
       "40 g de manteiga",
       "1 fio de vinho branco ou conhaque (opcional)",
       "Sal, pimenta e noz-moscada a gosto"
     ],
     steps: [
       "Pique os cogumelos bem fino, quase como uma farofa (pode usar processador, pulsando com cuidado para não formar uma pasta).",
-      "Derreta a manteiga numa frigideira e refogue a échalote até translúcida.",
+      "Derreta a manteiga numa frigideira e refogue a cebola até translúcida.",
       "Junte os cogumelos picados e cozinhe em fogo médio, mexendo de vez em quando, até toda a água solta pelos cogumelos evaporar completamente e a mistura ficar bem seca e escura — 12-15 minutos.",
       "Se for usar, deglaceie com o vinho ou conhaque nos últimos minutos.",
       "Tempere com sal, pimenta e noz-moscada.",

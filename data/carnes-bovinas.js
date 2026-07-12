@@ -86,7 +86,7 @@ window.RECIPES["carnes-bovinas"] = [
       "3 colheres (sopa) de grãos de pimenta-do-reino preta, levemente amassados",
       "1 colher (sopa) de óleo neutro",
       "30 g de manteiga",
-      "1 échalote picada",
+      "1 cebola picada",
       "80 ml de conhaque",
       "150 ml de creme de leite fresco",
       "Sal a gosto"
@@ -96,7 +96,7 @@ window.RECIPES["carnes-bovinas"] = [
       "Tempere com sal (com moderação, já que a pimenta já dá bastante intensidade).",
       "Aqueça o óleo numa frigideira em fogo alto. Sele os filés por 3-4 minutos de cada lado (para ao ponto), até formar uma crosta escura por fora.",
       "Retire os filés e reserve, cobertos, para descansar.",
-      "Na mesma frigideira, abaixe o fogo para médio, adicione a manteiga e refogue a échalote até translúcida.",
+      "Na mesma frigideira, abaixe o fogo para médio, adicione a manteiga e refogue a cebola até translúcida.",
       "Retire a frigideira do fogo e adicione o conhaque com cuidado. Volte ao fogo e flambe (ou deixe reduzir até evaporar o álcool, se preferir não flambar), raspando o fundo da frigideira.",
       "Junte o creme de leite, deixe reduzir em fogo médio por 3-4 minutos, até encorpar. Ajuste o sal.",
       "Volte os filés à frigideira só para aquecer no molho, ou sirva o molho por cima. Sirva imediatamente."
@@ -120,7 +120,7 @@ window.RECIPES["carnes-bovinas"] = [
       "2 filés mignon (ou contrafilé fino), cerca de 180 g cada, levemente achatados",
       "1 colher (sopa) de óleo",
       "40 g de manteiga (dividida)",
-      "1 échalote picada",
+      "1 cebola picada",
       "150 g de cogumelos fatiados",
       "60 ml de conhaque",
       "1 colher (sopa) de mostarda Dijon",
@@ -132,7 +132,7 @@ window.RECIPES["carnes-bovinas"] = [
     steps: [
       "Tempere os filés com sal e pimenta. Aqueça o óleo com metade da manteiga numa frigideira em fogo alto.",
       "Sele os filés por 2-3 minutos de cada lado (para malpassado a ao ponto, já que são finos). Retire e reserve.",
-      "Na mesma frigideira, adicione o restante da manteiga e refogue a échalote até translúcida.",
+      "Na mesma frigideira, adicione o restante da manteiga e refogue a cebola até translúcida.",
       "Junte os cogumelos e refogue até dourarem, 5 minutos.",
       "Retire a frigideira do fogo, adicione o conhaque e flambe com cuidado (ou deixe reduzir em fogo baixo até evaporar o álcool).",
       "Junte a mostarda, o molho inglês e o creme de leite. Deixe reduzir em fogo médio por 2-3 minutos, até encorpar.",
@@ -351,7 +351,7 @@ window.RECIPES["carnes-bovinas"] = [
       "4 medalhões de filé mignon, cerca de 150-180 g cada",
       "1 colher (sopa) de óleo",
       "30 g de manteiga (dividida)",
-      "1 échalote (ou cebola pequena) picada",
+      "1 cebola picada",
       "150 g de cogumelos fatiados (opcional)",
       "150 ml de vinho Madeira",
       "200 ml de Demi-glace ou fundo escuro reduzido (ver receitas, categoria Molhos)",
@@ -360,7 +360,7 @@ window.RECIPES["carnes-bovinas"] = [
     steps: [
       "Tempere os medalhões com sal e pimenta.",
       "Aqueça o óleo com metade da manteiga numa frigideira em fogo alto. Sele os medalhões por 3-4 minutos de cada lado, conforme o ponto desejado. Retire e reserve, cobertos.",
-      "Na mesma frigideira, abaixe o fogo para médio, adicione o restante da manteiga e refogue a échalote até translúcida.",
+      "Na mesma frigideira, abaixe o fogo para médio, adicione o restante da manteiga e refogue a cebola até translúcida.",
       "Se for usar, junte os cogumelos e refogue até dourarem.",
       "Deglaceie com o vinho Madeira, raspando o fundo da frigideira, e deixe reduzir pela metade.",
       "Junte a Demi-glace ou o fundo escuro reduzido, cozinhe por 3-5 minutos até o molho encorpar.",

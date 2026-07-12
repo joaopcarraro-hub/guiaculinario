@@ -14,7 +14,7 @@ window.RECIPES["tailandia"] = [
     tags: ["protein:frango", "ingredient:coco", "ingredient:berinjela"],
     ingredients: [
       "500 g de peito de frango, em tiras",
-      "3 colheres (sopa) de pasta de curry verde (pronta ou caseira: pimenta verde, capim-limão, galanga, alho, échalote, coentro, camarão seco batidos)",
+      "3 colheres (sopa) de pasta de curry verde (pronta ou caseira: pimenta verde, capim-limão, galanga, alho, cebola, coentro, camarão seco batidos)",
       "400 ml de leite de coco (dividido)",
       "1 berinjela tailandesa pequena (ou berinjela comum em cubos)",
       "100 g de vagem, em pedaços",
@@ -240,7 +240,7 @@ window.RECIPES["tailandia"] = [
       "3 colheres (sopa) de arroz cru (para tostar e moer)",
       "3 colheres (sopa) de suco de limão",
       "3 colheres (sopa) de molho de peixe",
-      "2 échalotes fatiadas fino",
+      "2 cebolas fatiadas fino",
       "2 talos de capim-limão, fatiados bem fino",
       "1 colher (sopa) de pimenta em flocos (a gosto)",
       "Folhas de hortelã e coentro frescas",
@@ -250,7 +250,7 @@ window.RECIPES["tailandia"] = [
       "Toste o arroz cru numa frigideira seca em fogo médio, mexendo sempre, até dourar bem e ficar perfumado, 5-6 minutos. Deixe esfriar e moa num pilão ou moedor de especiarias até virar um pó grosso (khao khua) — esse é o ingrediente que dá crocância e sabor tostado característico.",
       "Numa frigideira, cozinhe a carne moída em fogo médio-alto com um pouco de água (em vez de óleo, técnica tradicional), mexendo e desmanchando bem, até cozinhar por completo, 8-10 minutos.",
       "Retire do fogo e, ainda quente, tempere com suco de limão e molho de peixe, misturando bem.",
-      "Junte a échalote fatiada, o capim-limão e a pimenta em flocos, misturando enquanto ainda está morno (o calor ajuda a 'cozinhar' levemente a échalote e liberar os aromas).",
+      "Junte a cebola fatiada, o capim-limão e a pimenta em flocos, misturando enquanto ainda está morno (o calor ajuda a 'cozinhar' levemente a cebola e liberar os aromas).",
       "Adicione o pó de arroz tostado e misture bem.",
       "Finalize com hortelã e coentro frescos rasgados na hora de servir (para não murcharem).",
       "Sirva em folhas de alface, para enrolar e comer com as mãos, ou como salada ao lado de arroz glutinoso."

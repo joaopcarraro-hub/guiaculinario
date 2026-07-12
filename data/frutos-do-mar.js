@@ -61,7 +61,7 @@ window.RECIPES["frutos-do-mar"] = [
     ingredients: [
       "1,5 kg de mexilhões frescos, limpos e escovados",
       "30 g de manteiga",
-      "2 échalotes picadas",
+      "2 cebolas picadas",
       "2 dentes de alho picados",
       "250 ml de vinho branco seco",
       "100 ml de creme de leite fresco (opcional)",
@@ -71,7 +71,7 @@ window.RECIPES["frutos-do-mar"] = [
     ],
     steps: [
       "Verifique os mexilhões: descarte qualquer um que esteja quebrado ou que não feche ao ser pressionado levemente.",
-      "Numa panela grande (com tampa), derreta a manteiga e refogue a échalote e o alho até perfumarem, sem dourar, 2-3 minutos.",
+      "Numa panela grande (com tampa), derreta a manteiga e refogue a cebola e o alho até perfumarem, sem dourar, 2-3 minutos.",
       "Junte o vinho branco e deixe ferver por 1-2 minutos.",
       "Adicione todos os mexilhões de uma vez, tampe a panela e cozinhe em fogo alto por 5-6 minutos, balançando a panela ocasionalmente (sem tirar a tampa), até todos abrirem.",
       "Descarte qualquer mexilhão que não tenha aberto após o cozimento.",
@@ -172,7 +172,7 @@ window.RECIPES["frutos-do-mar"] = [
     ingredients: [
       "2 lagostas inteiras (600-700 g cada), vivas ou já cozidas",
       "40 g de manteiga",
-      "1 échalote picada",
+      "1 cebola picada",
       "150 g de cogumelos fatiados",
       "50 ml de conhaque",
       "150 ml de vinho branco seco",
@@ -186,7 +186,7 @@ window.RECIPES["frutos-do-mar"] = [
     steps: [
       "Se as lagostas estiverem vivas, cozinhe em água fervente salgada por 8-10 minutos (para o tamanho indicado). Deixe esfriar levemente.",
       "Corte cada lagosta ao meio no sentido do comprimento. Retire a carne da cauda e das pinças, picando em pedaços grandes. Reserve as cascas (metades) inteiras para rechear depois.",
-      "Numa frigideira, derreta a manteiga e refogue a échalote e os cogumelos até dourarem, 5-6 minutos.",
+      "Numa frigideira, derreta a manteiga e refogue a cebola e os cogumelos até dourarem, 5-6 minutos.",
       "Deglaceie com o conhaque (flambe com cuidado, se desejar) e depois com o vinho branco, deixando reduzir pela metade.",
       "Junte o creme de leite e a mostarda, cozinhe por 3-4 minutos até encorpar.",
       "Retire do fogo, tempere com pimenta-caiena, sal e pimenta. Misture uma colher do molho quente com a gema para temperar, depois volte essa mistura à frigideira, mexendo bem (sem ferver mais, para não talhar a gema).",

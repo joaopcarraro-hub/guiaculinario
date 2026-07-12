@@ -117,7 +117,7 @@ window.RECIPES["ovos-classicos"] = [
       "100 g de bacon ou toucinho em cubos pequenos",
       "12 cebolinhas pérola (ou 1 cebola pequena em cubos)",
       "150 g de cogumelos paris, fatiados",
-      "1 échalote picada",
+      "1 cebola picada",
       "1 dente de alho picado",
       "20 g de manteiga + 20 g de manteiga gelada",
       "1 colher (sopa) de farinha de trigo",
@@ -128,7 +128,7 @@ window.RECIPES["ovos-classicos"] = [
     steps: [
       "Numa panela, doure o bacon até crocante. Retire e reserve, deixando a gordura na panela.",
       "Refogue as cebolinhas pérola e os cogumelos na gordura do bacon até dourarem. Retire e reserve com o bacon.",
-      "Na mesma panela, refogue échalote e alho na manteiga, junte a farinha e cozinhe por 1-2 minutos formando um roux leve.",
+      "Na mesma panela, refogue cebola e alho na manteiga, junte a farinha e cozinhe por 1-2 minutos formando um roux leve.",
       "Adicione o vinho tinto aos poucos, mexendo para dissolver o roux, depois junte o fundo escuro.",
       "Deixe ferver e reduza em fogo médio-baixo por 20-25 minutos, até o molho encorpar e cobrir as costas de uma colher.",
       "Volte o bacon, cebolinhas e cogumelos ao molho, ajuste sal e pimenta, mantenha quente.",
@@ -363,7 +363,7 @@ window.RECIPES["ovos-classicos"] = [
     ingredients: [
       "4 ovos",
       "200 g de cogumelos variados (paris, shitake, portobello), picados bem fino (duxelles)",
-      "1 échalote picada",
+      "1 cebola picada",
       "30 g de manteiga (dividida)",
       "80 ml de creme de leite fresco (dividido)",
       "1 fio de conhaque ou vinho branco (opcional)",
@@ -371,7 +371,7 @@ window.RECIPES["ovos-classicos"] = [
       "Sal, pimenta e noz-moscada a gosto"
     ],
     steps: [
-      "Prepare a duxelles: refogue a échalote na metade da manteiga até translúcida, junte os cogumelos picados bem fino e cozinhe em fogo médio até toda a água evaporar e a mistura ficar bem seca e escura, 10-12 minutos.",
+      "Prepare a duxelles: refogue a cebola na metade da manteiga até translúcida, junte os cogumelos picados bem fino e cozinhe em fogo médio até toda a água evaporar e a mistura ficar bem seca e escura, 10-12 minutos.",
       "Se for usar, deglaceie com o conhaque ou vinho branco. Tempere com sal, pimenta e noz-moscada.",
       "Junte metade do creme de leite à duxelles e misture bem.",
       "Pré-aqueça o forno a 180°C. Unte os ramequins com a manteiga restante.",

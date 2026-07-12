@@ -245,7 +245,7 @@ window.RECIPES["sopas"] = [
       "2 colheres (sopa) de vinagre de xerez (ou vinho tinto)",
       "1 fatia de pão amanhecido, sem casca (opcional, tradicional para dar corpo)",
       "Sal a gosto",
-      "Cubos de pepino, pimentão e croutons para servir"
+      "Cubos de pepino, pimentão e cubos de pão torrado para servir"
     ],
     steps: [
       "Se for usar o pão, deixe de molho em um pouco de água por 5 minutos e esprema antes de usar.",
@@ -254,7 +254,7 @@ window.RECIPES["sopas"] = [
       "Tempere com vinagre e sal a gosto.",
       "Passe por peneira se quiser uma textura mais fina e sedosa.",
       "Leve à geladeira por no mínimo 2 horas — deve ser servido bem gelado.",
-      "Sirva com cubos frescos de pepino, pimentão e croutons por cima, e um fio de azeite."
+      "Sirva com cubos frescos de pepino, pimentão e cubos de pão torrado por cima, e um fio de azeite."
     ],
     tips: [
       "Use tomates bem maduros e doces — é o ingrediente principal, então a qualidade dele define o prato inteiro.",

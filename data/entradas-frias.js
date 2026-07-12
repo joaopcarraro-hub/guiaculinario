@@ -14,7 +14,7 @@ window.RECIPES["entradas-frias"] = [
     tags: ["protein:boi"],
     ingredients: [
       "300 g de filé mignon bem fresco (peça inteira, sem gordura ou nervos)",
-      "1 échalote picada bem fina",
+      "1 cebola picada bem fina",
       "1 colher (sopa) de alcaparras picadas",
       "2 pepinos em conserva (cornichon) picados",
       "1 colher (chá) de mostarda Dijon",
@@ -28,7 +28,7 @@ window.RECIPES["entradas-frias"] = [
     steps: [
       "Congele a carne por 15-20 minutos antes de cortar — facilita cortar em cubos bem pequenos e uniformes.",
       "Com uma faca bem afiada, corte a carne em cubos pequenos (2-3 mm) — nunca use processador, que esmaga a fibra e muda a textura.",
-      "Numa tigela bem gelada, misture a carne picada com échalote, alcaparras, cornichon, mostarda, molho inglês e tabasco.",
+      "Numa tigela bem gelada, misture a carne picada com cebola, alcaparras, cornichon, mostarda, molho inglês e tabasco.",
       "Tempere com sal, pimenta e um fio de azeite. Misture delicadamente só até incorporar.",
       "Modele porções com um aro ou colher, faça uma cavidade no centro e coloque a gema crua por cima.",
       "Sirva imediatamente, bem gelado, com torradas ou baguete."
@@ -222,7 +222,7 @@ window.RECIPES["entradas-frias"] = [
       "300 g de carne de porco moída (pernil ou paleta)",
       "200 g de toucinho/bacon em fatias finas (para forrar a forma)",
       "100 ml de conhaque ou vinho do Porto",
-      "2 échalotes picadas, 2 dentes de alho picados",
+      "2 cebolas picadas, 2 dentes de alho picados",
       "1 ovo",
       "1 colher (sopa) de mostarda Dijon",
       "1 pitada de quatro-especiarias (ou noz-moscada + cravo)",
@@ -230,7 +230,7 @@ window.RECIPES["entradas-frias"] = [
       "Folhas de louro e tomilho para decorar"
     ],
     steps: [
-      "Marine o fígado de frango no conhaque com échalote e alho por 30 minutos na geladeira.",
+      "Marine o fígado de frango no conhaque com cebola e alho por 30 minutos na geladeira.",
       "No processador, bata o fígado marinado (com o líquido) até virar uma pasta grossa.",
       "Numa tigela, misture essa pasta com a carne de porco moída, o ovo, a mostarda e os temperos, até homogêneo.",
       "Forre uma forma de terrine (ou forma de bolo inglês) com as fatias de toucinho, deixando sobras para dobrar por cima.",
@@ -261,14 +261,14 @@ window.RECIPES["entradas-frias"] = [
       "50 g de pistache descascado",
       "2 ovos",
       "100 ml de creme de leite fresco",
-      "1 échalote picada",
+      "1 cebola picada",
       "1 pitada de noz-moscada",
       "Sal e pimenta a gosto",
       "Fundo de galinha para o cozimento"
     ],
     steps: [
       "Desosse o frango cuidadosamente, mantendo a pele inteira e aberta como uma 'manta' (peça um açougueiro para ajudar nessa etapa, se preferir).",
-      "Prepare o recheio: misture a carne de porco moída, presunto, pistache, ovos, creme de leite, échalote, noz-moscada, sal e pimenta.",
+      "Prepare o recheio: misture a carne de porco moída, presunto, pistache, ovos, creme de leite, cebola, noz-moscada, sal e pimenta.",
       "Estenda a pele do frango numa superfície forrada com filme plástico, distribua o recheio no centro e enrole firmemente formando um cilindro, como um rocambole.",
       "Amarre as pontas do filme bem apertado (como um bombom) e depois envolva com papel-alumínio para dar firmeza extra.",
       "Cozinhe o rolo em fundo de galinha fervente em fogo baixo (nunca fervendo forte) por cerca de 1h15 a 1h30, até a temperatura interna atingir 75°C.",

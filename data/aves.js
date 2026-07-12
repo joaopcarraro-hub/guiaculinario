@@ -22,7 +22,7 @@ window.RECIPES["aves"] = [
       "300 ml de fundo escuro de carne ou caldo de frango",
       "2 colheres (sopa) de extrato de tomate",
       "1 folha de louro, 2 ramos de tomilho",
-      "30 g de manteiga + 20 g de farinha (para o beurre manié final)",
+      "30 g de manteiga + 20 g de farinha (para a manteiga com farinha final)",
       "Sal e pimenta a gosto",
       "Salsinha picada para finalizar"
     ],
@@ -33,7 +33,7 @@ window.RECIPES["aves"] = [
       "Volte o frango e o bacon à panela. Cubra com o vinho tinto e o fundo escuro, junte o louro e o tomilho.",
       "Deixe ferver, abaixe o fogo, tampe parcialmente e cozinhe em fogo baixo (ou no forno a 160°C) por 1h-1h15, até o frango ficar bem macio.",
       "Retire o frango e os legumes com uma escumadeira, mantendo aquecidos. Reduza o molho em fogo médio até encorpar levemente.",
-      "Prepare um beurre manié (misture a manteiga amolecida com a farinha até formar uma pasta) e incorpore aos poucos ao molho fervente, mexendo até engrossar ao ponto desejado.",
+      "Prepare a manteiga com farinha (misture a manteiga amolecida com a farinha até formar uma pasta) e incorpore aos poucos ao molho fervente, mexendo até engrossar ao ponto desejado.",
       "Volte o frango e os legumes ao molho, aqueça bem. Finalize com salsinha picada e sirva com purê de batata ou pão."
     ],
     tips: [

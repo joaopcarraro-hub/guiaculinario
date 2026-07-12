@@ -470,14 +470,14 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
     tags: [],
     ingredients: [
       "500 ml de caldo bem encorpado (frango, peixe ou vegetal, feito em casa)",
-      "1 échalote picada",
+      "1 cebola picada",
       "100 ml de creme de leite fresco (ou creme de castanhas, para versão sem lactose)",
       "20 g de manteiga",
       "1 colher (chá) de goma xantana (opcional, para engrossar sem farinha, resultando num molho mais leve e brilhante)",
       "Sal, pimenta e um toque cítrico a gosto"
     ],
     steps: [
-      "Refogue a échalote na manteiga até translúcida.",
+      "Refogue a cebola na manteiga até translúcida.",
       "Junte o caldo e deixe reduzir em fogo médio por 15 minutos, até concentrar o sabor.",
       "Adicione o creme de leite e cozinhe por mais 5 minutos.",
       "Se for usar goma xantana (no lugar do roux tradicional de farinha), polvilhe uma pequena quantidade e bata com um mixer de mão até engrossar levemente — use com moderação, pois engrossa muito rápido.",
