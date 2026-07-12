@@ -16,8 +16,10 @@
     // ---------- Fundamentos (paridade com as categorias atuais) ----------
     { id: "molhos", group: "Fundamentos", collectionType: "dishType", label: "Molhos Clássicos", icon: "🥣", desc: "A base de praticamente toda cozinha ocidental.", primaryFilterTags: ["dish_type:molho"] },
     { id: "sopas", group: "Fundamentos", collectionType: "dishType", label: "Sopas", icon: "🍲", primaryFilterTags: ["dish_type:sopa"] },
-    { id: "entradas-frias", group: "Fundamentos", collectionType: "dishType", label: "Entradas Frias", icon: "🥗", primaryFilterTags: ["dish_type:entrada-fria"] },
-    { id: "entradas-quentes", group: "Fundamentos", collectionType: "dishType", label: "Entradas Quentes", icon: "🧀", primaryFilterTags: ["dish_type:entrada-quente"] },
+    // Entradas Frias + Entradas Quentes fundidas em "Entradas" — mesma lógica: dish_type:entrada-fria
+    // e dish_type:entrada-quente continuam distintos nos dados (data/entradas-frias.js e
+    // data/entradas-quentes.js), só a coleção exibida é uma.
+    { id: "entradas", group: "Fundamentos", collectionType: "dishType", label: "Entradas", icon: "🥗", primaryFilterTags: ["dish_type:entrada-fria", "dish_type:entrada-quente"] },
     { id: "massas", group: "Fundamentos", collectionType: "dishType", label: "Massas", icon: "🍝", primaryFilterTags: ["dish_type:massa"] },
     // Risotos + Arrozes fundidos em "Risotos/Arroz" — junção de EXIBIÇÃO só (dish_type:risoto e
     // dish_type:arroz continuam distintos nos dados; primaryFilterTags em OR é o que une as duas

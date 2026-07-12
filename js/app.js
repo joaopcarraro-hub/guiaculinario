@@ -204,6 +204,12 @@
       map["risotos"] = risotosArrozCollection.group;
       map["arrozes"] = risotosArrozCollection.group;
     }
+    // entradas-frias/entradas-quentes foram fundidas na coleção "entradas"
+    const entradasCollection = window.COLLECTIONS.find((c) => c.id === "entradas");
+    if (entradasCollection) {
+      map["entradas-frias"] = entradasCollection.group;
+      map["entradas-quentes"] = entradasCollection.group;
+    }
     catIdToGroupCache = map;
     return map;
   }

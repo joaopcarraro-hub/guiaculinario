@@ -4,8 +4,8 @@
 window.CATEGORIES = [
   { group: "Fundamentos", id: "molhos", label: "Molhos Clássicos", icon: "🥣", desc: "A base de praticamente toda cozinha ocidental.", ready: true },
   { group: "Fundamentos", id: "sopas", label: "Sopas", icon: "🍲", ready: true },
-  { group: "Fundamentos", id: "entradas-frias", label: "Entradas Frias", icon: "🥗", ready: true },
-  { group: "Fundamentos", id: "entradas-quentes", label: "Entradas Quentes", icon: "🧀", ready: true },
+  { group: "Fundamentos", id: "entradas-frias", label: "Entradas", icon: "🥗", ready: true },
+  { group: "Fundamentos", id: "entradas-quentes", label: "Entradas", icon: "🥗", ready: true },
   { group: "Fundamentos", id: "massas", label: "Massas", icon: "🍝", ready: true },
   { group: "Fundamentos", id: "risotos", label: "Risotos/Arroz", icon: "🍚", ready: true },
   { group: "Fundamentos", id: "ovos-basicos", label: "Ovos Básicos", icon: "🍳", ready: true },

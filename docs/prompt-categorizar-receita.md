@@ -70,8 +70,8 @@ Me diga também em qual arquivo/categoria a receita deve entrar, escolhendo dest
 (formato `id — Nome exibido`):
 
 **Fundamentos**
-`molhos` — Molhos Clássicos · `sopas` — Sopas · `entradas-frias` — Entradas Frias ·
-`entradas-quentes` — Entradas Quentes · `massas` — Massas · `risotos` — Risotos/Arroz (risoto) ·
+`molhos` — Molhos Clássicos · `sopas` — Sopas · `entradas-frias` — Entradas (fria) ·
+`entradas-quentes` — Entradas (quente) · `massas` — Massas · `risotos` — Risotos/Arroz (risoto) ·
 `ovos-basicos` — Ovos Básicos · `ovos-classicos` — Preparações Clássicas com Ovos ·
 `padaria` — Padaria · `sobremesas-classicas` — Sobremesas Clássicas ·
 `contemporaneos` — Técnicas (prato clássico contemporâneo) ·
@@ -82,7 +82,8 @@ no site — mas continuam sendo arquivos/catIds separados. Use `contemporaneos` 
 pronto de cozinha contemporânea; `tecnicas-contemporaneas-2` pra uma técnica/componente/base
 mais avançada e isolada (ex: esferificação, espuma, sous-vide). Mesma lógica pra `risotos`
 (risoto de verdade) vs `arrozes` (outros pratos de arroz) — ambos aparecem juntos como
-"Risotos/Arroz".
+"Risotos/Arroz" — e pra `entradas-frias` (servida fria) vs `entradas-quentes` (servida quente),
+que aparecem juntas como "Entradas".
 
 **Proteínas**
 `aves` — Aves · `carnes-bovinas` — Carnes Bovinas · `cordeiro` — Cordeiro · `suinos` — Suínos ·
