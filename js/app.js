@@ -468,17 +468,50 @@
   // já faz isso sozinho pra qualquer prefixo que não seja ingredient:/seasoning:, sem precisar
   // de nenhuma lógica nova aqui). Ingrediente continua multi-seleção com combineMode "and" +
   // fallback OR quando zera — intocado.
+  // layout: "tiles" (piloto de redesenho visual, País e Equipamento por ora) — muda SÓ a
+  // apresentação (grade de tiles com ícone/contagem em vez de lista de checkbox); a lógica
+  // de estado/combinação continua a mesma de qualquer combineMode "or" (ver
+  // renderTileSectionBody, que reaproveita computeFacetOptions sem recalcular nada).
+  // tileIcon: função tagId -> HTML do ícone, plugada por faceta (emoji de bandeira em País,
+  // SVG/PNG reais em Equipamento) — únicas partes que diferem entre as duas.
   const GENERIC_FACET_DEFS = [
-    { key: "country", label: "País", prefix: "country:", multi: true, combineMode: "or" },
+    { key: "country", label: "País", prefix: "country:", multi: true, combineMode: "or", layout: "tiles", tileIcon: countryTileIconHtml },
     { key: "difficulty", label: "Complexidade", prefix: "difficulty:", multi: true, combineMode: "or" },
     { key: "time", label: "Tempo", prefix: "time:", multi: true, combineMode: "or" },
-    // layout: "tiles" (piloto de redesenho visual, só Equipamento por ora) — muda SÓ a
-    // apresentação (grade de tiles com ícone/contagem em vez de lista de checkbox); a lógica
-    // de estado/combinação continua a mesma de qualquer combineMode "or" (ver
-    // renderTileSectionBody, que reaproveita computeFacetOptions sem recalcular nada).
-    { key: "equipment", label: "Equipamento", prefix: "equipment:", multi: true, combineMode: "or", layout: "tiles" },
+    { key: "equipment", label: "Equipamento", prefix: "equipment:", multi: true, combineMode: "or", layout: "tiles", tileIcon: equipmentTileIconHtml },
     { key: "ingredient", label: "Ingrediente", prefix: "ingredient:", multi: true, combineMode: "and" },
   ];
+
+  // Emoji de bandeira pro piloto de tiles de País — caractere Unicode padrão (sem arquivo, sem
+  // licença). Não recolore por estado: emoji não herda currentColor, e a borda do tile já
+  // indica seleção sozinha (mesmo tratamento dos 3 ícones PNG de Equipamento).
+  const COUNTRY_FLAG_EMOJI = {
+    "country:franca": "🇫🇷",
+    "country:italia": "🇮🇹",
+    "country:espanha": "🇪🇸",
+    "country:portugal": "🇵🇹",
+    "country:japao": "🇯🇵",
+    "country:china": "🇨🇳",
+    "country:coreia": "🇰🇷",
+    "country:tailandia": "🇹🇭",
+    "country:india": "🇮🇳",
+    "country:mexico": "🇲🇽",
+    "country:peru": "🇵🇪",
+    "country:alemanha": "🇩🇪",
+    "country:austria": "🇦🇹",
+    "country:hungria": "🇭🇺",
+    "country:grecia": "🇬🇷",
+    "country:marrocos": "🇲🇦",
+    "country:libano": "🇱🇧",
+    "country:eua": "🇺🇸",
+    "country:dinamarca": "🇩🇰",
+    "country:brasil": "🇧🇷",
+  };
+  function countryTileIconHtml(tagId) {
+    const flag = COUNTRY_FLAG_EMOJI[tagId];
+    if (!flag) return "";
+    return '<span class="filter-tile__icon filter-tile__icon--emoji" aria-hidden="true">' + flag + "</span>";
+  }
 
   // Ícones reais pro piloto de tiles de Equipamento — substituem os emoji provisórios. Arquivos
   // originais ficam em icons/equipment/ (fonte/atribuição), mas o SVG é EMBUTIDO aqui como
@@ -866,12 +899,13 @@
         });
       }
 
-      // Piloto de redesenho visual (só Equipamento, def.layout === "tiles") — grade de tiles
-      // com ícone/label/contagem em vez de checkbox em lista. Mesma lógica de estado de
+      // Piloto de redesenho visual (País e Equipamento, def.layout === "tiles") — grade de
+      // tiles com ícone/label/contagem em vez de checkbox em lista. Mesma lógica de estado de
       // qualquer faceta combineMode "or": sem item "Todos" (nenhum tile marcado = nenhum
       // filtro ativo, igual a "Todos" marcado na versão em lista); marcar/desmarcar um tile
       // só alterna draftFacetState[def.key], reaproveitando computeFacetOptions pra contagem —
-      // não recalcula nada que já não existisse.
+      // não recalcula nada que já não existisse. O ícone em si vem de def.tileIcon(tagId),
+      // plugável por faceta (SVG/PNG reais em Equipamento, emoji de bandeira em País).
       function renderTileSectionBody(sectionBody, def, options) {
         const selectedIds = draftFacetState[def.key] || [];
         sectionBody.innerHTML =
@@ -884,7 +918,7 @@
                 '" data-value="' +
                 o.tagId +
                 '">' +
-                equipmentTileIconHtml(o.tagId) +
+                def.tileIcon(o.tagId) +
                 '<span class="filter-tile__label">' +
                 o.tag.label +
                 '</span><span class="filter-tile__count">' +

@@ -110,18 +110,23 @@ centro, e "Ver resultados (N)" fixo no rodapé (pill `--color-accent`, N = conta
 Dentro, 6 seções em acordeão — País, Complexidade, Tempo, Equipamento, Ingrediente, Papel da
 proteína (só em coleções de proteína) — cada uma com contagem de opções no cabeçalho e um
 resumo do valor já selecionado, se houver. Três UIs de multi-seleção coexistem:
-- País, Complexidade, Tempo: lista de CHECKBOX (`accent-color: --color-accent`), com "Todos"
-  como item especial no topo que, ao marcar, limpa a seleção daquela faceta — não soma com os
+- Complexidade, Tempo: lista de CHECKBOX (`accent-color: --color-accent`), com "Todos" como
+  item especial no topo que, ao marcar, limpa a seleção daquela faceta — não soma com os
   demais valores. Os outros valores combinam em OR puro entre si (união).
-- Equipamento: PILOTO DE REDESENHO — grade de tiles (3 colunas, 2 em telas ≤380px) em vez de
-  lista de checkbox. Cada tile: ícone real em cima (arquivo, não emoji — ver abaixo), label no
-  meio, contagem embaixo em `--color-text-disabled` (mesmo token que as outras seções já
-  usavam pra contagem — `--color-text-muted` não existe em DESIGN-TOKENS.md). Tile marcado
-  ganha borda 2px `--color-accent`. Sem tile "Todos" — nenhum tile marcado = nenhum filtro
-  ativo (equivalente ao "Todos" marcado da versão em lista). Mesma lógica de OR-união dos
-  demais checkbox — só muda a apresentação (ver renderTileSectionBody em app.js, def.layout
-  === "tiles").
-  - Ícones reais em `icons/equipment/` (9 de 9 valores — todo tile tem ícone). 6 SVG
+- País, Equipamento: PILOTO DE REDESENHO — grade de tiles (3 colunas, 2 em telas ≤380px) em
+  vez de lista de checkbox (`renderTileSectionBody` em app.js, `def.layout === "tiles"`,
+  reaproveitado pelas duas facetas — só o ícone difere via `def.tileIcon(tagId)`, plugável por
+  faceta). Cada tile: ícone em cima, label no meio, contagem embaixo em
+  `--color-text-disabled` (mesmo token que as outras seções já usavam pra contagem —
+  `--color-text-muted` não existe em DESIGN-TOKENS.md). Tile marcado ganha borda 2px
+  `--color-accent`. Sem tile "Todos" — nenhum tile marcado = nenhum filtro ativo (equivalente
+  ao "Todos" marcado da versão em lista). Mesma lógica de OR-união dos demais checkbox — só
+  muda a apresentação.
+  - País: ícone = EMOJI DE BANDEIRA (`COUNTRY_FLAG_EMOJI` em app.js, `country:*` -> caractere
+    Unicode padrão, sem arquivo, sem licença). NÃO recolore por estado (emoji não herda
+    `currentColor`) — a borda do tile já indica seleção sozinha, mesmo tratamento dos PNG de
+    Equipamento (`.filter-tile__icon--emoji`, só `font-size`, sem regra de cor).
+  - Equipamento: ícones reais em `icons/equipment/` (9 de 9 valores — todo tile tem ícone). 6 SVG
     (SVGRepo: forno, liquidificador, batedeira, micro-ondas; fonte não identificada:
     processador, sous vide) — `fill="currentColor"` no arquivo, injetados INLINE no DOM (não
     `<img src>`, senão currentColor não herda a cor do CSS). Recolorem com o estado do tile:

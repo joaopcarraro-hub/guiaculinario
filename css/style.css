@@ -669,6 +669,9 @@ body.filter-modal-open { overflow: hidden; }
    escuro. NÃO recolore no estado selecionado (limitação de raster) — a borda do tile já indica
    seleção sozinha. */
 .filter-tile__icon--png { object-fit: contain; filter: invert(1); }
+/* Emoji (bandeira de País) — caractere Unicode, não recolore por estado (emoji não herda
+   currentColor); a borda do tile já indica seleção sozinha, mesmo tratamento do PNG acima. */
+.filter-tile__icon--emoji { font-size: 1.5rem; line-height: 1; }
 .filter-tile__label {
   font-size: 0.76rem;
   color: var(--color-text-primary);
