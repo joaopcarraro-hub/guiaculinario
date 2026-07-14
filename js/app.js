@@ -2312,10 +2312,45 @@
   renderBottomNav();
   handleRoute(Router.current());
 
+  // Toast simples de "nova versão disponível" — o sw.js já chama self.skipWaiting() sozinho no
+  // install (nunca fica parado em "waiting"), então isso NÃO ativa nada manualmente, só avisa
+  // que um novo Service Worker acabou de assumir o controle (oncontrollerchange) e a aba
+  // aberta continua rodando o JS antigo até recarregar.
+  function showUpdateToast() {
+    if (document.querySelector(".update-toast")) return; // já mostrando, não duplica
+    const toast = document.createElement("div");
+    toast.className = "update-toast";
+    toast.innerHTML =
+      "<span>Nova versão disponível.</span>" + '<button type="button" class="update-toast__btn">Atualizar</button>';
+    document.body.appendChild(toast);
+    toast.querySelector(".update-toast__btn").addEventListener("click", () => location.reload());
+  }
+
   // ---------- PWA: service worker (uso offline) ----------
   if ("serviceWorker" in navigator) {
+    // Capturado AGORA (síncrono, no momento em que este script roda) — não depois do
+    // register()/load, e não contando eventos. Se já existia um controller, esta aba já era
+    // controlada por um SW anterior; qualquer controllerchange DEPOIS disso é uma atualização
+    // de verdade. Se não existia (primeira instalação), o primeiro controllerchange é só o SW
+    // novo assumindo pela primeira vez — nunca deve mostrar o toast.
+    const hadControllerBefore = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (!hadControllerBefore) return;
+      showUpdateToast();
+    });
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("sw.js").catch(() => {});
+      navigator.serviceWorker
+        .register("sw.js")
+        .then((registration) => {
+          // Sem isso, o app só confiava no timing padrão do navegador (checagem em navegação
+          // real) — insuficiente pra um PWA "standalone", onde reabrir pelo ícone geralmente
+          // NÃO conta como navegação nova. Forçar update() ao voltar de segundo plano cobre
+          // exatamente esse caso.
+          document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible") registration.update();
+          });
+        })
+        .catch(() => {});
     });
   }
 })();
