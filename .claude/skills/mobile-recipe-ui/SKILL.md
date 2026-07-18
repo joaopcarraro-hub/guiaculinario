@@ -431,6 +431,43 @@ Card de receita (`renderRecipeCard`) e card de coleção (`renderCollectionCard`
 únicas reaproveitadas por toda tela que lista receitas/coleções — o reskin vale pra todas de
 uma vez, sem duplicação.
 
+## Feedback de pressão, hit-padding e acessibilidade (apple-design skill)
+
+5 itens adotados da skill `apple-design` depois de um levantamento comparado com este
+documento e com o DESIGN-TOKENS.md (nenhum toca em token/decisão existente — todos aditivos):
+
+- Pressão instantânea (`:active`, `scale(0.97)` + opacidade ~0,85, 200ms ease-out — dentro do
+  orçamento de 180–250ms já documentado) em `.primary-cta`, `.filter-modal__apply`,
+  `.action-btn`, `.filter-trigger`, `.bottom-nav__tab` e `.recipe-card`. Antes desses 6, só
+  existia 1 `:active` no CSS inteiro (`.portion-stepper__btn`, e só cor, sem escala). Fix do
+  iOS Safari incluso (`js/app.js`, listener de `touchstart` vazio no `document`, registrado 1x
+  no load): sem ele, `:active` não dispara em toque real nesse navegador, só com mouse.
+- Hit-padding invisível (~10px) no coração do card (`.recipe-card__heart`, 32px) e nos botões
+  +/- do portion-stepper (`.portion-stepper__btn`, 30px) via `::after` com `position:absolute;
+  inset:-10px` — não muda o tamanho visual do ícone, não afeta layout (pseudo-elemento fora do
+  fluxo). No portion-stepper o padding horizontal cai pra 3px (`inset: -10px -3px`) porque os 2
+  botões ficam a 6px um do outro — 10px de cada lado se sobreporia e criaria ambiguidade de
+  toque bem no meio dos dois.
+- Saída do modal de filtro agora espelha a entrada: `closeModal` (`js/app.js`) não faz mais
+  `overlay.remove()` direto — adiciona `.filter-modal--closing` (CSS: `@keyframes
+  filter-modal-out`, reverso de `filter-modal-in`, mesmos 220ms) e só remove o overlay do DOM
+  depois, via `setTimeout`. `overlay.style.pointerEvents = "none"` no início bloqueia cliques
+  repetidos (Cancelar 2x, tocar no backdrop durante a saída) nesse intervalo.
+- `@media (prefers-reduced-motion: reduce)`: a escala do Pressed vira só opacidade (sem
+  `transform`); a entrada do modal perde a animação (aparece estática); a saída vira um
+  cross-fade de opacidade sem o `translateY`. `closeModal` lê
+  `matchMedia("(prefers-reduced-motion: reduce)")` e usa 200ms em vez de 220ms pro
+  `setTimeout` (o valor não precisa bater 1:1 com a transição CSS, só não remover o overlay
+  antes da hora).
+- `@media (prefers-contrast: more)`: borda de `.recipe-card`, `.action-btn` e `.filter-trigger`
+  reforçada pra 2px em `--color-text-secondary` — sem token de cor novo.
+- Tracking negativo (`letter-spacing`) nos 2 maiores títulos do app: `#category-header h2`
+  (-0.02em, ~32px) e `.recipe-page-title h2` (-0.015em, ~27px). O tracking positivo já usado
+  em texto pequeno uppercase (subgroup-title, cat-chip etc.) não muda.
+
+Ver docs/DESIGN-TOKENS.md (Tipografia, Grid e espaçamento, Estados, Animações, e a nova seção
+Acessibilidade) pra essas 5 decisões como regra formal — não ficam só documentadas aqui.
+
 ## Critérios de aceite
 
 - A home deve parecer limpa em telas de 360px a 430px.

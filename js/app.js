@@ -10,6 +10,12 @@
   // remove sozinha. handleRoute() força o fechamento no início de toda troca de rota.
   let closeActiveFilterModal = null;
 
+  // Fix conhecido do iOS Safari (apple-design skill, item de feedback de pressão): :active só é
+  // honrado em tap se existir 1 listener de touch em algum ancestral, mesmo vazio — sem isso, o
+  // :active do CSS (.primary-cta, .recipe-card etc.) nunca dispara em toque real, só com mouse.
+  // Registrado 1x, globalmente, no carregamento do app.
+  document.addEventListener("touchstart", function () {}, { passive: true });
+
   // ---------- Ícones outline (Bloco 2 — barra inferior + tiles novos da home) ----------
   // Único monocromático: stroke=currentColor, cor real vem do CSS (--color-accent /
   // --color-text-disabled / --color-text-primary), nunca fixa no path.
@@ -828,9 +834,18 @@
       const applyBtn = overlay.querySelector(".filter-modal__apply");
 
       function closeModal() {
-        overlay.remove();
-        document.body.classList.remove("filter-modal-open");
-        if (closeActiveFilterModal === closeModal) closeActiveFilterModal = null;
+        // Saída simétrica à entrada (apple-design skill) — antes era overlay.remove() direto
+        // (sem animação nenhuma); agora espelha a animação de entrada (220ms) via
+        // .filter-modal--closing (CSS) e só remove o overlay depois dela terminar.
+        // pointerEvents:none bloqueia cliques repetidos (Cancelar 2x, backdrop) durante a saída.
+        overlay.style.pointerEvents = "none";
+        overlay.querySelector(".filter-modal").classList.add("filter-modal--closing");
+        const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        window.setTimeout(() => {
+          overlay.remove();
+          document.body.classList.remove("filter-modal-open");
+          if (closeActiveFilterModal === closeModal) closeActiveFilterModal = null;
+        }, reducedMotion ? 200 : 220);
       }
       closeActiveFilterModal = closeModal;
       overlay.querySelector(".filter-modal__cancel").addEventListener("click", closeModal);

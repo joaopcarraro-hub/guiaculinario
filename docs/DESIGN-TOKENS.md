@@ -38,8 +38,21 @@ tagline) e `Simbolo_app.png` (ícone do app, fundo vermelho + símbolo "g" com c
 Inter (fallback SF Pro/Roboto). Display 34 Bold · H1 30 Bold · H2 24 Bold · H3 20 SemiBold ·
 Body 16 Regular · Caption 14 Regular · Small 12 Regular.
 
+Tracking (letter-spacing) depende do tamanho, nunca 1 valor fixo pra tudo: negativo nos 2
+maiores títulos do app (-0.02em no título de categoria/página ~32px, -0.015em no título da
+receita ~27px), mais negativo quanto maior o tamanho. O tracking positivo já usado em texto
+pequeno uppercase (labels, chips: 0.04–0.06em) não muda — regra nova só se aplica aos títulos
+grandes que ainda não tinham letter-spacing definido.
+
 ## Grid e espaçamento
 Base 8px: 4, 8, 12, 16, 24, 32, 40. Padding padrão de card: 16px. Margem lateral: 20px.
+
+Alvos de toque pequenos (ícones abaixo de ~44px, ex.: coração do card 32px, botões +/- do
+portion-stepper 30px) ganham hit-padding invisível de ~10px sem mudar o tamanho visual do
+ícone — mesmo princípio de área de toque confortável já usado onde o elemento bate 44px
+diretamente. Quando 2 alvos desse tipo ficam lado a lado com pouco espaço entre si (ex. os
+botões +/- do portion-stepper, gap de 6px), o padding horizontal é reduzido pra não sobrepor
+e criar ambiguidade de toque no meio (3px em vez de 10px nesse eixo específico).
 
 ## Componentes
 - Botão primário: fundo `--color-accent`, texto `--color-text-primary`, raio pill.
@@ -58,13 +71,30 @@ Outline, espessura consistente, monocromático. Ativos `--color-accent`, inativo
 `--color-text-disabled`.
 
 ## Estados
-Hover `--color-accent-hover` · Pressed: leve redução de escala + `--color-accent-hover` ·
-Disabled `--color-text-disabled` · Loading: `--color-accent` · Sucesso `--color-success` ·
-**Erro: `--color-error` SEMPRE acompanhado de ícone — nunca só a cor, dado a proximidade de
-matiz com o acento principal.**
+Hover `--color-accent-hover` · Pressed: leve redução de escala (`scale(0.97)`) + opacidade
+~0,85, disparado no pointer-down/touchstart — não espera o release. Aplicado ao CTA primário,
+ao botão "Ver resultados" do modal de filtro, a `action-btn`, ao botão "Filtros", às abas da
+bottom nav e ao card de receita inteiro (os "elementos tocáveis" que antes só tinham `:hover`,
+não confiável em touch). Disabled `--color-text-disabled` · Loading: `--color-accent` ·
+Sucesso `--color-success` · **Erro: `--color-error` SEMPRE acompanhado de ícone — nunca só a
+cor, dado a proximidade de matiz com o acento principal.**
 
 ## Animações
 180–250ms, ease-out. Evitar excesso.
+
+Modal/sheet: a saída sempre espelha a entrada — mesma duração e curva, direção invertida.
+Nunca fecha instantâneo depois de ter aberto animado (ex.: o modal de filtro entra com
+translateY+fade de 220ms e agora sai com a mesma transição revertida, em vez do
+`overlay.remove()` direto de antes).
+
+## Acessibilidade
+`prefers-reduced-motion: reduce` — a redução de escala do Pressed é suprimida (sobra só a
+opacidade); a entrada do modal aparece estática, sem o translateY; a saída do modal vira um
+cross-fade curto de opacidade, sem o deslocamento. Nenhuma dessas animações é removida por
+completo — reduced motion troca por um equivalente mais simples, não elimina o feedback.
+
+`prefers-contrast: more` — borda dos componentes mais tocados (card de receita, `action-btn`,
+botão "Filtros") reforçada pra 2px em `--color-text-secondary`, sem criar token de cor novo.
 
 ## Regras de UX (do PDF original)
 `--color-accent` apenas para ações. Nunca mais de 1 CTA principal por tela. Fotos sempre
