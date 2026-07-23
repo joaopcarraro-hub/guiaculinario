@@ -3,7 +3,7 @@
 // só cai pro cache se estiver offline (ver isIconRequest/fetch handler abaixo). Ícones: ainda
 // cache-first, sem mudança. Ao mudar arquivos existentes, suba a versão do CACHE_NAME mesmo
 // assim — é o que dispara o activate/limpeza de cache antigo e o skipWaiting de uma vez.
-const CACHE_NAME = "cardapio-v18";
+const CACHE_NAME = "cardapio-v19";
 
 const APP_SHELL = [
   "./",
@@ -61,6 +61,7 @@ const APP_SHELL = [
   "data/eua.js",
   "data/dinamarca.js",
   "data/derivation-dict.js",
+  "data/shopping-dict.js",
 ];
 
 self.addEventListener("install", (event) => {

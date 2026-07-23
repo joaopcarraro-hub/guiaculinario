@@ -1810,14 +1810,20 @@
   }
 
   // Percorre TODAS as entries selecionadas de TODAS as receitas da lista, agrupando por
-  // (item normalizado + família de unidade — peso/volume — ou item+unidade exata quando não há
+  // (NÚCLEO DE COMPRA do item — ShoppingDict.purchaseCore, a normalização própria da lista de
+  // compras — + família de unidade — peso/volume — ou núcleo+unidade exata quando não há
   // família) e somando qty (já escalado pelo portionMultiplier de CADA receita) dentro do mesmo
-  // grupo. lo/hi são sempre acumulados separadamente (item exato: lo=hi=valor; qtyRange: lo/hi
-  // reais) — isso cobre soma de faixa (item 4) sem tratamento especial. Cada grupo guarda os
-  // pares {item, unit} ORIGINAIS que contribuíram, pra sincronizar o checkbox "comprado" com o
-  // MESMO boughtKeys da visão Por receita (nunca um estado próprio da visão Geral).
+  // grupo. O texto da receita serve pra COZINHAR ("leite morno"); o núcleo serve pra COMPRAR
+  // ("leite integral") — por isso o rótulo exibido do grupo é o núcleo canônico, nunca o
+  // primeiro texto encontrado. lo/hi são sempre acumulados separadamente (item exato:
+  // lo=hi=valor; qtyRange: lo/hi reais) — isso cobre soma de faixa (item 4) sem tratamento
+  // especial. Cada grupo guarda os pares {item, unit} ORIGINAIS que contribuíram, pra
+  // sincronizar o checkbox "comprado" com o MESMO boughtKeys da visão Por receita (nunca um
+  // estado próprio da visão Geral). Items isReference ("1 receita de hollandaise") NÃO são
+  // compra — saem da soma e vão pra lista separada `preparos` (seção própria no fim da Geral).
   function buildShoppingListGroups() {
     const groups = {};
+    const preparos = {};
     Storage.getShoppingListRecipes().forEach((entry) => {
       const recipeItem = TagModel.findRecipeById(entry.recipeId);
       if (!recipeItem) return;
@@ -1827,12 +1833,19 @@
         const structEntry = structured[entryIndex];
         if (!structEntry) return;
         structEntry.items.forEach((it) => {
+          if (it.isReference) {
+            const refKey = normalizeGroupKey(it.item);
+            if (!preparos[refKey]) preparos[refKey] = { label: it.item, recipeNames: {} };
+            preparos[refKey].recipeNames[recipe.name] = true;
+            return;
+          }
           const family = it.unit ? UNIT_FAMILY[it.unit] : null;
+          const core = ShoppingDict.purchaseCore(it.item);
           // Peso e Volume NUNCA se misturam (item 3) — a família entra na chave, então o mesmo
           // item em peso numa receita e volume em outra vira 2 grupos, nunca 1 consolidado.
-          const groupKey = normalizeGroupKey(it.item) + "|" + (family ? "FAM:" + family : "UNIT:" + (it.unit || ""));
+          const groupKey = core + "|" + (family ? "FAM:" + family : "UNIT:" + (it.unit || ""));
           if (!groups[groupKey]) {
-            groups[groupKey] = { itemLabel: it.item, family: family, literalUnit: it.unit || null, lo: 0, hi: 0, hasQuantity: false, pairs: {}, recipeNames: {} };
+            groups[groupKey] = { itemLabel: core, family: family, literalUnit: it.unit || null, lo: 0, hi: 0, hasQuantity: false, pairs: {}, recipeNames: {} };
           }
           const g = groups[groupKey];
           g.pairs[normalizeGroupKey(it.item) + "|" + (it.unit || "")] = { item: it.item, unit: it.unit || null };
@@ -1853,7 +1866,7 @@
       });
     });
 
-    return Object.keys(groups)
+    const groupList = Object.keys(groups)
       .map((key) => {
         const g = groups[key];
         const pairs = Object.values(g.pairs);
@@ -1885,14 +1898,29 @@
               displayUnit = "mililitro";
             }
           }
+          // Flexão de plural SÓ aqui (visão Geral, núcleo canônico) e SÓ pra grupo de
+          // contagem sem unidade — "4 cebolas", não "4 cebola". Com unidade o item é
+          // invariável e quem flexiona é a unidade, já feito no UNIT_DISPLAY ("4 dentes de
+          // alho", "100 g de cebola"). Faixa flexiona pelo limite superior ("1-2 cebolas").
+          // Total exatamente 1 (ou fração) fica no singular; núcleo fora de PLURALS
+          // (massa/invariável) nunca flexiona. A tela de receita segue usando o texto
+          // original de ingredientsStructured — nada muda lá.
+          let displayLabel = g.itemLabel;
+          if (!displayUnit && hi > 1) displayLabel = ShoppingDict.pluralFor(g.itemLabel) || g.itemLabel;
           // Reaproveita formatStructuredItem (mesma função do multiplicador de porções) — um
           // item sintético com o total já somado, ratio 1 (não escala de novo, só formata).
-          const synthItem = { qty: lo === hi ? lo : null, qtyRange: lo === hi ? null : [lo, hi], unit: displayUnit, item: g.itemLabel, prep: null, alt: null, optional: false };
+          const synthItem = { qty: lo === hi ? lo : null, qtyRange: lo === hi ? null : [lo, hi], unit: displayUnit, item: displayLabel, prep: null, alt: null, optional: false };
           displayText = formatStructuredItem(synthItem, 1);
         }
         return { key, displayText, pairs, hasQuantity: g.hasQuantity, itemLabel: g.itemLabel };
       })
       .sort((a, b) => a.itemLabel.localeCompare(b.itemLabel, "pt-BR"));
+
+    const preparoList = Object.keys(preparos)
+      .map((k) => ({ label: preparos[k].label, recipeNames: Object.keys(preparos[k].recipeNames) }))
+      .sort((a, b) => a.label.localeCompare(b.label, "pt-BR"));
+
+    return { groups: groupList, preparos: preparoList };
   }
 
   let listaComprasView = "porReceita";
@@ -2077,10 +2105,10 @@
   // estado próprio: sempre lê/escreve via Storage.isShoppingItemBought/toggleShoppingItemBought,
   // o MESMO boughtKeys da visão Por receita.
   function renderShoppingListGeral() {
-    const groups = buildShoppingListGroups();
+    const built = buildShoppingListGroups();
     const ul = document.createElement("ul");
     ul.className = "ingredients-list checklist";
-    groups.forEach((g) => {
+    built.groups.forEach((g) => {
       const bought = g.pairs.every((p) => Storage.isShoppingItemBought(p.item, p.unit));
       const li = document.createElement("li");
       li.innerHTML =
@@ -2101,6 +2129,27 @@
       ul.appendChild(li);
     });
     content.appendChild(ul);
+
+    // Items isReference não são compra ("1 receita de hollandaise" não vai pro carrinho),
+    // mas são informação útil de planejamento — seção própria no FIM da lista, sem checkbox
+    // (não participam de boughtKeys), listando de quais receitas cada preparo vem.
+    if (built.preparos.length) {
+      const title = document.createElement("div");
+      title.className = "shopping-list__preparos-title";
+      title.textContent = "Preparos que você precisa fazer antes";
+      content.appendChild(title);
+
+      const pul = document.createElement("ul");
+      pul.className = "ingredients-list shopping-list__preparos";
+      built.preparos.forEach((p) => {
+        const li = document.createElement("li");
+        li.innerHTML =
+          "<span>" + p.label.charAt(0).toUpperCase() + p.label.slice(1) + "</span>" +
+          '<span class="shopping-list__preparos-recipes"> — ' + p.recipeNames.join(", ") + "</span>";
+        pul.appendChild(li);
+      });
+      content.appendChild(pul);
+    }
   }
 
 // ---------- Tela "Minhas Receitas" (aba da barra inferior) ----------

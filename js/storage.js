@@ -143,21 +143,53 @@
   // entraram na lista pra aquela receita (nunca copia texto/qty/unit — sempre resolve contra
   // ingredientsStructured na hora de exibir, com o portionMultiplier salvo na hora de
   // adicionar). "Comprado" NÃO é por receita: boughtKeys é um registro único e compartilhado,
-  // chaveado por "item normalizado|unit" — o mesmo ingrediente marcado numa receita aparece
-  // marcado em qualquer outra receita que também precise dele.
+  // chaveado por "núcleo de compra|unit" (v2) — o mesmo ingrediente marcado numa receita
+  // aparece marcado em qualquer outra receita que também precise dele, mesmo que o texto
+  // difira ("leite morno" numa, "leite" noutra: ambos viram "leite integral|...").
   const SHOPPING_LIST_KEY = "gusta-lista-compras-v1";
-  const SHOPPING_LIST_SCHEMA_VERSION = 1;
+  const SHOPPING_LIST_SCHEMA_VERSION = 2;
 
-  // Nenhuma migração real existe ainda (schema nunca mudou desde a v1) — fica vazio até o dia
-  // em que precisar de uma de verdade, mesmo padrão de PREPARO_MIGRATIONS.
-  const SHOPPING_LIST_MIGRATIONS = {};
+  // Núcleo de compra via ShoppingDict (data/shopping-dict.js — precisa carregar ANTES deste
+  // arquivo no index.html). O fallback trim+lowercase só existe pra degradar graciosamente
+  // (comportamento antigo) se o dicionário não carregou — nesse caso a migração abaixo também
+  // não reescreve nada, então chave gravada e chave consultada ficam sempre consistentes.
+  function shoppingCore(itemText) {
+    const t = String(itemText || "").trim().toLowerCase();
+    return typeof window !== "undefined" && window.ShoppingDict ? window.ShoppingDict.purchaseCore(t) : t;
+  }
+
+  const SHOPPING_LIST_MIGRATIONS = {
+    // v1→v2 (2026-07-23): boughtKeys deixam de usar o texto literal do item e passam pro
+    // núcleo de compra (mesma normalização do agrupamento da visão Geral). Split no ÚLTIMO
+    // pipe com a unit validada contra o enum do dicionário — se a chave não parsear (unit
+    // desconhecida), preserva a chave original intacta em vez de arriscar corromper.
+    // Colisões ("azeite|" e "azeite de oliva|" viram ambas "azeite extra virgem|") fundem
+    // no mesmo true — sem perda: as duas já estavam compradas.
+    1: (parsed) => {
+      const oldKeys = parsed.boughtKeys && typeof parsed.boughtKeys === "object" ? parsed.boughtKeys : {};
+      const dict = typeof window !== "undefined" ? window.ShoppingDict : null;
+      const newKeys = {};
+      Object.keys(oldKeys).forEach((key) => {
+        if (!oldKeys[key]) return;
+        const idx = key.lastIndexOf("|");
+        const unit = idx === -1 ? null : key.slice(idx + 1);
+        const unitOk = unit === "" || (unit && dict && dict.KNOWN_UNITS[unit]);
+        if (idx === -1 || !unitOk || !dict) {
+          newKeys[key] = true; // não parseável (ou sem dicionário) — preserva como está
+          return;
+        }
+        newKeys[shoppingCore(key.slice(0, idx)) + "|" + unit] = true;
+      });
+      return { version: 2, recipes: parsed.recipes && typeof parsed.recipes === "object" ? parsed.recipes : {}, boughtKeys: newKeys };
+    },
+  };
 
   function isValidShoppingListRecipe(r) {
     return !!r && typeof r === "object" && typeof r.recipeId === "string" && typeof r.portionMultiplier === "number" && Array.isArray(r.selectedEntries);
   }
 
   function normalizeShoppingKey(itemText, unit) {
-    return String(itemText || "").trim().toLowerCase() + "|" + (unit || "");
+    return shoppingCore(itemText) + "|" + (unit || "");
   }
 
   function loadShoppingList() {

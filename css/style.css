@@ -250,6 +250,22 @@ body {
   padding-bottom: 8px;
   border-bottom: 1px solid var(--line);
 }
+/* Seção "Preparos que você precisa fazer antes" no fim da visão Geral: items isReference
+   ("1 receita de hollandaise") não são compra — sem checkbox, só título + de quais receitas
+   cada preparo vem (ver renderShoppingListGeral em js/app.js). */
+.shopping-list__preparos-title {
+  margin: 24px 0 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+.shopping-list__preparos-recipes {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
 /* Linha do nome da receita: nome-link (.text-link, navega pra receita — área de toque PEQUENA
    e precisa, só a extensão visual do texto+ícone) + chevron (.shopping-list__recipe-chevron,
    só visual/foco — reaproveita o MESMO mecanismo de acordeão do modal de filtro/.is-open no
