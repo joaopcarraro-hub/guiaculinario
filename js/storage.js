@@ -269,6 +269,14 @@
       saveShoppingList();
     },
     isRecipeInShoppingList: (recipeId) => !!shoppingListState.recipes[recipeId],
+    // Remove SÓ essa receita (botão "Na lista de compras" virando toggle de verdade, ou "x" na
+    // visão Por receita) — boughtKeys NÃO é limpo aqui (é compartilhado por item+unit, não por
+    // receita; outra receita pode ainda referenciar o mesmo item). Órfão inofensivo até "Limpar
+    // lista" zerar tudo.
+    removeRecipeFromShoppingList: (recipeId) => {
+      delete shoppingListState.recipes[recipeId];
+      saveShoppingList();
+    },
     // Ordenado por addedAt — visão "por receita" mostra na ordem em que foram adicionadas.
     getShoppingListRecipes: () =>
       Object.values(shoppingListState.recipes)

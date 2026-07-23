@@ -28,6 +28,7 @@ tagline) e `Simbolo_app.png` (ícone do app, fundo vermelho + símbolo "g" com c
 | `--color-brand-cream` | `#FBEBD7` | **NOVO** — creme SATURADO da marca (medido do logo). Reservado pra momentos de marca (símbolo, splash futura), NUNCA texto de corpo — satura demais em volume |
 | `--color-accent` (Tomate Assado) | `#D63B20` | **ATUALIZADO** — era `#B84C33` no PDF; agora é o vermelho real medido do ícone/logo. Única cor de ação/interação, por regra do próprio PDF ("apenas para ações") |
 | `--color-accent-hover` | `#A33F2A` | PDF original — reavaliar contraste se o acento mudar de tom no futuro |
+| `--color-accent-text` | `#E04527` | **NOVO** — versão mais clara de `--color-accent`, SÓ pra texto peso regular sobre `--color-bg` (nunca ícone/borda/preenchimento, que continuam `--color-accent`). `--color-accent` puro em peso regular passa de 18px+ mas falha 4,5:1 AA (4,11:1 medido); mesmo matiz/saturação (~9°, ~74%), lightness calibrada por busca binária com a fórmula de luminância do WCAG até cravar ≥4,5:1 (4,61:1 medido) — não é estimativa. Usado em `.text-link` (nome da receita clicável, modo de preparo e Lista de Compras) |
 | `--color-success` | `#76945B` | PDF original |
 | `--color-error` | `#E63950` | **ATUALIZADO** — era `#D24E47`, muito próximo do acento em matiz (8,3°, pior ainda depois do acento ficar mais saturado: 5,9°). Novo valor tem 16,9° de separação, mantém conotação de "vermelho de alerta", passa WCAG AA (4,63:1) |
 | `--color-info` | `#5D87A8` | PDF original |
@@ -57,8 +58,11 @@ e criar ambiguidade de toque no meio (3px em vez de 10px nesse eixo específico)
 ## Componentes
 - Botão primário: fundo `--color-accent`, texto `--color-text-primary`, raio pill.
 - Botão secundário: fundo `--color-surface`, borda `--color-border`.
-- Ghost: texto `--color-accent` — **restrição de acessibilidade:** só usar em texto grande/
-  semibold (18px+); em texto normal, contraste (3,76:1) falha WCAG AA.
+- Ghost: texto `--color-accent` — **restrição de acessibilidade:** só usar em texto grande de
+  verdade pelo critério exato do WCAG (≥24px peso regular, ou ≥18,66px em bold); em texto
+  normal (a maioria dos casos, mesmo 19px+ se não for bold) o contraste falha AA. Pra texto
+  normal que precise da cor de ação, use `--color-accent-text` em vez de `--color-accent` —
+  calibrado especificamente pra passar 4,5:1 nesse peso (ver tabela acima).
 - FAB circular, `--color-accent`.
 - Cards: raio 20px.
 - Inputs: fundo `--color-surface`, borda `--color-border`, foco `--color-accent`.

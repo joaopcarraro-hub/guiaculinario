@@ -42,7 +42,7 @@
     { id: "dish_type:risoto", label: "Risotos", group: "Tipo de prato", synonyms: ["risoto"] },
     { id: "dish_type:ovo", label: "Pratos de Ovo", group: "Tipo de prato", synonyms: ["ovo", "omelete", "quiche"] },
     { id: "dish_type:pao", label: "Pães e Padaria", group: "Tipo de prato", synonyms: ["pão", "padaria"] },
-    { id: "dish_type:sobremesa", label: "Sobremesas", group: "Tipo de prato", synonyms: ["doce", "sobremesa"] },
+    { id: "dish_type:sobremesa", label: "Sobremesa", group: "Tipo de prato", synonyms: ["doce", "sobremesa"] },
     { id: "dish_type:arroz", label: "Arrozes", group: "Tipo de prato", synonyms: ["arroz"] },
     { id: "dish_type:contemporaneo", label: "Clássicos Contemporâneos", group: "Tipo de prato", synonyms: ["contemporâneo"] },
     { id: "dish_type:tecnica-avancada", label: "Técnica Avançada", group: "Tipo de prato", synonyms: ["técnica avançada"] },

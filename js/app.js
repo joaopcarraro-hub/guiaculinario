@@ -34,6 +34,7 @@
     chevronDown: '<path d="M6 9l6 6 6-6"/>',
     clock: '<circle cx="12" cy="12" r="8"/><path d="M12 7.5v4.5l3 2"/>',
     gauge: '<path d="M6 18v-4"/><path d="M12 18V9"/><path d="M18 18V6"/>',
+    arrowUpRight: '<path d="M8 16 16 8"/><path d="M9 8h7v7"/>',
   };
   function iconSvg(key, className) {
     return '<svg class="' + className + '" ' + ICON_SVG_ATTRS + ">" + ICONS[key] + "</svg>";
@@ -1701,7 +1702,9 @@
   function renderPreparosList() {
     activeCat = null;
     refreshActiveCounts = null;
-    header.innerHTML = "<h2>🍳 Preparos</h2>";
+    // Sem cabeçalho: o nome da aba já aparece na barra inferior, repetir como título seria
+    // redundante (mesmo padrão já aplicado em Pesquisar).
+    header.innerHTML = "";
     content.innerHTML = "";
     progressEl.textContent = "";
 
@@ -1893,11 +1896,15 @@
   }
 
   let listaComprasView = "porReceita";
+  // Colapso por receita na visão Por receita — estado só de UI (não persiste), não afeta as
+  // outras receitas. Chave ausente/false = expandida (comportamento de sempre).
+  let collapsedShoppingRecipes = {};
 
   function renderListaCompras() {
     activeCat = null;
     refreshActiveCounts = null;
-    header.innerHTML = "<h2>🛒 Lista de Compras</h2>";
+    // Sem cabeçalho: o nome da aba já aparece na barra inferior (mesmo padrão de Pesquisar/Preparos).
+    header.innerHTML = "";
     content.innerHTML = "";
     progressEl.textContent = "";
 
@@ -1933,15 +1940,21 @@
       return;
     }
 
-    const clearBtn = document.createElement("button");
-    clearBtn.type = "button";
-    clearBtn.className = "shopping-list__clear";
-    clearBtn.textContent = "Limpar lista";
-    clearBtn.addEventListener("click", () => {
-      Storage.clearShoppingList();
-      renderListaCompras();
-    });
-    content.appendChild(clearBtn);
+    // Só aparece com MAIS de 10 receitas na lista (contagem total, igual nas 2 visões — Por
+    // receita/Geral leem o mesmo recipeEntries) — com poucas receitas, excluir 1 a 1 (botão
+    // "x" por receita) já resolve, "Limpar lista inteira" só faz sentido valer a pena a partir
+    // de uma lista grande. Ausência real do elemento (não opacidade/disabled).
+    if (recipeEntries.length > 10) {
+      const clearBtn = document.createElement("button");
+      clearBtn.type = "button";
+      clearBtn.className = "shopping-list__clear";
+      clearBtn.textContent = "Limpar lista";
+      clearBtn.addEventListener("click", () => {
+        Storage.clearShoppingList();
+        renderListaCompras();
+      });
+      content.appendChild(clearBtn);
+    }
 
     if (listaComprasView === "geral") {
       renderShoppingListGeral();
@@ -1960,16 +1973,71 @@
       if (!recipeItem) return; // defensivo: receita não existe mais (renomeada/removida)
       const recipe = recipeItem.recipe;
       const structured = recipe.ingredientsStructured || [];
+      // Colapso é só desta receita (collapsedShoppingRecipes por recipeId) — nunca afeta as
+      // outras seções da lista. Reaproveita literalmente o acordeão do modal de filtro
+      // (.filter-section/.filter-section__header/__label/__chevron/__body, .is-open) — mesmo
+      // mecanismo já usado pros ingredientes da tela de receita, nenhuma classe nova de acordeão.
+      const isOpen = !collapsedShoppingRecipes[entry.recipeId];
 
       const section = document.createElement("div");
-      section.className = "shopping-list__recipe";
+      section.className = "shopping-list__recipe filter-section" + (isOpen ? " is-open" : "");
 
-      const title = document.createElement("h3");
-      title.textContent = recipe.name;
-      section.appendChild(title);
+      const row = document.createElement("div");
+      row.className = "shopping-list__recipe-row";
+      // Colapsar/expandir é a ação mais usada da linha (nome-link e "x" são situacionais) —
+      // por isso a área de toque dominante é a LINHA INTEIRA (row), não só o ícone pequeno do
+      // chevron: qualquer clique que não caia especificamente no nome-link nem no "x" (ambos
+      // com stopPropagation, área pequena e precisa de propósito) borbulha até aqui e
+      // colapsa/expande. O botão do chevron continua existindo só pelo afordance visual/
+      // foco de teclado (Enter/Space nele também borbulha até aqui) — não tem listener
+      // próprio, pra nunca disparar 2x (1x nele + 1x na linha) no mesmo clique.
+      row.addEventListener("click", () => {
+        collapsedShoppingRecipes[entry.recipeId] = isOpen;
+        renderListaCompras();
+      });
+
+      // Nome da receita É o link pra tela dela (.text-link, mesmo padrão do cook-title) —
+      // área de toque PEQUENA e precisa de propósito (só a extensão visual do texto+ícone,
+      // sem hit-padding extra) — ação situacional, stopPropagation pra nunca também colapsar.
+      const nameLink = document.createElement("button");
+      nameLink.type = "button";
+      nameLink.className = "text-link shopping-list__recipe-name-link";
+      nameLink.setAttribute("aria-label", "Ver receita de " + recipe.name);
+      nameLink.innerHTML = "<span>" + recipe.name + "</span>" + iconSvg("arrowUpRight", "text-link__icon");
+      nameLink.addEventListener("click", (e) => {
+        e.stopPropagation();
+        Router.toReceita(entry.recipeId);
+      });
+      row.appendChild(nameLink);
+
+      const chevronBtn = document.createElement("button");
+      chevronBtn.type = "button";
+      chevronBtn.className = "shopping-list__recipe-chevron";
+      chevronBtn.setAttribute("aria-label", (isOpen ? "Recolher" : "Expandir") + " ingredientes de " + recipe.name);
+      chevronBtn.innerHTML = iconSvg("chevronDown", "filter-section__chevron");
+      // Sem listener próprio: um clique nele borbulha até o listener da ROW (acima) e colapsa
+      // do mesmo jeito — ter os 2 disparava a ação 2x (abre e fecha de novo no mesmo clique).
+      row.appendChild(chevronBtn);
+
+      // "x" discreto pra excluir só ESSA receita da lista — mesmo visual do "x" de remover
+      // preparo (.preparo-card__delete), nenhuma classe nova. Área de toque PEQUENA e precisa
+      // de propósito (ação situacional) — stopPropagation pra nunca também colapsar a linha.
+      const deleteBtn = document.createElement("button");
+      deleteBtn.type = "button";
+      deleteBtn.className = "preparo-card__delete";
+      deleteBtn.setAttribute("aria-label", "Remover " + recipe.name + " da lista de compras");
+      deleteBtn.textContent = "✕";
+      deleteBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        Storage.removeRecipeFromShoppingList(entry.recipeId);
+        renderListaCompras();
+      });
+      row.appendChild(deleteBtn);
+
+      section.appendChild(row);
 
       const ul = document.createElement("ul");
-      ul.className = "ingredients-list checklist";
+      ul.className = "filter-section__body ingredients-list checklist";
 
       (entry.selectedEntries || []).forEach((entryIndex) => {
         const structEntry = structured[entryIndex];
@@ -1978,6 +2046,10 @@
           const text = formatStructuredItem(it, entry.portionMultiplier);
           const bought = Storage.isShoppingItemBought(it.item, it.unit);
           const li = document.createElement("li");
+          li.className = "shopping-list__item";
+          // Sem botão de "ir pra receita" por item (removido — era redundante com o nome da
+          // receita no cabeçalho da seção, .text-link, que já é o único link de navegação
+          // desta tela desde que o cabeçalho ganhou nome+ícone clicável).
           li.innerHTML =
             '<label><input type="checkbox"' +
             (bought ? " checked" : "") +
@@ -2031,22 +2103,7 @@
     content.appendChild(ul);
   }
 
-  // Crédito a SVG Repo pelos 4 ícones de Equipamento que vieram de lá (forno, liquidificador,
-  // batedeira, micro-ondas — não exigido pela licença deles, mas recomendado). Icons8 foi
-  // REMOVIDO: os 3 últimos PNG (air-fryer, panela de pressão, churrasqueira) que exigiam essa
-  // atribuição viraram SVG autoral nesta rodada — nenhum ícone do app usa mais Icons8. Os
-  // demais autorais (Processador, Sous Vide, aba Preparos) também não entram aqui, confirmado
-  // com o usuário. Fica em Minhas Receitas por ora — não há rodapé fixo no app pra isso ainda.
-  function buildIconCreditsEl() {
-    const el = document.createElement("div");
-    el.className = "icon-credits";
-    el.innerHTML =
-      "<p>Ícones de equipamento por " +
-      '<a href="https://www.svgrepo.com" target="_blank" rel="noopener noreferrer">SVG Repo</a>.</p>';
-    return el;
-  }
-
-  // ---------- Tela "Minhas Receitas" (aba da barra inferior) ----------
+// ---------- Tela "Minhas Receitas" (aba da barra inferior) ----------
   // Substitui o antigo placeholder + as antigas rotas standalone #/favoritos e #/historico
   // (removidas — nenhum link visível apontava pra elas, e depois desta tela existir elas
   // seriam um caminho redundante mostrando os mesmos dados de novo). Guarda a aba ativa numa
@@ -2061,7 +2118,8 @@
   function renderMinhasReceitas() {
     activeCat = null;
     refreshActiveCounts = null;
-    header.innerHTML = "<h2>📖 Minhas Receitas</h2>";
+    // Sem cabeçalho: o nome da aba já aparece na barra inferior (mesmo padrão de Pesquisar/Preparos).
+    header.innerHTML = "";
     content.innerHTML = "";
     progressEl.textContent = "";
 
@@ -2096,11 +2154,6 @@
         content.appendChild(renderRecipeCard(item, { catLabel: cat ? cat.label : item.catId }));
       });
     }
-
-    // Créditos de ícones: seção claramente separada no fim, não misturada com a listagem
-    // (border-top próprio em .icon-credits) — só existe rodapé fixo de verdade quando o app
-    // ganhar um pra valer.
-    content.appendChild(buildIconCreditsEl());
   }
 
   // ---------- Card de receita (usado na lista de categoria e na busca) ----------
@@ -2487,12 +2540,12 @@
     actions.appendChild(favBtn);
     actions.appendChild(madeBtn);
 
-    // Adicionar à lista de compras (Fase 1): sempre adiciona TODAS as entries de
-    // ingredientsStructured de uma vez (sem UI de selecionar item por item nesta fase),
-    // capturando o portionMultiplier ATUAL do stepper (currentRatio(), mesmo padrão do cookBtn
-    // abaixo). Clicar de novo com a receita já na lista só ressincroniza (atualiza porção/
-    // entries/addedAt) — não existe remover pela tela de receita nesta fase, só "Limpar lista"
-    // inteira dentro da própria Lista de Compras.
+    // Adicionar à lista de compras: toggle de verdade — adiciona TODAS as entries de
+    // ingredientsStructured de uma vez (sem UI de selecionar item por item), capturando o
+    // portionMultiplier ATUAL do stepper (currentRatio(), mesmo padrão do cookBtn abaixo).
+    // Clicar de novo com a receita já na lista REMOVE (Storage.removeRecipeFromShoppingList) —
+    // desfaz a ação, volta pro estado "Adicionar". Mesmo caminho de remoção do "x" na visão Por
+    // receita da própria Lista de Compras.
     const shoppingBtn = document.createElement("button");
     shoppingBtn.type = "button";
     function renderShoppingBtn(inList) {
@@ -2501,6 +2554,11 @@
     }
     renderShoppingBtn(Storage.isRecipeInShoppingList(item.id));
     shoppingBtn.addEventListener("click", () => {
+      if (Storage.isRecipeInShoppingList(item.id)) {
+        Storage.removeRecipeFromShoppingList(item.id);
+        renderShoppingBtn(false);
+        return;
+      }
       const entries = recipe.ingredientsStructured || [];
       const entryIndexes = entries.map((_, i) => i);
       Storage.addRecipeToShoppingList(item.id, currentRatio(), entryIndexes);
@@ -2622,8 +2680,10 @@
   }
 
   // Roleta do timer (Fase B): 3 colunas independentes — Horas (0-4), Minutos (0-59), Segundos
-  // (0-55 de 5 em 5, 12 itens em vez de 60 — mais rápido de rolar; granularidade mais fina não
-  // faz diferença prática numa cozinha). Substitui a roleta única da Fase A (0-90 min corridos).
+  // (0-59, mesma granularidade de Minutos — era de 5 em 5 pra rolar mais rápido, mas isso
+  // deixou de ser necessário depois que dá pra tocar no mostrador digital acima da roleta e
+  // digitar o valor direto, ver enableDisplayTapToEdit abaixo). Substitui a roleta única da
+  // Fase A (0-90 min corridos).
   const TIMER_WHEEL_HOURS = [0, 1, 2, 3, 4];
   const TIMER_WHEEL_MINUTES = (function () {
     const values = [];
@@ -2632,7 +2692,7 @@
   })();
   const TIMER_WHEEL_SECONDS = (function () {
     const values = [];
-    for (let s = 0; s <= 55; s += 5) values.push(s);
+    for (let s = 0; s <= 59; s++) values.push(s);
     return values;
   })();
   function pad2(n) {
@@ -2643,6 +2703,15 @@
     const m = Math.floor((seconds % 3600) / 60);
     const s = seconds % 60;
     return pad2(h) + ":" + pad2(m) + ":" + pad2(s);
+  }
+  // Igual formatBigTime, mas em partes — usado só no PARADO (renderTimerStopped), onde cada
+  // parte (h/m/s) é um <span> tocável que vira campo editável (enableDisplayTapToEdit). O
+  // RODANDO/PAUSADO continua com formatBigTime (texto plano, sem edição).
+  function formatBigTimeParts(seconds) {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return { h: pad2(h), m: pad2(m), s: pad2(s) };
   }
 
   function renderCookMode(id, fromCollectionId, portionMultiplier) {
@@ -2698,7 +2767,20 @@
 
     const titleEl = document.createElement("div");
     titleEl.className = "cook-title";
-    titleEl.textContent = recipe.name;
+    // Nome da receita É o link (.text-link — ícone arrowUpRight colado no texto, sem botão
+    // circular separado, sem esticar full-width). Limpa o timerInterval igual o exitBtn faz
+    // (mesmo bug do "timer fantasma" que motivou o clearInterval ali — sem isso, navegar
+    // daqui deixaria o interval rodando escondido).
+    const titleLink = document.createElement("button");
+    titleLink.type = "button";
+    titleLink.className = "text-link cook-title__link";
+    titleLink.setAttribute("aria-label", "Ver receita de " + recipe.name);
+    titleLink.innerHTML = "<span>" + recipe.name + "</span>" + iconSvg("arrowUpRight", "text-link__icon");
+    titleLink.addEventListener("click", () => {
+      clearInterval(timerInterval);
+      Router.toReceita(id, fromCollectionId);
+    });
+    titleEl.appendChild(titleLink);
     page.appendChild(titleEl);
 
     const progressWrap = document.createElement("div");
@@ -2789,7 +2871,20 @@
     }
     function updateTimerDisplay() {
       const displayEl = timerBox.querySelector(".cook-timer-display");
-      if (displayEl) displayEl.textContent = formatBigTime(currentRemainingSeconds());
+      if (displayEl) {
+        // PARADO usa 3 <span data-unit> tocáveis (ver renderTimerStopped/enableDisplayTapToEdit)
+        // — atualiza só o texto de cada um (nunca destrói os spans, senão perderia o listener de
+        // clique). RODANDO/PAUSADO não tem esses spans -> cai no textContent plano de sempre.
+        const parts = displayEl.querySelectorAll(".cook-timer-display__part");
+        if (parts.length === 3) {
+          const p = formatBigTimeParts(currentRemainingSeconds());
+          parts[0].textContent = p.h;
+          parts[1].textContent = p.m;
+          parts[2].textContent = p.s;
+        } else {
+          displayEl.textContent = formatBigTime(currentRemainingSeconds());
+        }
+      }
       const toggleBtn = timerBox.querySelector(".timer-toggle");
       if (toggleBtn) toggleBtn.textContent = toggleLabelFor(getStepTimerState());
     }
@@ -2819,17 +2914,74 @@
       });
     }
 
-    // Posiciona UMA coluna no valor mais próximo do atual (sem animação) e marca selecionado —
-    // reaproveitado pelas 3 colunas. Um valor salvo que não bate exato (ex.: sessão antiga da
-    // Fase A) só encosta no mais próximo, sem sobrescrever nada até o usuário mexer de novo.
-    function positionWheelColumn(wheelEl, values, currentValue) {
+    // Posiciona UMA coluna no valor mais próximo do atual e marca selecionado — reaproveitado
+    // pelas 3 colunas. Um valor salvo que não bate exato (ex.: sessão antiga da Fase A) só
+    // encosta no mais próximo, sem sobrescrever nada até o usuário mexer de novo. animate=true
+    // (usado só pela confirmação de digitação, ver enableDisplayTapToEdit) rola suave até a
+    // posição em vez de saltar direto — o scroll-snap nativo dispara o MESMO listener de
+    // "settle" (bindColumnScroll) ao terminar, então commitCombined() acontece sozinho, sem
+    // caminho de persistência duplicado.
+    function positionWheelColumn(wheelEl, values, currentValue, animate) {
       const nearest = values.reduce((a, b) => (Math.abs(b - currentValue) < Math.abs(a - currentValue) ? b : a));
       const targetItem = wheelEl.querySelector('.cook-timer-wheel__item[data-value="' + nearest + '"]');
       if (targetItem) {
-        wheelEl.scrollTop = targetItem.offsetTop - (wheelEl.clientHeight - targetItem.offsetHeight) / 2;
+        const targetTop = targetItem.offsetTop - (wheelEl.clientHeight - targetItem.offsetHeight) / 2;
+        if (animate) wheelEl.scrollTo({ top: targetTop, behavior: "smooth" });
+        else wheelEl.scrollTop = targetTop;
         markSelectedWheelItem(wheelEl, nearest);
       }
       return nearest;
+    }
+
+    // Campo de edição por toque (novo): tocar numa das 3 partes do MOSTRADOR DIGITAL acima da
+    // roleta (.cook-timer-display__part, h/min/s — não a roleta em si) troca aquele número por
+    // um <input inputmode="numeric"> ali mesmo, no lugar do texto — teclado numérico no
+    // celular, nunca QWERTY completo. Confirma com Enter/blur, cancela com Esc (descarta, volta
+    // ao valor anterior). Valor válido -> atualiza o texto na hora E chama
+    // positionWheelColumn(..., animate=true), que rola a roleta suavemente até a posição nova; o
+    // scroll-snap nativo dispara o MESMO listener de "settle" (bindColumnScroll) ao terminar,
+    // então commitCombined() persiste sozinho — nenhum caminho de commit duplicado. min/max vêm
+    // do próprio array de valores (contíguo desde que Segundos passou a ser 0-59 também).
+    function enableDisplayTapToEdit(spanEl, wheelEl, values, getCurrentValue) {
+      const min = values[0];
+      const max = values[values.length - 1];
+
+      spanEl.addEventListener("click", () => {
+        if (spanEl.querySelector("input")) return; // já editando, ignora novo toque
+        const previousText = spanEl.textContent;
+        const previousValue = getCurrentValue();
+        const input = document.createElement("input");
+        input.type = "text";
+        input.inputMode = "numeric";
+        input.pattern = "[0-9]*";
+        input.maxLength = 2;
+        input.className = "cook-timer-display__edit-input";
+        input.value = pad2(previousValue);
+        spanEl.textContent = "";
+        spanEl.appendChild(input);
+        input.focus();
+        input.select();
+
+        let settled = false;
+        function commit(cancel) {
+          if (settled) return;
+          settled = true;
+          const parsed = parseInt(input.value, 10);
+          if (!cancel && Number.isInteger(parsed) && parsed >= min && parsed <= max) {
+            spanEl.textContent = pad2(parsed);
+            positionWheelColumn(wheelEl, values, parsed, true);
+          } else {
+            // Esc ou valor inválido (fora do intervalo, vazio, não-numérico): descarta, volta
+            // ao texto de antes — nada muda na roleta nem no estado persistido.
+            spanEl.textContent = previousText;
+          }
+        }
+        input.addEventListener("blur", () => commit(false));
+        input.addEventListener("keydown", (ev) => {
+          if (ev.key === "Enter") input.blur();
+          else if (ev.key === "Escape") commit(true);
+        });
+      });
     }
 
     // Fase C: PARADO mostra a roleta (3 colunas, agora compacta — 3 linhas visíveis em vez de
@@ -2911,9 +3063,12 @@
         );
       }
 
+      const initialParts = formatBigTimeParts(seconds);
       timerBox.innerHTML =
         '<div class="cook-timer-display">' +
-        formatBigTime(seconds) +
+        '<span class="cook-timer-display__part" data-unit="h">' + initialParts.h + "</span>:" +
+        '<span class="cook-timer-display__part" data-unit="m">' + initialParts.m + "</span>:" +
+        '<span class="cook-timer-display__part" data-unit="s">' + initialParts.s + "</span>" +
         "</div>" +
         '<div class="cook-timer-wheel-wrap">' +
         '<div class="cook-timer-wheel-frame" aria-hidden="true"></div>' +
@@ -2965,6 +3120,14 @@
       bindColumnScroll(hoursWheel, (v) => (hVal = v));
       bindColumnScroll(minutesWheel, (v) => (mVal = v));
       bindColumnScroll(secondsWheel, (v) => (sVal = v));
+
+      // Tocar na parte correspondente do mostrador digital acima (h/min/s) edita por
+      // digitação — segunda forma de definir valor, não substitui o arrasto manual na roleta
+      // (ver comentário em enableDisplayTapToEdit).
+      const displayEl = timerBox.querySelector(".cook-timer-display");
+      enableDisplayTapToEdit(displayEl.querySelector('[data-unit="h"]'), hoursWheel, TIMER_WHEEL_HOURS, () => hVal);
+      enableDisplayTapToEdit(displayEl.querySelector('[data-unit="m"]'), minutesWheel, TIMER_WHEEL_MINUTES, () => mVal);
+      enableDisplayTapToEdit(displayEl.querySelector('[data-unit="s"]'), secondsWheel, TIMER_WHEEL_SECONDS, () => sVal);
 
       timerBox.querySelector(".timer-toggle").addEventListener("click", () => {
         // Iniciar (parado -> rodando): persiste JÁ (endsAt correto, sem atraso de animação) —

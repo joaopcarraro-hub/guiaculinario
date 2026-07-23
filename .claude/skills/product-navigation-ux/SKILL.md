@@ -68,6 +68,28 @@ reais (não placeholder mais) — Minhas Receitas (favoritas/já feitas em abas)
 de sessões de cozinha em andamento) e Lista de Compras (2 visões já funcionam: "Por receita" e
 "Geral" com soma agrupada entre receitas por família de unidade, ver mobile-recipe-ui/SKILL.md).
 
+## Botão Voltar (regra pro redesenho futuro — NÃO implementada ainda)
+
+O redesenho do botão voltar pra um formato flutuante ainda não começou — o comportamento atual
+(`.back-button` fixo no topo, destino às vezes hardcoded por tela) continua como está por ora.
+Mas a regra já está definida pra quando esse redesenho acontecer:
+
+O botão voltar deve SEMPRE voltar pra última tela realmente visitada pelo usuário (histórico
+real de navegação — `history.back()`/equivalente), NUNCA um destino fixo hardcoded na tela
+(ex.: "#/categoria/X" cravado no código, ignorando de onde o usuário realmente veio).
+
+EXCEÇÃO: a tela do modo de preparo (cozinhar) NUNCA deve ter botão voltar adicional — só o
+botão "✕ Sair do modo de cozinhar" (já existe, `renderCookMode`/`exitBtn` em app.js) resolve a
+saída daquela tela. Nenhum botão voltar extra deve ser adicionado ali, mesmo depois do
+redesenho.
+
+Isso NÃO impede um botão de navegação DIFERENTE de "voltar" — o nome da receita no cabeçalho
+(`.cook-title__link`, usando a classe compartilhada `.text-link`: texto + ícone arrowUpRight
+colado, mesmo padrão do nome de receita em `.shopping-list__recipe-name-link` na Lista de
+Compras) leva pra tela da RECEITA especificamente (`Router.toReceita`), não é um "voltar"
+genérico por histórico. Limpa `timerInterval` antes de navegar (mesma proteção contra o "timer
+fantasma" que o `exitBtn` já tinha) — sem isso o timer continuaria rodando escondido.
+
 ## Páginas intermediárias
 
 Cada grupo tem sua própria página (independente de estar linkada na home ou não).

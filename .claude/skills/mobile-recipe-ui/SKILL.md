@@ -20,8 +20,12 @@ A home deve ser simples e guiada.
 Mostrar só:
 - 4 tiles grandes: Massas, Proteínas, Navegar por Países, Sobremesas.
 - "Mais categorias" — entrada pequena, num canto, ABAIXO dos tiles (era acima, invertido numa
-  rodada de correção — só troca de ordem de appendChild, mesmo comportamento), texto em
-  `--color-text-secondary` (nunca `--color-accent` em texto pequeno — falha WCAG AA).
+  rodada de correção — só troca de ordem de appendChild, mesmo comportamento). Ganhou pill
+  visual (mesmos tokens do `.filter-trigger`: borda `--color-border`, fundo `--color-surface`,
+  `border-radius: 999px`) porque a versão só-texto parecia não-clicável — antes ficava
+  invisível como elemento interativo. Texto continua em `--color-text-secondary`, nunca
+  `--color-accent` (texto pequeno, falha WCAG AA); o ÍCONE (não o texto) usa `--color-accent`
+  — ícone não tem a restrição de ghost-text que texto pequeno tem.
 
 Sem contador de progresso ("X de Y receitas já feitas") — removido, era resíduo do sistema
 antigo de tracking, redundante nesta tela.
@@ -78,9 +82,11 @@ com outro rótulo, sem nenhum rastreamento de visita de verdade. Construir isso 
 infraestrutura nova (gravar cada visita à tela de receita) — fora do escopo desta rodada,
 fica pra quando for aprovado como tarefa própria.
 
-Créditos de ícones (`buildIconCreditsEl`) ficam no fim da tela, numa seção visualmente separada
-da listagem por um divisor (`.icon-credits` ganhou `border-top`) — evita misturar crédito de
-terceiros com o conteúdo de verdade da tela, provisório até o app ter um rodapé fixo.
+O bloco de créditos de ícones (`buildIconCreditsEl`) que ficava no fim desta tela foi REMOVIDO
+por completo (função, `content.appendChild` e o CSS `.icon-credits`) — confirmado que nenhum
+ícone em uso hoje exige atribuição obrigatória (SVG Repo é CC0, atribuição recomendada mas não
+obrigatória; Icons8 já tinha sido removido antes). Sem cabeçalho de tela nem créditos, a tela
+de Minhas Receitas mostra só o toggle de abas e a listagem.
 
 ## Lista de Compras (aba da barra inferior)
 
@@ -90,10 +96,28 @@ na tela de receita (`.action-btn`, 3ª ação —
 ver seção de ações acima) adiciona TODAS as entries de `ingredientsStructured` de uma vez,
 capturando o `portionMultiplier` atual do stepper (mesmo padrão de `currentRatio()` que o
 botão "Começar preparo" já usava). Clicar de novo com a receita já na lista só ressincroniza
-(porção/entries/`addedAt` atualizados) — não existe remover 1 receita pela tela de receita
-nesta fase, só "Limpar lista" inteira dentro da própria Lista de Compras (remove tudo:
-receitas E o registro de comprados, sem confirmação — mesmo padrão sem `window.confirm` já
-usado no "✕" de remover preparo).
+(porção/entries/`addedAt` atualizados) — não existe remover 1 receita pela tela de receita,
+só de dentro da própria Lista de Compras: "Limpar lista" remove tudo (receitas E o registro
+de comprados, sem confirmação — mesmo padrão sem `window.confirm` já usado no "✕" de remover
+preparo) e cada seção por receita também tem seu próprio "x" (`.preparo-card__delete`
+reaproveitado, `Storage.removeRecipeFromShoppingList`) pra remover só aquela receita. "Limpar
+lista" só é RENDERIZADO (não só escondido) com MAIS de 10 receitas na lista — contagem total
+de `Storage.getShoppingListRecipes()`, igual nas 2 abas; com 10 ou menos, excluir 1 a 1 já
+resolve e o botão de limpar tudo não faz sentido ainda.
+
+Cada seção por receita (`.shopping-list__recipe`) tem 3 controles na mesma linha
+(`.shopping-list__recipe-row`), com áreas de toque DELIBERADAMENTE desiguais — colapsar é a
+ação mais usada, navegar/excluir são situacionais: o clique de colapsar/expandir é ouvido na
+LINHA INTEIRA (`row.addEventListener("click", ...)`, reaproveita o acordeão
+`.filter-section`/`.is-open` do modal de filtros), cobrindo até o espaço vazio ao redor do
+nome e o ícone do chevron (`.shopping-list__recipe-chevron` não tem listener próprio — um
+clique nele só borbulha até o da linha; ter os 2 disparava a ação 2x no mesmo clique). O nome
+da receita (`.shopping-list__recipe-name-link`, classe compartilhada `.text-link` — mesmo
+padrão do nome clicável no cabeçalho do modo cozinhar, `.cook-title__link`, ver
+product-navigation-ux/SKILL.md — SEMPRE navega pra `Router.toReceita`) e o "x" de excluir
+usam `stopPropagation()` nos próprios listeners pra manter a área de toque PEQUENA e precisa
+(só a extensão visual de cada um) e nunca também colapsar a linha. Os 3 continuam
+independentes entre receitas diferentes.
 
 Schema `gusta-lista-compras-v1` segue o MESMO padrão de 2 níveis de `gusta-preparos-v1`
 (`SHOPPING_LIST_MIGRATIONS` mapa vazio desde a v1, validação individual por receita que
@@ -468,12 +492,14 @@ multi-seleção coexistem:
     mantido idêntico a eles, ignorando espaço em branco entre tags (checagem antes de cada
     commit que tocar nisso). `.filter-tile__icon--png`/`EQUIPMENT_PNG_SRC` foram REMOVIDOS do
     CSS/app.js — não têm mais uso.
-  - Créditos na tela de Minhas Receitas (buildIconCreditsEl em app.js): só SVG Repo agora (link
-    de texto pra svgrepo.com), recomendado mas não obrigatório pela licença deles. Icons8 foi
-    REMOVIDO por completo — os 3 PNG que exigiam essa atribuição viraram SVG autoral, nenhum
-    ícone do app usa mais Icons8. Processador, Sous Vide, air-fryer, panela-de-pressao,
-    churrasqueira e o ícone da aba Preparos são autorais (confirmado com o usuário) — sem fonte
-    externa a creditar, não entram na lista de créditos.
+  - Créditos na tela de Minhas Receitas (buildIconCreditsEl em app.js): existiram por uma
+    rodada, só SVG Repo (recomendado mas não obrigatório pela licença deles — CC0). Icons8 foi
+    REMOVIDO por completo antes disso — os 3 PNG que exigiam essa atribuição viraram SVG
+    autoral, nenhum ícone do app usa mais Icons8. Processador, Sous Vide, air-fryer,
+    panela-de-pressao, churrasqueira e o ícone da aba Preparos são autorais (confirmado com o
+    usuário) — sem fonte externa a creditar. Numa rodada posterior, com a ausência de qualquer
+    atribuição OBRIGATÓRIA reconfirmada, o bloco de créditos inteiro foi removido (função,
+    chamada e CSS) — não existe mais crédito de ícone em nenhuma tela do app.
 - Ingrediente: chips removíveis (`--color-surface-elevated`, × em `--color-accent`) continuam
   iguais acima da grade; o antigo `<select>` de "+ adicionar" virou PILOTO DE REDESENHO — grade
   de tiles MAIS DENSA que País/Equipamento (`renderIngredientTileSectionBody` em app.js,

@@ -37,6 +37,21 @@
   --color-text-disabled: #8d877f;
   --color-accent: #d63b20;
   --color-accent-hover: #a33f2a;
+  /* Versão mais clara do acento, SÓ pra texto peso regular sobre --color-bg (nunca pra
+     ícone/borda/preenchimento — esses continuam --color-accent, sem mudança). --color-accent
+     puro em texto peso regular passa de 18px+ mas falha 4.5:1 AA (4,11:1 medido); mesmo hue/
+     saturação, lightness calibrada por busca binária (fórmula de luminância WCAG) até cravar
+     >=4.5:1 contra --color-bg (#0f0f0e) — não é estimativa. Usado em .text-link (nome da
+     receita clicável no modo de preparo e na Lista de Compras). */
+  --color-accent-text: #e04527;
+  /* Faltavam estas 2 — o comentário acima já dizia "--green=--color-success,
+     --red=--color-error" desde o Bloco 4, mas nunca tinham sido de fato declaradas. Bug real
+     encontrado nesta rodada: var(--color-error) em .shopping-list__clear e
+     .preparo-card__delete:hover resolvia pra nada (variável inexistente), deixando border/color
+     inválidos silenciosamente — o botão "Limpar lista" parecia link solto por isso, não por
+     escolha de design. */
+  --color-success: #76945b;
+  --color-error: #e63950;
 
   /* Altura reservada da barra de navegação inferior fixa (.bottom-nav, Bloco 2) — ponto ÚNICO
      de ajuste, usado só pelo padding-bottom de #main (o único container de conteúdo rolável
@@ -112,7 +127,18 @@ body {
   cursor: pointer;
 }
 .bottom-nav__icon { width: 22px; height: 22px; flex-shrink: 0; }
-.bottom-nav__label { text-align: center; }
+/* Altura reservada pra SEMPRE 2 linhas (1.15 é o line-height do próprio rótulo, ver
+   .bottom-nav__tab acima) — sem isso, "Minhas Receitas" (quebra em 2 linhas) empurrava seu
+   próprio ícone mais pra cima que os das outras abas (1 linha só), já que justify-content:
+   center do .bottom-nav__tab centraliza o bloco inteiro (ícone+rótulo) pela altura total dele,
+   que variava de aba pra aba. Com a altura do rótulo sempre fixa, o bloco todo fica do mesmo
+   tamanho em qualquer aba, e o ícone cai sempre na mesma posição vertical. */
+.bottom-nav__label {
+  text-align: center;
+  display: flex;
+  align-items: center;
+  min-height: calc(1.15em * 2);
+}
 .bottom-nav__tab.is-active { color: var(--color-accent); }
 
 /* ---------- Main ---------- */
@@ -224,23 +250,61 @@ body {
   padding-bottom: 8px;
   border-bottom: 1px solid var(--line);
 }
-.shopping-list__recipe h3 {
-  margin: 0 0 4px;
+/* Linha do nome da receita: nome-link (.text-link, navega pra receita — área de toque PEQUENA
+   e precisa, só a extensão visual do texto+ícone) + chevron (.shopping-list__recipe-chevron,
+   só visual/foco — reaproveita o MESMO mecanismo de acordeão do modal de filtro/.is-open no
+   pai) + "x" de excluir só essa receita (.preparo-card__delete, mesmo visual de remover
+   preparo, área de toque também pequena/precisa). Colapsar/expandir é a ação DOMINANTE: o
+   clique é ouvido na LINHA INTEIRA (cursor:pointer aqui sinaliza isso), nome-link e "x" usam
+   stopPropagation pra nunca também colapsar (ver js/app.js). */
+.shopping-list__recipe-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
 }
-.icon-credits {
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid var(--line);
-  text-align: center;
-  font-size: 0.8rem;
-  color: var(--ink-soft);
+.shopping-list__recipe-row .shopping-list__recipe-name-link,
+.shopping-list__recipe-row .preparo-card__delete {
+  cursor: pointer;
 }
-/* .icon-credits a e .btn-or-fallback: texto pequeno (<18px) — NÃO usar --gold (=--color-accent)
-   direto aqui, vira ghost-text que falha WCAG AA no tamanho (regra do próprio
-   DESIGN-TOKENS.md: "Ghost: texto --color-accent... só usar em texto grande/semibold 18px+").
-   --ink-soft (=--color-text-secondary) no lugar — link/rótulo continua legível e distinto do
-   texto de corpo, só não colorido no acento. */
-.icon-credits a { color: var(--ink-soft); }
+/* 1.2rem (19.2px) igualado ao modo de preparo (.cook-title .text-link), peso REGULAR também
+   igualado (era bold numa rodada anterior — revertido: negrito só servia pra "emprestar" o
+   limiar de texto grande do WCAG com --color-accent puro; agora que o texto usa
+   --color-accent-text, já calibrado pra 4,5:1 em peso regular, o negrito deixou de ser
+   necessário e some, igualando 100% ao modo de preparo). Antes era 0.92rem herdado (abaixo do
+   limiar), por isso só o ícone usava accent e o texto ficava em --ink. */
+.text-link.shopping-list__recipe-name-link {
+  min-width: 0;
+  color: var(--color-accent-text);
+  font-size: 1.2rem;
+}
+.shopping-list__recipe-name-link .text-link__icon { color: var(--color-accent); }
+.shopping-list__recipe-chevron {
+  flex-shrink: 0;
+  margin-left: auto;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+/* Item da lista: só checkbox+texto (marcar comprado, igual sempre foi). Não tem mais ícone de
+   "ir pra receita" por item (removido — redundante com o nome da receita no cabeçalho da
+   seção, .text-link, único link de navegação desta tela). */
+.shopping-list__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.shopping-list__item label { flex: 1; min-width: 0; }
+/* .btn-or-fallback: texto pequeno (<18px) — NÃO usar --gold (=--color-accent) direto aqui, vira
+   ghost-text que falha WCAG AA no tamanho (regra do próprio DESIGN-TOKENS.md: "Ghost: texto
+   --color-accent... só usar em texto grande/semibold 18px+"). --ink-soft (=--color-text-
+   secondary) no lugar — legível e distinto do texto de corpo, só não colorido no acento. */
 .btn-or-fallback {
   margin-top: 14px;
   min-height: 44px;
@@ -457,6 +521,12 @@ body {
   padding: 5px 0 5px 22px;
   position: relative;
   font-size: 0.94rem;
+}
+/* Divisor só ENTRE itens reais (:not(:last-child)) — antes ia em todo <li> inclusive o
+   último, sobrando uma linha fina sem nada abaixo (nada pra separar do próximo, porque não
+   há próximo). Bug visto em print na Lista de Compras, mas a regra é compartilhada com
+   qualquer .ingredients-list (também a da tela de receita). */
+.ingredients-list li:not(:last-child) {
   border-bottom: 1px dotted var(--line);
 }
 .ingredients-list li:before {
@@ -1045,21 +1115,29 @@ body.filter-modal-open { overflow: hidden; }
 .recipe-page-tags .tag-chip-link { min-height: 30px; font-size: 0.8rem; padding: 0 14px; }
 
 /* ---------- Home: tiles principais + "Mais categorias" (Bloco 2 — design tokens v3) ---------- */
+/* Mais evidente que clicável (era só texto solto, sem nenhum sinal visual) — reaproveita os
+   MESMOS tokens do .filter-trigger (borda --color-border, fundo --color-surface, pill 999px),
+   nenhum estilo de botão novo. Ícone ganha --color-accent (permitido — só TEXTO pequeno não
+   pode usar --color-accent direto, regra de ghost-text/WCAG já documentada); o texto continua
+   em --color-text-secondary (0.82rem fica abaixo do limiar de 18px+ pra --color-accent em
+   texto). Continua pequena/discreta de propósito — só deixou de parecer invisível. */
 .home-more-categories {
   display: flex;
   align-items: center;
   gap: 6px;
   margin: 0 0 14px auto;
-  padding: 6px 4px;
+  padding: 6px 14px;
   min-height: 32px;
-  border: none;
-  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
   color: var(--color-text-secondary);
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.82rem;
+  font-weight: bold;
   cursor: pointer;
 }
-.home-more-categories__icon { width: 16px; height: 16px; }
+.home-more-categories__icon { width: 16px; height: 16px; color: var(--color-accent); }
 .home-tiles {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -1298,7 +1376,45 @@ body.filter-modal-open { overflow: hidden; }
 
 /* ---------- Modo cozinhar ---------- */
 .cook-page { max-width: 600px; }
-.cook-title { font-size: 1.2rem; margin: 4px 0 18px; color: var(--ink-soft); }
+/* Padrão compartilhado "nome clicável com ícone colado" — usado no cabeçalho do modo de
+   preparo (.cook-title) E no nome de cada receita na Lista de Compras
+   (.shopping-list__recipe-name-link). Sempre inline-flex/fit-content (nunca full-width, nem
+   dentro de um cabeçalho que ocupa a linha toda) e sempre com o MESMO ícone (arrowUpRight),
+   só a cor do TEXTO muda por contexto (ver regras específicas de cada lugar, abaixo). */
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+  max-width: 100%;
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+.text-link span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.text-link__icon { width: 14px; height: 14px; flex-shrink: 0; }
+
+.cook-title {
+  font-size: 1.2rem;
+  margin: 4px 0 18px;
+}
+/* Nome da receita = ÍCONE COLADO NO TEXTO (era botão circular separado, empurrado pra
+   extremidade do cabeçalho via justify-content:space-between — trocado por isto: 1 elemento
+   só, inline-flex/fit-content, nunca estica full-width mesmo dentro de um cabeçalho de linha
+   inteira). Texto em peso regular (herdado, nunca foi bold aqui) — --color-accent puro nesse
+   peso falha 4,5:1 AA mesmo a 19.2px (só "texto grande" a partir de 24px em peso regular, ou
+   18.66px em bold — 19.2px regular não se qualifica). Por isso o TEXTO usa
+   --color-accent-text (versão mais clara, calibrada por cálculo de luminância pra passar
+   4,5:1 nesse peso); o ÍCONE continua --color-accent normal (ícone não tem essa restrição). */
+.cook-title .text-link {
+  color: var(--color-accent-text);
+}
+.cook-title .text-link .text-link__icon {
+  color: var(--color-accent);
+}
 .cook-progress { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
 .cook-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--line); flex-shrink: 0; }
 .cook-dot.active { background: var(--gold); }
@@ -1336,6 +1452,22 @@ body.filter-modal-open { overflow: hidden; }
   color: var(--ink);
   margin-bottom: 12px;
   font-variant-numeric: tabular-nums;
+}
+/* PARADO renderiza cada parte (h/min/s) como <span data-unit> tocável (ver
+   enableDisplayTapToEdit em app.js) — tocar troca o número por um input inline, teclado
+   numérico no celular. RODANDO/PAUSADO não usa esses spans (texto plano, sem edição). */
+.cook-timer-display__part { cursor: pointer; }
+.cook-timer-display__edit-input {
+  width: 1.3em;
+  border: none;
+  border-bottom: 2px solid var(--color-accent);
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  outline: none;
+  padding: 0;
 }
 /* Roleta do timer (Fase A -> Fase B: 3 colunas -> Fase C: compacta + esconde/mostra) —
    scroll-snap NATIVO substitui o slider+input do Fase 2; o navegador já dá momentum/inércia em
