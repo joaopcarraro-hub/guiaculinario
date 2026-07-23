@@ -407,6 +407,28 @@
     return PLURALS[String(core || "").trim().toLowerCase()] || null;
   }
 
+  // ---- Despensa (Fase 2) ----
+  // Conjunto ESTRITO, chaveado pelo NÚCLEO canônico: só entra item cuja quantidade típica de
+  // receita é irrelevante frente ao pacote doméstico (1 colher de chá de sal não muda a
+  // compra — você tem sal em casa). Na visão Geral esses itens saem da soma e vão pra seção
+  // "Despensa — confira se já tem", sem número. NÃO ENTRAM (decisão explícita): farinha,
+  // açúcar, manteiga, arroz, leite — aparecem em quantidade que muda a compra de verdade.
+  // Especialidades também ficam FORA (dendê, azeite leve, óleo de gergelim/chili, vinagres
+  // de xerez/balsâmico/arroz etc.): quem compra pro prato precisa ver na lista principal.
+  const PANTRY_SET = {
+    "sal": 1, "sal grosso": 1, "sal em flocos": 1, "sal não iodado": 1,
+    "pimenta-do-reino": 1, "pimenta-do-reino em grãos": 1, "pimenta-do-reino branca": 1,
+    "pimenta branca": 1,
+    "azeite extra virgem": 1,
+    "óleo neutro": 1,
+    "vinagre branco": 1,
+    "água": 1,
+  };
+
+  function isPantry(core) {
+    return !!PANTRY_SET[String(core || "").trim().toLowerCase()];
+  }
+
   // Pipeline de 3 camadas. Retorna sempre lowercase — é chave de agrupamento e de
   // boughtKeys; quem exibe capitaliza (mesma convenção do formatStructuredItem).
   function purchaseCore(itemText) {
@@ -439,5 +461,5 @@
     return t;
   }
 
-  return { KNOWN_UNITS: KNOWN_UNITS, CANONICAL: CANONICAL, STRIP_WORDS: STRIP_WORDS, STRIP_PHRASES: STRIP_PHRASES, PLURALS: PLURALS, purchaseCore: purchaseCore, pluralFor: pluralFor };
+  return { KNOWN_UNITS: KNOWN_UNITS, CANONICAL: CANONICAL, STRIP_WORDS: STRIP_WORDS, STRIP_PHRASES: STRIP_PHRASES, PLURALS: PLURALS, PANTRY_SET: PANTRY_SET, purchaseCore: purchaseCore, pluralFor: pluralFor, isPantry: isPantry };
 });

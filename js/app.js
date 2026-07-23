@@ -1824,6 +1824,8 @@
   function buildShoppingListGroups() {
     const groups = {};
     const preparos = {};
+    const pantry = {};
+    const aGosto = {};
     Storage.getShoppingListRecipes().forEach((entry) => {
       const recipeItem = TagModel.findRecipeById(entry.recipeId);
       if (!recipeItem) return;
@@ -1841,6 +1843,25 @@
           }
           const family = it.unit ? UNIT_FAMILY[it.unit] : null;
           const core = ShoppingDict.purchaseCore(it.item);
+          // Despensa (Fase 2): item cuja quantidade típica é irrelevante frente ao pacote
+          // doméstico sai da soma e vai pra seção própria — COM ou SEM número (o que decide
+          // é o TIPO de item, não ter quantidade). Conjunto estrito em ShoppingDict.PANTRY_SET.
+          if (ShoppingDict.isPantry(core)) {
+            if (!pantry[core]) pantry[core] = { label: core, pairs: {}, recipeNames: {} };
+            pantry[core].pairs[normalizeGroupKey(it.item) + "|" + (it.unit || "")] = { item: it.item, unit: it.unit || null };
+            pantry[core].recipeNames[recipe.name] = true;
+            return;
+          }
+          // "A gosto" (sem qty nem faixa) fora da despensa: não vira grupo próprio — se
+          // existir linha quantificada do mesmo núcleo, encosta nela como "+ a gosto em N
+          // receitas" (fim da dupla linha mapeada na investigação); senão, vira o grupo
+          // "usado em" de sempre. Resolvido num pós-passe, depois de todos os grupos existirem.
+          if ((it.qty === null || it.qty === undefined) && !it.qtyRange) {
+            if (!aGosto[core]) aGosto[core] = { pairs: {}, recipeNames: {} };
+            aGosto[core].pairs[normalizeGroupKey(it.item) + "|" + (it.unit || "")] = { item: it.item, unit: it.unit || null };
+            aGosto[core].recipeNames[recipe.name] = true;
+            return;
+          }
           // Peso e Volume NUNCA se misturam (item 3) — a família entra na chave, então o mesmo
           // item em peso numa receita e volume em outra vira 2 grupos, nunca 1 consolidado.
           const groupKey = core + "|" + (family ? "FAM:" + family : "UNIT:" + (it.unit || ""));
@@ -1864,6 +1885,26 @@
           }
         });
       });
+    });
+
+    // Pós-passe dos "a gosto": encosta na linha quantificada do MESMO núcleo (a com mais
+    // receitas; desempate determinístico pela ordem das chaves) — os pares entram juntos pra
+    // manter o checkbox sincronizado nas 2 visões. Núcleo só com "a gosto" vira grupo normal
+    // sem quantidade (exibição "usado em", como sempre).
+    Object.keys(aGosto).forEach((core) => {
+      const candidates = Object.keys(groups).filter((k) => groups[k].itemLabel === core && groups[k].hasQuantity).sort();
+      let targetKey = null;
+      candidates.forEach((k) => {
+        if (!targetKey || Object.keys(groups[k].recipeNames).length > Object.keys(groups[targetKey].recipeNames).length) targetKey = k;
+      });
+      if (targetKey) {
+        const g = groups[targetKey];
+        Object.assign(g.pairs, aGosto[core].pairs);
+        g.aGostoCount = Object.keys(aGosto[core].recipeNames).length;
+        Object.keys(aGosto[core].recipeNames).forEach((n) => { g.recipeNames[n] = true; });
+      } else {
+        groups[core + "|UNIT:"] = { itemLabel: core, family: null, literalUnit: null, lo: 0, hi: 0, hasQuantity: false, pairs: aGosto[core].pairs, recipeNames: aGosto[core].recipeNames };
+      }
     });
 
     const groupList = Object.keys(groups)
@@ -1911,6 +1952,9 @@
           // item sintético com o total já somado, ratio 1 (não escala de novo, só formata).
           const synthItem = { qty: lo === hi ? lo : null, qtyRange: lo === hi ? null : [lo, hi], unit: displayUnit, item: displayLabel, prep: null, alt: null, optional: false };
           displayText = formatStructuredItem(synthItem, 1);
+          if (g.aGostoCount) {
+            displayText += " + a gosto em " + g.aGostoCount + (g.aGostoCount === 1 ? " receita" : " receitas");
+          }
         }
         return { key, displayText, pairs, hasQuantity: g.hasQuantity, itemLabel: g.itemLabel };
       })
@@ -1920,7 +1964,11 @@
       .map((k) => ({ label: preparos[k].label, recipeNames: Object.keys(preparos[k].recipeNames) }))
       .sort((a, b) => a.label.localeCompare(b.label, "pt-BR"));
 
-    return { groups: groupList, preparos: preparoList };
+    const pantryList = Object.keys(pantry)
+      .map((core) => ({ label: pantry[core].label, count: Object.keys(pantry[core].recipeNames).length, pairs: Object.values(pantry[core].pairs) }))
+      .sort((a, b) => a.label.localeCompare(b.label, "pt-BR"));
+
+    return { groups: groupList, pantry: pantryList, preparos: preparoList };
   }
 
   let listaComprasView = "porReceita";
@@ -2129,6 +2177,44 @@
       ul.appendChild(li);
     });
     content.appendChild(ul);
+
+    // Despensa (Fase 2): itens do PANTRY_SET fora da soma — só nome + em quantas receitas
+    // aparece, SEM número de quantidade. O CABEÇALHO é o que sinaliza a intenção (sem ele,
+    // linha sem quantidade parece dado faltando). Checkbox igual ao da lista principal:
+    // mesmo boughtKeys, via os pares {item, unit} originais.
+    if (built.pantry.length) {
+      const pantryTitle = document.createElement("div");
+      pantryTitle.className = "shopping-list__pantry-title";
+      pantryTitle.textContent = "Despensa — confira se já tem";
+      content.appendChild(pantryTitle);
+
+      const pantryUl = document.createElement("ul");
+      pantryUl.className = "ingredients-list checklist";
+      built.pantry.forEach((p) => {
+        const bought = p.pairs.every((pr) => Storage.isShoppingItemBought(pr.item, pr.unit));
+        const label = p.label.charAt(0).toUpperCase() + p.label.slice(1);
+        const li = document.createElement("li");
+        li.innerHTML =
+          '<label><input type="checkbox"' +
+          (bought ? " checked" : "") +
+          '><span class="' +
+          (bought ? "struck" : "") +
+          '">' +
+          label +
+          '<span class="shopping-list__pantry-count"> — ' +
+          p.count + (p.count === 1 ? " receita" : " receitas") +
+          "</span></span></label>";
+        li.querySelector('input[type="checkbox"]').addEventListener("change", () => {
+          const target = !bought;
+          p.pairs.forEach((pr) => {
+            if (Storage.isShoppingItemBought(pr.item, pr.unit) !== target) Storage.toggleShoppingItemBought(pr.item, pr.unit);
+          });
+          renderListaCompras();
+        });
+        pantryUl.appendChild(li);
+      });
+      content.appendChild(pantryUl);
+    }
 
     // Items isReference não são compra ("1 receita de hollandaise" não vai pro carrinho),
     // mas são informação útil de planejamento — seção própria no FIM da lista, sem checkbox

@@ -250,10 +250,12 @@ body {
   padding-bottom: 8px;
   border-bottom: 1px solid var(--line);
 }
-/* Seção "Preparos que você precisa fazer antes" no fim da visão Geral: items isReference
-   ("1 receita de hollandaise") não são compra — sem checkbox, só título + de quais receitas
-   cada preparo vem (ver renderShoppingListGeral em js/app.js). */
-.shopping-list__preparos-title {
+/* Seções extras no fim da visão Geral: "Despensa — confira se já tem" (itens do PANTRY_SET,
+   com checkbox, sem número — o cabeçalho é o que evita parecer dado faltando) e "Preparos que
+   você precisa fazer antes" (items isReference, sem checkbox) — ver renderShoppingListGeral
+   em js/app.js. Mesmo visual de título e de texto auxiliar nas duas. */
+.shopping-list__preparos-title,
+.shopping-list__pantry-title {
   margin: 24px 0 10px;
   padding-top: 16px;
   border-top: 1px solid var(--line);
@@ -262,7 +264,8 @@ body {
   font-weight: 600;
   color: var(--ink-soft);
 }
-.shopping-list__preparos-recipes {
+.shopping-list__preparos-recipes,
+.shopping-list__pantry-count {
   color: var(--ink-soft);
   font-size: 0.85rem;
 }
