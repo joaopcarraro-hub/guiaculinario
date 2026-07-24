@@ -70,9 +70,9 @@ Deve existir apenas um grupo macro: Proteínas.
 
 ### Cozinhas
 
-Brasil deve estar dentro de Cozinhas do mundo.
+Brasil deve estar dentro de Países.
 
-Não deve existir separação redundante entre Brasil e Cozinhas do mundo na home.
+Não deve existir separação redundante entre Brasil e Países na home.
 
 ### Tags pesquisáveis
 

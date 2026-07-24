@@ -2,7 +2,7 @@
 // Cada coleção antiga (uma por categoria) tem paridade com o app atual (mesmo id/label/icon),
 // mas agora também pode receber receitas de outras categorias que compartilhem a tag.
 // Grupos macro (usados pela home e pelas páginas de grupo #/grupo/:id):
-// Fundamentos, Proteínas, Cozinhas do Mundo, Por tempo, Por dificuldade.
+// Fundamentos, Proteínas, Países, Por tempo, Por dificuldade.
 //
 // collectionType descreve como a coleção deve se comportar na UI (ver js/tagmodel.js getGuidedRelatedTags):
 // - country: sem abas Foco/Também leva, refinamento guiado em camadas (1: tipo de prato/proteína/formato, 2: tempo/dificuldade/técnica)
@@ -49,27 +49,27 @@
     { id: "cordeiro", group: "Proteínas", collectionType: "protein", label: "Cordeiro", icon: "🐑", desc: "Receitas com cordeiro como foco.", primaryFilterTags: ["protein:cordeiro"], relatedFilterTags: ["contains:cordeiro"], defaultView: "primary" },
     { id: "col-vegetariana", group: "Proteínas", collectionType: "diet", label: "Vegetarianas", icon: "🥬", desc: "Receitas sem carne, peixe ou frutos do mar (dieta, não proteína).", primaryFilterTags: ["diet:vegetariana"] },
 
-    // ---------- Cozinhas do Mundo (Brasil incluído aqui, não é mais bloco separado) ----------
-    { id: "brasil", group: "Cozinhas do Mundo", collectionType: "country", label: "Brasil", icon: "🇧🇷", primaryFilterTags: ["country:brasil"] },
-    { id: "franca", group: "Cozinhas do Mundo", collectionType: "country", label: "França", icon: "🇫🇷", primaryFilterTags: ["country:franca"] },
-    { id: "italia", group: "Cozinhas do Mundo", collectionType: "country", label: "Itália", icon: "🇮🇹", primaryFilterTags: ["country:italia"] },
-    { id: "espanha", group: "Cozinhas do Mundo", collectionType: "country", label: "Espanha", icon: "🇪🇸", primaryFilterTags: ["country:espanha"] },
-    { id: "portugal", group: "Cozinhas do Mundo", collectionType: "country", label: "Portugal", icon: "🇵🇹", primaryFilterTags: ["country:portugal"] },
-    { id: "japao", group: "Cozinhas do Mundo", collectionType: "country", label: "Japão", icon: "🇯🇵", primaryFilterTags: ["country:japao"] },
-    { id: "china", group: "Cozinhas do Mundo", collectionType: "country", label: "China", icon: "🇨🇳", primaryFilterTags: ["country:china"] },
-    { id: "coreia", group: "Cozinhas do Mundo", collectionType: "country", label: "Coreia", icon: "🇰🇷", primaryFilterTags: ["country:coreia"] },
-    { id: "tailandia", group: "Cozinhas do Mundo", collectionType: "country", label: "Tailândia", icon: "🇹🇭", primaryFilterTags: ["country:tailandia"] },
-    { id: "india", group: "Cozinhas do Mundo", collectionType: "country", label: "Índia", icon: "🇮🇳", primaryFilterTags: ["country:india"] },
-    { id: "mexico", group: "Cozinhas do Mundo", collectionType: "country", label: "México", icon: "🇲🇽", primaryFilterTags: ["country:mexico"] },
-    { id: "peru", group: "Cozinhas do Mundo", collectionType: "country", label: "Peru", icon: "🇵🇪", primaryFilterTags: ["country:peru"] },
-    { id: "alemanha", group: "Cozinhas do Mundo", collectionType: "country", label: "Alemanha", icon: "🇩🇪", primaryFilterTags: ["country:alemanha"] },
-    { id: "austria", group: "Cozinhas do Mundo", collectionType: "country", label: "Áustria", icon: "🇦🇹", primaryFilterTags: ["country:austria"] },
-    { id: "hungria", group: "Cozinhas do Mundo", collectionType: "country", label: "Hungria", icon: "🇭🇺", primaryFilterTags: ["country:hungria"] },
-    { id: "grecia", group: "Cozinhas do Mundo", collectionType: "country", label: "Grécia", icon: "🇬🇷", primaryFilterTags: ["country:grecia"] },
-    { id: "marrocos", group: "Cozinhas do Mundo", collectionType: "country", label: "Marrocos", icon: "🇲🇦", primaryFilterTags: ["country:marrocos"] },
-    { id: "libano", group: "Cozinhas do Mundo", collectionType: "country", label: "Líbano", icon: "🇱🇧", primaryFilterTags: ["country:libano"] },
-    { id: "eua", group: "Cozinhas do Mundo", collectionType: "country", label: "EUA", icon: "🇺🇸", primaryFilterTags: ["country:eua"] },
-    { id: "dinamarca", group: "Cozinhas do Mundo", collectionType: "country", label: "Dinamarca", icon: "🇩🇰", primaryFilterTags: ["country:dinamarca"] },
+    // ---------- Países (Brasil incluído aqui, não é mais bloco separado) ----------
+    { id: "brasil", group: "Países", collectionType: "country", label: "Brasil", icon: "🇧🇷", primaryFilterTags: ["country:brasil"] },
+    { id: "franca", group: "Países", collectionType: "country", label: "França", icon: "🇫🇷", primaryFilterTags: ["country:franca"] },
+    { id: "italia", group: "Países", collectionType: "country", label: "Itália", icon: "🇮🇹", primaryFilterTags: ["country:italia"] },
+    { id: "espanha", group: "Países", collectionType: "country", label: "Espanha", icon: "🇪🇸", primaryFilterTags: ["country:espanha"] },
+    { id: "portugal", group: "Países", collectionType: "country", label: "Portugal", icon: "🇵🇹", primaryFilterTags: ["country:portugal"] },
+    { id: "japao", group: "Países", collectionType: "country", label: "Japão", icon: "🇯🇵", primaryFilterTags: ["country:japao"] },
+    { id: "china", group: "Países", collectionType: "country", label: "China", icon: "🇨🇳", primaryFilterTags: ["country:china"] },
+    { id: "coreia", group: "Países", collectionType: "country", label: "Coreia", icon: "🇰🇷", primaryFilterTags: ["country:coreia"] },
+    { id: "tailandia", group: "Países", collectionType: "country", label: "Tailândia", icon: "🇹🇭", primaryFilterTags: ["country:tailandia"] },
+    { id: "india", group: "Países", collectionType: "country", label: "Índia", icon: "🇮🇳", primaryFilterTags: ["country:india"] },
+    { id: "mexico", group: "Países", collectionType: "country", label: "México", icon: "🇲🇽", primaryFilterTags: ["country:mexico"] },
+    { id: "peru", group: "Países", collectionType: "country", label: "Peru", icon: "🇵🇪", primaryFilterTags: ["country:peru"] },
+    { id: "alemanha", group: "Países", collectionType: "country", label: "Alemanha", icon: "🇩🇪", primaryFilterTags: ["country:alemanha"] },
+    { id: "austria", group: "Países", collectionType: "country", label: "Áustria", icon: "🇦🇹", primaryFilterTags: ["country:austria"] },
+    { id: "hungria", group: "Países", collectionType: "country", label: "Hungria", icon: "🇭🇺", primaryFilterTags: ["country:hungria"] },
+    { id: "grecia", group: "Países", collectionType: "country", label: "Grécia", icon: "🇬🇷", primaryFilterTags: ["country:grecia"] },
+    { id: "marrocos", group: "Países", collectionType: "country", label: "Marrocos", icon: "🇲🇦", primaryFilterTags: ["country:marrocos"] },
+    { id: "libano", group: "Países", collectionType: "country", label: "Líbano", icon: "🇱🇧", primaryFilterTags: ["country:libano"] },
+    { id: "eua", group: "Países", collectionType: "country", label: "EUA", icon: "🇺🇸", primaryFilterTags: ["country:eua"] },
+    { id: "dinamarca", group: "Países", collectionType: "country", label: "Dinamarca", icon: "🇩🇰", primaryFilterTags: ["country:dinamarca"] },
 
     // ---------- Por tempo ----------
     { id: "col-rapidas", group: "Por tempo", collectionType: "time", label: "Rápidas", icon: "⏱️", desc: "Receitas prontas em até 30 minutos.", primaryFilterTags: ["time:ate-30-min"] },

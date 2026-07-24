@@ -513,11 +513,15 @@ multi-seleção coexistem:
   Unicode próprio (salmão, robalo, atum, linguado, dourado, anchova, bacalhau, badejo, tilápia)
   usam 🐟 genérico. 8 de 51 valores ficam SEM ícone (mandioca, iogurte, lentilha, grão-de-bico,
   molho de soja, repolho, damasco, abobrinha — label+contagem apenas, mesmo fallback seguro do
-  Processador/Sous Vide em Equipamento). Continua combinando em AND entre si — única faceta com
-  essa lógica (e com fallback OR na tela de resultados quando zera). Gengibre e curry NÃO
-  aparecem nesta seção: existem só como `seasoning:*` (ver js/tags.js), não `ingredient:*` — a
-  faceta só lê o prefixo `ingredient:`, então essas duas tags nunca foram opções aqui, com ou
-  sem emoji.
+  Processador/Sous Vide em Equipamento). Combina em AND ou OR entre si por escolha do usuário —
+  único toggle desse tipo entre as facetas: trilho único em pílula com trava deslizante
+  ("Qualquer um destes"/"Todos estes", NÃO 2 botões separados), numa linha própria ANTES dos
+  chips selecionados (logo abaixo do cabeçalho do acordeão), só visível com 2+ selecionados;
+  "or" é o default. Gengibre e curry NÃO aparecem nesta seção: existem só como `seasoning:*`
+  (ver js/tags.js), não `ingredient:*` — a faceta só lê o prefixo `ingredient:`, então essas
+  duas tags nunca foram opções aqui, com ou sem emoji (e, por não passarem pelo toggle, não têm
+  como combinar em OR entre si caso 2+ apareçam selecionadas por outra via, ex. chip manual —
+  caso raro, sem UI própria pra isso).
 
 A contagem de cada opção não-selecionada é sempre "quantos eu teria se também adicionasse
 este" — universo restrito pelas OUTRAS facetas, nunca pela própria (mesma lógica que já existia
@@ -566,7 +570,8 @@ ficou em 14px (não forçado pra 20px — decisão em aberto, separada).
   sozinho (sombra escura sobre fundo escuro ficaria invisível de qualquer forma).
 
 Achado importante durante a resolução: várias regras usavam `color: var(--gold)` em texto
-PEQUENO (<18px) — `.icon-credits a`, `.btn-or-fallback`, `.subgroup-title`, `.recipe-title
+PEQUENO (<18px) — `.icon-credits a`, `.btn-or-fallback` (removido depois, junto com o resto do
+fallback reativo do Ingrediente — ver seção Ingrediente/toggle acima), `.subgroup-title`, `.recipe-title
 .cat-chip`, `.recipe-card-cta`, `.tag-chip-link`, `.back-button`, `.recipe-page-section h4`,
 `.cook-step-label`. Mapear direto pra `--gold`=`--color-accent` faria essas 9 regras virarem
 ghost-text que falha WCAG AA no tamanho (a mesma regra já documentada pra "Mais categorias" na

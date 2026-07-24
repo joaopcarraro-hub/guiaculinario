@@ -241,13 +241,22 @@
   const GRUPOS = [
     { id: "fundamentos", label: "Mais Categorias", icon: "🥣", desc: "Aprenda as bases, técnicas e preparos essenciais da culinária.", collectionGroup: "Fundamentos" },
     { id: "proteinas", label: "Proteínas", icon: "🍗", desc: "Encontre receitas pelo tipo de proteína principal ou ingrediente usado.", collectionGroup: "Proteínas" },
-    { id: "cozinhas", label: "Cozinhas do mundo", icon: "🌍", desc: "Navegue por receitas do Brasil e de diferentes países.", collectionGroup: "Cozinhas do Mundo" },
+    { id: "cozinhas", label: "Países", icon: "🌍", desc: "Navegue por receitas do Brasil e de diferentes países.", collectionGroup: "Países" },
     { id: "tempo", label: "Por tempo", icon: "⏱️", desc: "Escolha receitas de acordo com o tempo que você tem para cozinhar.", collectionGroup: "Por tempo" },
     { id: "dificuldade", label: "Por dificuldade", icon: "🎯", desc: "Encontre receitas fáceis, intermediárias ou mais técnicas.", collectionGroup: "Por dificuldade" },
   ];
 
   function normText(s) {
     return (s || "").toString().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  }
+
+  // Hash atual em formato "path" (sem "#" nem "/" inicial) — mesmo formato que Router.navigate
+  // espera e que Router.parseHash usa internamente ("raw"). Usado tanto pra guardar a rota de
+  // origem completa ao abrir uma receita (Router.toReceita/toCozinhar, "Voltar" reconstrói via
+  // Router.navigate(fromHash) direto) quanto como chave do mapa de scroll por rota (ver
+  // scrollPositionsByHash perto de handleRoute).
+  function currentHashPath() {
+    return location.hash.replace(/^#\/?/, "");
   }
 
   // Mapa catId -> grupo, derivado de window.COLLECTIONS (fonte atual, a mesma usada pelo botão
@@ -301,7 +310,7 @@
     return map;
   }
 
-  // Card compartilhado por TODOS os hubs (Fundamentos/Proteínas/Cozinhas do Mundo/Tempo/
+  // Card compartilhado por TODOS os hubs (Fundamentos/Proteínas/Países/Tempo/
   // Dificuldade) via renderGrupo — sem split "X de foco · Y no total" (resíduo do antigo
   // sistema de Foco/Também leva, redundante com o dropdown "Papel da proteína" já disponível
   // um clique depois, dentro da própria categoria) e sem "X/Y feitas" (Bloco 2, item 1+5).
@@ -493,8 +502,12 @@
   // País/Complexidade/Tempo/Equipamento são multi-seleção com combineMode "or" — valores da
   // MESMA faceta se somam (união); entre facetas diferentes continua AND (matchesGroupedTags
   // já faz isso sozinho pra qualquer prefixo que não seja ingredient:/seasoning:, sem precisar
-  // de nenhuma lógica nova aqui). Ingrediente continua multi-seleção com combineMode "and" +
-  // fallback OR quando zera — intocado.
+  // de nenhuma lógica nova aqui). Ingrediente é multi-seleção com combineMode "toggle" — o
+  // usuário escolhe "Qualquer um destes" (or, default) ou "Todos estes" (and) direto num
+  // segmented control dentro da própria seção, só visível com 2+ selecionados (ver
+  // renderIngredientTileSectionBody/ingredientMode). def.combineMode aqui é só rótulo — a
+  // combinação real vem do estado ingredientMode (opts.ingredientMode em renderFacetModal),
+  // não deste campo.
   // layout: "tiles" (piloto de redesenho visual, País e Equipamento por ora) — muda SÓ a
   // apresentação (grade de tiles com ícone/contagem em vez de lista de checkbox); a lógica
   // de estado/combinação continua a mesma de qualquer combineMode "or" (ver
@@ -524,9 +537,10 @@
     // layout: "ingredient-tiles" — piloto próprio (não reaproveita renderTileSectionBody): grade
     // MAIS DENSA que País/Equipamento (mais colunas, tiles menores) pra caber ~30-40 valores em
     // 360-430px, e SÓ substitui o <select> de "+ adicionar" — os chips removíveis dos já
-    // selecionados continuam exatamente iguais. combineMode "and" (+ fallback OR ao zerar,
-    // intocado) continua sendo a única lógica diferente de todas as outras facetas.
-    { key: "ingredient", label: "Ingrediente", prefix: "ingredient:", multi: true, combineMode: "and", layout: "ingredient-tiles" },
+    // selecionados continuam exatamente iguais. combineMode "toggle" (segmented control
+    // Qualquer um/Todos estes) continua sendo a única lógica diferente de todas as outras
+    // facetas.
+    { key: "ingredient", label: "Ingrediente", prefix: "ingredient:", multi: true, combineMode: "toggle", layout: "ingredient-tiles" },
   ];
 
   // Proteína: sem ícone nesta rodada (rodada futura, mesmo tratamento que Processador/Sous
@@ -706,16 +720,6 @@
     });
   }
 
-  // A rede de segurança OR só ajuda quando 2+ tags do MESMO grupo (ingredient: OU seasoning:)
-  // estão selecionadas — combinar 1 ingredient: + 1 seasoning: é sempre AND entre grupos
-  // diferentes (ver matchesGroupedTags), então relaxar pra "or" nesse caso não muda nada e só
-  // deixaria o botão de fallback como um beco sem saída.
-  function hasIngredientLikeMultiSelect(tagIds) {
-    const ingCount = tagIds.filter((t) => t.indexOf("ingredient:") === 0).length;
-    const seaCount = tagIds.filter((t) => t.indexOf("seasoning:") === 0).length;
-    return ingCount >= 2 || seaCount >= 2;
-  }
-
   // Lê o estado dos dropdowns a partir de um array plano de tag ids (selectedFacetTags ou
   // tagIds) — facetas multi viram array, as demais pegam o primeiro tag do seu prefixo.
   function readFacetStateFromTags(tagIds, defs) {
@@ -781,23 +785,27 @@
 
   // Calcula as opções (com contagem) de UMA faceta, restringindo o universo pelas OUTRAS
   // facetas já selecionadas (cross-facet AND) — extraído da antiga renderFacetBar sem mudar a
-  // lógica, só pra ser reaproveitado pelo acordeão do modal (Bloco 3).
-  function computeFacetOptions(universeItems, facetState, defs, def) {
+  // lógica, só pra ser reaproveitado pelo acordeão do modal (Bloco 3). ingredientMode: quando
+  // as OUTRAS facetas incluem 2+ ingredientes (ex.: calculando contagem de País com Ingrediente
+  // já selecionado), precisa saber se esses ingredientes combinam em "and" ou "or" entre si —
+  // sem isso, a contagem mostrada ficaria sempre no modo AND, ignorando o toggle "Qualquer um
+  // destes"/"Todos estes" (ver renderIngredientTileSectionBody).
+  function computeFacetOptions(universeItems, facetState, defs, def, ingredientMode) {
     const otherTagIds = [];
     defs.forEach((d) => {
       if (d.key === def.key) return;
       if (d.multi) otherTagIds.push.apply(otherTagIds, facetState[d.key] || []);
       else if (facetState[d.key]) otherTagIds.push(facetState[d.key]);
     });
-    const restricted = universeItems.filter((item) => matchesGroupedTags(item.tags, otherTagIds));
+    const restricted = universeItems.filter((item) => matchesGroupedTags(item.tags, otherTagIds, ingredientMode));
     return def.prefix ? facetOptionsFromPrefix(restricted, def.prefix) : facetOptionsFromStatic(restricted, def.staticOptions);
   }
 
   // ---------- Modal de filtros em acordeão (Bloco 3 — design tokens v3) ----------
   // Substitui a antiga barra de dropdowns sempre-visível por um botão "Filtros" (com badge) que
   // abre um modal cheio de tela. A CARDINALIDADE e a LÓGICA de cada faceta não mudam — só onde
-  // moram na tela: matchesGroupedTags, hasIngredientLikeMultiSelect, facetOptionsFromPrefix/
-  // Static, readFacetStateFromTags, facetStateToTagIds continuam intocadas, só reaproveitadas.
+  // moram na tela: matchesGroupedTags, facetOptionsFromPrefix/Static, readFacetStateFromTags,
+  // facetStateToTagIds continuam intocadas, só reaproveitadas.
   // Mudanças dentro do modal ficam em RASCUNHO (draftFacetState/draftProteinRole) — só se
   // aplicam de fato ao clicar "Ver resultados"; "Cancelar" descarta o rascunho sem tocar no
   // estado real. "Limpar filtros" zera só o RASCUNHO (todas as seções voltam a "Todos"/nenhuma
@@ -811,15 +819,19 @@
   //   facetState: estado ATUAL aplicado (só é mutado quando o rascunho é confirmado).
   //   getUniverse(draftProteinRoleValue): universo de receitas pra calcular opções/contagens —
   //     cada caller já tem essa conta pronta, só reaproveita (não recalcula nada novo).
-  //   proteinRole: null OU { value, setValue(v), computeCounts(draftFacetState) -> {focus,
-  //     secondary} } — só passado por renderCategory em coleções de proteína.
-  //   countForDraft(draftFacetState, draftProteinRoleValue): quantas receitas o resultado teria
-  //     se esse rascunho fosse aplicado agora (mesma conta de currentItems()/facetUniverse()).
-  //   onApply(): chamado DEPOIS que facetState/proteinRole já foram escritos com o rascunho —
-  //     é o mesmo corpo que cada dropdown antigo já disparava no onChange, só que uma vez só.
-  // A rede de segurança OR do Ingrediente (zero-resultado) continua vivendo só na tela de
-  // resultados (renderList/renderResults, intocadas) — o modal não duplica essa UI, só deixa
-  // "Ver resultados" aplicável mesmo com N=0, pra cair no mesmo empty-state+fallback de sempre.
+  //   proteinRole: null OU { value, setValue(v), computeCounts(draftFacetState,
+  //     draftIngredientMode) -> {focus, secondary} } — só passado por renderCategory em
+  //     coleções de proteína.
+  //   ingredientMode: { value: "and"|"or", setValue(v) } — modo de combinação da faceta
+  //     Ingrediente (toggle Qualquer um/Todos estes, só aparece com 2+ selecionados, ver
+  //     renderIngredientTileSectionBody). "or" é o default. Sempre passado (todo caller tem
+  //     a faceta Ingrediente em GENERIC_FACET_DEFS).
+  //   countForDraft(draftFacetState, draftProteinRoleValue, draftIngredientMode): quantas
+  //     receitas o resultado teria se esse rascunho fosse aplicado agora (mesma conta de
+  //     currentItems()/facetUniverse()).
+  //   onApply(): chamado DEPOIS que facetState/proteinRole/ingredientMode já foram escritos
+  //     com o rascunho — é o mesmo corpo que cada dropdown antigo já disparava no onChange, só
+  //     que uma vez só.
   function renderFacetModal(triggerWrapEl, defs, opts) {
     const activeCount =
       defs.reduce((n, d) => n + (d.multi ? (opts.facetState[d.key] || []).length : opts.facetState[d.key] ? 1 : 0), 0) +
@@ -840,6 +852,9 @@
         draftFacetState[d.key] = d.multi ? (opts.facetState[d.key] || []).slice() : opts.facetState[d.key];
       });
       let draftProteinRole = opts.proteinRole ? opts.proteinRole.value : null;
+      // "or" é o default (Qualquer um destes) — sem opts.ingredientMode (facetas sem essa
+      // faceta, ex. proteína não tem Ingrediente aqui) o valor nunca é lido de verdade.
+      let draftIngredientMode = opts.ingredientMode ? opts.ingredientMode.value || "or" : "or";
       let openSectionKey = null;
 
       const overlay = document.createElement("div");
@@ -900,13 +915,14 @@
             draftFacetState[d.key] = d.multi ? [] : null;
           });
           draftProteinRole = null;
+          draftIngredientMode = "or";
           openSectionKey = null;
           renderBody();
         });
       }
 
       function renderFooter() {
-        const n = opts.countForDraft(draftFacetState, draftProteinRole);
+        const n = opts.countForDraft(draftFacetState, draftProteinRole, draftIngredientMode);
         applyBtn.textContent = "Ver resultados (" + n + ")";
       }
       applyBtn.addEventListener("click", () => {
@@ -914,6 +930,7 @@
           opts.facetState[d.key] = draftFacetState[d.key];
         });
         if (opts.proteinRole) opts.proteinRole.setValue(draftProteinRole);
+        if (opts.ingredientMode) opts.ingredientMode.setValue(draftIngredientMode);
         closeModal();
         opts.onApply();
       });
@@ -1013,10 +1030,34 @@
       // caber ~30-40 valores confortavelmente em 360-430px. Clicar num tile addable adiciona à
       // seleção (equivalente a escolher no <select> antigo); não existe estado "is-selected"
       // aqui, porque um valor selecionado sai da grade e vira chip — nunca aparece nos dois
-      // lugares ao mesmo tempo. Nenhuma mudança na lógica AND+fallback OR de Ingrediente.
+      // lugares ao mesmo tempo.
+      // Toggle Qualquer um/Todos estes (novo): trilho único com trava deslizante (não 2
+      // botões separados) — ANTES dos chips selecionados, logo abaixo do cabeçalho do
+      // acordeão. Só existe (nem desabilitado, REMOVIDO do DOM) com 2+ ingredientes
+      // selecionados, já que com 0/1 não há o que combinar. A trava (.ingredient-mode-
+      // toggle__thumb) cobre metade da largura do trilho e desliza via transform:translateX
+      // (CSS, ver .ingredient-mode-toggle--and) — nenhum estado novo de posição em JS, só a
+      // classe modificadora no trilho baseada em draftIngredientMode. Substitui a antiga rede
+      // de segurança reativa (botão só aparecia depois de um AND zerar) — agora a escolha é
+      // proativa e sempre visível quando faz sentido, então esse fallback foi removido de
+      // renderList/renderResults.
       function renderIngredientTileSectionBody(sectionBody, def, options) {
         const selectedIds = draftFacetState[def.key] || [];
         const addableOptions = options.filter((o) => selectedIds.indexOf(o.tagId) === -1);
+        const modeToggleHtml =
+          selectedIds.length >= 2
+            ? '<div class="ingredient-mode-toggle' +
+              (draftIngredientMode === "and" ? " ingredient-mode-toggle--and" : "") +
+              '" role="group" aria-label="Como combinar os ingredientes selecionados">' +
+              '<span class="ingredient-mode-toggle__thumb" aria-hidden="true"></span>' +
+              '<button type="button" class="ingredient-mode-toggle__option' +
+              (draftIngredientMode !== "and" ? " is-active" : "") +
+              '" data-mode="or">Qualquer um destes</button>' +
+              '<button type="button" class="ingredient-mode-toggle__option' +
+              (draftIngredientMode === "and" ? " is-active" : "") +
+              '" data-mode="and">Todos estes</button>' +
+              "</div>"
+            : "";
         const chipsHtml = selectedIds
           .map((tagId) => {
             const tag = TagModel.getTagById(tagId);
@@ -1030,6 +1071,7 @@
           })
           .join("");
         sectionBody.innerHTML =
+          modeToggleHtml +
           (chipsHtml ? '<div class="facet-multi-chips">' + chipsHtml + "</div>" : "") +
           (addableOptions.length
             ? '<div class="filter-tile-grid filter-tile-grid--dense">' +
@@ -1053,6 +1095,35 @@
           btn.addEventListener("click", () => {
             draftFacetState[def.key] = selectedIds.filter((id) => id !== btn.dataset.remove);
             renderBody();
+          });
+        });
+        sectionBody.querySelectorAll(".ingredient-mode-toggle__option").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            if (btn.dataset.mode === draftIngredientMode) return; // já está desse lado, nada a fazer
+            draftIngredientMode = btn.dataset.mode;
+            // Chamar renderBody() direto aqui destruiria e recriaria a trava na hora (renderBody
+            // faz bodyEl.innerHTML="" e reconstrói toda seção do zero) — sem o MESMO nó do DOM
+            // antes/depois, a transition CSS não tem o que animar, e a trava só "nasceria" já no
+            // lugar novo, sem deslizar. Por isso aqui só troca a classe no elemento que já existe
+            // (deixa a transition de verdade tocar) e adia o renderBody() completo (que resincroniza
+            // contagem cruzada nas outras seções + rodapé) pra depois que a animação realmente
+            // terminar (transitionend na trava, com um setTimeout de segurança caso não dispare).
+            const toggleEl = sectionBody.querySelector(".ingredient-mode-toggle");
+            const thumbEl = toggleEl.querySelector(".ingredient-mode-toggle__thumb");
+            toggleEl.classList.toggle("ingredient-mode-toggle--and", draftIngredientMode === "and");
+            toggleEl.querySelectorAll(".ingredient-mode-toggle__option").forEach((b) => {
+              b.classList.toggle("is-active", b.dataset.mode === draftIngredientMode);
+            });
+            renderFooter();
+            let resynced = false;
+            function resync() {
+              if (resynced) return;
+              resynced = true;
+              thumbEl.removeEventListener("transitionend", resync);
+              renderBody();
+            }
+            thumbEl.addEventListener("transitionend", resync);
+            setTimeout(resync, 400);
           });
         });
         sectionBody.querySelectorAll(".filter-tile--dense").forEach((btn) => {
@@ -1145,7 +1216,7 @@
       }
 
       function renderGenericSection(def) {
-        const options = computeFacetOptions(opts.getUniverse(draftProteinRole), draftFacetState, defs, def);
+        const options = computeFacetOptions(opts.getUniverse(draftProteinRole), draftFacetState, defs, def, draftIngredientMode);
         const section = document.createElement("div");
         section.className = "filter-section" + (openSectionKey === def.key ? " is-open" : "");
         const summary = sectionSummary(def);
@@ -1171,7 +1242,7 @@
       }
 
       function renderProteinRoleSection() {
-        const counts = opts.proteinRole.computeCounts(draftFacetState);
+        const counts = opts.proteinRole.computeCounts(draftFacetState, draftIngredientMode);
         const section = document.createElement("div");
         section.className = "filter-section" + (openSectionKey === "protein-role" ? " is-open" : "");
         const summary = draftProteinRole === "focus" ? "Principal" : draftProteinRole === "secondary" ? "Secundário" : "";
@@ -1221,13 +1292,13 @@
   // ---------- Categoria (coleção) ----------
   let refreshActiveCounts = null; // atualiza contadores/toolbar sem re-renderizar os cards (chamado ao marcar feito/favorito)
 
-  function showCategoria(collectionId, initialFacetTags, initialRole) {
+  function showCategoria(collectionId, initialFacetTags, initialRole, initialIngredientMode) {
     const collection = window.COLLECTIONS.find((c) => c.id === collectionId) || firstCollection;
     activeCat = collection.id;
-    renderCategory(collection, initialFacetTags || [], initialRole || null);
+    renderCategory(collection, initialFacetTags || [], initialRole || null, initialIngredientMode || "or");
   }
 
-  function renderCategory(collection, initialFacetTags, initialRole) {
+  function renderCategory(collection, initialFacetTags, initialRole, initialIngredientMode) {
     refreshActiveCounts = null;
     header.innerHTML =
       '<button type="button" class="back-button">← Voltar</button><h2>' +
@@ -1258,28 +1329,21 @@
     let primaryRecipes = basePrimary;
     let relatedRecipes = baseRelated;
     let allRecipes = baseAll;
-    // Rede de segurança: quando 2+ ingredientes selecionados dão zero receita (AND vazio), o
-    // usuário pode pedir "ver com qualquer um" — troca só a LISTAGEM pra OR, sem afetar as
-    // contagens dos dropdowns (que continuam refletindo o AND, o comportamento padrão).
-    let ingredientOrFallback = false;
+    // Como 2+ ingredientes combinam entre si (toggle Qualquer um/Todos estes, ver
+    // renderIngredientTileSectionBody) — persistido junto com selectedFacetTags (mesma URL,
+    // Router.replaceCategoriaFacets). "or" é o default. Substitui a antiga rede de segurança
+    // reativa (ingredientOrFallback): antes só virava "or" depois de um AND zerar, sem opção
+    // proativa nem persistência — agora é uma escolha explícita, sempre visível com 2+
+    // ingredientes selecionados, válida antes mesmo de dar zero resultado.
+    let ingredientMode = initialIngredientMode || "or";
 
     function applyFacets() {
-      const matchesFacets = (item) => matchesGroupedTags(item.tags, selectedFacetTags);
+      const matchesFacets = (item) => matchesGroupedTags(item.tags, selectedFacetTags, ingredientMode);
       primaryRecipes = selectedFacetTags.length ? basePrimary.filter(matchesFacets) : basePrimary;
       relatedRecipes = selectedFacetTags.length ? baseRelated.filter(matchesFacets) : baseRelated;
       allRecipes = selectedFacetTags.length ? baseAll.filter(matchesFacets) : baseAll;
     }
     applyFacets();
-
-    function itemsWithMode(mode) {
-      const matches = (item) => matchesGroupedTags(item.tags, selectedFacetTags, mode);
-      const primary = selectedFacetTags.length ? basePrimary.filter(matches) : basePrimary;
-      const related = selectedFacetTags.length ? baseRelated.filter(matches) : baseRelated;
-      const all = selectedFacetTags.length ? baseAll.filter(matches) : baseAll;
-      if (proteinRole === "focus") return primary;
-      if (proteinRole === "secondary") return related;
-      return all;
-    }
 
     // Papel da proteína (Principal/Secundário/Tanto faz) substitui as antigas abas
     // "Foco da receita/Todas" — só existe pra coleções de proteína que realmente têm
@@ -1288,7 +1352,7 @@
     let proteinRole = isProteinRole && (initialRole === "focus" || initialRole === "secondary") ? initialRole : null;
 
     function syncUrl() {
-      Router.replaceCategoriaFacets(collection.id, selectedFacetTags, proteinRole);
+      Router.replaceCategoriaFacets(collection.id, selectedFacetTags, proteinRole, ingredientMode);
     }
 
     let sortKey = TagModel.getCollectionSort(collection.id) || "relevance";
@@ -1345,15 +1409,21 @@
               setValue: (v) => {
                 proteinRole = v;
               },
-              computeCounts: (draftFacetState) => {
-                const matchesGeneric = (item) => matchesGroupedTags(item.tags, facetStateToTagIds(draftFacetState, GENERIC_FACET_DEFS));
+              computeCounts: (draftFacetState, draftIngredientMode) => {
+                const matchesGeneric = (item) => matchesGroupedTags(item.tags, facetStateToTagIds(draftFacetState, GENERIC_FACET_DEFS), draftIngredientMode);
                 return { focus: basePrimary.filter(matchesGeneric).length, secondary: baseRelated.filter(matchesGeneric).length };
               },
             }
           : null,
-        countForDraft: (draftFacetState, draftRole) => {
+        ingredientMode: {
+          value: ingredientMode,
+          setValue: (v) => {
+            ingredientMode = v;
+          },
+        },
+        countForDraft: (draftFacetState, draftRole, draftIngredientMode) => {
           const draftTags = facetStateToTagIds(draftFacetState, GENERIC_FACET_DEFS);
-          const matches = (item) => matchesGroupedTags(item.tags, draftTags);
+          const matches = (item) => matchesGroupedTags(item.tags, draftTags, draftIngredientMode);
           const primary = draftTags.length ? basePrimary.filter(matches) : basePrimary;
           const related = draftTags.length ? baseRelated.filter(matches) : baseRelated;
           const all = draftTags.length ? baseAll.filter(matches) : baseAll;
@@ -1363,7 +1433,6 @@
         },
         onApply: () => {
           selectedFacetTags = facetStateToTagIds(facetState, GENERIC_FACET_DEFS);
-          ingredientOrFallback = false;
           applyFacets();
           syncUrl();
           renderFacets();
@@ -1375,40 +1444,14 @@
 
     function renderList() {
       listEl.innerHTML = "";
-      let items = currentItems();
-      let usingOrFallback = false;
+      const items = currentItems();
 
+      // Sem rede de segurança reativa — o toggle Qualquer um/Todos estes (sempre visível com
+      // 2+ ingredientes, ver renderIngredientTileSectionBody) já resolve o caso de AND zerado
+      // de forma proativa, direto no modal. Zero resultado aqui é só o empty-state normal.
       if (!items.length) {
-        const canFallbackToOr = hasIngredientLikeMultiSelect(selectedFacetTags);
-        if (canFallbackToOr && !ingredientOrFallback) {
-          listEl.innerHTML =
-            '<div class="empty-state">Nenhuma receita tem todos estes ingredientes juntos.<br>' +
-            '<button type="button" class="btn-or-fallback">Ver receitas com qualquer um destes ingredientes</button></div>';
-          listEl.querySelector(".btn-or-fallback").addEventListener("click", () => {
-            ingredientOrFallback = true;
-            renderList();
-          });
-          return;
-        }
-        if (canFallbackToOr && ingredientOrFallback) {
-          items = itemsWithMode("or");
-          usingOrFallback = items.length > 0;
-        }
-        if (!items.length) {
-          listEl.innerHTML = '<div class="empty-state">Nenhuma receita com esses filtros.<br>Remova um filtro pra ampliar os resultados.</div>';
-          return;
-        }
-      }
-
-      if (usingOrFallback) {
-        const notice = document.createElement("div");
-        notice.className = "or-fallback-notice";
-        notice.textContent = "Mostrando receitas com qualquer um dos ingredientes selecionados (não todos ao mesmo tempo).";
-        listEl.appendChild(notice);
-        // o contador do topo reflete o AND por padrão — nesse modo especial, atualiza pra
-        // não mostrar "0 receitas" enquanto a lista abaixo tem itens de verdade.
-        countEl.innerHTML = "<strong>" + items.length + " receita" + (items.length === 1 ? "" : "s") + " (qualquer ingrediente)</strong>";
-        progressEl.textContent = Storage.countMade(items.map((i) => i.id)) + " de " + items.length + " já feitas ✓";
+        listEl.innerHTML = '<div class="empty-state">Nenhuma receita com esses filtros.<br>Remova um filtro pra ampliar os resultados.</div>';
+        return;
       }
 
       const sortedItems = TagModel.sortRecipeItems(items, sortKey, collection);
@@ -1417,7 +1460,12 @@
       // não duplicar essa distinção aqui com cabeçalhos automáticos. sortKey "relevance" já
       // ordena principal-primeiro via getCollectionRelevanceScore, então "Tanto faz" (default)
       // renderiza uma lista só, na ordem certa, sem seção "Foco da receita"/"Também leva".
-      sortedItems.forEach((item) => listEl.appendChild(renderRecipeCard(item, { fromCollectionId: collection.id })));
+      // fromHash: hash INTEIRO da coleção no momento deste render (inclui tags/role/imode já
+      // aplicados) — não só collection.id como antes. renderList() só roda de novo depois de
+      // syncUrl() (ver onApply em renderFacets), então location.hash aqui sempre reflete o
+      // filtro atual de verdade no momento em que o card é criado.
+      const fromHash = currentHashPath();
+      sortedItems.forEach((item) => listEl.appendChild(renderRecipeCard(item, { fromHash: fromHash })));
     }
 
     sortSelect.addEventListener("change", () => {
@@ -1441,8 +1489,9 @@
     { label: "Tempo e dificuldade", ids: ["time:ate-30-min", "difficulty:facil"] },
   ];
 
-  function renderBusca(tagIds, textFilters) {
+  function renderBusca(tagIds, textFilters, initialIngredientMode) {
     textFilters = textFilters || [];
+    let ingredientMode = initialIngredientMode || "or";
     activeCat = null;
     refreshActiveCounts = null;
     // Sem cabeçalho: Pesquisar é uma aba de nível superior da barra inferior, igual
@@ -1492,9 +1541,6 @@
     const sortSelect = sortWrap.querySelector("select");
     let sortKey = "recipe-az";
     sortSelect.value = sortKey;
-    // Rede de segurança: 2+ ingredientes selecionados dando zero receita (AND vazio) oferece
-    // "ver com qualquer um" — troca só a LISTAGEM pra OR, sem afetar as contagens dos dropdowns.
-    let ingredientOrFallback = false;
     wrap.appendChild(countRow);
 
     content.appendChild(wrap);
@@ -1506,7 +1552,7 @@
     function goTo(newTagIds, newTextFilters) {
       const dedupedTags = newTagIds.filter((id, i) => newTagIds.indexOf(id) === i);
       const dedupedText = (newTextFilters || textFilters).filter((t, i) => (newTextFilters || textFilters).indexOf(t) === i);
-      Router.toBusca(dedupedTags, dedupedText);
+      Router.toBusca(dedupedTags, dedupedText, ingredientMode);
     }
     function goToTags(newTagIds) {
       goTo(newTagIds, textFilters);
@@ -1578,9 +1624,16 @@
       const base = nonFacetTagIds();
       renderFacetModal(facetBarEl, GENERIC_FACET_DEFS, {
         facetState: facetState,
-        getUniverse: () => facetUniverse(base),
+        getUniverse: () => facetUniverse(base, ingredientMode),
         proteinRole: null,
-        countForDraft: (draftFacetState) => facetUniverse(base.concat(facetStateToTagIds(draftFacetState, GENERIC_FACET_DEFS))).length,
+        ingredientMode: {
+          value: ingredientMode,
+          setValue: (v) => {
+            ingredientMode = v;
+          },
+        },
+        countForDraft: (draftFacetState, draftRole, draftIngredientMode) =>
+          facetUniverse(base.concat(facetStateToTagIds(draftFacetState, GENERIC_FACET_DEFS)), draftIngredientMode).length,
         onApply: () => {
           goToTags(base.concat(facetStateToTagIds(facetState, GENERIC_FACET_DEFS)));
         },
@@ -1614,43 +1667,26 @@
         renderPopularTags();
         return;
       }
-      let items = facetUniverse(tagIds);
-      let usingOrFallback = false;
+      // Sem rede de segurança reativa — o toggle Qualquer um/Todos estes (sempre visível com
+      // 2+ ingredientes, ver renderIngredientTileSectionBody) já resolve o caso de AND zerado
+      // de forma proativa, direto no modal. Zero resultado aqui é só o empty-state normal.
+      const items = facetUniverse(tagIds, ingredientMode);
       if (!items.length) {
-        const canFallbackToOr = hasIngredientLikeMultiSelect(tagIds);
-        if (canFallbackToOr && !ingredientOrFallback) {
-          countEl.textContent = "";
-          resultsEl.innerHTML =
-            '<div class="empty-state">Nenhuma receita tem todos estes ingredientes juntos.<br>' +
-            '<button type="button" class="btn-or-fallback">Ver receitas com qualquer um destes ingredientes</button></div>';
-          resultsEl.querySelector(".btn-or-fallback").addEventListener("click", () => {
-            ingredientOrFallback = true;
-            renderResults();
-          });
-          return;
-        }
-        if (canFallbackToOr && ingredientOrFallback) {
-          items = facetUniverse(tagIds, "or");
-          usingOrFallback = items.length > 0;
-        }
-        if (!items.length) {
-          countEl.textContent = "";
-          resultsEl.innerHTML =
-            '<div class="empty-state">Nenhuma receita encontrada com esses filtros.<br>Remova um filtro pra ampliar os resultados.</div>';
-          return;
-        }
-      }
-      if (usingOrFallback) {
-        const notice = document.createElement("div");
-        notice.className = "or-fallback-notice";
-        notice.textContent = "Mostrando receitas com qualquer um dos ingredientes selecionados (não todos ao mesmo tempo).";
-        resultsEl.appendChild(notice);
+        countEl.textContent = "";
+        resultsEl.innerHTML =
+          '<div class="empty-state">Nenhuma receita encontrada com esses filtros.<br>Remova um filtro pra ampliar os resultados.</div>';
+        return;
       }
       countEl.textContent = items.length + (items.length === 1 ? " receita encontrada" : " receitas encontradas");
       const sortedItems = TagModel.sortRecipeItems(items, sortKey, null);
+      // fromHash: hash INTEIRO da busca no momento deste render (tags/text/imode já aplicados)
+      // — mesmo raciocínio de renderCategory. Perder uma busca digitada ao voltar é mais caro
+      // de reconstruir que perder um filtro de coleção, então preservar aqui importa tanto
+      // quanto lá.
+      const fromHash = currentHashPath();
       sortedItems.forEach((item) => {
         const cat = window.CATEGORIES.find((c) => c.id === item.catId);
-        resultsEl.appendChild(renderRecipeCard(item, { catLabel: cat ? cat.label : item.catId }));
+        resultsEl.appendChild(renderRecipeCard(item, { catLabel: cat ? cat.label : item.catId, fromHash: fromHash }));
       });
     }
 
@@ -2332,9 +2368,13 @@
       empty.textContent = cfg.empty;
       content.appendChild(empty);
     } else {
+      // fromHash aqui é só "minhas-receitas" (rota sem query) — a aba ativa (minhasReceitasTab)
+      // já é estado de módulo, sobrevive sozinha a sair/voltar sem precisar ir pra URL; só
+      // precisamos que "Voltar" pare AQUI em vez de cair na categoria própria da receita.
+      const fromHash = currentHashPath();
       items.forEach((item) => {
         const cat = window.CATEGORIES.find((c) => c.id === item.catId);
-        content.appendChild(renderRecipeCard(item, { catLabel: cat ? cat.label : item.catId }));
+        content.appendChild(renderRecipeCard(item, { catLabel: cat ? cat.label : item.catId, fromHash: fromHash }));
       });
     }
   }
@@ -2356,7 +2396,7 @@
     card.dataset.recipeName = recipe.name;
 
     card.addEventListener("click", () => {
-      Router.toReceita(item.id, opts.fromCollectionId);
+      Router.toReceita(item.id, opts.fromHash);
     });
 
     // ---------- header: thumb | título+origem | coração de favoritar ----------
@@ -2582,16 +2622,28 @@
   }
 
   // ---------- Página própria da receita ----------
-  function renderReceita(id, fromCollectionId) {
+  function renderReceita(id, fromHash) {
     const item = TagModel.findRecipeById(id);
     if (!item) {
       renderHome();
       return;
     }
+    // Rastreamento de "últimas receitas visitadas" (só infraestrutura por ora, sem UI de
+    // carrossel ainda — ver Storage.getRecentlyViewed em storage.js). Grava só quando a receita
+    // é encontrada de verdade (depois do guard acima), nunca por um id inválido/removido.
+    Storage.recordRecipeView(id);
     const recipe = item.recipe;
     const catId = item.catId;
     const cat = window.CATEGORIES.find((c) => c.id === catId);
+    // Rótulo do botão ("Voltar para X"): deriva de ONDE o fromHash aponta — só pra EXIBIÇÃO. A
+    // navegação de volta (abaixo, no addEventListener) usa fromHash inteiro direto, nunca
+    // reconstrói a rota a partir de um id sozinho — é isso que preserva tags/role/imode (coleção)
+    // ou tags/text/imode (busca), e que faz "Minhas Receitas" voltar pra lá em vez de cair na
+    // categoria própria da receita (a aba ativa lá é estado de módulo, sobrevive sozinha).
+    const fromCollectionId = fromHash && fromHash.indexOf("categoria/") === 0 ? fromHash.slice("categoria/".length).split("?")[0] : null;
     const backCollection = fromCollectionId && window.COLLECTIONS.find((c) => c.id === fromCollectionId);
+    const fromBusca = !!fromHash && fromHash.indexOf("busca") === 0;
+    const fromMinhasReceitas = !!fromHash && fromHash.indexOf("minhas-receitas") === 0;
 
     activeCat = catId;
     refreshActiveCounts = null;
@@ -2605,8 +2657,17 @@
 
     const back = document.createElement("button");
     back.className = "back-button";
-    back.textContent = "← Voltar para " + (backCollection ? backCollection.label : cat ? cat.label : catId);
-    back.addEventListener("click", () => Router.toCategoria(backCollection ? backCollection.id : catId));
+    back.textContent =
+      "← Voltar para " +
+      (backCollection ? backCollection.label : fromBusca ? "Pesquisar" : fromMinhasReceitas ? "Minhas Receitas" : cat ? cat.label : catId);
+    // Volta pro hash de origem EXATO (mesmas tags/role/imode na coleção, tags/text/imode na
+    // busca, ou só a rota certa pra Minhas Receitas) quando disponível — só cai no
+    // Router.toCategoria "seco" (sem filtro) quando a receita foi aberta sem NENHUM contexto de
+    // origem (ex. link direto/bookmark sem fromHash).
+    back.addEventListener("click", () => {
+      if (fromHash) Router.navigate(fromHash);
+      else Router.toCategoria(backCollection ? backCollection.id : catId);
+    });
     page.appendChild(back);
 
     const hero = document.createElement("div");
@@ -2758,7 +2819,7 @@
       // Captura o multiplicador ATUAL do stepper (currentRatio(), já existe acima) e leva pro
       // modo de preparo via URL — só é usado se for criar uma sessão nova (Fase 2); retomar
       // uma sessão em andamento ignora isso e usa o portionMultiplier já salvo nela.
-      cookBtn.addEventListener("click", () => Router.toCozinhar(item.id, fromCollectionId, currentRatio()));
+      cookBtn.addEventListener("click", () => Router.toCozinhar(item.id, fromHash, currentRatio()));
       page.appendChild(cookBtn);
     }
 
@@ -2839,7 +2900,8 @@
     }
 
     content.appendChild(page);
-    window.scrollTo({ top: 0, behavior: "instant" });
+    // Scroll (restaurar/topo) fica só em handleRoute agora — reaproveita o mapa por hash em vez
+    // de sempre voltar pro topo aqui (ver comentário na declaração de scrollPositionsByHash).
   }
 
   // ---------- Modo cozinhar ----------
@@ -2897,11 +2959,11 @@
     return { h: pad2(h), m: pad2(m), s: pad2(s) };
   }
 
-  function renderCookMode(id, fromCollectionId, portionMultiplier) {
+  function renderCookMode(id, fromHash, portionMultiplier) {
     const item = TagModel.findRecipeById(id);
     const recipe = item && item.recipe;
     if (!recipe || !recipe.steps || !recipe.steps.length) {
-      Router.toReceita(id, fromCollectionId);
+      Router.toReceita(id, fromHash);
       return;
     }
     const catId = item.catId;
@@ -2944,7 +3006,7 @@
       // persistidos a cada transição (troca de passo, iniciar/pausar/zerar) — não em cada
       // tick — então não há nada novo pra salvar aqui, só garantir que o interval pare.
       clearInterval(timerInterval);
-      Router.toReceita(id, fromCollectionId);
+      Router.toReceita(id, fromHash);
     });
     page.appendChild(exitBtn);
 
@@ -2961,7 +3023,7 @@
     titleLink.innerHTML = "<span>" + recipe.name + "</span>" + iconSvg("arrowUpRight", "text-link__icon");
     titleLink.addEventListener("click", () => {
       clearInterval(timerInterval);
-      Router.toReceita(id, fromCollectionId);
+      Router.toReceita(id, fromHash);
     });
     titleEl.appendChild(titleLink);
     page.appendChild(titleEl);
@@ -3407,11 +3469,12 @@
         if (!Storage.isMade(id)) Storage.toggleMade(id);
         clearInterval(timerInterval);
         Storage.finishPreparoSession(id);
-        Router.toReceita(id, fromCollectionId);
+        Router.toReceita(id, fromHash);
       }
     });
 
-    window.scrollTo({ top: 0, behavior: "instant" });
+    // Scroll (restaurar/topo) fica só em handleRoute agora — reaproveita o mapa por hash em vez
+    // de sempre voltar pro topo aqui (ver comentário na declaração de scrollPositionsByHash).
   }
 
   // ---------- Fotos (Wikipedia, com cache local) ----------
@@ -3519,21 +3582,39 @@
   }
 
   // ---------- Roteamento ----------
+  // Scroll por rota (investigação prévia -> agora implementada): chave é o hash COMPLETO
+  // (path+query, via currentHashPath — cobre tags/role/imode da própria URL). Guarda
+  // window.scrollY da rota que está SAINDO logo antes de renderizar a rota nova; restaura ao
+  // voltar pra uma chave já vista nesta sessão (ex.: "Voltar" da receita agora reconstrói o
+  // hash de origem EXATO, ver Router.toReceita/renderReceita — é isso que faz esse caminho
+  // comum bater igual e o restore funcionar). Chave nunca vista (tela nova) cai no scrollTo(0)
+  // de sempre. Clamp contra o scrollHeight REAL no momento de restaurar evita rolar pra uma
+  // posição que não existe mais, se o conteúdo encolheu entre a saída e a volta (ex. filtro
+  // mais restritivo aplicado por outro caminho). replaceCategoriaFacets (refino in-context) usa
+  // history.replaceState direto, sem hashchange — nunca acessa handleRoute, então trocar filtro
+  // sozinho nunca aciona nem lê este mapa.
+  const scrollPositionsByHash = {};
+  let previousHashPath = null;
+
   function handleRoute(route) {
+    const newHashPath = currentHashPath();
+    if (previousHashPath !== null) {
+      scrollPositionsByHash[previousHashPath] = window.scrollY;
+    }
     // Modal de filtros aberto sobrevive fora de #recipes-content (ver comentário na declaração
     // de closeActiveFilterModal) — fecha à força antes de renderizar a rota nova, senão fica
     // preso na tela por cima do conteúdo trocado (ex.: botão/gesto voltar do celular).
     if (closeActiveFilterModal) closeActiveFilterModal();
     if (route.name === "busca") {
-      renderBusca(route.tags || [], route.textFilters || []);
+      renderBusca(route.tags || [], route.textFilters || [], route.ingredientMode || "or");
     } else if (route.name === "grupo") {
       renderGrupo(route.grupoId);
     } else if (route.name === "categoria") {
-      showCategoria(route.catId, route.tags || [], route.role || null);
+      showCategoria(route.catId, route.tags || [], route.role || null, route.ingredientMode || "or");
     } else if (route.name === "receita") {
-      renderReceita(route.id, route.from);
+      renderReceita(route.id, route.fromHash);
     } else if (route.name === "cozinhar") {
-      renderCookMode(route.id, route.from, route.portion);
+      renderCookMode(route.id, route.fromHash, route.portion);
     } else if (route.name === "minhas-receitas") {
       renderMinhasReceitas();
     } else if (route.name === "preparos") {
@@ -3544,12 +3625,26 @@
       renderHome();
     }
     updateBottomNav(route);
-    // toda troca de rota é uma "página nova" — sempre volta pro topo (renderReceita/renderCookMode
-    // já faziam isso individualmente; agora fica centralizado aqui pra cobrir home/categoria/busca/listas também).
-    window.scrollTo({ top: 0, behavior: "instant" });
+    if (Object.prototype.hasOwnProperty.call(scrollPositionsByHash, newHashPath)) {
+      const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      window.scrollTo({ top: Math.min(scrollPositionsByHash[newHashPath], maxScroll), behavior: "instant" });
+    } else {
+      // Chave nunca vista nesta sessão — "página nova", sempre volta pro topo (mesmo
+      // comportamento de sempre pra qualquer rota visitada pela 1ª vez).
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+    previousHashPath = newHashPath;
   }
 
   Router.onChange(handleRoute);
+  // Mantém previousHashPath em dia quando a URL muda por replace() (refino de filtro
+  // in-context, Router.replaceCategoriaFacets) — sem isso, sair da tela logo depois de mudar um
+  // filtro salvaria o scroll na chave de ANTES do filtro (stale), nunca batendo com o hash que
+  // "Voltar" reconstrói depois. Só atualiza a referência — nunca re-renderiza nem mexe no
+  // scroll aqui (isso continua só em handleRoute, via hashchange de verdade).
+  Router.onReplace(function (path) {
+    previousHashPath = path;
+  });
 
   // ---------- Inicialização ----------
   renderBottomNav();

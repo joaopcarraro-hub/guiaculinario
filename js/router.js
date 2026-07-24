@@ -26,6 +26,7 @@
     if (parts[0] === "categoria" && parts[1]) {
       let catTags = [];
       let role = null;
+      let ingredientMode = null;
       if (queryPart) {
         queryPart.split("&").forEach(function (pair) {
           const [k, v] = pair.split("=");
@@ -35,13 +36,17 @@
           if (k === "role" && v) {
             role = v;
           }
+          if (k === "imode" && v === "and") {
+            ingredientMode = "and";
+          }
         });
       }
-      return { name: "categoria", catId: parts[1], tags: catTags, role: role };
+      return { name: "categoria", catId: parts[1], tags: catTags, role: role, ingredientMode: ingredientMode };
     }
     if (parts[0] === "busca") {
       let tags = [];
       let textFilters = [];
+      let ingredientMode = null;
       if (queryPart) {
         queryPart.split("&").forEach(function (pair) {
           const [k, v] = pair.split("=");
@@ -51,20 +56,26 @@
           if (k === "text" && v) {
             textFilters = v.split(",").map(decodeURIComponent).filter(Boolean);
           }
+          if (k === "imode" && v === "and") {
+            ingredientMode = "and";
+          }
         });
       }
-      return { name: "busca", tags: tags, textFilters: textFilters };
+      return { name: "busca", tags: tags, textFilters: textFilters, ingredientMode: ingredientMode };
     }
-    let from = null;
+    // fromHash: rota de origem inteira (ver comentário de Router.toReceita/toCozinhar abaixo),
+    // não mais só um catId — decodificada aqui, mas NUNCA reprocessada por parseHash de novo
+    // (é usada como string opaca por Router.navigate quando o usuário clica "Voltar").
+    let fromHash = null;
     let portion = null;
     if (queryPart) {
       queryPart.split("&").forEach(function (pair) {
         const [k, v] = pair.split("=");
         if (k === "from" && v) {
           try {
-            from = decodeURIComponent(v);
+            fromHash = decodeURIComponent(v);
           } catch (e) {
-            from = v;
+            fromHash = v;
           }
         }
         if (k === "portion" && v) {
@@ -73,14 +84,14 @@
       });
     }
     if (parts[0] === "receita" && parts[1]) {
-      return { name: "receita", id: parts[1], from: from };
+      return { name: "receita", id: parts[1], fromHash: fromHash };
     }
     if (parts[0] === "cozinhar" && parts[1]) {
       // portion: multiplicador de porções capturado do stepper da tela de receita no momento
       // de clicar "Começar preparo" (Fase 2) — só usado se renderCookMode for CRIAR uma sessão
       // nova; retomar uma sessão em andamento ignora esse valor (usa o portionMultiplier já
       // salvo). null quando a receita não tinha stepper (yield sem base numérica).
-      return { name: "cozinhar", id: parts[1], from: from, portion: portion && !isNaN(portion) ? portion : null };
+      return { name: "cozinhar", id: parts[1], fromHash: fromHash, portion: portion && !isNaN(portion) ? portion : null };
     }
     if (parts[0] === "minhas-receitas") {
       return { name: "minhas-receitas" };
@@ -98,10 +109,23 @@
     location.hash = "/" + path;
   }
 
+  // Quem precisa saber quando a URL muda por replace() (history.replaceState não dispara
+  // hashchange nem popstate) — usado pelo scroll por rota em app.js pra manter o "hash atual"
+  // sincronizado mesmo quando o refino de filtro in-context (replaceCategoriaFacets) troca a
+  // URL sem navegar de verdade. Sem isso, salvar o scroll ao sair da tela usaria a chave de
+  // ANTES do filtro ser aplicado (stale), nunca batendo com o hash que "Voltar" reconstrói.
+  const replaceListeners = [];
+  function onReplace(fn) {
+    replaceListeners.push(fn);
+  }
+
   // Atualiza a URL sem empilhar uma entrada nova no histórico (bom pra "digitar e buscar").
   function replace(path) {
     const url = location.pathname + location.search + "#/" + path;
     history.replaceState(null, "", url);
+    replaceListeners.forEach(function (fn) {
+      fn(path);
+    });
   }
 
   function onChange(fn) {
@@ -118,6 +142,7 @@
   window.Router = {
     current: parseHash,
     onChange: onChange,
+    onReplace: onReplace,
     navigate: navigate,
     replace: replace,
     toHome: function () {
@@ -132,27 +157,35 @@
     // Atualiza as facetas extras (e o papel da proteína, se houver) de uma categoria na URL sem
     // navegar (sem empilhar histórico e sem re-disparar handleRoute) — usado pelo refino
     // in-context de renderCategory.
-    replaceCategoriaFacets: function (catId, tagIds, role) {
+    replaceCategoriaFacets: function (catId, tagIds, role, ingredientMode) {
       const q = (tagIds || []).map(encodeURIComponent).join(",");
       const params = [];
       if (q) params.push("tags=" + q);
       if (role) params.push("role=" + encodeURIComponent(role));
+      if (ingredientMode === "and") params.push("imode=and");
       replace("categoria/" + encodeURIComponent(catId) + (params.length ? "?" + params.join("&") : ""));
     },
-    toBusca: function (tagIds, textFilters) {
+    toBusca: function (tagIds, textFilters, ingredientMode) {
       const q = (tagIds || []).map(encodeURIComponent).join(",");
       const t = (textFilters || []).map(encodeURIComponent).join(",");
       const params = [];
       if (q) params.push("tags=" + q);
       if (t) params.push("text=" + t);
+      if (ingredientMode === "and") params.push("imode=and");
       navigate("busca" + (params.length ? "?" + params.join("&") : ""));
     },
-    toReceita: function (id, fromCollectionId) {
-      navigate("receita/" + encodeURIComponent(id) + (fromCollectionId ? "?from=" + encodeURIComponent(fromCollectionId) : ""));
+    // fromHash: rota de origem INTEIRA (path+query, sem o "#/" — mesmo formato de "raw" acima,
+    // ex.: "categoria/molhos?tags=ingredient:tomate&imode=and"), não mais só o catId. Guarda o
+    // hash de origem de verdade em vez de reconstruir a rota do zero, pra "Voltar" (renderReceita)
+    // reproduzir o estado EXATO de filtro (tags/imode/role) de onde a receita foi aberta — não só
+    // a coleção certa, sem filtro nenhum. Só passa por cima (query "from="), nunca decodifica
+    // internamente; quem lê de volta é renderReceita, via Router.navigate(fromHash) direto.
+    toReceita: function (id, fromHash) {
+      navigate("receita/" + encodeURIComponent(id) + (fromHash ? "?from=" + encodeURIComponent(fromHash) : ""));
     },
-    toCozinhar: function (id, fromCollectionId, portionMultiplier) {
+    toCozinhar: function (id, fromHash, portionMultiplier) {
       const params = [];
-      if (fromCollectionId) params.push("from=" + encodeURIComponent(fromCollectionId));
+      if (fromHash) params.push("from=" + encodeURIComponent(fromHash));
       if (portionMultiplier) params.push("portion=" + encodeURIComponent(portionMultiplier));
       navigate("cozinhar/" + encodeURIComponent(id) + (params.length ? "?" + params.join("&") : ""));
     },

@@ -76,11 +76,16 @@ de rota, sem camadas sequenciais/funil, mudanças em rascunho até "Ver resultad
   (ícone/label/contagem, Proteína e Refeição só label+contagem por ora — ícone é rodada
   futura), mesma lógica de estado, sem tile "Todos" (nenhum tile marcado = nenhum filtro
   ativo). Ver `.claude/skills/mobile-recipe-ui/SKILL.md`.
-- Ingrediente é a única faceta com combineMode "and" — os valores selecionados combinam em AND
-  entre si (a receita precisa conter todos). Se a combinação atual resultar em zero receitas,
-  a UI oferece um fallback pontual para OR (qualquer um dos selecionados), mantendo as demais
-  facetas ativas (País, Complexidade, Tempo, Equipamento, Proteína, Refeição, Tipo de prato,
-  Papel da proteína) aplicadas normalmente — o fallback nunca ignora os outros filtros.
+- Ingrediente é a única faceta com combineMode "toggle" — um trilho único em pílula com trava
+  deslizante ("Qualquer um destes"/"Todos estes", NÃO switch liga-desliga, NÃO 2 botões
+  separados) deixa o usuário escolher OR ou AND entre os ingredientes selecionados; "or" é o
+  default. Vem ANTES dos chips selecionados, logo abaixo do cabeçalho do acordeão. Só aparece
+  com 2+ ingredientes selecionados (some de volta com 0/1 — removido do DOM, não só escondido).
+  Estado persistido na URL (`imode=and`, omitido quando "or") igual ao resto da seleção de
+  facetas. Substituiu o antigo fallback reativo (só aparecia depois de a combinação em AND
+  zerar) — a escolha agora é proativa, direto no modal, antes mesmo de zerar. As demais facetas
+  ativas (País, Complexidade, Tempo, Equipamento, Proteína, Refeição, Tipo de prato, Papel da
+  proteína) continuam combinando em AND com o resultado do toggle, normalmente.
 - Proteína (protein:, NOVA — não confundir com Papel da proteína abaixo): filtra QUAL proteína
   (Frango, Boi, Suíno, Ave, Cordeiro, Peixe, Frutos do Mar, Ovo), disponível em QUALQUER
   coleção/busca, não só dentro de um hub de proteína — eixo completamente independente de

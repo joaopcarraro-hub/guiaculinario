@@ -97,7 +97,7 @@ ovo já leva `protein:ovo`, então aparece em "Ovos" (Proteínas) automaticament
 **Brasil**
 `brasileiros` — Brasileiros Obrigatórios · `brasil-regional` — Brasil por Região
 
-**Cozinhas do Mundo**
+**Países**
 `franca` `italia` `espanha` `portugal` `japao` `china` `coreia` `tailandia` `india` `mexico`
 `peru` `alemanha` `austria` `hungria` `grecia` `marrocos` `libano` `eua` `dinamarca`
 

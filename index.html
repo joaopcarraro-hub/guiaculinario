@@ -2,7 +2,13 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- interactive-widget=resizes-visual: já é o default do Chrome sem essa diretiva (não deveria
+     mudar nada lá) — força explicitamente o mesmo comportamento em qualquer engine que
+     reconheça a diretiva (Chrome 108+, Firefox 132+), pra tentar corrigir o teclado virtual
+     empurrando a .bottom-nav (position:fixed) no Opera Mobile. Engines que não reconhecem a
+     diretiva simplesmente ignoram o valor, sem efeito colateral. Só a opção (a) da investigação
+     — Visual Viewport API (opção b) fica pendente até teste real em Opera Mobile. -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-visual">
 <title>Gusta</title>
 <meta name="theme-color" content="#0f0f0e">
 <meta name="description" content="Receitas completas de cozinha do mundo, com modo de preparo passo a passo.">

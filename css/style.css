@@ -320,36 +320,59 @@ body {
   gap: 6px;
 }
 .shopping-list__item label { flex: 1; min-width: 0; }
-/* .btn-or-fallback: texto pequeno (<18px) — NÃO usar --gold (=--color-accent) direto aqui, vira
-   ghost-text que falha WCAG AA no tamanho (regra do próprio DESIGN-TOKENS.md: "Ghost: texto
-   --color-accent... só usar em texto grande/semibold 18px+"). --ink-soft (=--color-text-
-   secondary) no lugar — legível e distinto do texto de corpo, só não colorido no acento. */
-.btn-or-fallback {
-  margin-top: 14px;
-  min-height: 44px;
-  padding: 0 18px;
+/* Toggle Qualquer um/Todos estes — trilho único em pílula com trava deslizante (NÃO switch
+   liga-desliga, NÃO 2 botões separados) — vem ANTES dos chips selecionados, logo abaixo do
+   cabeçalho do acordeão (ver renderIngredientTileSectionBody, js/app.js). Só existe com 2+
+   ingredientes selecionados (elemento REMOVIDO do DOM com 0/1, não só escondido/desabilitado).
+   Substitui o antigo botão de fallback reativo (.btn-or-fallback/.or-fallback-notice,
+   removidos — só apareciam depois de um AND zerar; a escolha agora é proativa e sempre
+   visível quando aplicável). */
+.ingredient-mode-toggle {
+  position: relative;
+  display: flex;
   border-radius: 999px;
-  border: 1px solid var(--gold);
-  background: var(--bg-panel);
-  color: var(--ink-soft);
-  font-family: 'Helvetica Neue', Arial, sans-serif;
-  font-size: 0.85rem;
-  font-style: normal;
-  cursor: pointer;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  margin: 8px 0 12px;
 }
-/* Hover: fundo vira tom de --gold (=--color-accent) em baixa opacidade — não existe token
-   pronto pra "acento tingido", decisão registrada no Bloco 4 (mesma opacidade do rgba(gold)
-   antigo, só trocando a cor-base). Texto sobe pra --ink (=--color-text-primary): o fundo
-   tingido continua essencialmente escuro, texto escuro (#2b241b, do design claro original)
-   ficaria ilegível aqui. */
-.btn-or-fallback:hover { background: rgba(214, 59, 32, 0.08); color: var(--ink); }
-.or-fallback-notice {
+/* Trava: metade da largura do trilho, desliza via transform (nunca via left/width — mais
+   barato pro navegador animar, e a posição "descansada" de cada lado já vem do próprio
+   flex:1 dos botões por baixo, não precisa recalcular nada em JS). */
+.ingredient-mode-toggle__thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: var(--color-accent);
+  border-radius: 999px;
+  /* Curva com leve ultrapassagem (~10%) e retorno, aproximando o princípio de mola da skill
+     apple-design sem precisar de biblioteca (CSS puro — é um clique/tap discreto, não um
+     gesto arrastável/interruptível, então não se aplica a ressalva da skill contra transition
+     pra motion gesture-driven). 260ms (um pouco acima dos 220ms originais) dá tempo da
+     ultrapassagem se ler como intencional, não apressada. overflow:hidden no trilho (abaixo)
+     já contém qualquer excesso visual da ultrapassagem — a trava nunca visualmente sai da
+     pílula, mesmo no pico da curva. */
+  transition: transform 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.ingredient-mode-toggle--and .ingredient-mode-toggle__thumb {
+  transform: translateX(100%);
+}
+.ingredient-mode-toggle__option {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 40px;
+  padding: 0 8px;
+  border: none;
+  background: none;
+  color: var(--color-text-disabled);
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.82rem;
-  font-style: italic;
-  color: var(--ink-soft);
-  margin-bottom: 12px;
+  cursor: pointer;
 }
+.ingredient-mode-toggle__option.is-active { color: var(--color-text-primary); }
 
 .subgroup-title {
   font-size: 1rem;
@@ -1760,6 +1783,9 @@ body.filter-modal-open { overflow: hidden; }
     animation: none;
     opacity: 0;
     transition: opacity 200ms ease;
+  }
+  .ingredient-mode-toggle__thumb {
+    transition: transform 150ms ease;
   }
 }
 /* Bordas sutis (--line/--color-border) reforçadas nos componentes mais tocados, sem criar

@@ -233,6 +233,57 @@
     } catch (e) {}
   }
 
+  // ---------- Últimas receitas visitadas (só rastreamento — sem UI de carrossel ainda) ----------
+  // Mesmo padrão de 2 níveis das outras chaves versionadas (migração seletiva + validação
+  // individual, ver gusta-preparos-v1/gusta-lista-compras-v1 acima). Lista ORDENADA (mais
+  // recente primeiro) — por isso array, não objeto chaveado por id (a ordem em si é o dado).
+  // Reabrir uma receita já vista remove a entrada antiga e reinsere no topo (nunca duplica);
+  // limitada a RECENT_MAX_ITEMS (a mais antiga sai quando uma nova entra além do limite).
+  const RECENT_KEY = "gusta-recentes-v1";
+  const RECENT_SCHEMA_VERSION = 1;
+  const RECENT_MAX_ITEMS = 10;
+
+  // Nenhuma migração real existe ainda (schema nunca mudou desde a v1) — mesmo estado inicial
+  // de PREPARO_MIGRATIONS/SHOPPING_LIST_MIGRATIONS quando foram criadas.
+  const RECENT_MIGRATIONS = {};
+
+  function isValidRecentItem(item) {
+    return !!item && typeof item === "object" && typeof item.recipeId === "string" && typeof item.viewedAt === "number";
+  }
+
+  function loadRecent() {
+    const empty = { version: RECENT_SCHEMA_VERSION, items: [] };
+    try {
+      const raw = localStorage.getItem(RECENT_KEY);
+      if (!raw) return empty;
+      let parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object") return empty; // corrompido de um jeito irrecuperável
+
+      let hops = 0;
+      while (parsed.version !== RECENT_SCHEMA_VERSION) {
+        const migrate = RECENT_MIGRATIONS[parsed.version];
+        if (!migrate) return empty; // versão sem migração conhecida — irrecuperável
+        parsed = migrate(parsed);
+        if (!parsed || typeof parsed !== "object") return empty;
+        hops++;
+        if (hops > 20) return empty; // guarda contra migração mal escrita em loop
+      }
+
+      const items = Array.isArray(parsed.items) ? parsed.items.filter(isValidRecentItem) : [];
+      return { version: RECENT_SCHEMA_VERSION, items: items.slice(0, RECENT_MAX_ITEMS) };
+    } catch (e) {
+      return empty;
+    }
+  }
+
+  const recentState = loadRecent();
+
+  function saveRecent() {
+    try {
+      localStorage.setItem(RECENT_KEY, JSON.stringify(recentState));
+    } catch (e) {}
+  }
+
   window.Storage = {
     isMade: (id) => has(state.made, id),
     toggleMade: (id) => toggleIn("made", id),
@@ -330,5 +381,19 @@
       shoppingListState.boughtKeys = {};
       saveShoppingList();
     },
+
+    // Últimas receitas visitadas — chame ao ABRIR a tela de uma receita (renderReceita).
+    // Reabrir uma já vista sobe ela pro topo em vez de duplicar; corta em RECENT_MAX_ITEMS (a
+    // mais antiga sai). Só rastreamento por ora — nenhuma tela/carrossel novo usa isto ainda,
+    // ver getRecentlyViewed.
+    recordRecipeView: (recipeId) => {
+      recentState.items = recentState.items.filter((item) => item.recipeId !== recipeId);
+      recentState.items.unshift({ recipeId, viewedAt: Date.now() });
+      recentState.items = recentState.items.slice(0, RECENT_MAX_ITEMS);
+      saveRecent();
+    },
+    // Mais recente primeiro (ordem já é a de armazenamento). Devolve {recipeId, viewedAt} —
+    // resolver dados de exibição (nome, imagem) fica por conta de quem for construir a UI depois.
+    getRecentlyViewed: () => recentState.items.slice(),
   };
 })();

@@ -31,7 +31,7 @@
     // Brasil
     brasileiros: ["country:brasil"],
     "brasil-regional": ["country:brasil"],
-    // Cozinhas do Mundo — country:<id> direto
+    // Países — country:<id> direto
     franca: ["country:franca"],
     italia: ["country:italia"],
     espanha: ["country:espanha"],

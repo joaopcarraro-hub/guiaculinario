@@ -150,10 +150,14 @@ nenhuma vaza pra outra:
   "Restrições" (`diet:`) NÃO virou faceta: cobertura de 99/398 (24,9%) e um único valor
   (`diet:vegetariana`), abaixo do limiar combinado com o usuário — fica pro backlog de
   expansão de dados. Ver `.claude/skills/mobile-recipe-ui/SKILL.md` pro detalhe visual.
-- Ingrediente: chips removíveis + campo de adicionar, com AND entre os selecionados (a receita
-  precisa conter todos). Se a combinação zerar, a tela de RESULTADOS (não o modal) oferece um
-  fallback pontual para OR — o modal não duplica essa UI, só deixa "Ver resultados" aplicável
-  mesmo com N=0, pra cair nesse mesmo fallback.
+- Ingrediente: chips removíveis + campo de adicionar (grade de tiles), MAIS um trilho único em
+  pílula com trava deslizante ("Qualquer um destes"/"Todos estes", NÃO 2 botões separados)
+  numa linha própria ANTES dos chips, logo abaixo do cabeçalho do acordeão — só aparece com 2+
+  ingredientes selecionados (0/1 não tem o que combinar, elemento removido do DOM). "Qualquer
+  um destes" (or) é o default; a escolha fica no próprio modal, persistida junto com a seleção
+  de ingredientes (mesma URL). Substituiu o antigo fallback reativo que vivia na tela de
+  RESULTADOS (só aparecia depois de um AND zerar) — agora a escolha é proativa, ANTES de zerar,
+  direto onde os ingredientes são selecionados.
 
 ENTRE facetas diferentes (País × Equipamento × Ingrediente etc.) sempre é AND, mesmo quando
 cada faceta individualmente é OR por dentro — ex.: País=Itália+Alemanha E Equipamento=Forno
@@ -175,7 +179,7 @@ só de navegação/IA, não de cor.
 - O usuário deve saber onde clicar.
 - A busca contextual não deve misturar níveis.
 - Categorias duplicadas devem ser eliminadas.
-- Brasil deve entrar dentro de Cozinhas do mundo.
+- Brasil deve entrar dentro de Países.
 - Tempo e dificuldade devem existir como caminhos próprios.
 
 ## Checklist de aceite — Heurísticas de Nielsen
@@ -193,7 +197,8 @@ considerado concluído — não é opcional, é parte do critério de "pronto".
    navegação (ex.: todos os dropdowns single-select funcionam igual, exceto Ingrediente, que é a
    exceção documentada e assumida).
 5. **Prevenção de erros** — a interface evita que o usuário chegue a um estado inválido ou vazio
-   sem explicação (ex.: o fallback OU do Ingrediente antes de simplesmente mostrar "0 receitas").
+   sem explicação (ex.: o toggle Qualquer um/Todos estes do Ingrediente, escolhido ANTES de
+   zerar, em vez de só reagir depois de já mostrar "0 receitas").
 6. **Reconhecimento em vez de memorização** — opções e filtros ficam visíveis e com contagem, o
    usuário não precisa lembrar o que já selecionou em outra tela.
 7. **Flexibilidade e eficiência de uso** — atalhos pra quem sabe o que quer (busca direta, tags
