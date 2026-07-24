@@ -181,5 +181,22 @@
     {id:"microondas",syn:["microondas","micro ondas"]},
   ];
 
-  return {DICT,BLOCK,TECH,EQUIPMENT,ROAST_VERBS,AIRFRYER_MAX_YIELD,AIRFRYER_YIELD_POSITIVE,AIRFRYER_YIELD_NEGATIVE,norm};
+  // ---- vocabulário de língua do parser de busca (js/search.js) — dado, não lógica; nunca
+  // duplicado lá. STOPWORDS_PT: preposições/artigos que não carregam sinal de busca ("de",
+  // "com", "na"...) mais palavras-vazias de prato ("receita", "prato"). MEASUREMENT_MASKS:
+  // frases de medida a mascarar ANTES do match textual — sem isso "colher (sopa)"/"colher de
+  // sopa" faz a palavra "sopa" aparecer em ~200 receitas sem nenhuma relação com sopa (achado
+  // na investigação de busca 2026-07-24).
+  const STOPWORDS_PT = ["de","da","do","das","dos","com","sem","na","no","nas","nos","em","para","pra","por","a","o","as","os","e","ou","ao","aos","um","uma","receita","receitas","prato","pratos"];
+  const MEASUREMENT_UNITS = ["colher","colheres","xicara","xicaras"];
+  const MEASUREMENT_TERMS = ["sopa","cha","cafe"];
+  const MEASUREMENT_MASKS = [];
+  MEASUREMENT_UNITS.forEach((u) => {
+    MEASUREMENT_TERMS.forEach((m) => {
+      MEASUREMENT_MASKS.push(u + " (" + m + ")");
+      MEASUREMENT_MASKS.push(u + " de " + m);
+    });
+  });
+
+  return {DICT,BLOCK,TECH,EQUIPMENT,ROAST_VERBS,AIRFRYER_MAX_YIELD,AIRFRYER_YIELD_POSITIVE,AIRFRYER_YIELD_NEGATIVE,norm,STOPWORDS_PT,MEASUREMENT_MASKS};
 });

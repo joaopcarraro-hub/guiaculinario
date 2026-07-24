@@ -47,6 +47,10 @@
       let tags = [];
       let textFilters = [];
       let ingredientMode = null;
+      // query: texto ainda não commitado (preview ao vivo, ver Router.replaceBusca) — vive só
+      // na URL enquanto o usuário digita; renderBusca nasce já com o preview desse texto
+      // renderizado (sobrevive ao "Voltar" de uma receita aberta a partir do preview).
+      let query = null;
       if (queryPart) {
         queryPart.split("&").forEach(function (pair) {
           const [k, v] = pair.split("=");
@@ -59,9 +63,16 @@
           if (k === "imode" && v === "and") {
             ingredientMode = "and";
           }
+          if (k === "q" && v) {
+            try {
+              query = decodeURIComponent(v);
+            } catch (e) {
+              query = v;
+            }
+          }
         });
       }
-      return { name: "busca", tags: tags, textFilters: textFilters, ingredientMode: ingredientMode };
+      return { name: "busca", tags: tags, textFilters: textFilters, ingredientMode: ingredientMode, query: query };
     }
     // fromHash: rota de origem inteira (ver comentário de Router.toReceita/toCozinhar abaixo),
     // não mais só um catId — decodificada aqui, mas NUNCA reprocessada por parseHash de novo
@@ -132,6 +143,18 @@
     listeners.push(fn);
   }
 
+  // Compartilhado por toBusca (navega, sem q) e replaceBusca (substitui, com q opcional).
+  function buildBuscaPath(tagIds, textFilters, ingredientMode, query) {
+    const q = (tagIds || []).map(encodeURIComponent).join(",");
+    const t = (textFilters || []).map(encodeURIComponent).join(",");
+    const params = [];
+    if (q) params.push("tags=" + q);
+    if (t) params.push("text=" + t);
+    if (ingredientMode === "and") params.push("imode=and");
+    if (query) params.push("q=" + encodeURIComponent(query));
+    return "busca" + (params.length ? "?" + params.join("&") : "");
+  }
+
   window.addEventListener("hashchange", function () {
     const route = parseHash();
     listeners.forEach(function (fn) {
@@ -166,13 +189,13 @@
       replace("categoria/" + encodeURIComponent(catId) + (params.length ? "?" + params.join("&") : ""));
     },
     toBusca: function (tagIds, textFilters, ingredientMode) {
-      const q = (tagIds || []).map(encodeURIComponent).join(",");
-      const t = (textFilters || []).map(encodeURIComponent).join(",");
-      const params = [];
-      if (q) params.push("tags=" + q);
-      if (t) params.push("text=" + t);
-      if (ingredientMode === "and") params.push("imode=and");
-      navigate("busca" + (params.length ? "?" + params.join("&") : ""));
+      navigate(buildBuscaPath(tagIds, textFilters, ingredientMode, null));
+    },
+    // Preview ao vivo (digitar e buscar): atualiza a URL com q= sem empilhar histórico e sem
+    // re-disparar handleRoute (mesmo mecanismo de replaceCategoriaFacets) — Enter/tocar um chip
+    // é que materializa de verdade em tags=/text= via toBusca (dropando q).
+    replaceBusca: function (tagIds, textFilters, ingredientMode, query) {
+      replace(buildBuscaPath(tagIds, textFilters, ingredientMode, query));
     },
     // fromHash: rota de origem INTEIRA (path+query, sem o "#/" — mesmo formato de "raw" acima,
     // ex.: "categoria/molhos?tags=ingredient:tomate&imode=and"), não mais só o catId. Guarda o

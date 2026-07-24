@@ -429,6 +429,33 @@
     return (filterTags || []).some((tagId) => itemTags.indexOf(tagId) !== -1);
   }
 
+  // protein:X também casa contains:X (a proteína apareceu, mesmo não sendo o foco).
+  function matchesTagId(itemTags, id) {
+    if (itemTags.indexOf(id) !== -1) return true;
+    if (id.indexOf("protein:") === 0) return itemTags.indexOf("contains:" + id.slice("protein:".length)) !== -1;
+    return false;
+  }
+
+  // AND entre grupos de prefixo, OR dentro do mesmo grupo — mesma semântica da tela de busca
+  // facetada (app.js:matchesTagId/matchesGroupedTags, com sua própria cópia local e 7 usos
+  // internos ali, intocada nesta leva pra não arriscar quebrar nenhum consumidor existente).
+  // Esta cópia compartilhada existe pro parser de busca (js/search.js) consumir sem duplicar a
+  // regra numa 3ª forma — se um dia divergir de app.js, comparar as duas.
+  function matchesGroupedTags(itemTags, tagIds, ingredientMode) {
+    if (!tagIds || !tagIds.length) return true;
+    const groups = {};
+    tagIds.forEach((id) => {
+      const prefix = id.slice(0, id.indexOf(":") + 1);
+      (groups[prefix] = groups[prefix] || []).push(id);
+    });
+    return Object.keys(groups).every((prefix) => {
+      if ((prefix === "ingredient:" || prefix === "seasoning:") && ingredientMode !== "or") {
+        return groups[prefix].every((id) => matchesTagId(itemTags, id));
+      }
+      return groups[prefix].some((id) => matchesTagId(itemTags, id));
+    });
+  }
+
   // Retorna as receitas de uma coleção já separadas por relevância:
   // principais (bateram em primaryFilterTags) e relacionadas (só bateram em relatedFilterTags).
   function getRecipesByCollection(collectionId) {
@@ -653,6 +680,8 @@
     getRecipeTags,
     getTagById,
     getRecipesByTags,
+    matchesTagId,
+    matchesGroupedTags,
     getRecipesByCollection,
     getRelatedTags,
     getTagLayers,

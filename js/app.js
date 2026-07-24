@@ -98,120 +98,12 @@
     });
   }
 
-  // ---------- Busca facetada: sugestões (tags + receitas por nome) ----------
-  // O texto digitado só gera sugestões — nunca filtra a lista de receitas sozinho.
-  // Selecionar uma tag sugerida é que muda o resultado (e a URL).
-  // Tag "viva" = tem pelo menos 1 receita já considerando as tags excluídas (evita sugerir/
-  // aceitar tag morta — ver namespaces adiados como technique: em js/tags.js).
-  function isLiveTag(tagId, excludeTagIds) {
-    return TagModel.getRecipesByTags(excludeTagIds.concat([tagId])).length > 0;
-  }
-
-  let tagSearchDebounce = null;
-  function wireTagSearchInput(inputEl, suggestionsEl, handlers) {
-    inputEl.addEventListener("input", () => {
-      const q = inputEl.value;
-      clearTimeout(tagSearchDebounce);
-      tagSearchDebounce = setTimeout(() => renderTagSuggestions(q, suggestionsEl, handlers), 220);
-    });
-    // Enter escolhe a melhor sugestão sem precisar tocar na lista — útil pra tecla
-    // "Ir"/"Buscar" do teclado virtual no mobile. Ordem: tag formal (só se já tiver
-    // receita de verdade, nunca uma tag "morta") > filtro de texto combinável > receita direta.
-    inputEl.addEventListener("keydown", (e) => {
-      if (e.key !== "Enter") return;
-      e.preventDefault();
-      const q = inputEl.value.trim();
-      if (!q) return;
-      const excludeTagIds = (handlers && handlers.excludeTagIds) || [];
-
-      const tagCandidates = Search.searchTags(q).filter((t) => excludeTagIds.indexOf(t.id) === -1);
-      const liveTag = tagCandidates.find((t) => isLiveTag(t.id, excludeTagIds));
-      if (liveTag) {
-        inputEl.value = "";
-        suggestionsEl.innerHTML = "";
-        handlers.onSelectTag(liveTag.id);
-        return;
-      }
-
-      if (handlers.onSelectText && Search.countByIngredientText(q) > 0) {
-        inputEl.value = "";
-        suggestionsEl.innerHTML = "";
-        handlers.onSelectText(q);
-        return;
-      }
-
-      const recipeResults = Search.searchRecipes(q, { limit: 1 });
-      if (recipeResults.length) {
-        inputEl.value = "";
-        suggestionsEl.innerHTML = "";
-        handlers.onSelectRecipe(recipeResults[0].catId, recipeResults[0].recipe.name);
-      }
-    });
-  }
-
-  function renderTagSuggestions(query, suggestionsEl, handlers) {
-    const q = query.trim();
-    if (!q) {
-      suggestionsEl.innerHTML = "";
-      return;
-    }
-    const excludeTagIds = (handlers && handlers.excludeTagIds) || [];
-    const tagResults = Search.searchTags(q)
-      .filter((t) => excludeTagIds.indexOf(t.id) === -1 && isLiveTag(t.id, excludeTagIds))
-      .slice(0, 6);
-    const recipeResults = Search.searchRecipes(q, { limit: 5 });
-    // Filtro de texto combinável: só oferecido quando o termo não bateu em nenhuma tag formal
-    // (senão a tag já resolve melhor) e o caller aceita esse tipo de sugestão (busca facetada).
-    const textFacetCount = handlers && handlers.onSelectText && !tagResults.length ? Search.countByIngredientText(q) : 0;
-
-    if (!tagResults.length && !recipeResults.length && !textFacetCount) {
-      suggestionsEl.innerHTML = '<div class="tagsearch-empty">Nenhuma tag ou prato encontrado para "' + query + '".</div>';
-      return;
-    }
-
-    let html = "";
-    if (tagResults.length) {
-      html +=
-        '<div class="tagsearch-group-label">Tags</div><div class="tagsearch-taglist">' +
-        tagResults.map((t) => '<button type="button" class="tag-suggestion" data-tag="' + t.id + '">' + t.label + "</button>").join("") +
-        "</div>";
-    }
-    if (textFacetCount > 0) {
-      html +=
-        '<div class="tagsearch-group-label">Filtro de texto</div><div class="tagsearch-taglist">' +
-        '<button type="button" class="text-suggestion" data-text="' +
-        encodeURIComponent(q) +
-        '">Contém "' +
-        q +
-        '" nos ingredientes (' +
-        textFacetCount +
-        ")</button></div>";
-    }
-    if (recipeResults.length) {
-      html +=
-        '<div class="tagsearch-group-label">Receitas</div><div class="tagsearch-recipelist">' +
-        recipeResults
-          .map((r) => '<button type="button" class="recipe-suggestion" data-cat="' + r.catId + '" data-name="' + encodeURIComponent(r.recipe.name) + '">' + r.recipe.name + "</button>")
-          .join("") +
-        "</div>";
-    }
-    suggestionsEl.innerHTML = html;
-
-    suggestionsEl.querySelectorAll(".tag-suggestion").forEach((btn) => {
-      btn.addEventListener("click", () => handlers.onSelectTag(btn.dataset.tag));
-    });
-    suggestionsEl.querySelectorAll(".recipe-suggestion").forEach((btn) => {
-      btn.addEventListener("click", () => handlers.onSelectRecipe(btn.dataset.cat, decodeURIComponent(btn.dataset.name)));
-    });
-    suggestionsEl.querySelectorAll(".text-suggestion").forEach((btn) => {
-      btn.addEventListener("click", () => handlers.onSelectText(decodeURIComponent(btn.dataset.text)));
-    });
-  }
-
-  function goToRecipeByCatAndName(catId, name) {
-    const id = TagModel.getIdForCatAndName(catId, name);
-    if (id) Router.toReceita(id);
-  }
+  // ---------- Busca facetada: parser de query (tags vivas + texto residual) ----------
+  // Reescrito em 2026-07-24: o texto digitado agora PRODUZ resultado direto (2 blocos, ver
+  // renderBusca) — antes só alimentava sugestão, nunca filtrava a lista sozinho. A decomposição
+  // da query em tags/texto mora em js/search.js (Search.parseQuery/searchByQuery); esta tela só
+  // consome o resultado e desenha os chips (removível pra cada tag AUTO-inferida, "+" pra cada
+  // chip OPCIONAL de termo ambíguo — ver renderBusca).
 
   // ---------- Chips de tags clicáveis (cards e página da receita) ----------
   // time:/difficulty: ficam de fora — já aparecem como texto simples no meta row, mostrar de novo seria redundante.
@@ -1497,7 +1389,7 @@
     { label: "Tempo e dificuldade", ids: ["time:ate-30-min", "difficulty:facil"] },
   ];
 
-  function renderBusca(tagIds, textFilters, initialIngredientMode) {
+  function renderBusca(tagIds, textFilters, initialIngredientMode, initialQuery) {
     textFilters = textFilters || [];
     let ingredientMode = initialIngredientMode || "or";
     activeCat = null;
@@ -1516,11 +1408,14 @@
     input.type = "text";
     input.className = "tagsearch-input";
     input.placeholder = "Busque por nome do prato, ingrediente, país, tempo...";
+    input.value = initialQuery || "";
     wrap.appendChild(input);
 
-    const suggestionsEl = document.createElement("div");
-    suggestionsEl.className = "tagsearch-suggestions";
-    wrap.appendChild(suggestionsEl);
+    // Preview ao vivo do parser (chips AUTO removíveis + chips OPCIONAIS de termo ambíguo) —
+    // reaproveita o visual de sugestão existente (.tagsearch-suggestions/.tag-suggestion).
+    const previewEl = document.createElement("div");
+    previewEl.className = "tagsearch-suggestions";
+    wrap.appendChild(previewEl);
 
     const chipsEl = document.createElement("div");
     chipsEl.className = "tagsearch-chips";
@@ -1618,11 +1513,12 @@
 
     function facetUniverse(base, mode) {
       let items = base.length ? TagModel.getAllRecipesFlat().filter((item) => matchesGroupedTags(item.tags, base, mode)) : TagModel.getAllRecipesFlat();
+      // Palavra inteira, multi-campo (nome/categoria/ingrediente/dificuldade) — mesma mecânica
+      // do resíduo textual do preview (Search.matchesTextFilter), pra texto já materializado
+      // não se comportar diferente de texto ainda sendo digitado. Antes era substring só em
+      // ingredientes; mudou na leva do parser de busca (2026-07-24).
       if (textFilters.length) {
-        items = items.filter((item) => {
-          const ingredientsText = normText((item.recipe.ingredients || []).join(" "));
-          return textFilters.every((t) => ingredientsText.indexOf(normText(t)) !== -1);
-        });
+        items = items.filter((item) => textFilters.every((t) => Search.matchesTextFilter(item, t)));
       }
       return items;
     }
@@ -1703,25 +1599,150 @@
       renderResults();
     });
 
-    wireTagSearchInput(input, suggestionsEl, {
-      onSelectTag: (tagId) => {
-        input.value = "";
-        suggestionsEl.innerHTML = "";
-        goToTags(tagIds.concat([tagId]));
-      },
-      onSelectRecipe: goToRecipeByCatAndName,
-      onSelectText: (text) => {
-        input.value = "";
-        suggestionsEl.innerHTML = "";
-        goTo(tagIds, textFilters.concat([text]));
-      },
-      excludeTagIds: tagIds,
+    // ---------- preview: texto digitado, ainda não commitado ----------
+    // Tocar QUALQUER chip do preview (auto × ou opcional +) É o commit — não existe um estado
+    // intermediário de "excluí mas continuo digitando" (decisão deliberada, ver Passo 1 da
+    // investigação: menos estado novo, e quem quer refinar mais já tem o modal de facetas).
+    function commitParsed(parsed, overrideAutoTagIds, overrideResidual) {
+      const newTagIds = tagIds.concat(overrideAutoTagIds !== undefined ? overrideAutoTagIds : parsed.autoTagIds);
+      const newTextFilters = textFilters.concat(overrideResidual !== undefined ? overrideResidual : parsed.residualTokens);
+      input.value = "";
+      previewEl.innerHTML = "";
+      goTo(newTagIds, newTextFilters);
+    }
+
+    function renderPreviewChips(parsed) {
+      let html = "";
+      parsed.segments.forEach((seg) => {
+        if (seg.classification === "auto") {
+          const tag = TagModel.getTagById(seg.autoTagId);
+          html +=
+            '<button type="button" class="tag-chip tag-chip--selected" data-tag="' +
+            seg.autoTagId +
+            '">' +
+            (tag ? tag.label : seg.autoTagId) +
+            ' <span aria-hidden="true">×</span></button>';
+        } else if (seg.classification === "optional") {
+          seg.chipTagIds.forEach((tagId) => {
+            const tag = TagModel.getTagById(tagId);
+            html +=
+              '<button type="button" class="tag-suggestion" data-tag="' +
+              tagId +
+              '" data-optional="1">' +
+              (tag ? tag.label : tagId) +
+              " +</button>";
+          });
+        }
+      });
+      if (!html) {
+        previewEl.innerHTML = "";
+        return;
+      }
+      previewEl.innerHTML = '<div class="tagsearch-group-label">Interpretação da busca</div><div class="tagsearch-taglist">' + html + "</div>";
+      previewEl.querySelectorAll("[data-tag]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const tagId = btn.dataset.tag;
+          if (btn.dataset.optional) {
+            const seg = parsed.segments.find((s) => s.classification === "optional" && s.chipTagIds.indexOf(tagId) !== -1);
+            commitParsed(
+              parsed,
+              parsed.autoTagIds.concat([tagId]),
+              parsed.residualTokens.filter((t) => !(seg && seg.tokens.indexOf(t) !== -1))
+            );
+          } else {
+            const seg = parsed.segments.find((s) => s.classification === "auto" && s.autoTagId === tagId);
+            commitParsed(
+              parsed,
+              parsed.autoTagIds.filter((id) => id !== tagId),
+              parsed.residualTokens.concat(seg ? seg.tokens : [])
+            );
+          }
+        });
+      });
+    }
+
+    function renderPreviewSection(title, items, fromHash) {
+      if (!items.length) return;
+      const label = document.createElement("div");
+      label.className = "tagsearch-group-label";
+      label.textContent = title + " (" + items.length + ")";
+      resultsEl.appendChild(label);
+      items.forEach((r) => {
+        const cat = window.CATEGORIES.find((c) => c.id === r.item.catId);
+        resultsEl.appendChild(renderRecipeCard(r.item, { catLabel: cat ? cat.label : r.item.catId, fromHash: fromHash }));
+      });
+    }
+
+    // Degradação graciosa em 3 camadas: bloco 2 (rede ampla) é a rede primária, nunca
+    // suprimido; fallback parcial (ranqueado por termos casados) só quando os 2 blocos zeram e
+    // há 2+ termos; mensagem honesta no zero absoluto, sem inventar resultado.
+    function renderPreviewResults(query) {
+      const parsed = Search.parseQuery(query, tagIds);
+      renderPreviewChips(parsed);
+      const out = Search.searchByQuery(query, {
+        parsed: parsed,
+        baseTagIds: tagIds,
+        baseTextFilters: textFilters,
+        ingredientMode: ingredientMode,
+        excludeTagIds: tagIds,
+      });
+      resultsEl.innerHTML = "";
+      countEl.textContent = "";
+      const fromHash = currentHashPath();
+      renderPreviewSection("Com esses filtros", out.block1, fromHash);
+      renderPreviewSection("Mais resultados por texto", out.block2, fromHash);
+      if (!out.block1.length && !out.block2.length) {
+        if (out.partial.length) {
+          const label = document.createElement("div");
+          label.className = "tagsearch-group-label";
+          label.textContent = "Nenhuma receita bate com todos os termos — resultados parciais";
+          resultsEl.appendChild(label);
+          out.partial.forEach((r) => {
+            const cat = window.CATEGORIES.find((c) => c.id === r.item.catId);
+            resultsEl.appendChild(renderRecipeCard(r.item, { catLabel: cat ? cat.label : r.item.catId, fromHash: fromHash }));
+          });
+        } else {
+          resultsEl.innerHTML = '<div class="empty-state">Nenhuma receita encontrada para "' + query + '".<br>Tente outro termo ou escolha uma tag abaixo.</div>';
+          renderPopularTags();
+        }
+      }
+    }
+
+    let previewDebounce = null;
+    function schedulePreview(query) {
+      const q = (query || "").trim();
+      // Router.replaceBusca: preview vive só na URL (q=), sem empilhar histórico — Enter/chip
+      // é que materializa de verdade em tags=/text= (goTo -> Router.toBusca, dropa q).
+      Router.replaceBusca(tagIds, textFilters, ingredientMode, q);
+      if (!q) {
+        previewEl.innerHTML = "";
+        renderResults();
+        return;
+      }
+      renderPreviewResults(q);
+    }
+
+    input.addEventListener("input", () => {
+      clearTimeout(previewDebounce);
+      previewDebounce = setTimeout(() => schedulePreview(input.value), 220);
+    });
+    input.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+      clearTimeout(previewDebounce);
+      const q = input.value.trim();
+      if (!q) return;
+      commitParsed(Search.parseQuery(q, tagIds));
     });
 
     renderChips();
     renderTextChips();
     renderFacets();
-    renderResults();
+    if (initialQuery && initialQuery.trim()) {
+      renderPreviewResults(initialQuery.trim());
+    } else {
+      renderResults();
+    }
   }
 
   // ---------- Telas-placeholder da barra inferior (Minhas Receitas / Preparos / Lista de Compras) ----------
@@ -3614,7 +3635,7 @@
     // preso na tela por cima do conteúdo trocado (ex.: botão/gesto voltar do celular).
     if (closeActiveFilterModal) closeActiveFilterModal();
     if (route.name === "busca") {
-      renderBusca(route.tags || [], route.textFilters || [], route.ingredientMode || "or");
+      renderBusca(route.tags || [], route.textFilters || [], route.ingredientMode || "or", route.query || "");
     } else if (route.name === "grupo") {
       renderGrupo(route.grupoId);
     } else if (route.name === "categoria") {

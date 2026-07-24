@@ -34,10 +34,24 @@ formais derivadas deste trabalho.
 - [x] Suíte `scripts/verify-taxonomy-2026-07-24.js` (63 asserções) — nenhuma tag nasceu
       morta, nenhuma tag existente perdeu receita sem justificativa, suíno intacto.
 
-## Fase 3 — Parser da busca por texto (pendente)
+## Fase 3 — Parser da busca por texto
 
-- [ ] Decompor query em tags vivas + texto residual (word-boundary, stopwords PT).
-- [ ] Resultado em dois blocos: filtrado por tag (com refinamento textual) + união textual
-      pura, cobrindo buracos de taxonomia.
-- [ ] Persistir estado de texto na URL (`q=`) via `Router.replace`, preservando "Voltar".
-- [ ] Reavaliar as 4 queries de exemplo do dono do produto sobre a taxonomia enriquecida.
+- [x] Decompor query em tags vivas + texto residual (word-boundary, stopwords PT) —
+      `Search.parseQuery`/`classifyCandidate` em js/search.js, predicado de igualdade de frase
+      + família de slug única (auto vs. opcional vs. texto).
+- [x] Resultado em dois blocos: "Com esses filtros" (tags AUTO + resíduo, sem campo descrição)
+      + "Mais resultados por texto" (união de todos os termos, 6 campos, nunca suprimido) —
+      `Search.searchByQuery`, consumido por `renderPreviewResults` em js/app.js.
+- [x] Persistir estado de texto na URL (`q=`) via `Router.replaceBusca`, preservando "Voltar" —
+      `fromHash`/`currentHashPath` já capturavam o hash inteiro sem mudança nenhuma; só
+      `parseHash` (router.js) e `renderBusca(..., initialQuery)` precisaram expor `q`.
+- [x] Reavaliado no código real (scripts/verify-search-parser-2026-07-24.js, 40 asserções) e
+      no navegador: "macarrão com carne" -> Chow Mein/Hot Pot/Japchae/Ragù alla Bolognese/
+      Ragù de Cordeiro/Shabu-Shabu/Sukiyaki, Lasanha ausente; "receitas de air fryer" -> 20;
+      "lasanha de forno" -> Lasanha 1º; "cremoso" (sem tag nenhuma) -> 29 resultados, nunca
+      tela vazia.
+- [x] Guard de vocabulário: `Search.getVocabularySingleWordTerms` + `classifyCandidate` travam
+      os 21 termos ambíguos conhecidos (carne, peixe, massa, peru, café, leite, alho, etc.) —
+      suíte falha se a taxonomia mudar essa classificação em silêncio.
+- [x] Grupo "Receitas" (sugestão que navegava direto) removido — nome exato vira resultado #1
+      do bloco de texto.

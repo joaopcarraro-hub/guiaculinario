@@ -236,12 +236,23 @@ categorias/coleções do grupo (por nome) quanto receitas do grupo que batem em 
 ingrediente (ingredient:/contains:), mostradas numa seção separada. Nunca traz opção nem
 receita de outro grupo.
 
-Busca global deve priorizar:
-1. Tags formais
-2. Filtros textuais combináveis
-3. Receitas diretas
-
-Termos como alho, cebola, brócolis e sanduíche devem funcionar como tags formais ou filtros textuais combináveis.
+Busca global (`renderBusca`, tela "Pesquisar", `js/search.js`) reescrita em 2026-07-24: texto
+digitado PRODUZ resultado direto (2 blocos), não mais só sugestão — ver `Search.parseQuery`/
+`Search.searchByQuery`. Resumo do contrato (detalhe completo é código, não repita aqui):
+- A query é decomposta em tags AUTO-inferidas (chip removível ×) + tags OPCIONAIS de termo
+  ambíguo (chip "+", nunca aplicado sozinho) + resíduo textual. Um termo só vira AUTO quando é
+  IGUAL à frase de uma tag viva E essa igualdade não colide em família de slug com nenhuma
+  outra tag (ver "Subtipo não é sinônimo" acima) — termo genérico/ambíguo (carne, peixe, massa,
+  peru, café, leite, alho) NUNCA colapsa sozinho numa tag específica.
+- Bloco "Com esses filtros" (tags AUTO + resíduo obrigatório, campos nome/categoria/
+  ingrediente/dificuldade — SEM descrição, que é prosa e vira ruído) + bloco "Mais resultados
+  por texto" (união de todos os termos, os 6 campos, nunca suprimido mesmo quando o primeiro
+  bloco tem resultado — cobre buraco de taxonomia: "macarrão" só existe como palavra em pratos
+  asiáticos, Carbonara/Lasanha nunca dizem "macarrão").
+- Grupo antigo "Receitas" (sugestão que navegava direto pro prato) foi removido — receita de
+  nome exato aparece como resultado #1 do bloco de texto, 1 toque a mais, perda aceita.
+- Termos como alho, cebola, brócolis e sanduíche continuam funcionando como tags formais ou
+  texto, agora com casamento por PALAVRA INTEIRA (não substring) e stopwords em português.
 
 ## Critério de qualidade
 
