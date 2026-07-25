@@ -123,6 +123,18 @@
   --leading-tight: 1.2;
   --leading-snug: 1.35;
   --leading-base: 1.55;
+
+  /* ---- Fase 0b (espaçamento): grade de 4px. */
+  --space-05: 2px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
 }
 
 * { box-sizing: border-box; }
@@ -221,7 +233,7 @@ body {
   z-index: var(--z-nav);
   background: var(--color-bg-secondary);
   border-top: 1px solid var(--color-border);
-  padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  padding: var(--space-2) var(--space-1) calc(var(--space-2) + env(safe-area-inset-bottom));
 }
 .bottom-nav__tab {
   flex: 1;
@@ -229,7 +241,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: var(--space-1);
   min-height: 52px;
   border: none;
   background: none;
@@ -237,7 +249,7 @@ body {
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   line-height: var(--leading-tight);
-  padding: 4px 2px;
+  padding: var(--space-1) var(--space-05);
   cursor: pointer;
 }
 .bottom-nav__icon { width: 22px; height: 22px; flex-shrink: 0; }
@@ -269,7 +281,7 @@ body {
    Corrigido usando --bottom-nav-height (único ponto de ajuste, ver :root) + o mesmo
    env(safe-area-inset-bottom) que a própria nav já soma na sua altura. */
 #main {
-  padding: 40px 48px calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+  padding: var(--space-10) var(--space-12) calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
   max-width: 980px;
   margin: 0 auto;
 }
@@ -279,7 +291,7 @@ body {
   font-weight: 400;
   font-size: var(--text-xl);
   line-height: var(--leading-tight);
-  margin: 0 0 4px;
+  margin: 0 0 var(--space-1);
   color: var(--color-text-primary);
   /* Fase 0b: tracking do serif display escala com o tamanho — recalibrado pra Georgia (a regra
      da Fase 0a, -0.02em fixo, foi calibrada pra Helvetica Neue, que fecha entreletra menos e
@@ -290,13 +302,13 @@ body {
 #category-header .desc {
   color: var(--color-text-secondary);
   font-style: italic;
-  margin-bottom: 30px;
+  margin-bottom: var(--space-8);
 }
 
 .empty-state {
   border: 1px dashed var(--color-border);
   border-radius: var(--radius);
-  padding: 40px;
+  padding: var(--space-10);
   text-align: center;
   color: var(--color-text-secondary);
   font-style: italic;
@@ -307,8 +319,8 @@ body {
    translúcido de --color-accent já documentado no reskin escuro (era --gold-soft). */
 .minhas-receitas__tabs {
   display: flex;
-  gap: 8px;
-  margin-bottom: 18px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
 }
 .minhas-receitas__tab {
   position: relative;
@@ -336,8 +348,8 @@ body {
    tela de receita usava antes de virar só leitura. */
 .shopping-list__tabs {
   display: flex;
-  gap: 8px;
-  margin-bottom: 18px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
 }
 .shopping-list__tab {
   position: relative;
@@ -361,9 +373,9 @@ body {
 .shopping-list__clear {
   position: relative;
   display: block;
-  margin: 0 0 18px;
+  margin: 0 0 var(--space-5);
   min-height: 40px;
-  padding: 0 16px;
+  padding: 0 var(--space-4);
   border-radius: 999px;
   border: 1px solid var(--color-error);
   background: none;
@@ -373,8 +385,8 @@ body {
   cursor: pointer;
 }
 .shopping-list__recipe {
-  margin-bottom: 24px;
-  padding-bottom: 8px;
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-2);
   border-bottom: 1px solid var(--color-border);
 }
 /* Seções extras no fim da visão Geral: "Despensa — confira se já tem" (itens do PANTRY_SET,
@@ -383,8 +395,8 @@ body {
    em js/app.js. Mesmo visual de título e de texto auxiliar nas duas. */
 .shopping-list__preparos-title,
 .shopping-list__pantry-title {
-  margin: 24px 0 10px;
-  padding-top: 16px;
+  margin: var(--space-6) 0 var(--space-3);
+  padding-top: var(--space-4);
   border-top: 1px solid var(--color-border);
   font-size: var(--text-sm);
   font-weight: 600;
@@ -405,7 +417,7 @@ body {
 .shopping-list__recipe-row {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
   cursor: pointer;
 }
 .shopping-list__recipe-row .shopping-list__recipe-name-link,
@@ -443,7 +455,7 @@ body {
 .shopping-list__item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
 }
 .shopping-list__item label { flex: 1; min-width: 0; }
 /* Toggle Qualquer um/Todos estes — trilho único em pílula com trava deslizante (NÃO switch
@@ -460,7 +472,7 @@ body {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   overflow: hidden;
-  margin: 8px 0 12px;
+  margin: var(--space-2) 0 var(--space-3);
 }
 /* Trava: metade da largura do trilho, desliza via transform (nunca via left/width — mais
    barato pro navegador animar, e a posição "descansada" de cada lado já vem do próprio
@@ -490,7 +502,7 @@ body {
   z-index: var(--z-raised);
   flex: 1;
   min-height: 40px;
-  padding: 0 8px;
+  padding: 0 var(--space-2);
   border: none;
   background: none;
   color: var(--color-text-disabled);
@@ -505,8 +517,8 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-text-secondary); /* era --gold: 16px fica abaixo do limiar de 18px+ pra ghost-text */
-  margin: 34px 0 14px;
-  padding-bottom: 6px;
+  margin: var(--space-8) 0 var(--space-4);
+  padding-bottom: var(--space-2);
   border-bottom: 1px solid var(--color-border);
 }
 .subgroup-title:first-child { margin-top: 0; }
@@ -521,8 +533,8 @@ body {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  margin-bottom: 18px;
-  padding: 16px 18px;
+  margin-bottom: var(--space-5);
+  padding: var(--space-4) var(--space-5);
   cursor: pointer;
   user-select: none;
 }
@@ -536,7 +548,7 @@ body {
 .recipe-header {
   display: grid;
   grid-template-columns: 48px 1fr auto;
-  gap: 12px;
+  gap: var(--space-3);
   align-items: start;
 }
 
@@ -610,7 +622,7 @@ body {
   font-size: var(--text-xs);
   color: var(--color-text-secondary);
   font-style: italic;
-  margin-top: 2px;
+  margin-top: var(--space-05);
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
@@ -627,16 +639,16 @@ body {
   /* era --gold-soft: fundo vira tom de --gold em baixa opacidade — decisão registrada no
      Bloco 4 (mesma opacidade do rgba(gold) antigo, só trocando a cor-base). */
   background: var(--color-accent-soft);
-  padding: 2px 8px;
+  padding: var(--space-05) var(--space-2);
   border-radius: 20px;
-  margin-top: 4px;
+  margin-top: var(--space-1);
 }
 
 .recipe-card-desc {
   font-size: var(--text-sm);
   color: var(--color-text-primary);
   line-height: var(--leading-snug);
-  margin-top: 10px;
+  margin-top: var(--space-3);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -648,7 +660,7 @@ body {
   color: var(--color-text-secondary);
   border-radius: 999px;
   font-size: var(--text-xs);
-  padding: 3px 10px;}
+  padding: var(--space-05) var(--space-3);}
 
 /* Metadados (tempo, complexidade, porções) — ícone outline monocromático + valor, mesmo
    princípio visual do modal de filtro (--color-text-disabled pro elemento neutro/inativo,
@@ -659,13 +671,13 @@ body {
   align-items: center;
   justify-content: flex-start;
   flex-wrap: wrap;
-  gap: 16px;
-  margin-top: 8px;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
 }
 .recipe-meta-item {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
   color: var(--color-text-secondary);
   font-size: var(--text-xs);
   white-space: nowrap;
@@ -675,16 +687,16 @@ body {
 @media (max-width: 700px) {
   /* mesma correção do bug de conteúdo tampado pela nav fixa — só top/laterais mudam pra 20px,
      o bottom continua vindo de --bottom-nav-height (nunca um valor uniforme de novo). */
-  #main { padding: 20px 20px calc(var(--bottom-nav-height) + env(safe-area-inset-bottom)); }
+  #main { padding: var(--space-5) var(--space-5) calc(var(--bottom-nav-height) + env(safe-area-inset-bottom)); }
 }
 
 .ingredients-list {
   list-style: none;
   padding: 0;
-  margin: 0 0 18px;
+  margin: 0 0 var(--space-5);
 }
 .ingredients-list li {
-  padding: 5px 0 5px 22px;
+  padding: var(--space-1) 0 var(--space-1) var(--space-6);
   position: relative;
   font-size: var(--text-base);
 }
@@ -716,7 +728,7 @@ body {
 }
 .steps-list li {
   counter-increment: step;
-  padding: 0 0 14px 40px;
+  padding: 0 0 var(--space-4) var(--space-10);
   position: relative;
   font-size: var(--text-base);
   line-height: var(--leading-base);
@@ -733,34 +745,34 @@ body {
   font-size: var(--text-xs);}
 
 .tips-box {
-  margin-top: 18px;
+  margin-top: var(--space-5);
   /* era #f6efdd (creme claro, hardcoded): --color-surface-elevated, painel elevado neutro
      (borda esquerda já carrega o sinal de cor, fundo não precisa tingir também). */
   background: var(--color-surface-elevated);
   border-left: 3px solid var(--color-accent);
   border-radius: 0 8px 8px 0;
-  padding: 14px 18px;
+  padding: var(--space-4) var(--space-5);
 }
-.tips-box h4 { color: var(--color-text-primary); margin-bottom: 8px; }
-.tips-box ul { margin: 0; padding-left: 18px; }
-.tips-box li { font-size: var(--text-sm); margin-bottom: 6px; line-height: var(--leading-snug); }
+.tips-box h4 { color: var(--color-text-primary); margin-bottom: var(--space-2); }
+.tips-box ul { margin: 0; padding-left: var(--space-5); }
+.tips-box li { font-size: var(--text-sm); margin-bottom: var(--space-2); line-height: var(--leading-snug); }
 .tips-box li:last-child { margin-bottom: 0; }
 
 .used-for {
-  margin-top: 14px;
+  margin-top: var(--space-4);
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
 }
 .used-for strong { color: var(--color-text-primary); }
 
 /* ---------- Home ---------- */
-.home-search-wrap { margin-bottom: 20px; }
+.home-search-wrap { margin-bottom: var(--space-5); }
 .home-search {
   width: 100%;
   min-height: 50px;
   border-radius: 999px;
   border: 1px solid var(--color-border);
-  padding: 0 20px;
+  padding: 0 var(--space-5);
   font-family: inherit;
   font-size: var(--text-base);
   background: var(--color-surface);
@@ -781,12 +793,12 @@ body {
 /* ---------- Toolbar da coleção (abas + ordenador + contagem) ---------- */
 .collection-toolbar {
   display: grid;
-  gap: 12px;
-  margin-bottom: 18px;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
 }
 .collection-count {
   display: flex;
-  gap: 8px;
+  gap: var(--space-2);
   align-items: baseline;
   color: var(--color-text-secondary);
   font-size: var(--text-sm);
@@ -795,7 +807,7 @@ body {
 .collection-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: var(--space-2);
 }
 .collection-tabs button {
   min-height: 44px;
@@ -812,7 +824,7 @@ body {
 .collection-tabs button.active { border-color: var(--color-accent); border-width: 2px; font-weight: 600; background: var(--color-accent-soft); }
 .sort-control {
   display: grid;
-  gap: 6px;
+  gap: var(--space-2);
   font-size: var(--text-xs);
   color: var(--color-text-secondary);
 }
@@ -821,12 +833,12 @@ body {
   border-radius: 10px;
   border: 1px solid var(--color-border);
   background: var(--color-surface);
-  padding: 0 12px;
+  padding: 0 var(--space-3);
   font-size: var(--text-sm);
   font-family: inherit;
   color: var(--color-text-primary);
 }
-.collection-refine { margin-bottom: 18px; }
+.collection-refine { margin-bottom: var(--space-5); }
 .collection-refine:empty { margin-bottom: 0; }
 
 /* ---------- Modal de filtros em acordeão (Bloco 3 — design tokens v3) ----------
@@ -834,14 +846,14 @@ body {
    .btn-clear-filters e .facet-multi-chips continuam existindo (reaproveitados sem cor própria
    — só layout), mas o "Limpar filtros" e os chips de Ingrediente agora só aparecem DENTRO do
    modal, então ganham um override de cor escopado a .filter-modal logo abaixo. */
-.filter-trigger-wrap { margin-bottom: 18px; }
+.filter-trigger-wrap { margin-bottom: var(--space-5); }
 .filter-trigger-wrap:empty { margin-bottom: 0; }
 .filter-trigger {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   min-height: 44px;
-  padding: 0 18px;
+  padding: 0 var(--space-5);
   border-radius: 999px;
   border: 1px solid var(--color-border);
   background: var(--color-surface);
@@ -858,7 +870,7 @@ body {
   justify-content: center;
   min-width: 20px;
   height: 20px;
-  padding: 0 5px;
+  padding: 0 var(--space-1);
   border-radius: 999px;
   background: var(--color-accent-deep); /* Fase 0a: era --color-accent, texto em cima falhava AA */
   color: var(--color-text-primary);
@@ -869,7 +881,7 @@ body {
 .facet-multi-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--space-2);
 }
 
 @keyframes filter-modal-in {
@@ -906,8 +918,8 @@ body.filter-modal-open { overflow: hidden; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 16px 16px 12px;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-4) var(--space-3);
   border-bottom: 1px solid var(--color-border);
 }
 .filter-modal__header h3 { margin: 0; font-size: var(--text-base); }
@@ -929,12 +941,12 @@ body.filter-modal-open { overflow: hidden; }
 .filter-modal__clear-row {
   display: flex;
   justify-content: flex-end;
-  padding: 10px 16px 0;
+  padding: var(--space-3) var(--space-4) 0;
 }
 .filter-modal__clear-row:empty { padding: 0; }
 .filter-modal .btn-clear-filters {
   min-height: 44px;
-  padding: 0 4px;
+  padding: 0 var(--space-1);
   border: none;
   background: none;
   color: var(--color-text-secondary);
@@ -946,10 +958,10 @@ body.filter-modal-open { overflow: hidden; }
 .filter-modal__body {
   flex: 1;
   overflow-y: auto;
-  padding: 8px 16px 16px;
+  padding: var(--space-2) var(--space-4) var(--space-4);
 }
 .filter-modal__footer {
-  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom));
   border-top: 1px solid var(--color-border);
 }
 .filter-modal__apply {
@@ -973,17 +985,17 @@ body.filter-modal-open { overflow: hidden; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: var(--space-3);
   border: none;
   background: none;
   color: var(--color-text-primary);
   font-family: inherit;
   font-size: var(--text-sm);
   cursor: pointer;
-  padding: 8px 2px;
+  padding: var(--space-2) var(--space-05);
   text-align: left;
 }
-.filter-section__label { display: flex; align-items: baseline; gap: 6px; flex: 1; min-width: 0; }
+.filter-section__label { display: flex; align-items: baseline; gap: var(--space-2); flex: 1; min-width: 0; }
 .filter-section__count { color: var(--color-text-disabled); font-size: var(--text-xs); }
 
 /* Botão de ocultar/mostrar ingredientes (tela de receita) — precisa ser bem mais visível que
@@ -997,7 +1009,7 @@ body.filter-modal-open { overflow: hidden; }
   background: var(--color-surface-elevated);
   border: 2px solid var(--color-accent);
   border-radius: 999px;
-  padding: 0 16px;
+  padding: 0 var(--space-4);
   font-weight: 600;
   color: var(--color-text-primary);
 }
@@ -1016,15 +1028,15 @@ body.filter-modal-open { overflow: hidden; }
 .filter-section__body {
   display: none;
   flex-direction: column;
-  gap: 2px;
-  padding: 2px 2px 14px;
+  gap: var(--space-05);
+  padding: var(--space-05) var(--space-05) var(--space-4);
 }
 .filter-section.is-open .filter-section__body { display: flex; }
 
 .filter-option {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-3);
   min-height: 44px;
   font-size: var(--text-sm);
   color: var(--color-text-primary);
@@ -1040,20 +1052,20 @@ body.filter-modal-open { overflow: hidden; }
 .filter-tile-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  padding: 4px 2px 14px;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-05) var(--space-4);
 }
 .filter-tile {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: var(--space-1);
   min-height: 76px;
   border: 2px solid var(--color-border);
   border-radius: var(--radius);
   background: var(--color-surface);
-  padding: 10px 4px;
+  padding: var(--space-3) var(--space-1);
   cursor: pointer;
   font-family: inherit;
 }
@@ -1077,13 +1089,13 @@ body.filter-modal-open { overflow: hidden; }
    chips removíveis dos já selecionados (.facet-multi-chips) não mudam nada aqui. */
 .filter-tile-grid.filter-tile-grid--dense {
   grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
+  gap: var(--space-2);
 }
 .filter-tile--dense {
   min-height: 58px;
-  padding: 6px 2px;
+  padding: var(--space-2) var(--space-05);
   border-radius: 10px;
-  gap: 2px;
+  gap: var(--space-05);
 }
 .filter-tile--dense .filter-tile__icon--emoji { font-size: var(--text-md); }
 .filter-tile--dense .filter-tile__label { font-size: var(--text-xs); }
@@ -1112,16 +1124,16 @@ body.filter-modal-open { overflow: hidden; }
   border: 1px solid var(--color-border);
   background: var(--color-surface);
   color: var(--color-text-primary);
-  padding: 0 10px;
+  padding: 0 var(--space-3);
   font-size: var(--text-sm);
   font-family: inherit;
   width: 100%;
-  margin-top: 4px;
+  margin-top: var(--space-1);
 }
 .filter-modal .tag-chip--selected {
   position: relative;
   min-height: 34px;
-  padding: 0 6px 0 14px;
+  padding: 0 var(--space-2) 0 var(--space-4);
   border-radius: 999px;
   border: none;
   background: var(--color-surface-elevated);
@@ -1132,7 +1144,7 @@ body.filter-modal-open { overflow: hidden; }
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
 }
 .filter-modal .tag-chip--selected span { color: var(--color-accent); font-size: var(--text-md); line-height: var(--leading-tight); opacity: 1; }
 .filter-modal .tag-chip--selected:hover { background: var(--color-border); }
@@ -1141,20 +1153,20 @@ body.filter-modal-open { overflow: hidden; }
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  gap: 12px;
+  gap: var(--space-3);
   flex-wrap: wrap;
-  margin-top: 14px;
+  margin-top: var(--space-4);
 }
 .tagsearch-count-row .tagsearch-count { margin-top: 0; }
 
 /* ---------- Busca facetada por tags ---------- */
-.tagsearch { margin-bottom: 24px; }
+.tagsearch { margin-bottom: var(--space-6); }
 .tagsearch-input {
   width: 100%;
   min-height: 50px;
   border-radius: 999px;
   border: 1px solid var(--color-border);
-  padding: 0 20px;
+  padding: 0 var(--space-5);
   font-family: inherit;
   font-size: var(--text-base);
   background: var(--color-surface);
@@ -1170,26 +1182,26 @@ body.filter-modal-open { overflow: hidden; }
    (mesma justificativa do .home-search acima). */
 .tagsearch-input:focus-visible { outline: 2px solid var(--color-accent); } /* Fase 0a: era :focus, migrado pra :focus-visible (mesmo visual) */
 
-.tagsearch-suggestions { margin-top: 10px; }
+.tagsearch-suggestions { margin-top: var(--space-3); }
 .tagsearch-empty {
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
   font-style: italic;
-  padding: 4px 2px;
+  padding: var(--space-1) var(--space-05);
 }
 .tagsearch-group-label {
   font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-text-secondary);
-  margin: 10px 0 6px;
+  margin: var(--space-3) 0 var(--space-2);
 }
-.tagsearch-taglist, .tagsearch-recipelist { display: flex; flex-wrap: wrap; gap: 8px; }
+.tagsearch-taglist, .tagsearch-recipelist { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 
 .tag-suggestion {
   position: relative;
   min-height: 38px;
-  padding: 0 16px;
+  padding: 0 var(--space-4);
   border-radius: 999px;
   border: 1px solid var(--color-border); /* era --gold-soft: borda padrão/estática */
   background: var(--color-surface);
@@ -1204,7 +1216,7 @@ body.filter-modal-open { overflow: hidden; }
 .recipe-suggestion {
   position: relative;
   min-height: 38px;
-  padding: 0 16px;
+  padding: 0 var(--space-4);
   border-radius: 8px;
   border: 1px solid var(--color-border);
   background: var(--color-surface);
@@ -1220,13 +1232,13 @@ body.filter-modal-open { overflow: hidden; }
 .tagsearch-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 14px;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
 }
 .tag-chip--selected {
   position: relative;
   min-height: 38px;
-  padding: 0 8px 0 16px;
+  padding: 0 var(--space-2) 0 var(--space-4);
   border-radius: 999px;
   border: none;
   background: var(--color-accent-deep); /* Fase 0a: era --color-accent, texto em cima falhava AA */
@@ -1237,19 +1249,19 @@ body.filter-modal-open { overflow: hidden; }
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
 }
 .tag-chip--selected span { font-size: var(--text-md); line-height: var(--leading-tight); opacity: 0.85; }
 .tag-chip--selected:hover { background: var(--color-accent-hover); } /* era #8f6624 hardcoded */
 
-.tagsearch-related { margin-top: 4px; }
+.tagsearch-related { margin-top: var(--space-1); }
 
 .tagsearch-count {
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
-  margin-top: 14px;
+  margin-top: var(--space-4);
 }
-.tagsearch-popular { margin-top: 4px; }
+.tagsearch-popular { margin-top: var(--space-1); }
 
 /* ---------- Tags clicáveis (cards e página da receita) ---------- */
 .tag-chip-link {
@@ -1260,7 +1272,7 @@ body.filter-modal-open { overflow: hidden; }
   border-radius: 999px;
   font-family: var(--font-ui);
   font-size: var(--text-xs);
-  padding: 3px 10px;
+  padding: var(--space-05) var(--space-3);
   cursor: pointer;
 }
 /* fundo era --gold-soft (tom tingido, decisão do Bloco 4); texto era #2b241b (escuro, pensado
@@ -1270,17 +1282,17 @@ body.filter-modal-open { overflow: hidden; }
 .recipe-card-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 6px;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
 }
 
 .recipe-page-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin: -6px 0 20px;
+  gap: var(--space-2);
+  margin: calc(var(--space-2) * -1) 0 var(--space-5);
 }
-.recipe-page-tags .tag-chip-link { position: relative; min-height: 30px; font-size: var(--text-xs); padding: 0 14px; }
+.recipe-page-tags .tag-chip-link { position: relative; min-height: 30px; font-size: var(--text-xs); padding: 0 var(--space-4); }
 .recipe-page-tags .tag-chip-link::after { content: ""; position: absolute; inset: -5px -4px; } /* Fase 0a: LIMITAÇÃO CONHECIDA, não corrigível sem mudança visual — ver relatório. .recipe-page-tags é flex-wrap com gap:8px em AMBOS os eixos (linhas quebradas usam o mesmo gap na vertical); o lado de baixo colide com o chip da próxima linha quebrada quase imediatamente (confirmado ao vivo: elementFromPoint acima de +1px já resolve pro chip vizinho, não o mesmo elemento, não importa o quanto o inset aumente). Efetivo alcançado ~38px (30 + ~4px cada lado, limite seguro = metade do gap), 6px abaixo do alvo de 44px. Alcançar 44px exigiria aumentar o próprio chip ou o gap — mudança visual real, fora do escopo "sem alterar o visual" deste bloco. */
 
 /* ---------- Home: tiles principais + "Mais categorias" (Bloco 2 — design tokens v3) ---------- */
@@ -1294,9 +1306,9 @@ body.filter-modal-open { overflow: hidden; }
   position: relative;
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin: 0 0 14px auto;
-  padding: 6px 14px;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-4) auto;
+  padding: var(--space-2) var(--space-4);
   min-height: 32px;
   border: 1px solid var(--color-border);
   border-radius: 999px;
@@ -1311,20 +1323,20 @@ body.filter-modal-open { overflow: hidden; }
 .home-tiles {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 8px;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
 }
 .home-tile {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  gap: 10px;
+  gap: var(--space-3);
   min-height: 120px;
   border: 1px solid var(--color-border);
   border-radius: 20px;
   background: var(--color-surface);
-  padding: 18px;
+  padding: var(--space-5);
   text-align: left;
   cursor: pointer;
   font-family: inherit;
@@ -1336,20 +1348,20 @@ body.filter-modal-open { overflow: hidden; }
 .category-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 12px;
-  margin-bottom: 8px;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
 }
 .category-card {
   min-height: 100px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   background: var(--color-surface);
-  padding: 16px;
+  padding: var(--space-4);
   text-align: left;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-2);
   font-family: inherit;
 }
 /* era --gold-soft: hover vira --color-accent-hover. box-shadow removido (sem precedente de
@@ -1364,8 +1376,8 @@ body.filter-modal-open { overflow: hidden; }
 }
 
 /* ---------- Página de grupo ---------- */
-.grupo-view h2 { margin: 0 0 2px; }
-.grupo-view .desc { margin-bottom: 18px; }
+.grupo-view h2 { margin: 0 0 var(--space-05); }
+.grupo-view .desc { margin-bottom: var(--space-5); }
 
 /* ---------- Página de receita ---------- */
 .recipe-page { max-width: 720px; }
@@ -1377,8 +1389,8 @@ body.filter-modal-open { overflow: hidden; }
   font-family: var(--font-ui);
   font-size: var(--text-sm);
   cursor: pointer;
-  padding: 8px 0;
-  margin-bottom: 12px;
+  padding: var(--space-2) 0;
+  margin-bottom: var(--space-3);
   min-height: 44px;
 }
 .recipe-hero {
@@ -1401,7 +1413,7 @@ body.filter-modal-open { overflow: hidden; }
      não texto; mapear pro degrau xl (30px) encolheria o ícone quase pela metade. Tamanho de
      componente, não tipografia. */
   color: var(--color-text-disabled); /* era --gold-soft, ícone de placeholder/vazio */
-  margin-bottom: 18px;
+  margin-bottom: var(--space-5);
 }
 /* object-position é a decisão de enquadramento da rodada 3 (ver cabeçalho de
    scripts/gerar-imagens.js): posição vertical do prato NÃO se controla por prompt — duas
@@ -1416,22 +1428,22 @@ body.filter-modal-open { overflow: hidden; }
   font-family: var(--font-display);
   font-weight: 400;
   line-height: var(--leading-tight);
-  margin: 0 0 2px;
+  margin: 0 0 var(--space-05);
   font-size: var(--text-xl);
   /* Fase 0b: tracking escalado por tamanho (ver #category-header h2 e docs/DESIGN-TOKENS.md) — este título é >=28px (30px). */
   letter-spacing: -0.015em;
 }
 .recipe-page-title .origin { font-size: var(--text-sm); color: var(--color-text-secondary); font-style: italic; }
-.recipe-page-title .page-desc { font-size: var(--text-base); margin: 10px 0 0; line-height: var(--leading-base); }
+.recipe-page-title .page-desc { font-size: var(--text-base); margin: var(--space-3) 0 0; line-height: var(--leading-base); }
 
 .recipe-page-meta {
   display: flex;
-  gap: 16px;
+  gap: var(--space-4);
   flex-wrap: wrap;
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
-  margin: 14px 0;
-  padding: 12px 0;
+  margin: var(--space-4) 0;
+  padding: var(--space-3) 0;
   border-top: 1px solid var(--color-border);
   border-bottom: 1px solid var(--color-border);
 }
@@ -1442,7 +1454,7 @@ body.filter-modal-open { overflow: hidden; }
 .portion-stepper {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
   color: var(--color-text-secondary);
 }
 .portion-stepper__icon { font-size: var(--text-base); }
@@ -1499,13 +1511,13 @@ body.filter-modal-open { overflow: hidden; }
 }
 .portion-stepper__suffix { white-space: nowrap; }
 
-.recipe-page-actions { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+.recipe-page-actions { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-6); flex-wrap: wrap; }
 .action-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   min-height: 44px;
-  padding: 0 18px;
+  padding: 0 var(--space-5);
   border-radius: 999px;
   border: 2px solid var(--color-border); /* era --gold-soft: borda padrão/estática */
   background: var(--color-surface);
@@ -1534,29 +1546,29 @@ body.filter-modal-open { overflow: hidden; }
   cursor: pointer;
 }
 
-.recipe-page-section { margin-bottom: 28px; }
+.recipe-page-section { margin-bottom: var(--space-8); }
 .recipe-page-section h4 {
   font-size: var(--text-sm);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-text-secondary); /* era --gold: 13.1px fica abaixo do limiar 18px+ */
-  margin: 0 0 12px;
+  margin: 0 0 var(--space-3);
 }
 
 .checklist li { padding-left: 0; }
 .checklist label {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: var(--space-3);
   cursor: pointer;
-  padding: 7px 0 7px 4px;
+  padding: var(--space-2) 0 var(--space-2) var(--space-1);
   min-height: 44px;
   box-sizing: border-box;
 }
 .checklist input[type="checkbox"] {
   width: 20px; height: 20px;
   flex-shrink: 0;
-  margin-top: 2px;
+  margin-top: var(--space-05);
   accent-color: var(--color-accent);
 }
 .checklist .struck { text-decoration: line-through; color: var(--color-text-secondary); }
@@ -1573,7 +1585,7 @@ body.filter-modal-open { overflow: hidden; }
   font-size: var(--text-base);
   font-weight: 600;
   cursor: pointer;
-  margin-bottom: 20px;
+  margin-bottom: var(--space-5);
   font-family: var(--font-ui);
 }
 .primary-cta:hover { background: var(--color-accent-hover); } /* era #8f6624 hardcoded */
@@ -1588,7 +1600,7 @@ body.filter-modal-open { overflow: hidden; }
 .text-link {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--space-1);
   width: fit-content;
   max-width: 100%;
   border: none;
@@ -1603,7 +1615,7 @@ body.filter-modal-open { overflow: hidden; }
 
 .cook-title {
   font-size: var(--text-md);
-  margin: 4px 0 18px;
+  margin: var(--space-1) 0 var(--space-5);
 }
 /* Nome da receita = ÍCONE COLADO NO TEXTO (era botão circular separado, empurrado pra
    extremidade do cabeçalho via justify-content:space-between — trocado por isto: 1 elemento
@@ -1619,7 +1631,7 @@ body.filter-modal-open { overflow: hidden; }
 .cook-title .text-link .text-link__icon {
   color: var(--color-accent);
 }
-.cook-progress { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+.cook-progress { display: flex; gap: var(--space-2); margin-bottom: var(--space-5); flex-wrap: wrap; }
 .cook-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--color-border); flex-shrink: 0; }
 .cook-dot.active { background: var(--color-accent); }
 .cook-dot.done { background: var(--color-success); }
@@ -1628,7 +1640,7 @@ body.filter-modal-open { overflow: hidden; }
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-text-secondary); /* era --gold: 12.8px fica abaixo do limiar 18px+ */
-  margin-bottom: 10px;
+  margin-bottom: var(--space-3);
 }
 .cook-step-text {
   font-size: var(--text-lg);
@@ -1636,16 +1648,16 @@ body.filter-modal-open { overflow: hidden; }
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  padding: 26px;
-  margin-bottom: 24px;
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
   min-height: 120px;
 }
 .cook-timer {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  padding: 18px;
-  margin-bottom: 24px;
+  padding: var(--space-5);
+  margin-bottom: var(--space-6);
   text-align: center;
 }
 .cook-timer-display {
@@ -1655,7 +1667,7 @@ body.filter-modal-open { overflow: hidden; }
      (ícone de placeholder sem foto), não a este timer; corrigido aqui). */
   font-weight: 600;
   color: var(--color-text-primary);
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
   font-variant-numeric: tabular-nums;
 }
 /* PARADO renderiza cada parte (h/min/s) como <span data-unit> tocável (ver
@@ -1692,7 +1704,7 @@ body.filter-modal-open { overflow: hidden; }
 .cook-timer-wheel-wrap {
   position: relative;
   height: 132px;
-  margin-bottom: 4px;
+  margin-bottom: var(--space-1);
   animation: filter-modal-in 220ms ease-out;
 }
 .cook-timer-wheel-wrap.cook-timer-wheel-wrap--hiding {
@@ -1712,7 +1724,7 @@ body.filter-modal-open { overflow: hidden; }
 }
 .cook-timer-wheel-columns {
   display: flex;
-  gap: 12px;
+  gap: var(--space-3);
   height: 100%;
 }
 .cook-timer-wheel {
@@ -1722,7 +1734,11 @@ body.filter-modal-open { overflow: hidden; }
   overflow-y: auto;
   scroll-snap-type: y mandatory;
   -webkit-overflow-scrolling: touch;
-  padding: 44px 0;
+  padding: 44px 0; /* Fase 0b: EXCEÇÃO da escala de espaçamento — 44px aqui não é uma escolha
+     decorativa, é geometria derivada: padding-top/bottom = (132px de altura da coluna − 44px
+     de altura do item) / 2 = 44px, pro item central ficar exatamente no meio da faixa de
+     destaque. O tie-break "arredonda pra cima" mapearia pra --space-12 (48px), o que quebraria
+     essa centralização (item deixaria de bater com a faixa). Mantido literal de propósito. */
   /* Sem linha divisória entre colunas (só o gap acima) e sem barra de rolagem nativa — a faixa
      de destaque central já indica onde está; rolar continua funcionando normal (touch/mouse/
      scroll), só a barra visual com setinhas some. */
@@ -1751,7 +1767,7 @@ body.filter-modal-open { overflow: hidden; }
    mesmos 3 flex:1 lado a lado. */
 .cook-timer-wheel-labels {
   display: flex;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
 }
 .cook-timer-wheel-labels span {
   flex: 1;
@@ -1762,14 +1778,14 @@ body.filter-modal-open { overflow: hidden; }
 
 .cook-timer-controls {
   display: flex;
-  gap: 8px;
+  gap: var(--space-2);
   justify-content: center;
   flex-wrap: wrap;
 }
 .cook-timer-controls button {
   position: relative;
   min-height: 40px;
-  padding: 0 16px;
+  padding: 0 var(--space-4);
   border-radius: 999px;
   border: 1px solid var(--color-border); /* era --gold-soft: borda padrão/estática */
   background: var(--color-bg);
@@ -1782,19 +1798,19 @@ body.filter-modal-open { overflow: hidden; }
 
 /* Quantidade por passo (stepIngredients, Fase 2) — some quando o passo não tem nenhum uso
    rastreado (display:none via JS, ver renderStepIngredients em app.js). */
-.cook-step-ingredients { margin-top: -12px; margin-bottom: 24px; }
+.cook-step-ingredients { margin-top: calc(var(--space-3) * -1); margin-bottom: var(--space-6); }
 .cook-step-ingredients__label {
   font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-text-secondary);
-  margin-bottom: 6px;
+  margin-bottom: var(--space-2);
 }
 .cook-step-ingredients ul { list-style: none; margin: 0; padding: 0; }
 .cook-step-ingredients li {
   font-size: var(--text-sm);
   color: var(--color-text-primary);
-  padding: 4px 0 4px 18px;
+  padding: var(--space-1) 0 var(--space-1) var(--space-5);
   position: relative;
 }
 .cook-step-ingredients li:before {
@@ -1807,7 +1823,7 @@ body.filter-modal-open { overflow: hidden; }
   transform: rotate(45deg);
 }
 
-.cook-nav { display: flex; gap: 12px; margin-bottom: 20px; }
+.cook-nav { display: flex; gap: var(--space-3); margin-bottom: var(--space-5); }
 .cook-nav-btn {
   flex: 1;
   min-height: 52px;
@@ -1829,15 +1845,15 @@ body.filter-modal-open { overflow: hidden; }
 :disabled { opacity: 0.35; cursor: not-allowed; }
 
 /* ---------- Aba "Preparos" — lista de sessões em andamento (Fase 2) ---------- */
-.preparo-list { display: flex; flex-direction: column; gap: 12px; }
+.preparo-list { display: flex; flex-direction: column; gap: var(--space-3); }
 .preparo-card {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  padding: 12px 14px;
+  padding: var(--space-3) var(--space-4);
   cursor: pointer;
 }
 .preparo-card:hover { border-color: var(--color-accent-hover); }
@@ -1855,7 +1871,7 @@ body.filter-modal-open { overflow: hidden; }
 }
 .preparo-card__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .preparo-card__thumb.placeholder { color: var(--color-text-disabled); }
-.preparo-card__info { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.preparo-card__info { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: var(--space-1); }
 .preparo-card__info strong { font-size: var(--text-base); color: var(--color-text-primary); }
 .preparo-card__step {
   font-size: var(--text-xs);
@@ -1883,8 +1899,8 @@ body.filter-modal-open { overflow: hidden; }
 #progress {
   font-size: var(--text-xs);
   color: var(--color-text-secondary);
-  margin-top: 10px;
-  padding-top: 10px;
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
   border-top: 1px solid var(--color-border);
 }
 
@@ -1901,8 +1917,8 @@ body.filter-modal-open { overflow: hidden; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 12px 16px;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
   border-radius: 12px;
   background: var(--color-surface-elevated);
   border: 1px solid var(--color-border);
@@ -1913,7 +1929,7 @@ body.filter-modal-open { overflow: hidden; }
   position: relative;
   flex-shrink: 0;
   min-height: 36px;
-  padding: 0 14px;
+  padding: 0 var(--space-4);
   border: none;
   border-radius: 999px;
   background: var(--color-accent-deep); /* Fase 0a: era --color-accent, texto em cima falhava AA */

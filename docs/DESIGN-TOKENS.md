@@ -108,8 +108,46 @@ intermediário (20–27px) — registrado mesmo assim pra próximos títulos nes
 sans (chips, labels uppercase etc.) mantêm seus valores de tracking positivo existentes
 (0,04–0,06em), não afetados por esta regra.
 
-## Grid e espaçamento
-Base 8px: 4, 8, 12, 16, 24, 32, 40. Padding padrão de card: 16px. Margem lateral: 20px.
+## Grid e espaçamento — Fase 0b (2026-07-25)
+Grade de 4px, 10 degraus (substitui a lista solta "4, 8, 12, 16, 24, 32, 40" — mesma base,
+agora com tokens, piso de 2px e o degrau de 20px preenchendo o furo entre 16 e 24):
+
+| Token | Valor |
+|---|---|
+| `--space-05` | 2px |
+| `--space-1` | 4px |
+| `--space-2` | 8px |
+| `--space-3` | 12px |
+| `--space-4` | 16px |
+| `--space-5` | 20px |
+| `--space-6` | 24px |
+| `--space-8` | 32px |
+| `--space-10` | 40px |
+| `--space-12` | 48px |
+
+**Regra pra todo espaçamento novo:** usa um destes tokens; um valor fora da escala exige
+comentário no CSS justificando (ex. geometria derivada de outro valor, não decoração).
+
+Os 211 valores literais de `margin`/`padding`/`gap` do CSS (incl. dentro de `calc()`, excluindo
+`0` sem unidade — esse não precisa de token) foram mapeados pro degrau mais próximo; empate
+arredonda pra cima (6→8, 10→12, 14→16, 18→20, 22→24, 30→32, 34→32; 26px não é empate, 24 é o
+mais próximo). Valores abaixo de 4px mapeiam pro mais próximo entre 2 e 4.
+
+**Exceção documentada:** `.cook-timer-wheel` `padding: 44px 0` ficou literal — não é decorativo,
+é geometria derivada (altura da coluna 132px menos altura do item 44px, dividido por 2) que
+centraliza o item na faixa de destaque; arredondar pro empate (`--space-12`, 48px) quebraria
+essa centralização.
+
+**Margens negativas (2 no CSS, cada uma é ajuste óptico, revisão visual do dono pendente):**
+- `.recipe-page-tags`: `-6px` → `calc(var(--space-2) * -1)` (-8px). Empate (6 é equidistante
+  de 4 e 8); aplicado o mesmo arredondamento pra cima da regra geral.
+- `.cook-step-ingredients`: `-12px` → `calc(var(--space-3) * -1)` (-12px, valor idêntico,
+  só virou token — já batia exato com a escala).
+
+44px de área de toque (ex. `min-height`/`min-width` dos alvos de toque) e os insets de
+hit-area em `::after` (Fase 0a) NÃO são espaçamento — não entraram neste mapeamento.
+
+Padding padrão de card: 16px (`--space-4`). Margem lateral: 20px (`--space-5`).
 
 Alvos de toque pequenos (ícones abaixo de ~44px, ex.: coração do card 32px, botões +/- do
 portion-stepper 30px) ganham hit-padding invisível de ~10px sem mudar o tamanho visual do
