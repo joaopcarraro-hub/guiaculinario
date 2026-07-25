@@ -25,15 +25,25 @@ imagens/receitas/<slug>.webp  1184x888,  66-136 KB  É ISTO que o app serve
   de webp, muda-se `SAIDA_W`/`SAIDA_H`/`WEBP_Q` no gerador e roda `--exportar`. **Não custa nada e
   não chama a API.** Isso é importante: o tamanho do arquivo servido é uma variável livre do design.
 
-### Cobertura hoje
+### Cobertura — COMPLETA desde 25/07/2026
 
-**7 de 398 receitas têm foto.** São: Paella, Wiener Schnitzel, Feijoada, Moussaka, Beef Brisket,
-Torta de Maçã, Affogato — escolhidas de propósito, uma por tipo de louça, para validar o template.
-As outras 391 continuam sem foto própria e caem no fallback da Wikipédia (ver §3).
+**398 de 398 receitas têm foto própria.** Lote entregue e pushado (commits `f907016` e `d763831`).
+Nenhuma receita do acervo cai mais no fallback da Wikipédia.
 
-Gerar as 391 restantes custa US$ 26,20 (R$ 133). Está em espera aguardando o redesign — **de
-propósito**, porque nenhuma decisão de layout depende de ter as 398 prontas: o contrato de nome,
-proporção e resolução já está fechado e não muda com o volume.
+| | |
+|---|---|
+| Peso versionado | 44,4 MB |
+| Média por foto | 114,2 KB |
+| Menor / maior | 59 KB (Ovo Cozido) / 183 KB (Anticuchos) |
+| Masters fora do git | 306 MB |
+| Chamadas de API | 403 |
+| Custo total | US$ 27,00 ≈ R$ 137 — **R$ 0,34 por foto** |
+
+O custo do lote em si (382 fotos) foi US$ 25,60 contra US$ 26,20 estimados: erro abaixo de 1%.
+
+**O fallback da Wikipédia continua no código e deve continuar** (§3). Ele não é legado: é o que
+cobre receita **nova**, entre o momento em que ela entra em `data/*.js` e o momento em que alguém
+roda o gerador. Ver `CLAUDE.md`, seção "Foto de receita".
 
 ---
 
@@ -294,22 +304,28 @@ de borda: é o caso comum hoje.
 
 ---
 
-## 9. Estado — FRENTE CONGELADA
+## 9. Estado — ENTREGUE
 
-> **Esta frente está congelada por decisão do dono do projeto, 25/07/2026, até aviso.**
-> Não gerar nem regerar imagem, não commitar, não fazer push, não tocar em `css/style.css` nem em
-> `js/app.js`. O que segue é registro, não plano de execução.
+> **Lote concluído e pushado em 25/07/2026.** As 398 fotos estão no repositório. Os dois bloqueios
+> que existiam (§9.1 e §9.2) foram resolvidos antes do disparo — o histórico deles fica abaixo
+> porque explica **por que** o template é como é, e reabrir qualquer um custaria dinheiro de novo.
 
 **Fechado:** contrato de nome, proporção 4:3, resolução, resolução em 3 camadas, as superfícies 1–3,
-enquadramento do hero, suíte de 17 testes, service worker v21.
+enquadramento do hero, os 4 arquétipos, suíte de 24 testes, e o gatilho de foto para receita nova
+(`CLAUDE.md` → seção "Foto de receita").
 
 **Encerrado, não reabrir:** qual receita representa cada categoria. Resposta: nenhuma — o tile de
 categoria usa imagem dedicada e não é cliente deste pipeline (ver §4).
 
-### 9.1 Bloqueio 1 de 2 — louças A6 e A7
+### 9.1 Bloqueio 1 — louças A6 e A7 — ✅ RESOLVIDO
 
-Custo do lote: US$ 26,20 = R$ 133. Não disparar enquanto **os dois** bloqueios (§9.1 e §9.2) não
-forem resolvidos.
+**Como foi resolvido:** a frase de enquadramento dessas duas louças trocou de
+`"margin of bare table showing all around it"` para `"fills about two thirds of the width of the
+picture, close to the camera"`. Instrução de **tamanho**, não de posição — o teste de 25/07 mostrou
+que o modelo obedece tamanho e ignora posição. Regeradas Torta de Maçã e Affogato: a fatia passou a
+encher a faixa visível e a tigela deixou de ser cortada na base.
+
+O histórico do problema fica abaixo porque explica a regra, que continua valendo para receita nova.
 
 > **PRÉ-CONDIÇÃO DO LOTE — louças A6 e A7.**
 > As duas produzem prato pequeno demais no quadro: A6 (pratinho de sobremesa, 30 receitas) e A7
@@ -329,7 +345,27 @@ forem resolvidos.
 As louças A1–A5 cobrem 350 das 397 receitas restantes e foram aprovadas no teste de 25/07. **Mas
 aprovar a louça não aprovou o arquétipo** — ver §9.2.
 
-### 9.2 Bloqueio 2 de 2 — 63 receitas NÃO são "prato pronto para comer"
+### 9.2 Bloqueio 2 — 63 receitas NÃO são "prato pronto" — ✅ RESOLVIDO
+
+**Como foi resolvido:** criado o eixo **ARQUÉTIPO**, que decide louça *e* mesa de uma vez. Quatro
+valores: `prato` (335), `molho` (17), `preparo` (40), `processo` (6). Molho e preparo ganharam
+louças novas (A8 molheira, A9 pote+ramequim) e um eixo B paralelo de **bancada de trabalho**, sem
+talher de jantar, sem segundo prato, sem taça. As 6 técnicas puras receberam **prompt individual
+escrito à mão** — o genérico havia posto "uma colher de chá e grãos caídos" numa costela de 4 kg.
+
+A decisão que estava em aberto (§ abaixo) foi tomada: as 6 técnicas **ganharam foto de processo**,
+não ficaram sem foto. Todas aprovadas — nenhuma inventou prato montado.
+
+Duas correções saíram do teste e valem para receita nova: o cenário de bancada `T2` era
+`pale grey stone`, que contradizia o `never cool grey` do próprio prompt e saía frio no meio de um
+acervo quente — virou `warm cream-toned limestone`; e o negativo `no text` não segurou uma etiqueta
+escrita num pote de conserva, então virou negativo **nomeado** (`no labels, no lettering, no printed
+or handwritten text on jars, bottles, packaging`).
+
+O diagnóstico do problema fica abaixo porque é o que impede alguém de reintroduzi-lo.
+
+<details>
+<summary>Histórico do problema (o que estava errado antes)</summary>
 
 Encontrado em 25/07/2026 a partir de uma pergunta do dono do projeto ("há categorias de técnicas, que
 não necessariamente pratos, molhos também — ex. água de tomate"). **Não foi visto no teste das 6
@@ -380,19 +416,38 @@ argumento de §9.1 vale aqui, com o dobro de receitas.
 nos filtros de busca por técnica, mas **é** um prato montado — smørrebrød servido. Não entra nas 63.
 Fica anotado para não ser recontado como erro numa próxima varredura.
 
-### 9.3 Pendência operacional — commit desta frente
+</details>
 
-Registrado, **não executado**. Quando a frente for retomada, o commit desta frente é exatamente:
+**Como conferir numa receita nova:** `node scripts/gerar-imagens.js --receita="Nome"` (custo zero)
+imprime o arquétipo escolhido e lista as 63 não-prato agrupadas. Molho ou técnica em categoria nova
+vira `prato` **em silêncio** — é por isso que o diagnóstico existe e que `CLAUDE.md` manda ler o dry
+run antes de gerar.
 
-```
-git add docs/CONTRATO-IMAGENS-REDESIGN.md imagens/
-git commit -m "<mensagem descrevendo TUDO que o commit contém>"
-```
+### 9.3 Commits desta frente — ✅ NO AR
 
-Três condições, todas obrigatórias:
+| Commit | O quê |
+|---|---|
+| `af186dc` | contrato de integração + 7 webp de validação |
+| `f907016` | gatilho de foto para receita nova, arquétipos, abort em teto de gasto, suíte 17→24 |
+| `d763831` | as 398 fotos (`imagens/receitas/`, 44 MB) |
 
-1. **Pathspec explícito, nada além desses dois caminhos.** Nunca `git add -A` nem `git add .` — há
-   outra frente com trabalho não commitado nos mesmos arquivos (ver `CLAUDE.md`).
-2. **Só depois de confirmar que nenhuma fase do redesign está ativa nos arquivos compartilhados**
-   (`css/style.css`, `js/app.js`). Confirmar antes, não presumir.
-3. **`push` só com autorização explícita do dono do projeto.**
+Todos verificados por pathspec antes do commit: nenhum arquivo da frente de redesign
+(`css/style.css`, `js/app.js`, `sw.js`, `docs/DESIGN-TOKENS.md`) entrou por engano.
+
+**A regra continua valendo para qualquer commit futuro desta frente:** pathspec explícito, nunca
+`git add -A`, e conferir `git status` antes — há outra frente ativa nos mesmos arquivos.
+
+### 9.4 O que ficou aberto
+
+**Nada bloqueia mais o pipeline de imagens.** As duas pendências abaixo são de outras frentes:
+
+- **`CACHE_NAME` do `sw.js`.** O commit `54c612b` (redesign) alterou `css/style.css` e `js/app.js`,
+  ambos no `APP_SHELL`, sem bumpar a versão — o `CLAUDE.md` exige o bump no mesmo push. Impacto
+  reduzido porque o shell virou network-first: quem está online já recebe o arquivo novo. O buraco
+  é o **fallback offline**, que fica preso na cópia antiga.
+- **Tile de categoria.** Imagem dedicada 1:1 600×600, decidida pela frente de design (§4). Não sai
+  deste pipeline e ainda não existe.
+
+**Ponto de atenção permanente:** o `object-position: center bottom` do hero (§6.2) já sobreviveu a
+três commits de CSS de outras frentes. A suíte `scripts/test-foto-local.js` é o que detecta se ele
+cair — rode-a depois de qualquer mudança grande em `css/style.css`.
