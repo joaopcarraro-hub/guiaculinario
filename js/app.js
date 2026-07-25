@@ -2071,7 +2071,15 @@
         }
         return { key, displayText, pairs, hasQuantity: g.hasQuantity, itemLabel: g.itemLabel };
       })
-      .sort((a, b) => a.itemLabel.localeCompare(b.itemLabel, "pt-BR"));
+      // Agrupamento por corredor de mercado (2026-07-24): mesma seção fica contígua na ordem
+      // de SECTION_ORDER (Despensa não entra aqui — já sai antes, em isPantry); dentro da
+      // mesma seção, alfabética de sempre como desempate. Sem cabeçalho visível — só reordena.
+      .sort((a, b) => {
+        const sectionDiff =
+          ShoppingDict.SECTION_ORDER.indexOf(ShoppingDict.sectionFor(a.itemLabel)) -
+          ShoppingDict.SECTION_ORDER.indexOf(ShoppingDict.sectionFor(b.itemLabel));
+        return sectionDiff || a.itemLabel.localeCompare(b.itemLabel, "pt-BR");
+      });
 
     const preparoList = Object.keys(preparos)
       .map((k) => ({ label: preparos[k].label, recipeNames: Object.keys(preparos[k].recipeNames) }))

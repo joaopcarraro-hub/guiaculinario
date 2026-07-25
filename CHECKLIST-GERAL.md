@@ -72,6 +72,22 @@ Fase 3A+3B (unidade de VENDA na visão Geral: sólido→grama, líquido→ml/L, 
 arredondada pra cima, tomate pelado→lata; fração eliminada da visão Geral). Visão padrão
 trocada pra "Geral". Suíte versionada (330 testes).
 
+Fase 4 — agrupamento por corredor de mercado (2026-07-24): visão Geral ordena por seção física
+de loja em vez de alfabética pura, SEM cabeçalho visível (decisão do dono — só reordena, título
+oculto). 10 seções na ordem Hortifruti, Padaria, Açougue e Peixaria, Frios e Laticínios,
+Mercearia e Secos, Doces e Sobremesas, Temperos e Condimentos, Produtos Asiáticos e Orientais,
+Congelados, Bebidas — as 2 últimas são seções novas, criadas depois de medir massa crítica real
+contra os 647 canônicos do acervo (34 e 54 itens, maior que várias das 8 originais). Item sem
+seção mapeada cai em "outros" no fim, nunca some nem quebra o sort. Mecânica: `SECTION_MAP` +
+`sectionFor` em `data/shopping-dict.js` (mesmo padrão do `PANTRY_SET`), sort trocado em
+`buildShoppingListGroups` (`js/app.js`) — Despensa e Preparos, e a visão "Por receita", ficam
+bit a bit intactos (confirmado via `git show HEAD:` comparando as funções inteiras). Dos 33
+canônicos ambíguos entre 2 seções, resolvidos pela regra "a seção é onde o comprador acha o
+item NAQUELA forma" com evidência real do texto de ingrediente (não achismo) — os residuais
+foram decisão explícita do dono. Suíte versionada
+`scripts/verify-shopping-sections-2026-07-24.js`. Verificado ao vivo no navegador (10 receitas
+reais cobrindo as 10 seções, ordem conferida ponta a ponta).
+
 ### Nomes de receita em português
 
 398 receitas classificadas (136 já PT, 234 nome próprio mantido, 28 candidatos investigados).
@@ -129,14 +145,8 @@ hierarquia de área de toque confirmada por `elementFromPoint`).
    quando o "Voltar preservando contexto" foi estendido. Fecha a consistência de navegação.
    Sonnet 5 Extra, effort baixo. Dá pra encaixar o polimento do toggle (abaixo) no mesmo toque
    se abrir o CSS.
-6. Agrupamento por corredor na lista de compras (NOVO, registrado 2026-07-24) — na visão
-   Geral, ordenar por seção de mercado (hortifruti, açougue/peixaria, laticínios/frios,
-   mercearia seca, temperos/condimentos, padaria, congelados, bebidas) pro usuário não
-   atravessar a loja de ida e volta. Deriva de um campo `section` no `shopping-dict` (extensão
-   do mecanismo do `PANTRY_SET`), não taguado por receita. Decisões abertas: exibir cabeçalho
-   de seção ou só reordenar (inclinação: cabeçalho leve ajuda mais); taxonomia + ordem canônica
-   das seções; convivência com a Despensa (fica como bloco à parte). Varrer o `shopping-dict` e
-   medir ambíguos antes de desenhar. Investigação + execução: Sonnet 5 Extra, effort médio.
+6. ~~Agrupamento por corredor na lista de compras~~ — ✅ FEITO (ver bloco "Lista de Compras"
+   acima, Fase 4).
 
 ⚠️ **DECISÃO PENDENTE DO JOÃO** — tela "Pesquisar" própria: hoje a aba só redireciona pra
 busca. A tela própria (picked-for-you, atalhos, grid de categorias) é bem mais visual/layout
