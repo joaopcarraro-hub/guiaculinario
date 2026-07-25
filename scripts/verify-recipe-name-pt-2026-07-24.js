@@ -6,8 +6,12 @@
 // são os MESMOS risotos da leva 1, renomeados de novo, exigindo migração ENCADEADA). Roda o
 // CÓDIGO REAL (categories.js, derivation-dict.js, tags.js, data/*.js, tagmodel.js, storage.js,
 // router.js) via `new Function`, com localStorage mockado em memória — não precisa de navegador.
-// `git show HEAD:` carrega o estado ANTES da leva 2 (= depois da leva 1) pra comparar tags sem
-// depender de git stash (não altera a working tree).
+// `git show <BASE_COMMIT>:` carrega o estado ANTES da leva 2 (= depois da leva 1) pra comparar
+// tags sem depender de git stash (não altera a working tree). BASE_COMMIT é fixo (dece1cb, o
+// commit imediatamente anterior à leva 2) em vez de HEAD: rodar a suíte de novo depois de mais
+// commits com HEAD teria carregado o estado JÁ RENOMEADO como "antes", fazendo a Seção 3 inteira
+// falhar por não achar o nome antigo em nenhuma árvore (achado 2026-07-24 rodando a suíte de novo
+// após 3 commits não-relacionados terem avançado HEAD).
 //
 // `node scripts/verify-recipe-name-pt-2026-07-24.js` — sai com código != 0 se algo falhar.
 
@@ -18,6 +22,9 @@ const { execSync } = require("child_process");
 const ROOT = path.join(__dirname, "..");
 const DATA_DIR = path.join(ROOT, "data");
 const JS_DIR = path.join(ROOT, "js");
+// Commit imediatamente anterior à leva 2 (= estado logo após a leva 1). Fixo de propósito — ver
+// comentário no topo do arquivo sobre por que não pode ser HEAD.
+const BASE_COMMIT = "dece1cb1f8cf334fc978228cb3ac3e908d690b9c";
 
 function runInSandbox(sandbox, code) {
   // eslint-disable-next-line no-new-func
@@ -38,22 +45,22 @@ function loadCurrentPipeline() {
   return sandbox.window;
 }
 
-// ---------- pipeline de ANTES da leva 2 (git show HEAD: = depois da leva 1/dece1cb), só
+// ---------- pipeline de ANTES da leva 2 (git show BASE_COMMIT: = depois da leva 1/dece1cb), só
 // tags+ids, sem tocar a working tree ----------
 function loadPreviousPipeline() {
   const sandbox = { window: {} };
-  function loadFromHead(relPath) {
-    const code = execSync("git show HEAD:" + relPath.split(path.sep).join("/"), { cwd: ROOT, encoding: "utf8" });
+  function loadFromBase(relPath) {
+    const code = execSync("git show " + BASE_COMMIT + ":" + relPath.split(path.sep).join("/"), { cwd: ROOT, encoding: "utf8" });
     runInSandbox(sandbox, code);
   }
-  loadFromHead("js/categories.js");
-  loadFromHead("data/derivation-dict.js");
-  loadFromHead("js/tags.js");
-  const dataFilesAtHead = execSync("git ls-tree -r --name-only HEAD -- data/", { cwd: ROOT, encoding: "utf8" })
+  loadFromBase("js/categories.js");
+  loadFromBase("data/derivation-dict.js");
+  loadFromBase("js/tags.js");
+  const dataFilesAtBase = execSync("git ls-tree -r --name-only " + BASE_COMMIT + " -- data/", { cwd: ROOT, encoding: "utf8" })
     .split("\n")
     .filter((f) => f.endsWith(".js") && !f.endsWith("derivation-dict.js") && !f.endsWith("shopping-dict.js"));
-  dataFilesAtHead.forEach(loadFromHead);
-  loadFromHead("js/tagmodel.js");
+  dataFilesAtBase.forEach(loadFromBase);
+  loadFromBase("js/tagmodel.js");
   return sandbox.window;
 }
 
@@ -91,9 +98,9 @@ function assert(cond, label) {
   }
 }
 
-// Leva 2 (2026-07-24, regra final) — [catId, nome ANTES da leva 2 (= estado em HEAD/dece1cb),
-// nome DEPOIS]. Os 6 risotos aqui já tinham sido renomeados na leva 1 (Risotto X -> Risoto X);
-// os outros 64 são primeiro rename.
+// Leva 2 (2026-07-24, regra final) — [catId, nome ANTES da leva 2 (= estado em BASE_COMMIT/
+// dece1cb), nome DEPOIS]. Os 6 risotos aqui já tinham sido renomeados na leva 1 (Risotto X ->
+// Risoto X); os outros 64 são primeiro rename.
 const RENAMES = [
   ["aves", "Magret de Canard", "Magret de Pato"],
   ["carnes-bovinas", "Bife à Parmigiana", "Bife à Parmegiana"],

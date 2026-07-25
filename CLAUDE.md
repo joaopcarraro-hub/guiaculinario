@@ -18,3 +18,7 @@ copiado como texto plano para outra conversa, sem nenhum símbolo de formataçã
 - Suíte de teste escrita durante uma tarefa deve ser commitada como arquivo versionado em
   scripts/, nunca rodada só como script avulso — teste que não fica no repositório não
   protege ninguém depois.
+- Teste em scripts/ nunca depende de ref MUTÁVEL do git (HEAD) — usa SHA fixo ou, de
+  preferência, valores literais. Comparação por SHA fixo QUEBRA se o histórico for reescrito
+  (squash/rebase): antes de qualquer reescrita de histórico, converter essas comparações pra
+  literais.

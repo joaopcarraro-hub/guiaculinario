@@ -23,6 +23,12 @@ const { execSync } = require("child_process");
 
 const ROOT = path.join(__dirname, "..");
 const ShoppingDict = require(path.join(ROOT, "data", "shopping-dict.js"));
+// Commit imediatamente anterior ao agrupamento por corredor (8984c7d). Fixo de propósito, não
+// HEAD: rodar esta suíte de novo depois que 8984c7d for commitado (ou depois de mais commits)
+// faria "git show HEAD:js/app.js" devolver o app.js JÁ COM o agrupamento, idêntico à working
+// tree, e a Seção 6 falharia achando "nenhuma mudança" onde deveria achar uma (mesma causa-raiz
+// do bug corrigido em verify-recipe-name-pt-2026-07-24.js na mesma data).
+const BASE_COMMIT = "3dfb91356e4d491f336bf84f96fbbdd3a9f47659";
 
 let failures = 0;
 function assert(cond, label) {
@@ -173,13 +179,13 @@ function main() {
 
   console.log("");
   console.log("==================================================");
-  console.log("6. DESPENSA E PREPAROS INTACTOS (git show HEAD: — true antes/depois, não simulado)");
+  console.log("6. DESPENSA E PREPAROS INTACTOS (git show BASE_COMMIT: — true antes/depois, não simulado)");
   console.log("==================================================");
   // git show normaliza fim de linha pra LF; a working tree usa CRLF (repo Windows) — sem
   // normalizar os dois lados, QUALQUER função de múltiplas linhas compararia como "diferente"
   // só por causa do \r\n, mesmo com conteúdo 100% igual. Normaliza os dois antes de comparar.
   const norm = (s) => s.replace(/\r\n/g, "\n");
-  const appJsBefore = norm(execSync("git show HEAD:js/app.js", { cwd: ROOT, encoding: "utf8" }));
+  const appJsBefore = norm(execSync("git show " + BASE_COMMIT + ":js/app.js", { cwd: ROOT, encoding: "utf8" }));
   const appJsNormalized = norm(appJs);
   function extractFn(src, name) {
     const start = src.indexOf("function " + name + "(");
