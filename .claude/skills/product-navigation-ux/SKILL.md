@@ -68,15 +68,29 @@ reais (não placeholder mais) — Minhas Receitas (favoritas/já feitas em abas)
 de sessões de cozinha em andamento) e Lista de Compras (2 visões já funcionam: "Por receita" e
 "Geral" com soma agrupada entre receitas por família de unidade, ver mobile-recipe-ui/SKILL.md).
 
-## Botão Voltar (regra pro redesenho futuro — NÃO implementada ainda)
+## Botão Voltar (item 1 do roadmap — flutuante, implementado 2026-07-25)
 
-O redesenho do botão voltar pra um formato flutuante ainda não começou — o comportamento atual
-(`.back-button` fixo no topo, destino às vezes hardcoded por tela) continua como está por ora.
-Mas a regra já está definida pra quando esse redesenho acontecer:
+A página de receita (`renderReceita`) trocou o `.back-button` contextual fixo do topo (texto
+"← Voltar para X") por um botão circular flutuante (`.back-float`, `position: fixed`,
+topo-esquerda, acompanha o scroll — nunca esconde/mostra, sem variação hide-on-scroll por
+enquanto). Isso foi só uma troca de APRESENTAÇÃO — o MECANISMO por baixo não mudou: continua o
+mesmo `fromHash`/`currentHashPath()` de sempre, os mesmos 4 caminhos ("voltar preservando
+contexto": Coleção, Busca, Minhas Receitas, busca inline de grupo/hub) intactos, mesmo
+`Router.navigate(fromHash)` no clique. O rótulo que antes era texto visível ("Voltar para X")
+virou `aria-label` dinâmico (o botão agora só tem o ícone `chevronLeft`), com a MESMA cadeia de
+fallback de antes (coleção de origem → "Pesquisar" → "Minhas Receitas" → categoria da receita).
+Ver `docs/DESIGN-TOKENS.md` ("Componentes") pra spec visual completa (dimensões, véu, z-index,
+contraste) e `scripts/verify-back-float-2026-07-25.js` pra a suíte versionada.
 
-O botão voltar deve SEMPRE voltar pra última tela realmente visitada pelo usuário (histórico
-real de navegação — `history.back()`/equivalente), NUNCA um destino fixo hardcoded na tela
-(ex.: "#/categoria/X" cravado no código, ignorando de onde o usuário realmente veio).
+`renderGrupo` e `renderCategory` (cabeçalho de coleção) têm seus PRÓPRIOS botões "← Voltar"
+fixos no topo, com destino hardcoded pra Home — esses são elementos DIFERENTES do botão desta
+seção (não fazem parte do mecanismo "voltar preservando contexto" por fromHash) e ficaram FORA
+do escopo desta rodada; continuam exatamente como estavam.
+
+A regra de navegação, já valendo antes desta rodada e reafirmada aqui: o botão voltar deve
+SEMPRE voltar pra última tela realmente visitada pelo usuário (histórico real de navegação —
+`fromHash`/`history.back()`/equivalente), NUNCA um destino fixo hardcoded na tela (ex.:
+"#/categoria/X" cravado no código, ignorando de onde o usuário realmente veio).
 
 EXCEÇÃO: a tela do modo de preparo (cozinhar) NUNCA deve ter botão voltar adicional — só o
 botão "Sair do modo cozinhar" (já existe, `renderCookMode`/`exitBtn` em app.js; texto sem "✕",

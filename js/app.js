@@ -32,6 +32,7 @@
     dots: '<circle cx="6" cy="6" r="1.6"/><circle cx="12" cy="6" r="1.6"/><circle cx="18" cy="6" r="1.6"/><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/>',
     filter: '<path d="M4 5h16l-6.5 7.5V19l-3 1.6v-8.1Z"/>',
     chevronDown: '<path d="M6 9l6 6 6-6"/>',
+    chevronLeft: '<path d="M15 6l-6 6 6 6"/>',
     clock: '<circle cx="12" cy="12" r="8"/><path d="M12 7.5v4.5l3 2"/>',
     gauge: '<path d="M6 18v-4"/><path d="M12 18V9"/><path d="M18 18V6"/>',
     arrowUpRight: '<path d="M8 16 16 8"/><path d="M9 8h7v7"/>',
@@ -2712,11 +2713,15 @@
     const page = document.createElement("div");
     page.className = "recipe-page";
 
+    // Flutuante (acompanha o scroll, ver .back-float no CSS) — substitui o antigo back-button
+    // fixo no topo do fluxo. Rótulo vira aria-label (o botão não tem mais texto visível, só o
+    // ícone chevron-esquerda), preservando o mesmo contexto que o texto antigo dava.
+    const backDestLabel = backCollection ? backCollection.label : fromBusca ? "Pesquisar" : fromMinhasReceitas ? "Minhas Receitas" : cat ? cat.label : catId;
     const back = document.createElement("button");
-    back.className = "back-button";
-    back.textContent =
-      "← Voltar para " +
-      (backCollection ? backCollection.label : fromBusca ? "Pesquisar" : fromMinhasReceitas ? "Minhas Receitas" : cat ? cat.label : catId);
+    back.type = "button";
+    back.className = "back-float";
+    back.setAttribute("aria-label", "Voltar para " + backDestLabel);
+    back.innerHTML = iconSvg("chevronLeft", "back-float__icon");
     // Volta pro hash de origem EXATO (mesmas tags/role/imode na coleção, tags/text/imode na
     // busca, ou só a rota certa pra Minhas Receitas) quando disponível — só cai no
     // Router.toCategoria "seco" (sem filtro) quando a receita foi aberta sem NENHUM contexto de

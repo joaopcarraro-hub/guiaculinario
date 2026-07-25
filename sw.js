@@ -12,7 +12,9 @@
 // bump serve pro caso offline — força o SW novo a instalar e o "install" a pré-popular o
 // cache com o CSS atual, em vez de deixar o fallback offline preso na cópia antiga até a
 // próxima visita online.
-const CACHE_NAME = "cardapio-v23";
+// v24: botão de voltar da página de receita virou flutuante (.back-float, acompanha o scroll) —
+// mesmo mecanismo de navegação por fromHash, só apresentação. css/style.css e js/app.js mudaram.
+const CACHE_NAME = "cardapio-v24";
 
 const APP_SHELL = [
   "./",
