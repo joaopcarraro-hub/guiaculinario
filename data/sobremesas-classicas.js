@@ -843,7 +843,7 @@ window.RECIPES["sobremesas-classicas"] = [
         raw: "1 receita de massa folhada (ou 2 discos prontos de boa qualidade)",
         group: null,
         items: [
-          { qty: 1, qtyRange: null, unit: null, item: "receita de massa folhada", prep: null, alt: "2 discos prontos de boa qualidade", optional: false, isReference: false },
+          { qty: 1, qtyRange: null, unit: null, item: "receita de massa folhada", prep: null, alt: "2 discos prontos de boa qualidade", optional: false, isReference: true },
         ],
       },
       {
