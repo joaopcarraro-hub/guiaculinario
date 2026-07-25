@@ -511,9 +511,13 @@ multi-seleção coexistem:
   `.filter-tile-grid` base vencia por ordem de declaração). Ícone = emoji por ingrediente
   (`INGREDIENT_EMOJI` em app.js), mesmo tratamento sem recolor de País — peixes sem emoji
   Unicode próprio (salmão, robalo, atum, linguado, dourado, anchova, bacalhau, badejo, tilápia)
-  usam 🐟 genérico. 8 de 51 valores ficam SEM ícone (mandioca, iogurte, lentilha, grão-de-bico,
-  molho de soja, repolho, damasco, abobrinha — label+contagem apenas, mesmo fallback seguro do
-  Processador/Sous Vide em Equipamento). Combina em AND ou OR entre si por escolha do usuário —
+  usam 🐟 genérico. **Corrigido, Fase 0a (2026-07-26)**: 26 de 69 valores ficam SEM ícone hoje
+  (o dado "8 de 51" estava desatualizado — a taxonomia de ingredientes cresceu desde que foi
+  medido) — label+contagem apenas, mesmo fallback seguro do Processador/Sous Vide em
+  Equipamento. **Decisão tomada**: emoji sai da grade de ingredientes por completo na Fase 0c
+  — vira só label+contagem pra TODOS os valores, não só os 26 sem cobertura (elimina a
+  inconsistência visual tile-com-emoji vs. tile-só-texto, não depende de achar emoji Unicode
+  pra cada ingrediente novo que a taxonomia ganhar). Combina em AND ou OR entre si por escolha do usuário —
   único toggle desse tipo entre as facetas: trilho único em pílula com trava deslizante
   ("Qualquer um destes"/"Todos estes", NÃO 2 botões separados), numa linha própria ANTES dos
   chips selecionados (logo abaixo do cabeçalho do acordeão), só visível com 2+ selecionados;
@@ -627,6 +631,57 @@ documento e com o DESIGN-TOKENS.md (nenhum toca em token/decisão existente — 
 
 Ver docs/DESIGN-TOKENS.md (Tipografia, Grid e espaçamento, Estados, Animações, e a nova seção
 Acessibilidade) pra essas 5 decisões como regra formal — não ficam só documentadas aqui.
+
+## Fase 0a — fundação de acessibilidade, estados e tokens (2026-07-26)
+
+Baseado na auditoria visual de 2026-07-25 (scripts `audit-visual-*.js` em `scripts/`, não
+commitados). Mudanças de COMPORTAMENTO (não só visual) relevantes pra esta skill:
+
+- **`.recipe-card` agora é operável por teclado** — `renderRecipeCard` (app.js) ganhou
+  `role="button"`, `tabindex="0"`, `aria-label` e um handler de `keydown` (Enter/Espaço
+  disparam `el.click()`, reaproveitando o listener de clique já existente, sem duplicar lógica
+  de navegação). Antes era uma `<div>` pura, inalcançável via Tab — era o mecanismo de
+  navegação PRIMÁRIO do app e não tinha caminho de teclado nenhum. Mesmo tratamento
+  (`makeKeyboardClickable`, helper novo em app.js) aplicado a `.preparo-card` (Preparos) e aos
+  3 `<span data-unit>` do mostrador do timer (`enableDisplayTapToEdit`). `.category-card` e
+  `.home-tile` NÃO precisaram de tratamento — já são `<button>` nativos (achado da auditoria
+  original estava errado nesses 2 casos, corrigido durante a implementação).
+  `.shopping-list__recipe-row` também ficou de fora, mas por critério, não por native já ser
+  `<button>`: seu chevron (`.shopping-list__recipe-chevron`) É um `<button>` nativo sem
+  listener próprio, que já entrega o colapsar/expandir da linha via bubbling nativo de
+  Enter/Espaço→click — confirmado ao vivo (`chevron.click()` colapsa a linha). O backdrop do
+  modal de filtro (clique fora fecha) também ficou de fora: o botão "Cancelar" nativo já
+  entrega o mesmo resultado via Tab.
+- **Foco visível**: todo componente tocável (lista completa abaixo) ganhou
+  `:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset); }` — antes 0 regras `:focus-visible` no app inteiro.
+- **`:active` estendido** dos 6 originais (ver seção acima) pra mais 24: `.category-card`,
+  `.home-tile`, `.preparo-card`, `.preparo-card__delete`, `.recipe-suggestion`,
+  `.tag-chip-link`, `.tag-suggestion`, `.tag-chip--selected` (2 contextos), `.update-toast__btn`
+  (esses 9 só tinham `:hover`, mesmo anti-padrão que motivou a lista original) + `.back-button`,
+  `.checklist label`, `.cook-timer-controls button`, `.cook-timer-display__part`, `.filter-modal
+  .btn-clear-filters`, `.filter-modal__cancel`, `.filter-option`, `.filter-section__header`,
+  `.home-more-categories`, `.recipe-page-heart`, `.shopping-list__clear`,
+  `.shopping-list__recipe-chevron`, `.shopping-list__recipe-row`, `.text-link` (esses 15 não
+  tinham NENHUM estado). Usa os tokens `--motion-fast`/`--motion-base`/`--motion-easing` novos.
+- **Área de toque**: os 13 elementos abaixo de 44×44px mapeados na auditoria ganharam hit-area
+  invisível (`::after`, mesma técnica do coração/portion-stepper) ou, no caso do checkbox da
+  Lista de Compras (`.checklist input[checkbox]`, 20×20px), `min-height: 44px` na `<label>`
+  inteira (a linha vira o alvo, não o checkbox sozinho — clique em qualquer parte da label já
+  alternava o checkbox nativamente, sem mudança de comportamento).
+- **Bug real encontrado e corrigido**: a compensação horizontal do `::after` do
+  `.portion-stepper__btn` (documentada acima como "3px") nunca funcionou de verdade — `inset`
+  de um `::after` absolute resolve contra o PADDING-BOX do ancestral posicionado, não a borda
+  visível; com `border: 2px` no botão, os 2px "comiam" cada inset silenciosamente (efetivo real
+  ~1px horizontal / ~8px vertical, não 3px/10px). Corrigido somando a borda ao inset
+  (`-12px -5px`, mantendo os 10px/3px pretendidos a partir da borda visível) — confirmado com
+  `elementFromPoint` nos 4 lados dos 2 botões, todos batendo no botão agora.
+- **Contraste**: `--color-accent-deep` novo (fill sólido + texto), `--color-text-disabled`
+  clareado, rótulo da bottom nav ativa trocado pra `--color-text-primary` (ícone continua
+  `--color-accent`), `::placeholder` ganhou cor explícita — ver docs/DESIGN-TOKENS.md pros
+  valores e ratios.
+- **Nomenclatura de tokens**: `--color-*` é oficial agora, nomes antigos (`--gold`, `--ink`
+  etc.) viraram alias — ver docs/DESIGN-TOKENS.md.
 
 ## Critérios de aceite
 

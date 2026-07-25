@@ -22,3 +22,13 @@ copiado como texto plano para outra conversa, sem nenhum símbolo de formataçã
   preferência, valores literais. Comparação por SHA fixo QUEBRA se o histórico for reescrito
   (squash/rebase): antes de qualquer reescrita de histórico, converter essas comparações pra
   literais.
+
+## Sessões paralelas e git
+- PROIBIDO `git add -A`, `git add .` ou qualquer commit de escopo aberto. Todo commit usa
+  pathspec explícito dos arquivos da PRÓPRIA sessão.
+- Scripts/sessões automatizadas (ex. pipeline de imagens) commitam somente seus próprios
+  caminhos declarados. Antes de commitar, `git status` e conferir que NENHUM arquivo listado
+  pertence a outra frente de trabalho em andamento.
+- Se outra sessão tem trabalho não commitado nos mesmos arquivos: não commitar — sincronizar
+  primeiro. Commit acidental de trabalho alheio: não reverter por conta própria; reportar.
+- Mensagem de commit descreve TUDO que o commit contém, não só a intenção da sessão.

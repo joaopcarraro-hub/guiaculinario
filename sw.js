@@ -3,7 +3,10 @@
 // só cai pro cache se estiver offline (ver isIconRequest/fetch handler abaixo). Ícones: ainda
 // cache-first, sem mudança. Ao mudar arquivos existentes, suba a versão do CACHE_NAME mesmo
 // assim — é o que dispara o activate/limpeza de cache antigo e o skipWaiting de uma vez.
-const CACHE_NAME = "cardapio-v20";
+// v21: foto própria da receita (imagens/receitas/*.webp) + object-position/aspect-ratio no hero.
+// Mudaram css/style.css e js/app.js, que já estavam no APP_SHELL — sem subir a versão o
+// cache-first serviria a versão velha dos dois e a mudança simplesmente não apareceria.
+const CACHE_NAME = "cardapio-v21";
 
 const APP_SHELL = [
   "./",

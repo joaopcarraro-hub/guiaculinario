@@ -40,6 +40,23 @@
     return '<svg class="' + className + '" ' + ICON_SVG_ATTRS + ">" + ICONS[key] + "</svg>";
   }
 
+  // Fase 0a (auditoria de acessibilidade 2026-07-25): torna um elemento não-nativo (div/span
+  // com só um listener de "click") operável por teclado — Tab alcança, Enter/Espaço ativa.
+  // Enter/Espaço só disparam el.click() (nunca duplicam a lógica do listener original) — o
+  // mesmo listener de click já registrado cuida do resto. Usado em elementos cuja ação NÃO é
+  // redundante com nenhum filho nativo interativo (card de receita/categoria/preparo, linha da
+  // lista de compras, dígito do timer) — ver critério e casos excluídos no relatório da Fase 0a.
+  function makeKeyboardClickable(el) {
+    el.setAttribute("role", "button");
+    el.tabIndex = 0;
+    el.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        el.click();
+      }
+    });
+  }
+
   // Ícone de coração pro favoritar (docs/DESIGN-TOKENS.md) — usado tanto no botão da tela de
   // receita quanto no card. Não usa o sistema ICON_SVG_ATTRS/ICONS acima porque precisa de 2
   // estados de PREENCHIMENTO (contorno vazio parado, sólido quando favoritado), não só troca
@@ -1821,7 +1838,7 @@
         thumb.className = "preparo-card__thumb placeholder";
         thumb.textContent = "🍽";
         if (recipe.image) applyImage(thumb, recipe.image);
-        else loadRecipeImage(imageQuery(recipe), thumb);
+        else loadRecipeImage(recipe, thumb);
         card.appendChild(thumb);
 
         // Tempo restante é uma FOTO no momento de renderizar a lista, não fica contando ao
@@ -1857,6 +1874,8 @@
         card.appendChild(deleteBtn);
 
         card.addEventListener("click", () => Router.toCozinhar(session.recipeId));
+        card.setAttribute("aria-label", "Continuar preparo de " + recipe.name);
+        makeKeyboardClickable(card);
         list.appendChild(card);
       });
 
@@ -2511,6 +2530,8 @@
     card.addEventListener("click", () => {
       Router.toReceita(item.id, opts.fromHash);
     });
+    card.setAttribute("aria-label", "Ver receita de " + recipe.name);
+    makeKeyboardClickable(card);
 
     // ---------- header: thumb | título+origem | coração de favoritar ----------
     const cardHeader = document.createElement("div");
@@ -2522,7 +2543,7 @@
     if (recipe.image) {
       applyImage(thumb, recipe.image);
     } else {
-      loadRecipeImage(imageQuery(recipe), thumb);
+      loadRecipeImage(recipe, thumb);
     }
 
     const titleBlock = document.createElement("div");
@@ -2789,7 +2810,7 @@
     if (recipe.image) {
       applyImage(hero, recipe.image);
     } else {
-      loadRecipeImage(imageQuery(recipe), hero);
+      loadRecipeImage(recipe, hero);
     }
     page.appendChild(hero);
 
@@ -3304,6 +3325,8 @@
       const min = values[0];
       const max = values[values.length - 1];
 
+      spanEl.setAttribute("aria-label", "Editar valor");
+      makeKeyboardClickable(spanEl);
       spanEl.addEventListener("click", () => {
         if (spanEl.querySelector("input")) return; // já editando, ignora novo toque
         const previousText = spanEl.textContent;
@@ -3590,9 +3613,47 @@
     // de sempre voltar pro topo aqui (ver comentário na declaração de scrollPositionsByHash).
   }
 
-  // ---------- Fotos (Wikipedia, com cache local) ----------
+  // ---------- Fotos ----------
+  // Ordem de resolução, por receita:
+  //   1. imagens/receitas/<slug>.webp   -> foto própria, gerada por scripts/gerar-imagens.js
+  //   2. Wikipedia em runtime (cache no localStorage)  -> o que existia antes deste commit
+  //   3. placeholder 🍽
+  //
+  // A foto própria vence sempre. E o resultado do teste dela NÃO vai pro localStorage: enquanto
+  // o lote de 398 não termina, a mesma receita pode não ter webp agora e ter daqui a dez minutos.
+  // Um "__none__" persistido sobreviveria à geração e esconderia a foto nova PRA SEMPRE, num
+  // aparelho que ninguém lembraria de limpar. Por isso o teste local mora só em memória, que
+  // morre no reload — e é barato, porque o próprio HTTP cache do browser faz o resto.
   function imageQuery(recipe) {
     return recipe.name.replace(/\s*\([^)]*\)/g, "").trim();
+  }
+
+  // ESTA É A MESMA slug() DE scripts/gerar-imagens.js. As duas têm que andar juntas: se uma
+  // mudar sozinha, o app passa a procurar um arquivo que o gerador nunca escreveu, TODA foto
+  // própria some de uma vez e o app cai pra Wikipedia sem um único erro no console — a pior
+  // classe de falha, cara e silenciosa. Mudou aqui, muda lá, no MESMO commit.
+  function slugFoto(nome) {
+    return String(nome)
+      .normalize("NFD").replace(/[̀-ͯ]/g, "")
+      .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  }
+
+  const fotoLocalCache = new Map();
+
+  // Resolve pra URL se o arquivo existe, pra null se não existe. Testa carregando de verdade,
+  // não com fetch/HEAD, porque isso funciona igual em file:// e em servidor — e porque o byte
+  // baixado aqui é o mesmo que o <img> final vai reaproveitar do cache do browser.
+  function fotoLocal(recipe) {
+    const url = "imagens/receitas/" + slugFoto(recipe.name) + ".webp";
+    if (fotoLocalCache.has(url)) return fotoLocalCache.get(url);
+    const p = new Promise((resolve) => {
+      const probe = new Image();
+      probe.onload = () => resolve(url);
+      probe.onerror = () => resolve(null);
+      probe.src = url;
+    });
+    fotoLocalCache.set(url, p);
+    return p;
   }
 
   // Descrições da Wikipedia que indicam que a página NÃO é sobre comida
@@ -3677,7 +3738,17 @@
     }
   }
 
-  async function loadRecipeImage(query, el) {
+  // Recebe a RECEITA, não mais a string de busca: o caminho local sai de recipe.name cru
+  // (é o que o gerador slugou), e a busca da Wikipedia sai do nome sem parênteses — os dois
+  // são diferentes em 24 das 398 ("Dumplings (Jiaozi)"), então um só não serve pros dois.
+  async function loadRecipeImage(recipe, el) {
+    const local = await fotoLocal(recipe);
+    if (local) {
+      applyImage(el, local);
+      return;
+    }
+
+    const query = imageQuery(recipe);
     const cacheKey = "imgcache-v1:" + query.toLowerCase();
     let cached = null;
     try {

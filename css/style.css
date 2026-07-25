@@ -1,23 +1,19 @@
 :root {
-  /* ---- Bloco 4: reskin — valores redefinidos pro tema escuro (docs/DESIGN-TOKENS.md),
-     NOMES mantidos de propósito (evita rename em todo o app). Equivalência 1:1 com os
-     tokens novos abaixo: --bg=--color-bg, --bg-panel=--color-surface, --ink=--color-text-
-     primary, --ink-soft=--color-text-secondary, --gold=--color-accent, --line=--color-border,
-     --green=--color-success, --red=--color-error. --gold-soft e --shadow foram REMOVIDOS
-     (não têm 1 equivalente novo único — cada uso foi resolvido individualmente pro token
-     certo pro papel real: --color-border, --color-accent-hover, --color-accent ou um tom de
-     --color-accent em baixa opacidade; --shadow não tinha nenhum precedente de elevação em
-     dark mode nos componentes do Bloco 2/3, então os 5 usos de box-shadow foram removidos —
-     --color-border já faz o trabalho de separar camadas). Ver .claude/skills/mobile-recipe-ui
-     pro detalhamento de cada decisão. */
-  --bg: #0f0f0e;
-  --bg-panel: #232321;
-  --ink: #f5f1ea;
-  --ink-soft: #c5bfb5;
-  --gold: #d63b20;
-  --line: #3b3935;
-  --green: #76945b;
-  --red: #e63950;
+  /* ---- Fase 0a (2026-07-26): --color-* é a nomenclatura OFICIAL agora — todo USO no
+     resto do arquivo já foi migrado dos nomes antigos pros --color-* abaixo. Os nomes
+     antigos (--bg, --bg-panel, --ink, --ink-soft, --gold, --line, --green, --red) seguem
+     declarados aqui só como ALIAS (var(--color-*)) por segurança nesta fase — nenhuma regra
+     deste arquivo os referencia mais; remoção dos alias fica pra uma rodada futura, quando
+     tiver certeza de que nada externo depende deles. Ver .claude/skills/mobile-recipe-ui
+     pro histórico do reskin (Bloco 4) que introduziu essa duplicação de nomes. */
+  --bg: var(--color-bg);
+  --bg-panel: var(--color-surface);
+  --ink: var(--color-text-primary);
+  --ink-soft: var(--color-text-secondary);
+  --gold: var(--color-accent);
+  --line: var(--color-border);
+  --green: var(--color-success);
+  --red: var(--color-error);
   --radius: 14px;
   font-size: 16px;
 
@@ -34,9 +30,23 @@
   --color-border: #3b3935;
   --color-text-primary: #f5f1ea;
   --color-text-secondary: #c5bfb5;
-  --color-text-disabled: #8d877f;
+  /* Fase 0a: clareado de #8d877f pra #8e8981 (mudança mínima, mesmo hue/saturação) — o valor
+     original falhava AA sobre --color-surface (4,43:1, precisa 4,5:1). Calibrado por busca
+     binária até cravar >=4.5:1 contra os 3 fundos onde esse token é usado (--color-surface
+     4,53:1, --color-bg 5,52:1, --color-bg-secondary 5,12:1) — não é estimativa. */
+  --color-text-disabled: #8e8981;
   --color-accent: #d63b20;
   --color-accent-hover: #a33f2a;
+  /* Fase 0a: fundo sólido escurecido pra qualquer fill de acento que carrega TEXTO em cima
+     (--color-text-primary) — --color-accent puro (#d63b20) só passa 4.5:1 com texto grande
+     (>=18.66px bold), e os usos reais (.primary-cta, .action-btn.active, badges, chips
+     selecionados etc.) são todos texto normal menor que isso. Mesmo hue/saturação de
+     --color-accent, lightness calibrada por busca binária até cravar >=4.5:1 com
+     --color-text-primary (#f5f1ea) em cima — não é estimativa (4,52:1 medido). Ainda cumpre
+     3:1 como uso gráfico (3,77:1 contra --color-bg), então serve também de borda/ícone se
+     precisar. --color-accent continua a cor de ação PADRÃO (ícones, bordas, realces sem
+     texto por cima) — --color-accent-deep é só pro caso específico de fill sólido com texto. */
+  --color-accent-deep: #cb381e;
   /* Versão mais clara do acento, SÓ pra texto peso regular sobre --color-bg (nunca pra
      ícone/borda/preenchimento — esses continuam --color-accent, sem mudança). --color-accent
      puro em texto peso regular passa de 18px+ mas falha 4.5:1 AA (4,11:1 medido); mesmo hue/
@@ -44,6 +54,12 @@
      >=4.5:1 contra --color-bg (#0f0f0e) — não é estimativa. Usado em .text-link (nome da
      receita clicável no modo de preparo e na Lista de Compras). */
   --color-accent-text: #e04527;
+  /* Fase 0a: tom de --color-accent em baixa opacidade pra fundo tingido suave (badge, marcador
+     decorativo, aba ativa, hover de chip, CTA do card, pill de fallback) — token novo pro
+     literal rgba(214, 59, 32, 0.08) que já era usado assim em 8 lugares, sem nome próprio.
+     Derivado do acento CLARO (--color-accent), não do --color-accent-deep (esse é só fundo
+     sólido com texto em cima, não tingimento). */
+  --color-accent-soft: rgba(214, 59, 32, 0.08);
   /* Faltavam estas 2 — o comentário acima já dizia "--green=--color-success,
      --red=--color-error" desde o Bloco 4, mas nunca tinham sido de fato declaradas. Bug real
      encontrado nesta rodada: var(--color-error) em .shopping-list__clear e
@@ -52,6 +68,36 @@
      escolha de design. */
   --color-success: #76945b;
   --color-error: #e63950;
+
+  /* Fase 0a: ring de foco por teclado padrão — antes 0 regras :focus-visible em todo o
+     codebase (só 2 :focus custom, .home-search e .tagsearch-input). Usa --color-accent-text
+     (já calibrado a 4,61:1, o mesmo token de .text-link) em vez de --color-accent puro —
+     outline É texto/UI, mas reaproveitar o token já calibrado é mais seguro que introduzir
+     mais um cálculo. offset 2px pra não colar no conteúdo do componente. */
+  --focus-ring-width: 2px;
+  --focus-ring-color: var(--color-accent-text);
+  --focus-ring-offset: 2px;
+
+  /* Fase 0a: tokens de movimento — formaliza os valores já dominantes no CSS (200ms era o mais
+     usado; 150ms o segundo). Easing padrão ease-out (já dominante nas transitions de :active
+     existentes). Orçamento geral continua 180-250ms (docs/DESIGN-TOKENS.md, Animações) — não
+     mudou, só ganhou nome. */
+  --motion-fast: 150ms;
+  --motion-base: 200ms;
+  --motion-easing: ease-out;
+
+  /* Fase 0a: escala de z-index — substitui os 4 valores literais que existiam soltos
+     (1 / 1100 / 1300 / 1400, sem relação documentada entre si). --z-float é reservado pro
+     botão de voltar flutuante do redesenho da página de receita (ainda não implementado) —
+     fica ABAIXO da barra de navegação inferior e do modal, acima do conteúdo normal. A foto de
+     topo fixa (position:fixed) do mesmo redesenho não entra nesta escala: por design ela fica
+     ABAIXO do conteúdo que desliza por cima (z-index nativo da ordem no fluxo basta, sem
+     token). */
+  --z-raised: 1;
+  --z-float: 1000;
+  --z-nav: 1100;
+  --z-modal: 1300;
+  --z-toast: 1400;
 
   /* Altura reservada da barra de navegação inferior fixa (.bottom-nav, Bloco 2) — ponto ÚNICO
      de ajuste, usado só pelo padding-bottom de #main (o único container de conteúdo rolável
@@ -68,8 +114,8 @@
 body {
   margin: 0;
   font-family: 'Georgia', 'Iowan Old Style', 'Palatino Linotype', serif;
-  background: var(--bg);
-  color: var(--ink);
+  background: var(--color-bg);
+  color: var(--color-text-primary);
   min-height: 100vh;
 }
 
@@ -78,21 +124,73 @@ body {
    do fim do gesto — diferente de :hover (não confiável em touch) ou de esperar o click
    terminar. Mesma duração já documentada em Animações (180–250ms ease-out). Ver fix do iOS
    Safari em js/app.js (listener de touchstart vazio, necessário pra :active dessa lista
-   disparar em toque real, não só com mouse). */
+   disparar em toque real, não só com mouse).
+   Fase 0a: lista original tinha só 6 componentes — estendida aos 9 que só tinham :hover
+   (anti-padrão em app mobile-first, :hover não é confiável em touch, mesma razão que motivou
+   a lista original) e aos 15 que não tinham NENHUM feedback de estado (auditoria 2026-07-25,
+   §6). Mesma linguagem visual, mesmos tokens de movimento — só cobertura, nada novo. */
 .primary-cta,
 .filter-modal__apply,
 .action-btn,
 .filter-trigger,
 .bottom-nav__tab,
-.recipe-card {
-  transition: transform 200ms ease-out, opacity 200ms ease-out;
+.recipe-card,
+.category-card,
+.home-tile,
+.preparo-card,
+.preparo-card__delete,
+.recipe-suggestion,
+.tag-chip-link,
+.tag-suggestion,
+.tag-chip--selected,
+.filter-modal .tag-chip--selected,
+.update-toast__btn,
+.back-button,
+.checklist label,
+.cook-timer-controls button,
+.cook-timer-display__part,
+.filter-modal .btn-clear-filters,
+.filter-modal__cancel,
+.filter-option,
+.filter-section__header,
+.home-more-categories,
+.recipe-page-heart,
+.shopping-list__clear,
+.shopping-list__recipe-chevron,
+.shopping-list__recipe-row,
+.text-link {
+  transition: transform var(--motion-base) var(--motion-easing), opacity var(--motion-base) var(--motion-easing);
 }
 .primary-cta:active,
 .filter-modal__apply:active,
 .action-btn:active,
 .filter-trigger:active,
 .bottom-nav__tab:active,
-.recipe-card:active {
+.recipe-card:active,
+.category-card:active,
+.home-tile:active,
+.preparo-card:active,
+.preparo-card__delete:active,
+.recipe-suggestion:active,
+.tag-chip-link:active,
+.tag-suggestion:active,
+.tag-chip--selected:active,
+.filter-modal .tag-chip--selected:active,
+.update-toast__btn:active,
+.back-button:active,
+.checklist label:active,
+.cook-timer-controls button:active,
+.cook-timer-display__part:active,
+.filter-modal .btn-clear-filters:active,
+.filter-modal__cancel:active,
+.filter-option:active,
+.filter-section__header:active,
+.home-more-categories:active,
+.recipe-page-heart:active,
+.shopping-list__clear:active,
+.shopping-list__recipe-chevron:active,
+.shopping-list__recipe-row:active,
+.text-link:active {
   transform: scale(0.97);
   opacity: 0.85;
 }
@@ -104,7 +202,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 1100;
+  z-index: var(--z-nav);
   background: var(--color-bg-secondary);
   border-top: 1px solid var(--color-border);
   padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
@@ -139,7 +237,13 @@ body {
   align-items: center;
   min-height: calc(1.15em * 2);
 }
-.bottom-nav__tab.is-active { color: var(--color-accent); }
+/* Fase 0a: rótulo de texto e ícone recolorem separado no estado ativo (antes os dois herdavam
+   --color-accent do botão) — o rótulo (0.66rem) mede só 3.81:1 sobre --color-bg-secondary,
+   abaixo de 4.5:1 AA pra texto; o ícone é uso gráfico (exigência 3:1, cumprida). Ícone
+   acentuado + rótulo claro vs. tudo em --color-text-disabled distingue ativo/inativo sem
+   depender de um par que falha contraste de texto. */
+.bottom-nav__tab.is-active .bottom-nav__icon { color: var(--color-accent); }
+.bottom-nav__tab.is-active .bottom-nav__label { color: var(--color-text-primary); }
 
 /* ---------- Main ---------- */
 /* padding-bottom: era 80px fixo — cobria a barra de navegação inferior por acidente/coincidência
@@ -157,24 +261,24 @@ body {
 #category-header h2 {
   font-size: 2rem;
   margin: 0 0 4px;
-  color: var(--ink);
+  color: var(--color-text-primary);
   /* Tracking negativo (apple-design skill: tracking depende do tamanho, nunca 1 valor fixo pra
      tudo) — só nos 2 maiores títulos do app (docs/DESIGN-TOKENS.md, faixa Display/H1/H2). O
      tracking positivo já usado em textos pequenos uppercase (labels, chips) não muda em nada. */
   letter-spacing: -0.02em;
 }
 #category-header .desc {
-  color: var(--ink-soft);
+  color: var(--color-text-secondary);
   font-style: italic;
   margin-bottom: 30px;
 }
 
 .empty-state {
-  border: 1px dashed var(--line);
+  border: 1px dashed var(--color-border);
   border-radius: var(--radius);
   padding: 40px;
   text-align: center;
-  color: var(--ink-soft);
+  color: var(--color-text-secondary);
   font-style: italic;
 }
 /* Atribuição de ícones (Icons8/SVG Repo) — ver buildIconCreditsEl em app.js */
@@ -187,22 +291,23 @@ body {
   margin-bottom: 18px;
 }
 .minhas-receitas__tab {
+  position: relative;
   flex: 1;
   min-height: 40px;
   border-radius: var(--radius);
-  border: 1px solid var(--line);
-  background: var(--bg-panel);
-  color: var(--ink-soft);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.9rem;
   font-weight: bold;
   cursor: pointer;
 }
 .minhas-receitas__tab.is-active {
-  border-color: var(--gold);
+  border-color: var(--color-accent);
   border-width: 2px;
-  color: var(--ink);
-  background: rgba(214, 59, 32, 0.08);
+  color: var(--color-text-primary);
+  background: var(--color-accent-soft);
 }
 /* Lista de Compras — mesmo padrão visual de abas de Minhas Receitas acima (troca em memória).
    Fase 2: as 2 abas já funcionam — Por receita (.shopping-list__recipe, seção por receita,
@@ -215,24 +320,26 @@ body {
   margin-bottom: 18px;
 }
 .shopping-list__tab {
+  position: relative;
   flex: 1;
   min-height: 40px;
   border-radius: var(--radius);
-  border: 1px solid var(--line);
-  background: var(--bg-panel);
-  color: var(--ink-soft);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.9rem;
   font-weight: bold;
   cursor: pointer;
 }
 .shopping-list__tab.is-active {
-  border-color: var(--gold);
+  border-color: var(--color-accent);
   border-width: 2px;
-  color: var(--ink);
-  background: rgba(214, 59, 32, 0.08);
+  color: var(--color-text-primary);
+  background: var(--color-accent-soft);
 }
 .shopping-list__clear {
+  position: relative;
   display: block;
   margin: 0 0 18px;
   min-height: 40px;
@@ -248,7 +355,7 @@ body {
 .shopping-list__recipe {
   margin-bottom: 24px;
   padding-bottom: 8px;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--color-border);
 }
 /* Seções extras no fim da visão Geral: "Despensa — confira se já tem" (itens do PANTRY_SET,
    com checkbox, sem número — o cabeçalho é o que evita parecer dado faltando) e "Preparos que
@@ -258,15 +365,15 @@ body {
 .shopping-list__pantry-title {
   margin: 24px 0 10px;
   padding-top: 16px;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--color-border);
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--ink-soft);
+  color: var(--color-text-secondary);
 }
 .shopping-list__preparos-recipes,
 .shopping-list__pantry-count {
-  color: var(--ink-soft);
+  color: var(--color-text-secondary);
   font-size: 0.85rem;
 }
 /* Linha do nome da receita: nome-link (.text-link, navega pra receita — área de toque PEQUENA
@@ -361,7 +468,7 @@ body {
 }
 .ingredient-mode-toggle__option {
   position: relative;
-  z-index: 1;
+  z-index: var(--z-raised);
   flex: 1;
   min-height: 40px;
   padding: 0 8px;
@@ -378,11 +485,11 @@ body {
   font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--ink-soft); /* era --gold: 16px fica abaixo do limiar de 18px+ pra ghost-text */
+  color: var(--color-text-secondary); /* era --gold: 16px fica abaixo do limiar de 18px+ pra ghost-text */
   font-family: 'Helvetica Neue', Arial, sans-serif;
   margin: 34px 0 14px;
   padding-bottom: 6px;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--color-border);
 }
 .subgroup-title:first-child { margin-top: 0; }
 
@@ -393,8 +500,8 @@ body {
    próprias (docs/DESIGN-TOKENS.md): o card inteiro é clicável, as 3 ações vivem só na tela
    de receita (.recipe-page-actions). */
 .recipe-card {
-  background: var(--bg-panel);
-  border: 1px solid var(--line);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
   margin-bottom: 18px;
   padding: 16px 18px;
@@ -480,7 +587,7 @@ body {
 }
 .recipe-title .origin {
   font-size: 0.8rem;
-  color: var(--ink-soft);
+  color: var(--color-text-secondary);
   font-style: italic;
   margin-top: 2px;
   display: -webkit-box;
@@ -496,10 +603,10 @@ body {
   letter-spacing: 0.04em;
   /* era --gold (=--color-accent): 11.2px falha o limiar 18px+ de ghost-text da regra do
      DESIGN-TOKENS.md. --ink-soft (=--color-text-secondary) no lugar. */
-  color: var(--ink-soft);
+  color: var(--color-text-secondary);
   /* era --gold-soft: fundo vira tom de --gold em baixa opacidade — decisão registrada no
      Bloco 4 (mesma opacidade do rgba(gold) antigo, só trocando a cor-base). */
-  background: rgba(214, 59, 32, 0.08);
+  background: var(--color-accent-soft);
   padding: 2px 8px;
   border-radius: 20px;
   margin-top: 4px;
@@ -507,7 +614,7 @@ body {
 
 .recipe-card-desc {
   font-size: 0.9rem;
-  color: var(--ink);
+  color: var(--color-text-primary);
   line-height: 1.35;
   margin-top: 10px;
   display: -webkit-box;
@@ -517,8 +624,8 @@ body {
 }
 
 .recipe-card-context {
-  border: 1px dashed var(--ink-soft);
-  color: var(--ink-soft);
+  border: 1px dashed var(--color-text-secondary);
+  color: var(--color-text-secondary);
   border-radius: 999px;
   font-size: 0.72rem;
   padding: 3px 10px;
@@ -569,7 +676,7 @@ body {
    há próximo). Bug visto em print na Lista de Compras, mas a regra é compartilhada com
    qualquer .ingredients-list (também a da tela de receita). */
 .ingredients-list li:not(:last-child) {
-  border-bottom: 1px dotted var(--line);
+  border-bottom: 1px dotted var(--color-border);
 }
 .ingredients-list li:before {
   content: "";
@@ -579,7 +686,7 @@ body {
   /* era --gold-soft: marcador decorativo, mesmo tom de acento em baixa opacidade dos outros
      fundos tingidos — fica discreto de propósito, igual o --gold-soft original já era
      discreto sobre o fundo claro (não é pra chamar atenção, só pontuar a lista). */
-  background: rgba(214, 59, 32, 0.08);
+  background: var(--color-accent-soft);
   border-radius: 1px;
   transform: rotate(45deg);
 }
@@ -602,8 +709,8 @@ body {
   position: absolute;
   left: 0; top: 0;
   width: 26px; height: 26px;
-  background: var(--gold);
-  color: var(--ink); /* era #fff: preenchimento sólido, mesmo padrão do botão primário novo */
+  background: var(--color-accent-deep); /* Fase 0a: era --color-accent, texto em cima falhava AA */
+  color: var(--color-text-primary); /* era #fff: preenchimento sólido, mesmo padrão do botão primário novo */
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-size: 0.8rem;
@@ -615,11 +722,11 @@ body {
   /* era #f6efdd (creme claro, hardcoded): --color-surface-elevated, painel elevado neutro
      (borda esquerda já carrega o sinal de cor, fundo não precisa tingir também). */
   background: var(--color-surface-elevated);
-  border-left: 3px solid var(--gold);
+  border-left: 3px solid var(--color-accent);
   border-radius: 0 8px 8px 0;
   padding: 14px 18px;
 }
-.tips-box h4 { color: var(--ink); margin-bottom: 8px; }
+.tips-box h4 { color: var(--color-text-primary); margin-bottom: 8px; }
 .tips-box ul { margin: 0; padding-left: 18px; }
 .tips-box li { font-size: 0.9rem; margin-bottom: 6px; line-height: 1.4; }
 .tips-box li:last-child { margin-bottom: 0; }
@@ -627,9 +734,9 @@ body {
 .used-for {
   margin-top: 14px;
   font-size: 0.88rem;
-  color: var(--ink-soft);
+  color: var(--color-text-secondary);
 }
-.used-for strong { color: var(--ink); }
+.used-for strong { color: var(--color-text-primary); }
 
 /* ---------- Home ---------- */
 .home-search-wrap { margin-bottom: 20px; }
@@ -637,11 +744,11 @@ body {
   width: 100%;
   min-height: 50px;
   border-radius: 999px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--color-border);
   padding: 0 20px;
   font-family: inherit;
   font-size: 1rem;
-  background: var(--bg-panel);
+  background: var(--color-surface);
   /* Sem isso, o texto digitado fica ilegível: nenhuma regra do reskin escuro declarava "color"
      aqui, então o input caía no estilo nativo do navegador pro widget de formulário (que
      assume esquema claro por padrão), não no --ink herdado do body. */
@@ -650,7 +757,11 @@ body {
 /* era --gold-soft: foco vira --gold (=--color-accent) cheio — regra do DESIGN-TOKENS.md,
    "Inputs:... foco --color-accent". box-shadow removido (sem precedente de elevação em dark
    mode; --line/--color-border já separa a barra do fundo). */
-.home-search:focus { outline: 2px solid var(--gold); }
+.home-search:focus-visible { outline: 2px solid var(--color-accent); } /* Fase 0a: era :focus, migrado pra :focus-visible (mesmo visual) */
+/* Fase 0a: cor de placeholder explícita (antes indefinida — caía no escurecimento padrão do
+   navegador sobre a cor do texto, contraste não verificado). --color-text-disabled corrigido
+   (Fase 0a) já passa >=4.5:1 sobre --color-surface, o fundo real do input. */
+.home-search::placeholder { color: var(--color-text-disabled); }
 
 /* ---------- Toolbar da coleção (abas + ordenador + contagem) ---------- */
 .collection-toolbar {
@@ -662,11 +773,11 @@ body {
   display: flex;
   gap: 8px;
   align-items: baseline;
-  color: var(--ink-soft);
+  color: var(--color-text-secondary);
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.9rem;
 }
-.collection-count strong { color: var(--ink); font-size: 1rem; }
+.collection-count strong { color: var(--color-text-primary); font-size: 1rem; }
 .collection-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -675,32 +786,32 @@ body {
 .collection-tabs button {
   min-height: 44px;
   border-radius: 999px;
-  border: 1px solid var(--line);
-  background: var(--bg-panel);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.9rem;
-  color: var(--ink);
+  color: var(--color-text-primary);
   cursor: pointer;
 }
 /* fundo era --gold-soft: tom de --gold (=--color-accent) em baixa opacidade, mesma decisão
    registrada no Bloco 4 pra todo fundo tingido suave. */
-.collection-tabs button.active { border-color: var(--gold); border-width: 2px; font-weight: bold; background: rgba(214, 59, 32, 0.08); }
+.collection-tabs button.active { border-color: var(--color-accent); border-width: 2px; font-weight: bold; background: var(--color-accent-soft); }
 .sort-control {
   display: grid;
   gap: 6px;
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.8rem;
-  color: var(--ink-soft);
+  color: var(--color-text-secondary);
 }
 .sort-control select {
   min-height: 44px;
   border-radius: 10px;
-  border: 1px solid var(--line);
-  background: var(--bg-panel);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
   padding: 0 12px;
   font-size: 0.92rem;
   font-family: inherit;
-  color: var(--ink);
+  color: var(--color-text-primary);
 }
 .collection-refine { margin-bottom: 18px; }
 .collection-refine:empty { margin-bottom: 0; }
@@ -736,7 +847,7 @@ body {
   height: 20px;
   padding: 0 5px;
   border-radius: 999px;
-  background: var(--color-accent);
+  background: var(--color-accent-deep); /* Fase 0a: era --color-accent, texto em cima falhava AA */
   color: var(--color-text-primary);
   font-size: 0.72rem;
   font-weight: bold;
@@ -762,7 +873,7 @@ body {
 .filter-modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 1300;
+  z-index: var(--z-modal);
   background: var(--color-bg);
   display: flex;
   flex-direction: column;
@@ -834,7 +945,7 @@ body.filter-modal-open { overflow: hidden; }
   min-height: 48px;
   border: none;
   border-radius: 999px;
-  background: var(--color-accent);
+  background: var(--color-accent-deep); /* Fase 0a: era --color-accent, texto em cima falhava AA */
   color: var(--color-text-primary);
   font-family: inherit;
   font-size: 0.95rem;
@@ -876,9 +987,9 @@ body.filter-modal-open { overflow: hidden; }
   border-radius: 999px;
   padding: 0 16px;
   font-weight: bold;
-  color: var(--ink);
+  color: var(--color-text-primary);
 }
-.ingredients-toggle .filter-section__count { color: var(--ink-soft); }
+.ingredients-toggle .filter-section__count { color: var(--color-text-secondary); }
 .ingredients-toggle .filter-section__chevron { color: var(--color-accent); }
 .filter-section__summary {
   color: var(--color-accent);
@@ -888,7 +999,7 @@ body.filter-modal-open { overflow: hidden; }
   text-overflow: ellipsis;
   max-width: 40%;
 }
-.filter-section__chevron { width: 18px; height: 18px; flex-shrink: 0; color: var(--color-text-disabled); transition: transform 200ms ease-out; }
+.filter-section__chevron { width: 18px; height: 18px; flex-shrink: 0; color: var(--color-text-disabled); transition: transform var(--motion-base) var(--motion-easing); }
 .filter-section.is-open .filter-section__chevron { transform: rotate(180deg); }
 .filter-section__body {
   display: none;
@@ -928,7 +1039,7 @@ body.filter-modal-open { overflow: hidden; }
   gap: 4px;
   min-height: 76px;
   border: 2px solid var(--color-border);
-  border-radius: 14px;
+  border-radius: var(--radius);
   background: var(--color-surface);
   padding: 10px 4px;
   cursor: pointer;
@@ -996,6 +1107,7 @@ body.filter-modal-open { overflow: hidden; }
   margin-top: 4px;
 }
 .filter-modal .tag-chip--selected {
+  position: relative;
   min-height: 34px;
   padding: 0 6px 0 14px;
   border-radius: 999px;
@@ -1029,26 +1141,27 @@ body.filter-modal-open { overflow: hidden; }
   width: 100%;
   min-height: 50px;
   border-radius: 999px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--color-border);
   padding: 0 20px;
   font-family: inherit;
   font-size: 1rem;
-  background: var(--bg-panel);
+  background: var(--color-surface);
   /* Mesmo bug do .home-search: sem "color" explícito, o input caía no estilo nativo do
      navegador pro widget de formulário (esquema claro por padrão), texto digitado ilegível. */
   color: var(--color-text-primary);
 }
 /* Placeholder menor que o texto digitado (só o placeholder, .tagsearch-input mantém 1rem pro
    que o usuário digita) — cabe melhor numa linha só em mobile com o texto mais longo. */
-.tagsearch-input::placeholder { font-size: 0.85rem; }
+/* Fase 0a: cor de placeholder explícita (antes indefinida — mesma lacuna do .home-search). */
+.tagsearch-input::placeholder { font-size: 0.85rem; color: var(--color-text-disabled); }
 /* era --gold-soft: foco vira --gold cheio (regra "foco --color-accent"); box-shadow removido
    (mesma justificativa do .home-search acima). */
-.tagsearch-input:focus { outline: 2px solid var(--gold); }
+.tagsearch-input:focus-visible { outline: 2px solid var(--color-accent); } /* Fase 0a: era :focus, migrado pra :focus-visible (mesmo visual) */
 
 .tagsearch-suggestions { margin-top: 10px; }
 .tagsearch-empty {
   font-size: 0.85rem;
-  color: var(--ink-soft);
+  color: var(--color-text-secondary);
   font-style: italic;
   padding: 4px 2px;
 }
@@ -1057,18 +1170,19 @@ body.filter-modal-open { overflow: hidden; }
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--ink-soft);
+  color: var(--color-text-secondary);
   margin: 10px 0 6px;
 }
 .tagsearch-taglist, .tagsearch-recipelist { display: flex; flex-wrap: wrap; gap: 8px; }
 
 .tag-suggestion {
+  position: relative;
   min-height: 38px;
   padding: 0 16px;
   border-radius: 999px;
   border: 1px solid var(--color-border); /* era --gold-soft: borda padrão/estática */
-  background: var(--bg-panel);
-  color: var(--ink);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.85rem;
   cursor: pointer;
@@ -1077,12 +1191,13 @@ body.filter-modal-open { overflow: hidden; }
 .tag-suggestion:hover { background: var(--color-surface-elevated); }
 
 .recipe-suggestion {
+  position: relative;
   min-height: 38px;
   padding: 0 16px;
   border-radius: 8px;
-  border: 1px solid var(--line);
-  background: var(--bg-panel);
-  color: var(--ink);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
   font-family: inherit;
   font-style: italic;
   font-size: 0.9rem;
@@ -1098,12 +1213,13 @@ body.filter-modal-open { overflow: hidden; }
   margin-top: 14px;
 }
 .tag-chip--selected {
+  position: relative;
   min-height: 38px;
   padding: 0 8px 0 16px;
   border-radius: 999px;
   border: none;
-  background: var(--gold);
-  color: var(--ink); /* era #fff: preenchimento sólido, padrão do botão primário */
+  background: var(--color-accent-deep); /* Fase 0a: era --color-accent, texto em cima falhava AA */
+  color: var(--color-text-primary); /* era #fff: preenchimento sólido, padrão do botão primário */
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.85rem;
   font-weight: bold;
@@ -1120,7 +1236,7 @@ body.filter-modal-open { overflow: hidden; }
 .tagsearch-count {
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.85rem;
-  color: var(--ink-soft);
+  color: var(--color-text-secondary);
   margin-top: 14px;
 }
 .tagsearch-popular { margin-top: 4px; }
@@ -1130,7 +1246,7 @@ body.filter-modal-open { overflow: hidden; }
   border: 1px solid var(--color-border); /* era --gold-soft: borda padrão/estática */
   background: transparent;
   /* era --gold: 11.52px falha o limiar 18px+ de ghost-text. --ink-soft no lugar. */
-  color: var(--ink-soft);
+  color: var(--color-text-secondary);
   border-radius: 999px;
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.72rem;
@@ -1139,7 +1255,7 @@ body.filter-modal-open { overflow: hidden; }
 }
 /* fundo era --gold-soft (tom tingido, decisão do Bloco 4); texto era #2b241b (escuro, pensado
    pro fundo claro) — fica ilegível aqui, sobe pra --ink (=--color-text-primary). */
-.tag-chip-link:hover { background: rgba(214, 59, 32, 0.08); color: var(--ink); }
+.tag-chip-link:hover { background: var(--color-accent-soft); color: var(--color-text-primary); }
 
 .recipe-card-tags {
   display: flex;
@@ -1154,7 +1270,8 @@ body.filter-modal-open { overflow: hidden; }
   gap: 8px;
   margin: -6px 0 20px;
 }
-.recipe-page-tags .tag-chip-link { min-height: 30px; font-size: 0.8rem; padding: 0 14px; }
+.recipe-page-tags .tag-chip-link { position: relative; min-height: 30px; font-size: 0.8rem; padding: 0 14px; }
+.recipe-page-tags .tag-chip-link::after { content: ""; position: absolute; inset: -5px -4px; } /* Fase 0a: LIMITAÇÃO CONHECIDA, não corrigível sem mudança visual — ver relatório. .recipe-page-tags é flex-wrap com gap:8px em AMBOS os eixos (linhas quebradas usam o mesmo gap na vertical); o lado de baixo colide com o chip da próxima linha quebrada quase imediatamente (confirmado ao vivo: elementFromPoint acima de +1px já resolve pro chip vizinho, não o mesmo elemento, não importa o quanto o inset aumente). Efetivo alcançado ~38px (30 + ~4px cada lado, limite seguro = metade do gap), 6px abaixo do alvo de 44px. Alcançar 44px exigiria aumentar o próprio chip ou o gap — mudança visual real, fora do escopo "sem alterar o visual" deste bloco. */
 
 /* ---------- Home: tiles principais + "Mais categorias" (Bloco 2 — design tokens v3) ---------- */
 /* Mais evidente que clicável (era só texto solto, sem nenhum sinal visual) — reaproveita os
@@ -1164,6 +1281,7 @@ body.filter-modal-open { overflow: hidden; }
    em --color-text-secondary (0.82rem fica abaixo do limiar de 18px+ pra --color-accent em
    texto). Continua pequena/discreta de propósito — só deixou de parecer invisível. */
 .home-more-categories {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -1213,9 +1331,9 @@ body.filter-modal-open { overflow: hidden; }
 }
 .category-card {
   min-height: 100px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  background: var(--bg-panel);
+  background: var(--color-surface);
   padding: 16px;
   text-align: left;
   cursor: pointer;
@@ -1228,11 +1346,11 @@ body.filter-modal-open { overflow: hidden; }
    elevação em dark mode; --line/--color-border já separa o card do fundo). */
 .category-card:hover { border-color: var(--color-accent-hover); }
 .category-card__icon { font-size: 1.8rem; }
-.category-card__title { font-weight: bold; color: var(--ink); font-size: 0.98rem; line-height: 1.25; }
+.category-card__title { font-weight: bold; color: var(--color-text-primary); font-size: 0.98rem; line-height: 1.25; }
 .category-card__count {
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.75rem;
-  color: var(--ink-soft);
+  color: var(--color-text-secondary);
   margin-top: auto;
 }
 
@@ -1246,7 +1364,7 @@ body.filter-modal-open { overflow: hidden; }
   background: none;
   border: none;
   /* era --gold: ghost-text puro (sem fundo/borda), 14.4px falha o limiar 18px+. --ink-soft. */
-  color: var(--ink-soft);
+  color: var(--color-text-secondary);
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.9rem;
   cursor: pointer;
@@ -1256,7 +1374,16 @@ body.filter-modal-open { overflow: hidden; }
 }
 .recipe-hero {
   width: 100%;
-  height: 220px;
+  /* era `height: 220px` FIXO, e altura fixa fazia o enquadramento depender da largura da tela.
+     Medido no master 1184x888 da Paella, com object-position: center bottom, a faixa da foto
+     visível antes da rolagem era:
+         390px de largura (celular):  y de 24.8% a 62.4%  -> o prato inteiro. certo.
+         720px de largura (desktop):  y de 59.3% a 79.6%  -> só a borda de baixo da panela. errado.
+     Não é ajuste de gosto: a caixa 720x220 é 3,27:1, e enfiar um 4:3 nela por `cover` corta
+     75% da altura. Com aspect-ratio a caixa acompanha a largura, o fator de `cover` passa a ser
+     o mesmo em qualquer tela e a faixa visível vira y de 25% a 62.5% SEMPRE — inclusive 219px
+     de altura num celular de 390px, que é o mesmo 220px de antes. Mobile não muda nada. */
+  aspect-ratio: 16 / 9;
   border-radius: var(--radius);
   overflow: hidden;
   background: var(--color-surface-elevated); /* era #f1e8d3, mesmo papel do .recipe-thumb */
@@ -1265,10 +1392,17 @@ body.filter-modal-open { overflow: hidden; }
   color: var(--color-text-disabled); /* era --gold-soft, ícone de placeholder/vazio */
   margin-bottom: 18px;
 }
-.recipe-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* object-position é a decisão de enquadramento da rodada 3 (ver cabeçalho de
+   scripts/gerar-imagens.js): posição vertical do prato NÃO se controla por prompt — duas
+   rodadas tentaram e a 2ª encheu 45% do quadro de parede. Controla-se aqui, de graça.
+   O hero tem 220px e o conteúdo desliza por cima da metade de baixo, então só a metade
+   SUPERIOR da caixa aparece antes da rolagem. Master 4:3 em caixa 16:9 perde ~25% da altura;
+   com âncora no rodapé a faixa visível vira y ∈ [25%, 62%], que é onde o prato está.
+   Calibrar OLHANDO A TELA: se o prato ficar baixo demais, `center 70%`, depois `center 60%`. */
+.recipe-hero img { width: 100%; height: 100%; object-fit: cover; object-position: center bottom; display: block; }
 
 .recipe-page-title h2 { margin: 0 0 2px; font-size: 1.7rem; letter-spacing: -0.015em; }
-.recipe-page-title .origin { font-size: 0.9rem; color: var(--ink-soft); font-style: italic; }
+.recipe-page-title .origin { font-size: 0.9rem; color: var(--color-text-secondary); font-style: italic; }
 .recipe-page-title .page-desc { font-size: 1rem; margin: 10px 0 0; line-height: 1.5; }
 
 .recipe-page-meta {
@@ -1276,12 +1410,12 @@ body.filter-modal-open { overflow: hidden; }
   gap: 16px;
   flex-wrap: wrap;
   font-size: 0.85rem;
-  color: var(--ink-soft);
+  color: var(--color-text-secondary);
   font-family: 'Helvetica Neue', Arial, sans-serif;
   margin: 14px 0;
   padding: 12px 0;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 /* Multiplicador de porções — substitui o "🍽 N porções" estático quando o yield tem uma base
@@ -1291,7 +1425,7 @@ body.filter-modal-open { overflow: hidden; }
   display: flex;
   align-items: center;
   gap: 6px;
-  color: var(--ink-soft);
+  color: var(--color-text-secondary);
 }
 .portion-stepper__icon { font-size: 0.95rem; }
 .portion-stepper__btn {
@@ -1303,8 +1437,8 @@ body.filter-modal-open { overflow: hidden; }
   flex-shrink: 0;
   border-radius: 50%;
   border: 2px solid var(--color-border);
-  background: var(--bg-panel);
-  color: var(--ink);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
   font-size: 1rem;
   line-height: 1;
   cursor: pointer;
@@ -1313,19 +1447,28 @@ body.filter-modal-open { overflow: hidden; }
 }
 /* Hit padding (apple-design skill): 10px vertical, só 3px horizontal — o gap real entre os 2
    botões +/- é 6px (.portion-stepper), então 10px de cada lado se sobreporia entre os dois e
-   criaria ambiguidade de toque perto do meio; 3px encosta exatamente no meio do gap sem disputa. */
+   criaria ambiguidade de toque perto do meio; 3px encosta exatamente no meio do gap sem disputa.
+   Fase 0a — CAUSA RAIZ investigada e corrigida: o valor de inset de um ::after absolute resolve
+   contra o PADDING-BOX do ancestral posicionado (aqui, o botão), não o border-box/borda visível.
+   Com border:2px no botão, os 2px de borda "comiam" 2px de cada inset silenciosamente — o
+   resultado real era ~8px vertical/~1px horizontal a partir da borda visível, não os 10px/3px
+   pretendidos (confirmado com elementFromPoint nos 4 lados: só o topo, com folga suficiente,
+   batia no botão; base/esquerda/direita caíam no pai .portion-stepper ou no
+   .recipe-page-meta vizinho). Compensado somando os 2px de borda a cada valor: -12px -5px
+   (equivale a 10px/3px reais a partir da borda visível). z-index não fez diferença nenhuma
+   nos testes (não era um problema de empilhamento) — não usado na correção final. */
 .portion-stepper__btn::after {
   content: "";
   position: absolute;
-  inset: -10px -3px;
+  inset: -12px -5px; /* Fase 0a: era -10px -3px, corrigido pra compensar os 2px de borda do botão (ver comentário acima) */
 }
-.portion-stepper__btn:active { background: var(--gold); border-color: var(--gold); }
+.portion-stepper__btn:active { background: var(--color-accent-deep); border-color: var(--color-accent-deep); } /* Fase 0a: era --color-accent, símbolo −/+ (--color-text-primary) em cima falhava AA */
 .portion-stepper__input {
   width: 34px;
   text-align: center;
   border: none;
   background: transparent;
-  color: var(--ink);
+  color: var(--color-text-primary);
   font-size: 0.95rem;
   font-weight: 600;
   font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -1347,13 +1490,13 @@ body.filter-modal-open { overflow: hidden; }
   padding: 0 18px;
   border-radius: 999px;
   border: 2px solid var(--color-border); /* era --gold-soft: borda padrão/estática */
-  background: var(--bg-panel);
-  color: var(--ink);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.88rem;
   cursor: pointer;
 }
-.action-btn.active { background: var(--gold); border-color: var(--gold); color: var(--ink); } /* era #fff */
+.action-btn.active { background: var(--color-accent-deep); border-color: var(--color-accent-deep); color: var(--color-text-primary); } /* era #fff, depois --color-accent (Fase 0a: falhava AA 4,14:1) */
 
 /* Favoritar na tela de receita troca de ESTRUTURA ao alternar, não só de cor: não favoritado
    usa .action-btn (mesma pill de "Marcar como feita", com o coração em contorno + texto
@@ -1378,7 +1521,7 @@ body.filter-modal-open { overflow: hidden; }
   font-size: 0.82rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--ink-soft); /* era --gold: 13.1px fica abaixo do limiar 18px+ */
+  color: var(--color-text-secondary); /* era --gold: 13.1px fica abaixo do limiar 18px+ */
   font-family: 'Helvetica Neue', Arial, sans-serif;
   margin: 0 0 12px;
 }
@@ -1390,14 +1533,16 @@ body.filter-modal-open { overflow: hidden; }
   gap: 10px;
   cursor: pointer;
   padding: 7px 0 7px 4px;
+  min-height: 44px;
+  box-sizing: border-box;
 }
 .checklist input[type="checkbox"] {
   width: 20px; height: 20px;
   flex-shrink: 0;
   margin-top: 2px;
-  accent-color: var(--gold);
+  accent-color: var(--color-accent);
 }
-.checklist .struck { text-decoration: line-through; color: var(--ink-soft); }
+.checklist .struck { text-decoration: line-through; color: var(--color-text-secondary); }
 .checklist li:before { display: none; }
 
 .primary-cta {
@@ -1406,8 +1551,8 @@ body.filter-modal-open { overflow: hidden; }
   min-height: 52px;
   border-radius: 999px;
   border: none;
-  background: var(--gold);
-  color: var(--ink); /* era #fff: preenchimento sólido, padrão do botão primário */
+  background: var(--color-accent-deep); /* Fase 0a: era --color-accent, texto em cima falhava AA (4,14:1) */
+  color: var(--color-text-primary); /* era #fff: preenchimento sólido, padrão do botão primário */
   font-size: 1.05rem;
   font-weight: bold;
   cursor: pointer;
@@ -1458,30 +1603,30 @@ body.filter-modal-open { overflow: hidden; }
   color: var(--color-accent);
 }
 .cook-progress { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
-.cook-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--line); flex-shrink: 0; }
-.cook-dot.active { background: var(--gold); }
-.cook-dot.done { background: var(--green); }
+.cook-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--color-border); flex-shrink: 0; }
+.cook-dot.active { background: var(--color-accent); }
+.cook-dot.done { background: var(--color-success); }
 .cook-step-label {
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--ink-soft); /* era --gold: 12.8px fica abaixo do limiar 18px+ */
+  color: var(--color-text-secondary); /* era --gold: 12.8px fica abaixo do limiar 18px+ */
   margin-bottom: 10px;
 }
 .cook-step-text {
   font-size: 1.35rem;
   line-height: 1.55;
-  background: var(--bg-panel);
-  border: 1px solid var(--line);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
   padding: 26px;
   margin-bottom: 24px;
   min-height: 120px;
 }
 .cook-timer {
-  background: var(--bg-panel);
-  border: 1px solid var(--line);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
   padding: 18px;
   margin-bottom: 24px;
@@ -1491,7 +1636,7 @@ body.filter-modal-open { overflow: hidden; }
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 2.2rem;
   font-weight: bold;
-  color: var(--ink);
+  color: var(--color-text-primary);
   margin-bottom: 12px;
   font-variant-numeric: tabular-nums;
 }
@@ -1511,6 +1656,10 @@ body.filter-modal-open { overflow: hidden; }
   outline: none;
   padding: 0;
 }
+.cook-timer-display__edit-input:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+} /* Fase 0a: era outline:none sem substituto — ring visível restaurado só no focus-visible */
 /* Roleta do timer (Fase A -> Fase B: 3 colunas -> Fase C: compacta + esconde/mostra) —
    scroll-snap NATIVO substitui o slider+input do Fase 2; o navegador já dá momentum/inércia em
    touch sozinho, nenhuma física customizada ainda (ver comentário em renderTimer, js/app.js).
@@ -1540,7 +1689,7 @@ body.filter-modal-open { overflow: hidden; }
   transform: translateY(-50%);
   border-top: 1px solid var(--color-accent);
   border-bottom: 1px solid var(--color-accent);
-  background: rgba(214, 59, 32, 0.08);
+  background: var(--color-accent-soft);
   pointer-events: none;
 }
 .cook-timer-wheel-columns {
@@ -1576,7 +1725,7 @@ body.filter-modal-open { overflow: hidden; }
 /* Item centralizado — destaque via cor/peso/tamanho (nunca --color-accent no texto: mesmo
    limiar de 18px+ pra ghost-text de sempre; o acento fica só na faixa/moldura ao redor). */
 .cook-timer-wheel__item.is-selected {
-  color: var(--ink);
+  color: var(--color-text-primary);
   font-weight: bold;
   font-size: 1.3rem;
 }
@@ -1592,7 +1741,7 @@ body.filter-modal-open { overflow: hidden; }
   text-align: center;
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.7rem;
-  color: var(--ink-soft);
+  color: var(--color-text-secondary);
 }
 
 .cook-timer-controls {
@@ -1602,17 +1751,18 @@ body.filter-modal-open { overflow: hidden; }
   flex-wrap: wrap;
 }
 .cook-timer-controls button {
+  position: relative;
   min-height: 40px;
   padding: 0 16px;
   border-radius: 999px;
   border: 1px solid var(--color-border); /* era --gold-soft: borda padrão/estática */
-  background: var(--bg);
-  color: var(--ink);
+  background: var(--color-bg);
+  color: var(--color-text-primary);
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.85rem;
   cursor: pointer;
 }
-.cook-timer-controls .timer-toggle { background: var(--gold); border-color: var(--gold); color: var(--ink); } /* era #fff */
+.cook-timer-controls .timer-toggle { background: var(--color-accent-deep); border-color: var(--color-accent-deep); color: var(--color-text-primary); } /* era #fff, depois --color-accent (Fase 0a: falhava AA) */
 
 /* Quantidade por passo (stepIngredients, Fase 2) — some quando o passo não tem nenhum uso
    rastreado (display:none via JS, ver renderStepIngredients em app.js). */
@@ -1622,13 +1772,13 @@ body.filter-modal-open { overflow: hidden; }
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--ink-soft);
+  color: var(--color-text-secondary);
   margin-bottom: 6px;
 }
 .cook-step-ingredients ul { list-style: none; margin: 0; padding: 0; }
 .cook-step-ingredients li {
   font-size: 0.92rem;
-  color: var(--ink);
+  color: var(--color-text-primary);
   padding: 4px 0 4px 18px;
   position: relative;
 }
@@ -1637,7 +1787,7 @@ body.filter-modal-open { overflow: hidden; }
   position: absolute;
   left: 2px; top: 12px;
   width: 6px; height: 6px;
-  background: rgba(214, 59, 32, 0.08);
+  background: var(--color-accent-soft);
   border-radius: 1px;
   transform: rotate(45deg);
 }
@@ -1648,14 +1798,20 @@ body.filter-modal-open { overflow: hidden; }
   min-height: 52px;
   border-radius: 999px;
   border: 2px solid var(--color-border); /* era --gold-soft: borda padrão/estática */
-  background: var(--bg-panel);
-  color: var(--ink);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
   font-size: 1rem;
   cursor: pointer;
   font-family: inherit;
 }
-.cook-nav-btn.primary { background: var(--gold); border-color: var(--gold); color: var(--ink); font-weight: bold; } /* era #fff */
-.cook-nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.cook-nav-btn.primary { background: var(--color-accent-deep); border-color: var(--color-accent-deep); color: var(--color-text-primary); font-weight: bold; } /* era #fff, depois --color-accent (Fase 0a: falhava AA) */
+/* Fase 0a: padrão :disabled GENÉRICO — antes só .cook-nav-btn tinha tratamento (era o único
+   disabled=true setado em todo o app, ver prevBtn.disabled em app.js). :disabled só casa com
+   controles de formulário de verdade (button/input/select/textarea/etc.), então um seletor
+   genérico é seguro — qualquer botão/campo desabilitado no futuro já herda o padrão, sem
+   precisar de regra própria. opacity 0.35 + cursor not-allowed é o valor já usado, só
+   generalizado. */
+:disabled { opacity: 0.35; cursor: not-allowed; }
 
 /* ---------- Aba "Preparos" — lista de sessões em andamento (Fase 2) ---------- */
 .preparo-list { display: flex; flex-direction: column; gap: 12px; }
@@ -1663,8 +1819,8 @@ body.filter-modal-open { overflow: hidden; }
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--bg-panel);
-  border: 1px solid var(--line);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
   padding: 12px 14px;
   cursor: pointer;
@@ -1685,11 +1841,11 @@ body.filter-modal-open { overflow: hidden; }
 .preparo-card__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .preparo-card__thumb.placeholder { color: var(--color-text-disabled); }
 .preparo-card__info { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 3px; }
-.preparo-card__info strong { font-size: 0.98rem; color: var(--ink); }
+.preparo-card__info strong { font-size: 0.98rem; color: var(--color-text-primary); }
 .preparo-card__step {
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.8rem;
-  color: var(--ink-soft);
+  color: var(--color-text-secondary);
 }
 .preparo-card__timer {
   font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -1698,6 +1854,7 @@ body.filter-modal-open { overflow: hidden; }
   font-variant-numeric: tabular-nums;
 }
 .preparo-card__delete {
+  position: relative;
   flex-shrink: 0;
   width: 36px;
   height: 36px;
@@ -1713,10 +1870,10 @@ body.filter-modal-open { overflow: hidden; }
 #progress {
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.75rem;
-  color: var(--ink-soft);
+  color: var(--color-text-secondary);
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--color-border);
 }
 
 /* ---------- Toast de atualização do Service Worker ---------- */
@@ -1728,7 +1885,7 @@ body.filter-modal-open { overflow: hidden; }
   left: 16px;
   right: 16px;
   bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 12px);
-  z-index: 1400;
+  z-index: var(--z-toast);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1742,12 +1899,13 @@ body.filter-modal-open { overflow: hidden; }
   font-size: 0.85rem;
 }
 .update-toast__btn {
+  position: relative;
   flex-shrink: 0;
   min-height: 36px;
   padding: 0 14px;
   border: none;
   border-radius: 999px;
-  background: var(--color-accent);
+  background: var(--color-accent-deep); /* Fase 0a: era --color-accent, texto em cima falhava AA */
   color: var(--color-text-primary);
   font-family: inherit;
   font-size: 0.82rem;
@@ -1765,16 +1923,41 @@ body.filter-modal-open { overflow: hidden; }
   .action-btn:active,
   .filter-trigger:active,
   .bottom-nav__tab:active,
-  .recipe-card:active {
+  .recipe-card:active,
+  .category-card:active,
+  .home-tile:active,
+  .preparo-card:active,
+  .preparo-card__delete:active,
+  .recipe-suggestion:active,
+  .tag-chip-link:active,
+  .tag-suggestion:active,
+  .tag-chip--selected:active,
+  .filter-modal .tag-chip--selected:active,
+  .update-toast__btn:active,
+  .back-button:active,
+  .checklist label:active,
+  .cook-timer-controls button:active,
+  .cook-timer-display__part:active,
+  .filter-modal .btn-clear-filters:active,
+  .filter-modal__cancel:active,
+  .filter-option:active,
+  .filter-section__header:active,
+  .home-more-categories:active,
+  .recipe-page-heart:active,
+  .shopping-list__clear:active,
+  .shopping-list__recipe-chevron:active,
+  .shopping-list__recipe-row:active,
+  .text-link:active {
     transform: none;
-  }
+  } /* Fase 0a: lista estendida junto com o bloco de :active acima — reduced-motion continua
+       suprimindo só a escala (sobra opacidade), mesmo princípio original, agora nos 30. */
   .filter-modal {
     animation: none;
   }
   .filter-modal.filter-modal--closing {
     animation: none;
     opacity: 0;
-    transition: opacity 200ms ease;
+    transition: opacity var(--motion-base) ease;
   }
   .cook-timer-wheel-wrap {
     animation: none;
@@ -1782,10 +1965,10 @@ body.filter-modal-open { overflow: hidden; }
   .cook-timer-wheel-wrap.cook-timer-wheel-wrap--hiding {
     animation: none;
     opacity: 0;
-    transition: opacity 200ms ease;
+    transition: opacity var(--motion-base) ease;
   }
   .ingredient-mode-toggle__thumb {
-    transition: transform 150ms ease;
+    transition: transform var(--motion-fast) ease;
   }
 }
 /* Bordas sutis (--line/--color-border) reforçadas nos componentes mais tocados, sem criar
@@ -1798,3 +1981,78 @@ body.filter-modal-open { overflow: hidden; }
     border-color: var(--color-text-secondary);
   }
 }
+
+/* ---------- Fase 0a: foco visível por teclado (0 regras :focus-visible antes disso) ----------
+   Ring padrão (--focus-ring-*, ver :root) aplicado aos 39 interativos mapeados na auditoria de
+   2026-07-25 (seletores via cursor:pointer). 2 pares descendente-scoped da auditoria
+   (.shopping-list__recipe-row .shopping-list__recipe-name-link/.preparo-card__delete) não
+   precisam de entrada própria aqui — a classe base (.text-link/.preparo-card__delete) já cobre
+   os dois contextos, CSS de classe não é escopado por ancestral. .checklist label nunca recebe
+   foco de verdade (o <input> dentro é o elemento tabável) — incluído mesmo assim por
+   completude; a regra simplesmente nunca dispara. */
+.bottom-nav__tab:focus-visible,
+.minhas-receitas__tab:focus-visible,
+.shopping-list__tab:focus-visible,
+.shopping-list__clear:focus-visible,
+.shopping-list__recipe-row:focus-visible,
+.shopping-list__recipe-chevron:focus-visible,
+.ingredient-mode-toggle__option:focus-visible,
+.recipe-card:focus-visible,
+.recipe-card__heart:focus-visible,
+.collection-tabs button:focus-visible,
+.filter-trigger:focus-visible,
+.filter-modal__cancel:focus-visible,
+.filter-modal .btn-clear-filters:focus-visible,
+.filter-modal__apply:focus-visible,
+.filter-section__header:focus-visible,
+.filter-option:focus-visible,
+.filter-tile:focus-visible,
+.filter-modal .tag-chip--selected:focus-visible,
+.tag-suggestion:focus-visible,
+.recipe-suggestion:focus-visible,
+.tag-chip--selected:focus-visible,
+.tag-chip-link:focus-visible,
+.home-more-categories:focus-visible,
+.home-tile:focus-visible,
+.category-card:focus-visible,
+.back-button:focus-visible,
+.portion-stepper__btn:focus-visible,
+.action-btn:focus-visible,
+.recipe-page-heart:focus-visible,
+.checklist label:focus-visible,
+.primary-cta:focus-visible,
+.text-link:focus-visible,
+.cook-timer-display__part:focus-visible,
+.cook-timer-controls button:focus-visible,
+.cook-nav-btn:focus-visible,
+.preparo-card:focus-visible,
+.preparo-card__delete:focus-visible,
+.update-toast__btn:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* ---------- Fase 0a: área de toque efetiva >=44x44px (auditoria 2026-07-25, §8) ----------
+   Mesma técnica já usada em .recipe-card__heart/.portion-stepper__btn: ::after invisível
+   (position:absolute, fora do fluxo, não muda o tamanho visual) em vez de aumentar a caixa
+   real. H (horizontal) fica limitado à metade do gap entre vizinhos quando o componente tem
+   irmãos próximos no mesmo eixo (evita zona ambígua de toque, mesmo princípio do
+   portion-stepper__btn original). .checklist label usa min-height direto (o próprio João
+   apontou a linha inteira como alvo aceitável aqui) em vez de ::after — está junto da regra
+   base, não aqui. */
+.minhas-receitas__tab::after { content: ""; position: absolute; inset: -5px 0; } /* 40->44, corrigido: borda do estado ativo é 2px (não 1px), comia o inset quase inteiro — ver nota abaixo */
+.shopping-list__tab::after { content: ""; position: absolute; inset: -5px 0; } /* mesmo padrão/correção do minhas-receitas__tab */
+.shopping-list__clear::after { content: ""; position: absolute; inset: -4px; } /* 40->44, botão isolado, borda 1px */
+.filter-modal .tag-chip--selected::after { content: ""; position: absolute; inset: -6px -4px; } /* 34->44 vertical — medido ao vivo: -5px batia 43px (1px curto, arredondamento subpixel), -6px dá margem */
+.tag-suggestion::after { content: ""; position: absolute; inset: -5px; } /* 38->44, borda 1px */
+.recipe-suggestion::after { content: ""; position: absolute; inset: -5px; } /* 38->44, borda 1px */
+.tag-chip--selected::after { content: ""; position: absolute; inset: -4px; } /* 38->44, chips selecionados na busca — medido ao vivo: -3px batia 43px (1px curto por arredondamento subpixel), -4px dá margem */
+.home-more-categories::after { content: ""; position: absolute; inset: -9px; } /* 32->44, borda 1px, elemento isolado */
+.cook-timer-controls button::after { content: ""; position: absolute; inset: -5px; } /* 40->44, borda 1px, 2 botões com gap 8px */
+.preparo-card__delete::after { content: ""; position: absolute; inset: -5px; } /* 36x36->44x44 — medido ao vivo: -4px batia 43px (1px curto, arredondamento subpixel), -5px dá margem */
+.update-toast__btn::after { content: ""; position: absolute; inset: -5px; } /* 36->44 — mesmo ajuste de margem (padrão confirmado em outros elementos sem borda) */
+/* Fase 0a — achado adicional durante a re-verificação ao vivo (mesma causa raiz do
+   portion-stepper__btn, ver comentário lá): o inset de um ::after absolute resolve contra o
+   PADDING-BOX do ancestral posicionado, então qualquer border no elemento come esse tanto do
+   inset silenciosamente. Os valores acima foram recalculados e RE-VERIFICADOS ao vivo
+   (elementFromPoint nos 4 lados, ver relatório da Fase 0a) — não são só teoria. */

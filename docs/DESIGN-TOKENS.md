@@ -24,11 +24,13 @@ tagline) e `Simbolo_app.png` (ícone do app, fundo vermelho + símbolo "g" com c
 | `--color-border` | `#3B3935` | PDF original |
 | `--color-text-primary` | `#F5F1EA` | PDF original — creme NEUTRO, uso em texto de corpo/volume |
 | `--color-text-secondary` | `#C5BFB5` | PDF original |
-| `--color-text-disabled` | `#8D877F` | PDF original |
+| `--color-text-disabled` | `#8E8981` | **ATUALIZADO (Fase 0a)** — era `#8D877F` (PDF original), clareado pelo mínimo necessário (mesmo matiz/saturação, busca binária). O valor original falhava AA sobre `--color-surface` (4,43:1, precisa 4,5:1); o novo passa nos 3 fundos onde é usado: `--color-surface` 4,53:1, `--color-bg` 5,52:1, `--color-bg-secondary` 5,12:1 |
 | `--color-brand-cream` | `#FBEBD7` | **NOVO** — creme SATURADO da marca (medido do logo). Reservado pra momentos de marca (símbolo, splash futura), NUNCA texto de corpo — satura demais em volume |
 | `--color-accent` (Tomate Assado) | `#D63B20` | **ATUALIZADO** — era `#B84C33` no PDF; agora é o vermelho real medido do ícone/logo. Única cor de ação/interação, por regra do próprio PDF ("apenas para ações") |
 | `--color-accent-hover` | `#A33F2A` | PDF original — reavaliar contraste se o acento mudar de tom no futuro |
 | `--color-accent-text` | `#E04527` | **NOVO** — versão mais clara de `--color-accent`, SÓ pra texto peso regular sobre `--color-bg` (nunca ícone/borda/preenchimento, que continuam `--color-accent`). `--color-accent` puro em peso regular passa de 18px+ mas falha 4,5:1 AA (4,11:1 medido); mesmo matiz/saturação (~9°, ~74%), lightness calibrada por busca binária com a fórmula de luminância do WCAG até cravar ≥4,5:1 (4,61:1 medido) — não é estimativa. Usado em `.text-link` (nome da receita clicável, modo de preparo e Lista de Compras) |
+| `--color-accent-deep` | `#CB381E` | **NOVO (Fase 0a)** — versão escurecida de `--color-accent`, pra fundo SÓLIDO que carrega texto `--color-text-primary` em cima (`.primary-cta`, `.action-btn.active`, badges, chips selecionados, botões do modo cozinhar). `--color-accent` puro só passa 4,5:1 com texto grande (≥18,66px bold) — os usos reais são todos texto normal menor. Mesmo matiz/saturação, lightness calibrada por busca binária até cravar ≥4,5:1 com `--color-text-primary` em cima (4,52:1 medido). Continua passando 3:1 como uso gráfico (3,77:1 contra `--color-bg`). `--color-accent` puro continua a cor de ação padrão pra ícone/borda/realce sem texto por cima — `--color-accent-deep` é só pro caso específico de fill com texto |
+| `--color-accent-soft` | `rgba(214, 59, 32, 0.08)` | **NOVO (Fase 0a)** — nome pro literal que já existia repetido 8× no CSS sem token (fundo tingido suave: badge, aba ativa, hover de chip, CTA do card). Derivado do acento CLARO, não do `--color-accent-deep` |
 | `--color-success` | `#76945B` | PDF original |
 | `--color-error` | `#E63950` | **ATUALIZADO** — era `#D24E47`, muito próximo do acento em matiz (8,3°, pior ainda depois do acento ficar mais saturado: 5,9°). Novo valor tem 16,9° de separação, mantém conotação de "vermelho de alerta", passa WCAG AA (4,63:1) |
 | `--color-info` | `#5D87A8` | PDF original |
@@ -36,8 +38,15 @@ tagline) e `Simbolo_app.png` (ícone do app, fundo vermelho + símbolo "g" com c
 | `--color-highlight` | `#D9A441` | ⚠️ **SEM REGRA DE USO DEFINIDA** — ver pendência abaixo |
 
 ## Tipografia
-Inter (fallback SF Pro/Roboto). Display 34 Bold · H1 30 Bold · H2 24 Bold · H3 20 SemiBold ·
-Body 16 Regular · Caption 14 Regular · Small 12 Regular.
+⚠️ **Família tipográfica em decisão (Fase 0a, 2026-07-26)** — "Inter (fallback SF Pro/Roboto)"
+nunca chegou a ser implementada: o código real usa Georgia/serif no corpo (`body`) e Helvetica
+Neue/Arial/sans-serif no resto (auditoria de 2026-07-25 confirmou 0 ocorrências de
+Inter/SF Pro/Roboto no CSS). Direção pra Fase 0b: títulos em serif (Georgia/`ui-serif`) + UI em
+sans do sistema — substitui a escala Inter abaixo, que fica só como referência histórica de
+tamanho/peso até a Fase 0b definir a família final:
+
+Display 34 Bold · H1 30 Bold · H2 24 Bold · H3 20 SemiBold · Body 16 Regular · Caption 14
+Regular · Small 12 Regular.
 
 Tracking (letter-spacing) depende do tamanho, nunca 1 valor fixo pra tudo: negativo nos 2
 maiores títulos do app (-0.02em no título de categoria/página ~32px, -0.015em no título da
@@ -55,6 +64,20 @@ diretamente. Quando 2 alvos desse tipo ficam lado a lado com pouco espaço entre
 botões +/- do portion-stepper, gap de 6px), o padding horizontal é reduzido pra não sobrepor
 e criar ambiguidade de toque no meio (3px em vez de 10px nesse eixo específico).
 
+## Camadas (z-index) — Fase 0a
+Antes 4 valores literais soltos (1 / 1100 / 1300 / 1400, sem relação documentada). Agora uma
+escala de tokens: `--z-raised: 1` · `--z-float: 1000` (reservado pro botão de voltar flutuante
+do redesenho da página de receita, ainda não implementado) · `--z-nav: 1100` (bottom nav) ·
+`--z-modal: 1300` (overlay do modal de filtros) · `--z-toast: 1400` (toast de atualização). A
+foto de topo fixa do mesmo redesenho futuro fica ABAIXO do conteúdo que desliza por cima — não
+entra nesta escala, resolve pela ordem natural do fluxo.
+
+## Nomenclatura de tokens — Fase 0a
+`--color-*` é a nomenclatura OFICIAL. Os nomes antigos (`--bg`, `--bg-panel`, `--ink`,
+`--ink-soft`, `--gold`, `--line`, `--green`, `--red`) seguem declarados em `:root` só como
+ALIAS (`var(--color-*)`) por segurança nesta fase — nenhuma regra do CSS os referencia mais
+diretamente. Remoção dos alias fica pra uma rodada futura.
+
 ## Componentes
 - Botão primário: fundo `--color-accent`, texto `--color-text-primary`, raio pill.
 - Botão secundário: fundo `--color-surface`, borda `--color-border`.
@@ -64,11 +87,16 @@ e criar ambiguidade de toque no meio (3px em vez de 10px nesse eixo específico)
   normal que precise da cor de ação, use `--color-accent-text` em vez de `--color-accent` —
   calibrado especificamente pra passar 4,5:1 nesse peso (ver tabela acima).
 - FAB circular, `--color-accent`.
-- Cards: raio 20px.
+- Cards: raio `var(--radius)` = **14px** (**corrigido, Fase 0a** — este documento dizia 20px,
+  mas o token `--radius` sempre foi 14px; os únicos 2 usos de 20px literal no CSS não são o
+  card de receita padrão. 20px fica registrado como possível revisão de design futura, não
+  como bug — por ora o valor real é 14px).
 - Inputs: fundo `--color-surface`, borda `--color-border`, foco `--color-accent`.
 - Chips: fundo `--color-surface-elevated`, ícone de remover em `--color-accent`.
-- Bottom Navigation: fundo `--color-bg-secondary`; ativo `--color-accent`; inativo
-  `--color-text-disabled`.
+- Bottom Navigation: fundo `--color-bg-secondary`; ativo — ícone `--color-accent`, rótulo
+  `--color-text-primary` (**Fase 0a**: antes os dois herdavam `--color-accent`, mas o rótulo
+  a 0,66rem só mede 3,81:1 sobre `--color-bg-secondary`, abaixo de 4,5:1 AA pra texto; o ícone é
+  uso gráfico, exigência 3:1, cumprida); inativo `--color-text-disabled`.
 
 ## Ícones
 Outline, espessura consistente, monocromático. Ativos `--color-accent`, inativos
@@ -76,15 +104,29 @@ Outline, espessura consistente, monocromático. Ativos `--color-accent`, inativo
 
 ## Estados
 Hover `--color-accent-hover` · Pressed: leve redução de escala (`scale(0.97)`) + opacidade
-~0,85, disparado no pointer-down/touchstart — não espera o release. Aplicado ao CTA primário,
-ao botão "Ver resultados" do modal de filtro, a `action-btn`, ao botão "Filtros", às abas da
-bottom nav e ao card de receita inteiro (os "elementos tocáveis" que antes só tinham `:hover`,
-não confiável em touch). Disabled `--color-text-disabled` · Loading: `--color-accent` ·
-Sucesso `--color-success` · **Erro: `--color-error` SEMPRE acompanhado de ícone — nunca só a
-cor, dado a proximidade de matiz com o acento principal.**
+~0,85, disparado no pointer-down/touchstart — não espera o release. Aplicado originalmente a 6
+elementos (CTA primário, "Ver resultados" do modal, `action-btn`, botão "Filtros", abas da
+bottom nav, card de receita) e **estendido na Fase 0a a mais 24** (todo componente tocável que
+antes só tinha `:hover` — não confiável em touch — ou nenhum estado nenhum; lista completa em
+`.claude/skills/mobile-recipe-ui/SKILL.md`), usando os tokens de movimento (ver Animações).
+Disabled: **padrão genérico (Fase 0a)** — `opacity: 0.35` + `cursor: not-allowed` no seletor
+`:disabled` puro (antes só `.cook-nav-btn` tinha; agora qualquer controle desabilitado herda
+automaticamente, `:disabled` só casa com controles de formulário de verdade). Loading:
+`--color-accent` · Sucesso `--color-success` · **Erro: `--color-error` SEMPRE acompanhado de
+ícone — nunca só a cor, dado a proximidade de matiz com o acento principal.**
+
+Foco por teclado (**Fase 0a** — antes 0 regras `:focus-visible` em todo o app): ring padrão
+`outline: 2px solid var(--color-accent-text)` + `outline-offset: 2px` (tokens
+`--focus-ring-width`/`--focus-ring-color`/`--focus-ring-offset`), aplicado a todo componente
+tocável via `:focus-visible`. Reaproveita `--color-accent-text` (já calibrado a 4,61:1) em vez
+de introduzir mais um cálculo de cor.
 
 ## Animações
-180–250ms, ease-out. Evitar excesso.
+180–250ms, ease-out. Evitar excesso. **Tokens (Fase 0a)**: `--motion-fast: 150ms` (segundo
+valor mais usado no CSS) e `--motion-base: 200ms` (o mais usado), `--motion-easing: ease-out` —
+formaliza o que já era dominante, não muda o orçamento. Durações fora desses 2 valores (220ms
+do modal, 260ms do spring do toggle de ingrediente) continuam literais de propósito — são
+decisões específicas documentadas no CSS, não o caso genérico.
 
 Modal/sheet: a saída sempre espelha a entrada — mesma duração e curva, direção invertida.
 Nunca fecha instantâneo depois de ter aberto animado (ex.: o modal de filtro entra com

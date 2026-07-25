@@ -823,7 +823,14 @@ async function main() {
     }
     const faltando = alvo.filter(({ recipe }) => !acharMaster(DIR_MASTER, slug(recipe.name)));
     console.log(`faltam gerar: ${faltando.length} de ${alvo.length}`);
-    console.log(`custo estimado (batch, ${MODEL}): US$ ${(faltando.length * 0.0335).toFixed(2)}`);
+    // ESTA LINHA JÁ MENTIU UMA VEZ: imprimia só o preço de BATCH (US$ 0,0335/img) enquanto o
+    // --gerar chama ENDPOINT = .../:generateContent, que é o endpoint SÍNCRONO e custa o dobro
+    // (US$ 0,067/img). Quem lesse o dry run pra decidir quanto pôr de crédito planejava metade
+    // do que ia pagar. Batch de verdade é outro endpoint (job assíncrono + polling), que este
+    // script não implementa — então o número que vale pra decisão é o de cima, e o de baixo fica
+    // como referência do que dá pra economizar se algum dia valer a pena implementar.
+    console.log(`custo real deste script (síncrono, ${MODEL}): US$ ${(faltando.length * 0.067).toFixed(2)}`);
+    console.log(`  (só de referência: em Batch API seria US$ ${(faltando.length * 0.0335).toFixed(2)}, mas este script NÃO usa batch)`);
     console.log("\nnada foi gerado. use --teste (3 receitas) ou --gerar (o lote).");
     return;
   }
