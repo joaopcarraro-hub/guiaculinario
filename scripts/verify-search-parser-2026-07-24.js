@@ -109,7 +109,7 @@ function main() {
   console.log("  bloco1 (" + r1.block1.length + "): " + namesOf(r1.block1).join(", "));
   console.log("  bloco2 (" + r1.block2.length + "): " + namesOf(r1.block2).join(", "));
   const b1Names1 = namesOf(r1.block1);
-  ["Ragù alla Bolognese", "Hot Pot (Fondue Chinês)", "Japchae", "Sukiyaki", "Shabu-Shabu"].forEach((n) => {
+  ["Ragù à Bolonhesa", "Fondue Chinês", "Japchae", "Sukiyaki", "Shabu-Shabu"].forEach((n) => {
     assert(b1Names1.indexOf(n) !== -1, "macarrão com carne: bloco1 contém " + n);
   });
   assert(b1Names1.indexOf("Lasanha") === -1 && namesOf(r1.block2).indexOf("Lasanha") === -1, "macarrão com carne: Lasanha AUSENTE de bloco1 E bloco2");

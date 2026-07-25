@@ -4,7 +4,7 @@ window.RECIPES["entradas-frias"] = [
 
   // ===================== CRUS CLÁSSICOS =====================
   {
-    name: "Steak Tartare",
+    name: "Tartar de Carne",
     subgroup: "Crus Clássicos",
     desc: "Filé mignon cru picado em cubos e temperado com mostarda, alcaparras e molho inglês, coroado com gema crua.",
     origin: "França",

@@ -150,7 +150,7 @@ window.RECIPES["frutos-do-mar"] = [
 
   // ===================== MEXILHÕES E MOLUSCOS =====================
   {
-    name: "Moules Marinières",
+    name: "Mexilhões à Marinheira",
     subgroup: "Mexilhões e Moluscos",
     desc: "Mexilhões cozidos no vapor com vinho branco, échalote e alho — clássico francês servido com o caldo e pão.",
     origin: "França / Bélgica",

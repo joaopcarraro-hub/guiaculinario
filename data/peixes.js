@@ -4,7 +4,7 @@ window.RECIPES["peixes"] = [
 
   // ===================== TÉCNICA MEUNIÈRE =====================
   {
-    name: "Sole Meunière",
+    name: "Linguado à Meunière Clássica",
     subgroup: "Técnica Meunière",
     desc: "Filé de linguado empanado em farinha fina, dourado na manteiga e finalizado com manteiga avelã e limão.",
     origin: "França",

@@ -1127,7 +1127,7 @@ window.RECIPES["contemporaneos"] = [
     ]
   },
   {
-    name: "Beurre Monté",
+    name: "Manteiga Montada",
     subgroup: "Óleos, Molhos e Emulsões",
     desc: "Manteiga emulsionada com água em fogo baixo, que fica cremosa e estável sem separar — usada para escalfar peixes e legumes ou finalizar molhos.",
     origin: "França",

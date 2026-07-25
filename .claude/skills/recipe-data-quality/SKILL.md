@@ -92,50 +92,68 @@ Se não houver tag formal, sugerir criar ou permitir filtro textual combinável.
 
 ### Nomes de receita em português (recipe.name)
 
-Investigação completa em 2026-07-24 (398 receitas classificadas), 25 renomes aplicados. Regra
-pra receita NOVA seguir a mesma linha:
+Investigação em 2 rodadas (2026-07-24, 398 receitas classificadas). A 1ª rodada tratou nomes
+compostos como bloco atômico e errou casos como Ragù alla Bolognese e Fiskesuppe (deveriam ter
+sido decompostos, não mantidos inteiros). A 2ª rodada decompôs token a token e produziu a regra
+final abaixo — 95 renomes aplicados no total entre as duas. Regra pra receita NOVA seguir a
+mesma linha final, não a da 1ª rodada.
 
-Critério único: existe uma forma em português que já circula de verdade pra esse prato
-específico, ou o nome é só vocabulário comum estrangeiro sem identidade própria além do que a
-tradução já comunica? Se sim, traduzir. Se o nome É a identidade do prato (mesmo em português
-culinário), manter.
+Regra final: MANTÉM o nome original se e somente se (A) já é conhecido no Brasil por esse nome
+exato — uso real, não hipotético (Mac and Cheese, Sushi, Ramen, Pad Thai, Carbonara, Feijoada)
+— OU (B) é nome próprio ou nome de técnica fixa: eponímico (Chateaubriand, Pavlova), toponímico
+(Beef Wellington, Wiener Schnitzel) ou técnica clássica com nome fixo (Béchamel, Velouté,
+Confit, Navarin, Blanquette). Senão, TRADUZ.
 
-Mantém no original, NUNCA traduzir:
-- Nome próprio de prato tradicional específico (Carbonara, Feijoada, Coq au Vin, Ragù alla
-  Bolognese, Moussaka, Bibimbap, Pad Thai) — é como o prato se chama, traduzir seria errado.
-- Prato eponímico ou toponímico (Chateaubriand, Pavlova, Wiener Schnitzel, Saint-Honoré,
-  Tornedor Rossini) — o nome é intraduzível por natureza.
-- Termo técnico clássico francês (confit, suprême, velouté, béarnaise, hollandaise, meunière,
-  poché, en papillote) — vocabulário internacional da cozinha, nunca traduzido, nem quando a
-  palavra em si tem tradução óbvia (ex.: "sauce" na categoria molhos fica, mesmo significando
-  "molho"). Categoria `molhos` inteira e boa parte de `contemporaneos`/`ovos-basicos` caem
-  aqui.
-- Nome fixo internacional reconhecido como unidade completa mesmo fora do idioma de origem
-  (Chicken Tikka Masala, Tandoori Chicken, Butter Chicken, Eggs Benedict, Beef Brisket,
-  Lobster Roll, Mac and Cheese) — mantido mesmo quando é literalmente descritivo, porque é
-  assim que o prato é conhecido mundialmente, inclusive fora de contexto anglófono.
-- Categoria regional/nacional inteira mantém consistência interna, mesmo com nomes
-  tecnicamente descritivos no idioma de origem (ex.: toda a categoria `dinamarca` — Fiskesuppe,
-  Klar Suppe, Kartoffelsalat — mantém o nome dinamarquês; traduzir só os "mais óbvios" quebraria
-  a identidade regional que a categoria inteira existe pra dar). Vale pra `coreia`, `tailandia`,
-  `japao`, `china`, `mexico`, `libano`, `marrocos`, `grecia`, `india` também.
+Traduzir é decompor o nome token a token: traduz a parte descritiva/genérica, mantém o núcleo
+que carrega a identidade do prato — nunca vira tradução literal do bloco inteiro nem preservação
+do bloco inteiro. Exemplos-modelo:
+- Fiskesuppe → Sopa de Peixe ("fisk" é só ingrediente, sem identidade própria além disso)
+- Risotto al Limone → Risoto de Limão ("risotto" vira "risoto" — grafia já dicionarizada — "al
+  Limone" é só "com limão")
+- Ragù alla Bolognese → Ragù à Bolonhesa ("Ragù" É a identidade/técnica, "alla Bolognese" é só
+  modificador geográfico descritivo — mantém o núcleo, traduz o descritor)
+- Sole Meunière → Linguado à Meunière Clássica (traduz o peixe, "meunière" é técnica fixa —
+  qualificador "Clássica" entrou só por colisão com outra receita de linguado do acervo, não
+  por regra geral)
 
-Candidato a traduzir:
-- Descrição genérica em língua estrangeira sem identidade de prato além do que a tradução já
-  comunica (Apple Pie → Torta de Maçã, French Onion Soup → Sopa de Cebola Francesa).
-- Grafia estrangeira de palavra que já existe em português dicionarizado (Risotto → Risoto,
-  Croquetas → Croquetes) — não é bem tradução, é ortografia.
-- Tradução parcial mantendo o termo estrangeiro-âncora quando o substantivo genérico tem
-  equivalente PT natural (Chicken Cordon Bleu → Frango Cordon Bleu, Green Curry → Curry Verde)
-  — decisão mais subjetiva do lote; ao aplicar num caso novo, prefira registrar a dúvida em vez
-  de decidir sozinho se o caso não for claramente análogo aos já aprovados.
+Nunca decidir de cabeça se o caso novo não for claramente análogo a um destes — registrar a
+dúvida em vez de aplicar sozinho.
+
+Tratamentos especiais (fogem da regra mecânica, exigem julgamento explícito e documentado):
+1. Colisão de sentido em português: tradução literal criaria um significado já estabelecido e
+   diferente no idioma. "Risoto alla Milanese" NÃO vira "Risoto à Milanesa" porque "à milanesa"
+   já significa empanado no português do Brasil — traduzir induziria o usuário a esperar um
+   prato empanado que a receita não é. Mantém o italiano.
+2. Confusão cultural/factual: tradução literal afirma algo falso sobre o prato. Franskbrød
+   (dinamarquês) NÃO vira "pão francês" — não é receita de pão francês nem remete a ele, é só
+   um pão branco de forma dinamarquês; virou "Pão Branco Dinamarquês".
+3. Nome desconectado do conteúdo real: Æbleskiver mantém o nome dinamarquês porque a tradução
+   literal ("fatias de maçã") não tem relação com o prato real (bolinhos esféricos fritos, sem
+   maçã) — traduzir literalmente enganaria mais do que preservar o nome original.
+
+Se a tradução colidir com nome de outra receita já existente no acervo (nome duplicado, não só
+slug), adicionar um qualificador que resolva a ambiguidade sem forçar (ex.: Citrontærte → "Torta
+de Limão Dinamarquesa", pra não colidir com outra torta de limão do acervo). Confirmar por
+script contra o acervo real completo — nunca de cabeça.
 
 Se renomear recipe.name: o `id` é `slugify(recipe.name)` (TagModel) — renomear muda o slug e
 afeta 3 sistemas chaveados por ele: Storage favoritas/feitas (`cardapio-state-v2`), últimas
 receitas visitadas (`gusta-recentes-v1`), e URLs (#/receita/:id, #/cozinhar/:id, ?from=). Migrar
 seletivamente: adicionar o par slug-antigo→slug-novo em `RENAME_SLUG_MAP` (js/storage.js,
 compartilhado com o alias do Router) — nunca orfanar sem necessidade, o mecanismo já existe e é
-barato de estender. Confirmar zero colisão de slug (script, não de cabeça) e que a derivação de
+barato de estender.
+
+Migração ENCADEADA: se uma receita já tinha sido renomeada antes (já existe entrada no
+RENAME_SLUG_MAP apontando pra ela) e é renomeada DE NOVO, o lookup é single-level — não segue
+cadeia sozinho. É preciso (1) atualizar o alvo da entrada já existente pro slug final novo, e
+(2) adicionar uma entrada NOVA pro slug intermediário (o que era o alvo antes) também apontando
+pro slug final. Sem isso, quem favoritou/visitou entre os dois deploys orfana. Exemplo real
+(2026-07-24): "Risotto al Limone" (nome original) → "Risoto al Limone" (1ª rodada) → "Risoto de
+Limão" (2ª rodada) — RENAME_SLUG_MAP mapeia TANTO risotto-al-limone QUANTO risoto-al-limone pra
+risoto-de-limao.
+
+Confirmar sempre por script, nunca de cabeça: zero colisão de nome E de slug contra o acervo
+real completo, os dois níveis do alias do Router resolvendo pro slug final, e que a derivação de
 tag não mudou (recipe.name nunca entra em getRecipeTags — só ingredients/origin/steps/time/
 difficulty/tags manual).
 

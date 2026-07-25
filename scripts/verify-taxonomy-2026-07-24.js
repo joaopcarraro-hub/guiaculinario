@@ -96,7 +96,7 @@ function main() {
     const item = flat.find((it) => it.recipe.name === name);
     assert(item && item.tags.indexOf("ingredient:macarrao") === -1, name + " NÃO tem ingredient:macarrao (é massa, não macarrão)");
   });
-  ["Carbonara", "Cacio e Pepe", "Amatriciana", "Puttanesca", "Aglio e Olio"].forEach((name) => {
+  ["Carbonara", "Cacio e Pepe", "Amatriciana", "Puttanesca", "Alho e Óleo"].forEach((name) => {
     const item = flat.find((it) => it.recipe.name === name);
     assert(item && item.tags.indexOf("ingredient:macarrao") !== -1, name + " TEM ingredient:macarrao");
   });
@@ -109,7 +109,7 @@ function main() {
   console.log("==================================================");
   const macBoi = flat.filter((it) => matchesTagId(it.tags, "ingredient:macarrao") && matchesTagId(it.tags, "protein:boi"));
   const macBoiNames = macBoi.map((it) => it.recipe.name).sort();
-  const esperado = ["Hot Pot (Fondue Chinês)", "Japchae", "Ragù alla Bolognese", "Shabu-Shabu", "Sukiyaki"].sort();
+  const esperado = ["Fondue Chinês", "Japchae", "Ragù à Bolonhesa", "Shabu-Shabu", "Sukiyaki"].sort();
   assert(JSON.stringify(macBoiNames) === JSON.stringify(esperado), "ingredient:macarrao AND protein:boi = " + JSON.stringify(macBoiNames));
 
   console.log("");

@@ -8,7 +8,7 @@ window.RECIPES["dinamarca"] = [
 
   // ===================== PÃES E DOCES DE PADARIA =====================
   {
-    name: "Rugbrød",
+    name: "Pão de Centeio",
     subgroup: "Pães e Doces de Padaria",
     desc: "Pão de centeio dinamarquês denso e escuro, fermentado por horas — a base fatiada fina de todo Smørrebrød.",
     origin: "Dinamarca",
@@ -99,7 +99,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Franskbrød",
+    name: "Pão Branco Dinamarquês",
     subgroup: "Pães e Doces de Padaria",
     desc: "Pão branco dinamarquês do dia a dia, macio e alongado — o 'pão francês' usado em sanduíches e café da manhã.",
     origin: "Dinamarca",
@@ -174,7 +174,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Rundstykker",
+    name: "Pãezinhos Redondos",
     subgroup: "Pães e Doces de Padaria",
     desc: "Pãezinhos de café da manhã dinamarqueses, crocantes por fora e macios por dentro — tipo pão francês em bolinha.",
     origin: "Dinamarca",
@@ -265,7 +265,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Boller",
+    name: "Pãezinhos",
     subgroup: "Pães e Doces de Padaria",
     desc: "Pãezinhos macios e levemente doces, amanteigados — meio-termo entre pão e doce de padaria dinamarquês.",
     origin: "Dinamarca",
@@ -458,7 +458,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Kanelsnegle",
+    name: "Rolinho de Canela",
     subgroup: "Pães e Doces de Padaria",
     desc: "Rolinho de canela escandinavo — massa amanteigada enrolada com açúcar mascavo e canela, em formato de espiral.",
     origin: "Dinamarca",
@@ -563,7 +563,7 @@ window.RECIPES["dinamarca"] = [
 
   // ===================== SMØRREBRØD =====================
   {
-    name: "Smørrebrød (a base)",
+    name: "Sanduíche Aberto (a base)",
     subgroup: "Smørrebrød",
     desc: "Guia-base do sanduíche aberto dinamarquês: fatia de pão de centeio com manteiga, coberta com um topping à escolha.",
     origin: "Dinamarca",
@@ -625,7 +625,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Smørrebrød de Arenque",
+    name: "Sanduíche Aberto de Arenque",
     subgroup: "Smørrebrød",
     desc: "Sanduíche aberto de pão de centeio com arenque em conserva, cebola roxa e alcaparras — o mais tradicional dos smørrebrød.",
     origin: "Dinamarca",
@@ -698,7 +698,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Smørrebrød de Camarão",
+    name: "Sanduíche Aberto de Camarão",
     subgroup: "Smørrebrød",
     desc: "Sanduíche aberto com uma montanha de camarão cozido e maionese sobre pão amanteigado, finalizado com limão e endro.",
     origin: "Dinamarca",
@@ -772,7 +772,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Smørrebrød de Roast Beef",
+    name: "Sanduíche Aberto de Rosbife",
     subgroup: "Smørrebrød",
     desc: "Sanduíche aberto com fatias finas de rosbife frio, molho remoulade dinamarquês e cebola roxa ou crispy.",
     origin: "Dinamarca",
@@ -847,7 +847,7 @@ window.RECIPES["dinamarca"] = [
 
   // ===================== CARNES =====================
   {
-    name: "Flæskesteg",
+    name: "Porco Assado",
     subgroup: "Carnes",
     desc: "Pernil de porco assado com a pele cortada e salgada até ficar crocante ('crackling') — prato central do Natal dinamarquês.",
     origin: "Dinamarca",
@@ -908,7 +908,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Stegt Flæsk med Persillesovs",
+    name: "Toicinho Frito com Molho de Salsinha",
     subgroup: "Carnes",
     desc: "Fatias de barriga de porco fritas até crocantes, servidas com batata cozida e molho branco de salsinha — o 'prato nacional' informal.",
     origin: "Dinamarca",
@@ -1070,7 +1070,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Medisterpølse",
+    name: "Linguiça Medister",
     subgroup: "Carnes",
     desc: "Linguiça fresca de porco dinamarquesa, cozida na frigideira e servida com batata cozida e molho de salsinha ou repolho roxo.",
     origin: "Dinamarca",
@@ -1127,7 +1127,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Hakkebøf",
+    name: "Bife Picado",
     subgroup: "Carnes",
     desc: "Hambúrguer dinamarquês de carne moída, grelhado e servido de garfo e faca com cebola caramelizada e molho, sem pão.",
     origin: "Dinamarca",
@@ -1226,7 +1226,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Brændende Kærlighed",
+    name: "Amor Ardente",
     subgroup: "Carnes",
     desc: "Literalmente 'amor em chamas': purê de batata cremoso coberto com bacon crocante e cebola refogada — prato de conforto dinamarquês.",
     origin: "Dinamarca",
@@ -1311,7 +1311,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Biksemad",
+    name: "Picadinho Dinamarquês",
     subgroup: "Carnes",
     desc: "Refogado dinamarquês de aproveitamento com sobras de carne assada e batata em cubos, coroado com ovo frito e picles.",
     origin: "Dinamarca",
@@ -1395,7 +1395,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Forloren Hare",
+    name: "Lebre Falsa",
     subgroup: "Carnes",
     desc: "Literalmente 'lebre falsa': bolo de carnes moídas com bacon e zimbro, moldado como um assado de caça e servido com geleia de groselha.",
     origin: "Dinamarca",
@@ -1664,7 +1664,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Rødspætte Stegt (Linguado Frito)",
+    name: "Linguado Frito",
     subgroup: "Peixes",
     desc: "Filés de linguado empanados (farinha, ovo e farinha de rosca) e fritos na manteiga, servidos com remoulade e limão.",
     origin: "Dinamarca",
@@ -1749,7 +1749,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Fiskefrikadeller",
+    name: "Frikadeller de Peixe",
     subgroup: "Peixes",
     desc: "Versão de peixe do Frikadeller: bolinhos ovalados de peixe branco moído com cebola e salsinha, fritos e servidos com remoulade.",
     origin: "Dinamarca",
@@ -1855,7 +1855,7 @@ window.RECIPES["dinamarca"] = [
 
   // ===================== SOPAS =====================
   {
-    name: "Aspargessuppe",
+    name: "Sopa de Aspargos",
     subgroup: "Sopas",
     desc: "Sopa cremosa de aspargos batida até ficar lisa, finalizada com pontas de aspargo escaldadas — clássico de primavera.",
     origin: "Dinamarca",
@@ -1961,7 +1961,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Fiskesuppe",
+    name: "Sopa de Peixe",
     subgroup: "Sopas",
     desc: "Sopa cremosa de peixe branco e camarão com legumes, num caldo de peixe enriquecido com creme de leite e endro.",
     origin: "Dinamarca",
@@ -2072,7 +2072,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Klar Suppe",
+    name: "Sopa Clara",
     subgroup: "Sopas",
     desc: "Caldo claro dinamarquês (tipo consommé), servido com mini-almôndegas, cenoura e ervilha — entrada leve tradicional.",
     origin: "Dinamarca",
@@ -2155,7 +2155,7 @@ window.RECIPES["dinamarca"] = [
 
   // ===================== ACOMPANHAMENTOS =====================
   {
-    name: "Brunede Kartofler",
+    name: "Batatas Caramelizadas",
     subgroup: "Acompanhamentos",
     desc: "Batatinhas cozidas envolvidas num caramelo de açúcar e manteiga — acompanhamento doce indispensável do Natal dinamarquês.",
     origin: "Dinamarca",
@@ -2213,7 +2213,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Persillesovs",
+    name: "Molho de Salsinha",
     subgroup: "Acompanhamentos",
     desc: "Molho branco (tipo béchamel) bem carregado de salsinha fresca picada, servido sobre batata cozida ou barriga de porco frita.",
     origin: "Dinamarca",
@@ -2378,7 +2378,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Agurkesalat",
+    name: "Salada de Pepino",
     subgroup: "Acompanhamentos",
     desc: "Salada rápida de pepino fatiado fino, salgado e curtido numa salmoura agridoce de vinagre e endro.",
     origin: "Dinamarca",
@@ -2461,7 +2461,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Rødkål",
+    name: "Repolho Roxo",
     subgroup: "Acompanhamentos",
     desc: "Repolho roxo refogado lentamente com maçã, vinagre e suco de groselha até ficar macio e brilhante — acompanha o Flæskesteg no Natal.",
     origin: "Dinamarca",
@@ -2551,7 +2551,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Syltede Rødbeder",
+    name: "Beterraba em Conserva",
     subgroup: "Acompanhamentos",
     desc: "Conserva de beterraba cozida em salmoura de vinagre e especiarias — acompanhamento clássico de smørrebrød e carnes.",
     origin: "Dinamarca",
@@ -2825,7 +2825,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Drømmekage",
+    name: "Bolo dos Sonhos",
     subgroup: "Sobremesas",
     desc: "Literalmente 'bolo dos sonhos': bolo simples de forno coberto com uma camada de coco caramelizado assada por cima.",
     origin: "Dinamarca",
@@ -2879,7 +2879,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Hindbærsnitter",
+    name: "Fatias de Framboesa",
     subgroup: "Sobremesas",
     desc: "Duas camadas de massa amanteigada recheadas com geleia de framboesa, cobertas com glacê e granulado colorido.",
     origin: "Dinamarca",
@@ -2940,7 +2940,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Lagkage",
+    name: "Bolo de Camadas",
     subgroup: "Sobremesas",
     desc: "Bolo de aniversário dinamarquês em camadas de pão de ló, chantilly fresco e morango.",
     origin: "Dinamarca",
@@ -3006,7 +3006,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Koldskål",
+    name: "Leitelho Gelado",
     subgroup: "Sobremesas",
     desc: "Bebida/sobremesa fria de verão à base de leitelho adoçado com gemas e baunilha, servida com biscoitos amanteigados.",
     origin: "Dinamarca",
@@ -3080,7 +3080,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Rødgrød med Fløde",
+    name: "Rødgrød com Creme",
     subgroup: "Sobremesas",
     desc: "Literalmente 'papa vermelha com creme': frutas vermelhas cozidas e engrossadas, servidas frias com creme de leite puro por cima.",
     origin: "Dinamarca",
@@ -3146,7 +3146,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Citrontærte",
+    name: "Torta de Limão Dinamarquesa",
     subgroup: "Sobremesas",
     desc: "Versão dinamarquesa da torta de limão: base amanteigada preenchida com lemon curd e finalizada com raspas de limão.",
     origin: "Dinamarca",
@@ -3290,7 +3290,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Kransekage",
+    name: "Bolo Coroa",
     subgroup: "Sobremesas",
     desc: "Torre cônica de anéis de massa de amêndoa (tipo marzipan) empilhados e decorados com glacê — para celebrações especiais.",
     origin: "Dinamarca",
@@ -3365,7 +3365,7 @@ window.RECIPES["dinamarca"] = [
 
   // ===================== CONSERVAS E PATÊS =====================
   {
-    name: "Leverpostej",
+    name: "Patê de Fígado",
     subgroup: "Conservas e Patês",
     desc: "Patê de fígado de porco assado em banho-maria, cremoso e temperado com pimenta-da-jamaica — presença constante na geladeira dinamarquesa.",
     origin: "Dinamarca",
@@ -3475,7 +3475,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Syltede Agurker",
+    name: "Pepino em Conserva",
     subgroup: "Conservas e Patês",
     desc: "Pepinos em conserva numa salmoura de vinagre com mostarda e endro — acompanhamento clássico de carnes e patês.",
     origin: "Dinamarca",
@@ -3567,7 +3567,7 @@ window.RECIPES["dinamarca"] = [
     ]
   },
   {
-    name: "Syltede Løg",
+    name: "Cebola em Conserva",
     subgroup: "Conservas e Patês",
     desc: "Conserva rápida de cebola roxa fatiada fina em salmoura agridoce — ácida e crocante, para smørrebrød e hambúrgueres.",
     origin: "Dinamarca",

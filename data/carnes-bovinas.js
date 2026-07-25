@@ -178,7 +178,7 @@ window.RECIPES["carnes-bovinas"] = [
     ]
   },
   {
-    name: "Steak au Poivre",
+    name: "Bife à Pimenta",
     subgroup: "Assados e Grelhados Nobres",
     desc: "Filé com crosta grosseira de pimenta-do-reino, selado e servido com molho cremoso de conhaque flambado e creme de leite.",
     origin: "França",
@@ -271,7 +271,7 @@ window.RECIPES["carnes-bovinas"] = [
     ]
   },
   {
-    name: "Steak Diane",
+    name: "Bife Diane",
     subgroup: "Assados e Grelhados Nobres",
     desc: "Filé fino selado rapidamente e servido com molho de cogumelos, conhaque flambado, mostarda Dijon e creme de leite.",
     origin: "EUA / Reino Unido (bistrô clássico)",
@@ -899,7 +899,7 @@ window.RECIPES["carnes-bovinas"] = [
 
   // ===================== PRATOS DO DIA A DIA =====================
   {
-    name: "Bife à Parmigiana",
+    name: "Bife à Parmegiana",
     subgroup: "Pratos do Dia a Dia",
     desc: "Bife empanado e frito, coberto com molho de tomate, muçarela e parmesão, gratinado no forno até derreter.",
     origin: "Brasil / Itália (adaptação)",

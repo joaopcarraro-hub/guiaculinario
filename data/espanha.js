@@ -246,7 +246,7 @@ window.RECIPES["espanha"] = [
 
   // ===================== TAPAS CLÁSSICAS =====================
   {
-    name: "Gambas al Ajillo",
+    name: "Camarão ao Alho",
     subgroup: "Tapas Clássicas",
     desc: "Camarões salteados em azeite abundante com alho e pimenta, servidos borbulhando com pão para molhar.",
     origin: "Espanha",
@@ -337,7 +337,7 @@ window.RECIPES["espanha"] = [
     ]
   },
   {
-    name: "Pulpo a la Gallega",
+    name: "Polvo à Galega",
     subgroup: "Tapas Clássicas",
     desc: "Polvo cozido e fatiado sobre rodelas de batata, temperado só com azeite, sal grosso e páprica — tapa clássica galega.",
     origin: "Espanha (Galícia)",

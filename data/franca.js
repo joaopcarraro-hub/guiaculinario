@@ -308,7 +308,7 @@ window.RECIPES["franca"] = [
     ]
   },
   {
-    name: "Blanquette de Veau",
+    name: "Blanquette de Vitela",
     subgroup: "Principais",
     desc: "Guisado branco de vitela cozida sem dourar, com cogumelos e cebolinhas em molho aveludado de creme e gemas.",
     origin: "França",
@@ -445,7 +445,7 @@ window.RECIPES["franca"] = [
     ]
   },
   {
-    name: "Navarin d'Agneau",
+    name: "Navarin de Cordeiro",
     subgroup: "Principais",
     desc: "Guisado francês de cordeiro com legumes de primavera (cenoura baby, nabo, batatinha) em molho encorpado de tomate.",
     origin: "França",

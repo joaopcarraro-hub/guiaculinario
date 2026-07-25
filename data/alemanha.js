@@ -196,7 +196,7 @@ window.RECIPES["alemanha"] = [
     ]
   },
   {
-    name: "Kartoffelsalat",
+    name: "Salada de Batata",
     subgroup: "Acompanhamentos",
     desc: "Salada de batata morna com bacon, cebola e molho de vinagre e mostarda — versão alemã sem maionese.",
     origin: "Alemanha",

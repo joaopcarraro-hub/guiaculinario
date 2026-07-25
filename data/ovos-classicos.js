@@ -861,7 +861,7 @@ window.RECIPES["ovos-classicos"] = [
 
   // ===================== OVOS FRIOS E ESPECIAIS =====================
   {
-    name: "Œufs Mayonnaise",
+    name: "Ovos com Maionese",
     subgroup: "Ovos Frios e Especiais",
     desc: "Ovos cozidos duros, cortados ao meio e cobertos com maionese caseira temperada — entrada simples e clássica dos bistrôs franceses.",
     origin: "França",
@@ -1023,7 +1023,7 @@ window.RECIPES["ovos-classicos"] = [
     ]
   },
   {
-    name: "Oeufs en Cocotte à la Forestière",
+    name: "Ovos en Cocotte à la Forestière",
     subgroup: "Ovos Frios e Especiais",
     desc: "Versão elevada do Ovo Cocotte, assado em ramequim sobre uma duxelles de cogumelos reduzidos com creme de leite.",
     origin: "França",

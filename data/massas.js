@@ -341,7 +341,7 @@ window.RECIPES["massas"] = [
     ]
   },
   {
-    name: "Aglio e Olio",
+    name: "Alho e Óleo",
     subgroup: "Molhos do Sul",
     desc: "Massa salteada só com azeite, alho dourado e pimenta — prato napolitano minimalista da 'cucina povera'.",
     origin: "Itália (Nápoles)",

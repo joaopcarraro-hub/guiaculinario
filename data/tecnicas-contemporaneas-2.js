@@ -1120,7 +1120,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
     ]
   },
   {
-    name: "Glace de Viande",
+    name: "Glace de Carne",
     subgroup: "Molhos e Manteigas Avançados",
     desc: "Fundo escuro de carne reduzido por horas até virar um xarope concentrado e gelatinoso, usado em pequenas doses para intensificar molhos.",
     origin: "França",

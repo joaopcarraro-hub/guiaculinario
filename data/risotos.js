@@ -119,7 +119,7 @@ window.RECIPES["risotos"] = [
     ]
   },
   {
-    name: "Risoto ai Funghi",
+    name: "Risoto de Cogumelos",
     subgroup: "Clássicos",
     desc: "Risoto cremoso de arroz arbóreo com cogumelos frescos e secos (porcini), finalizado com manteiga e parmesão.",
     origin: "Itália",
@@ -250,7 +250,7 @@ window.RECIPES["risotos"] = [
     ]
   },
   {
-    name: "Risoto al Parmigiano",
+    name: "Risoto de Parmesão",
     subgroup: "Clássicos",
     desc: "O risoto mais simples e puro: só arroz, caldo e bastante parmesão envelhecido, cremoso pela mantecatura final.",
     origin: "Itália",
@@ -346,7 +346,7 @@ window.RECIPES["risotos"] = [
 
   // ===================== CONTEMPORÂNEOS E FRUTOS DO MAR =====================
   {
-    name: "Risoto ai Frutti di Mare",
+    name: "Risoto de Frutos do Mar",
     subgroup: "Contemporâneos e Frutos do Mar",
     desc: "Risoto de frutos do mar (camarão, mexilhão e lula) cozido em fumet de peixe caseiro, tradicionalmente servido sem queijo.",
     origin: "Itália",
@@ -483,7 +483,7 @@ window.RECIPES["risotos"] = [
     ]
   },
   {
-    name: "Risoto al Limone",
+    name: "Risoto de Limão",
     subgroup: "Contemporâneos e Frutos do Mar",
     desc: "Risoto cremoso com raspas e suco de limão-siciliano — leve e cítrico, típico da Costa Amalfitana, ótimo com peixes grelhados.",
     origin: "Itália (Amalfi)",
@@ -602,7 +602,7 @@ window.RECIPES["risotos"] = [
     ]
   },
   {
-    name: "Risoto alla Barbabietola (Beterraba)",
+    name: "Risoto de Beterraba",
     subgroup: "Contemporâneos e Frutos do Mar",
     desc: "Risoto rosa vibrante feito com purê e cubos de beterraba assada, finalizado com queijo de cabra e nozes tostadas.",
     origin: "Itália (contemporâneo)",
@@ -722,7 +722,7 @@ window.RECIPES["risotos"] = [
     ]
   },
   {
-    name: "Risoto alla Zucca (Abóbora)",
+    name: "Risoto de Abóbora",
     subgroup: "Contemporâneos e Frutos do Mar",
     desc: "Risoto cremoso de abóbora assada e em purê, com toque de noz-moscada e sálvia crocante frita na manteiga.",
     origin: "Itália (Norte)",

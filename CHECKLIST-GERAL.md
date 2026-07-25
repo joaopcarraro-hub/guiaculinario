@@ -84,6 +84,18 @@ via `migrateOldId`, últimas visitadas via `loadRecent`) + alias no Router pra
 slug (398 + entre os 25), zero mudança de tag (confirmado via `git show HEAD:` comparando
 antes/depois). Suíte versionada `scripts/verify-recipe-name-pt-2026-07-24.js`.
 
+2ª rodada (2026-07-24): a 1ª tinha tratado nome composto como bloco atômico e errado casos como
+Ragù alla Bolognese e Fiskesuppe — re-investigação decompondo token a token, regra final única
+(mantém só se já conhecido no BR por esse nome ou for nome próprio/técnica fixa; senão traduz
+mantendo o núcleo de identidade e traduzindo só a parte descritiva), mais 70 renomes aprovados,
+6 deles os mesmos risotos da 1ª rodada renomeados de novo. `RENAME_SLUG_MAP` expandido pra 95
+entradas com migração ENCADEADA (slug original pré-1ª-rodada E slug intermediário da 1ª rodada
+resolvendo direto pro slug final — lookup não encadeia sozinho). Regra final substitui a da 1ª
+rodada na skill `recipe-data-quality`, com 3 tratamentos especiais documentados (Risoto alla
+Milanese por colisão de sentido com "empanado", Franskbrød por confusão cultural, Æbleskiver
+por nome desconectado do conteúdo). Zero colisão de nome/slug e zero mudança de tag
+reconfirmados contra as 398 reais. Suíte estendida com teste negativo de migração encadeada.
+
 ### Timer
 
 Roleta de 3 colunas (h/min/s) com máquina de estado; segundos 0–59; toque no mostrador abre

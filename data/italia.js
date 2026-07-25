@@ -193,7 +193,7 @@ window.RECIPES["italia"] = [
     ]
   },
   {
-    name: "Ragù alla Bolognese",
+    name: "Ragù à Bolonhesa",
     subgroup: "Massas",
     desc: "Molho de carne moída cozido lentamente por horas com vinho, leite e tomate, servido sobre tagliatelle fresco.",
     origin: "Itália (Bolonha)",
@@ -315,7 +315,7 @@ window.RECIPES["italia"] = [
 
   // ===================== CARNES =====================
   {
-    name: "Saltimbocca alla Romana",
+    name: "Saltimbocca à Romana",
     subgroup: "Carnes",
     desc: "Filés de vitela enrolados com presunto de Parma e sálvia, selados na manteiga e finalizados com molho de vinho branco.",
     origin: "Itália (Roma)",

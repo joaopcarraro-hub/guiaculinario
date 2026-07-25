@@ -74,7 +74,7 @@ window.RECIPES["sobremesas-classicas"] = [
     ]
   },
   {
-    name: "Crème Caramel",
+    name: "Pudim de Caramelo",
     subgroup: "Cremes e Flans",
     desc: "Flan de leite e ovos assado sobre caramelo, que vira calda líquida ao desenformar de cabeça para baixo.",
     origin: "França / Espanha (flan)",

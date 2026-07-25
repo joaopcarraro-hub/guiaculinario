@@ -290,7 +290,7 @@ window.RECIPES["molhos"] = [
     usedFor: "Base para Demi-glace, Bordelaise, Robert, Chasseur e molhos escuros para carnes."
   },
   {
-    name: "Sauce Tomate",
+    name: "Molho de Tomate",
     subgroup: "Molhos-mãe",
     desc: "Molho de tomate refogado com mirepoix, ervas e fundo claro, cozido até apurar — a versão francesa clássica do molho de tomate.",
     origin: "França",
@@ -745,7 +745,7 @@ window.RECIPES["molhos"] = [
     usedFor: "Frango poché, Suprême de frango, vol-au-vent de frango."
   },
   {
-    name: "Vin Blanc",
+    name: "Molho de Vinho Branco",
     subgroup: "Derivados do Velouté",
     desc: "Velouté de peixe com redução de vinho branco e échalotes, finalizado com creme e manteiga — para cobrir peixes brancos escalfados.",
     origin: "França",
@@ -985,7 +985,7 @@ window.RECIPES["molhos"] = [
     usedFor: "Carnes bovinas grelhadas (Chateaubriand, filé, entrecôte)."
   },
   {
-    name: "Sauce Robert",
+    name: "Molho Robert",
     subgroup: "Derivados da Espagnole",
     desc: "Demi-glace com cebola refogada, vinho branco e mostarda Dijon — molho picante clássico para acompanhar carne de porco.",
     origin: "França",
@@ -1317,7 +1317,7 @@ window.RECIPES["molhos"] = [
 
   // ===================== FUNDOS E REDUÇÕES =====================
   {
-    name: "Jus de Viande",
+    name: "Caldo de Carne",
     subgroup: "Fundos e Reduções",
     desc: "Molho de carne 'limpo', sem farinha, feito reduzindo ossos e aparas dourados com mirepoix e vinho — sabor direto de assado.",
     origin: "França",

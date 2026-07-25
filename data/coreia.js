@@ -525,7 +525,7 @@ window.RECIPES["coreia"] = [
     ]
   },
   {
-    name: "Kimchi Fried Rice (Kimchi Bokkeumbap)",
+    name: "Arroz Frito com Kimchi (Kimchi Bokkeumbap)",
     subgroup: "Arroz e Macarrão",
     desc: "Arroz frito com kimchi fermentado, bacon e gochujang, coroado com ovo frito — prato coreano de aproveitamento do kimchi maduro.",
     origin: "Coreia",

@@ -1,10 +1,13 @@
 // scripts/verify-recipe-name-pt-2026-07-24.js
 //
-// Suíte de verificação dos 25 renomes de recipe.name pra português (2026-07-24, ver skill
-// recipe-data-quality). Roda o CÓDIGO REAL (categories.js, derivation-dict.js, tags.js,
-// data/*.js, tagmodel.js, storage.js, router.js) via `new Function`, com localStorage mockado
-// em memória — não precisa de navegador. `git show HEAD:` carrega o estado ANTES do rename
-// (commit anterior) pra comparar tags sem depender de git stash (não altera a working tree).
+// Suíte de verificação dos renomes de recipe.name pra português (2026-07-24, ver skill
+// recipe-data-quality). Duas levas: leva 1 (commit dece1cb, 25 renomes) e leva 2 (regra final
+// "conhecido no BR por esse nome, ou nome próprio -> mantém; senão traduz", 70 renomes — 6 deles
+// são os MESMOS risotos da leva 1, renomeados de novo, exigindo migração ENCADEADA). Roda o
+// CÓDIGO REAL (categories.js, derivation-dict.js, tags.js, data/*.js, tagmodel.js, storage.js,
+// router.js) via `new Function`, com localStorage mockado em memória — não precisa de navegador.
+// `git show HEAD:` carrega o estado ANTES da leva 2 (= depois da leva 1) pra comparar tags sem
+// depender de git stash (não altera a working tree).
 //
 // `node scripts/verify-recipe-name-pt-2026-07-24.js` — sai com código != 0 se algo falhar.
 
@@ -21,7 +24,7 @@ function runInSandbox(sandbox, code) {
   new Function("window", code)(sandbox.window);
 }
 
-// ---------- pipeline ATUAL (working tree, pós-rename) ----------
+// ---------- pipeline ATUAL (working tree, pós leva 2) ----------
 function loadCurrentPipeline() {
   const sandbox = { window: {} };
   runInSandbox(sandbox, fs.readFileSync(path.join(JS_DIR, "categories.js"), "utf8"));
@@ -35,7 +38,8 @@ function loadCurrentPipeline() {
   return sandbox.window;
 }
 
-// ---------- pipeline de ANTES do rename (git show HEAD:), só tags+ids, sem tocar a working tree ----------
+// ---------- pipeline de ANTES da leva 2 (git show HEAD: = depois da leva 1/dece1cb), só
+// tags+ids, sem tocar a working tree ----------
 function loadPreviousPipeline() {
   const sandbox = { window: {} };
   function loadFromHead(relPath) {
@@ -87,33 +91,97 @@ function assert(cond, label) {
   }
 }
 
+// Leva 2 (2026-07-24, regra final) — [catId, nome ANTES da leva 2 (= estado em HEAD/dece1cb),
+// nome DEPOIS]. Os 6 risotos aqui já tinham sido renomeados na leva 1 (Risotto X -> Risoto X);
+// os outros 64 são primeiro rename.
 const RENAMES = [
-  ["austria", "Apfelstrudel", "Strudel de Maçã"],
-  ["cordeiro", "Shank de Cordeiro", "Jarrete de Cordeiro"],
-  ["entradas-quentes", "Croquetas", "Croquetes"],
-  ["eua", "Apple Pie", "Torta de Maçã"],
-  ["eua", "Buffalo Wings", "Asinhas de Frango Buffalo"],
-  ["eua", "Clam Chowder", "Chowder de Amêijoas"],
-  ["eua", "Fried Chicken", "Frango Frito Americano"],
-  ["franca", "Salade Niçoise", "Salada Niçoise"],
-  ["padaria", "Pain de Campagne", "Pão Rústico"],
-  ["risotos", "Risotto ai Frutti di Mare", "Risoto ai Frutti di Mare"],
-  ["risotos", "Risotto ai Funghi", "Risoto ai Funghi"],
-  ["risotos", "Risotto al Limone", "Risoto al Limone"],
-  ["risotos", "Risotto al Parmigiano", "Risoto al Parmigiano"],
-  ["risotos", "Risotto alla Barbabietola (Beterraba)", "Risoto alla Barbabietola (Beterraba)"],
-  ["risotos", "Risotto alla Milanese", "Risoto alla Milanese"],
-  ["risotos", "Risotto alla Zucca (Abóbora)", "Risoto alla Zucca (Abóbora)"],
-  ["sobremesas-classicas", "Lemon Tart", "Torta de Limão"],
-  ["sobremesas-classicas", "Mille-feuille", "Mil-Folhas"],
-  ["sopas", "French Onion Soup", "Sopa de Cebola Francesa"],
-  ["tailandia", "Green Curry (Gaeng Keow Wan)", "Curry Verde (Gaeng Keow Wan)"],
-  ["tailandia", "Red Curry (Gaeng Phed)", "Curry Vermelho (Gaeng Phed)"],
-  ["tecnicas-contemporaneas-2", "Dry Aging (Maturação Seca)", "Maturação Seca (Dry Aging)"],
-  ["dinamarca", "Wienerbrød (Danish Pastry)", "Wienerbrød (Massa Folhada Dinamarquesa)"],
-  ["aves", "Chicken Cordon Bleu", "Frango Cordon Bleu"],
-  ["hungria", "Chicken Paprikash", "Frango Paprikash"],
+  ["aves", "Magret de Canard", "Magret de Pato"],
+  ["carnes-bovinas", "Bife à Parmigiana", "Bife à Parmegiana"],
+  ["carnes-bovinas", "Steak Diane", "Bife Diane"],
+  ["carnes-bovinas", "Steak au Poivre", "Bife à Pimenta"],
+  ["china", "Hot Pot (Fondue Chinês)", "Fondue Chinês"],
+  ["china", "Kung Pao Chicken", "Frango Kung Pao"],
+  ["china", "Wonton Soup", "Sopa de Wonton"],
+  ["coreia", "Kimchi Fried Rice (Kimchi Bokkeumbap)", "Arroz Frito com Kimchi (Kimchi Bokkeumbap)"],
+  ["entradas-frias", "Steak Tartare", "Tartar de Carne"],
+  ["franca", "Blanquette de Veau", "Blanquette de Vitela"],
+  ["franca", "Navarin d'Agneau", "Navarin de Cordeiro"],
+  ["frutos-do-mar", "Moules Marinières", "Mexilhões à Marinheira"],
+  ["ovos-classicos", "Oeufs en Cocotte à la Forestière", "Ovos en Cocotte à la Forestière"],
+  ["ovos-classicos", "Œufs Mayonnaise", "Ovos com Maionese"],
+  ["risotos", "Risoto ai Frutti di Mare", "Risoto de Frutos do Mar"],
+  ["risotos", "Risoto ai Funghi", "Risoto de Cogumelos"],
+  ["risotos", "Risoto al Limone", "Risoto de Limão"],
+  ["risotos", "Risoto al Parmigiano", "Risoto de Parmesão"],
+  ["risotos", "Risoto alla Barbabietola (Beterraba)", "Risoto de Beterraba"],
+  ["risotos", "Risoto alla Zucca (Abóbora)", "Risoto de Abóbora"],
+  ["tecnicas-contemporaneas-2", "Glace de Viande", "Glace de Carne"],
+  ["molhos", "Sauce Tomate", "Molho de Tomate"],
+  ["molhos", "Vin Blanc", "Molho de Vinho Branco"],
+  ["molhos", "Jus de Viande", "Caldo de Carne"],
+  ["molhos", "Sauce Robert", "Molho Robert"],
+  ["contemporaneos", "Beurre Monté", "Manteiga Montada"],
+  ["alemanha", "Kartoffelsalat", "Salada de Batata"],
+  ["italia", "Ragù alla Bolognese", "Ragù à Bolonhesa"],
+  ["italia", "Saltimbocca alla Romana", "Saltimbocca à Romana"],
+  ["massas", "Aglio e Olio", "Alho e Óleo"],
+  ["espanha", "Gambas al Ajillo", "Camarão ao Alho"],
+  ["espanha", "Pulpo a la Gallega", "Polvo à Galega"],
+  ["peixes", "Sole Meunière", "Linguado à Meunière Clássica"],
+  ["sobremesas-classicas", "Crème Caramel", "Pudim de Caramelo"],
+  ["dinamarca", "Agurkesalat", "Salada de Pepino"],
+  ["dinamarca", "Aspargessuppe", "Sopa de Aspargos"],
+  ["dinamarca", "Biksemad", "Picadinho Dinamarquês"],
+  ["dinamarca", "Boller", "Pãezinhos"],
+  ["dinamarca", "Brunede Kartofler", "Batatas Caramelizadas"],
+  ["dinamarca", "Brændende Kærlighed", "Amor Ardente"],
+  ["dinamarca", "Citrontærte", "Torta de Limão Dinamarquesa"],
+  ["dinamarca", "Drømmekage", "Bolo dos Sonhos"],
+  ["dinamarca", "Fiskefrikadeller", "Frikadeller de Peixe"],
+  ["dinamarca", "Fiskesuppe", "Sopa de Peixe"],
+  ["dinamarca", "Flæskesteg", "Porco Assado"],
+  ["dinamarca", "Forloren Hare", "Lebre Falsa"],
+  ["dinamarca", "Franskbrød", "Pão Branco Dinamarquês"],
+  ["dinamarca", "Hakkebøf", "Bife Picado"],
+  ["dinamarca", "Hindbærsnitter", "Fatias de Framboesa"],
+  ["dinamarca", "Kanelsnegle", "Rolinho de Canela"],
+  ["dinamarca", "Klar Suppe", "Sopa Clara"],
+  ["dinamarca", "Koldskål", "Leitelho Gelado"],
+  ["dinamarca", "Kransekage", "Bolo Coroa"],
+  ["dinamarca", "Lagkage", "Bolo de Camadas"],
+  ["dinamarca", "Leverpostej", "Patê de Fígado"],
+  ["dinamarca", "Medisterpølse", "Linguiça Medister"],
+  ["dinamarca", "Persillesovs", "Molho de Salsinha"],
+  ["dinamarca", "Rugbrød", "Pão de Centeio"],
+  ["dinamarca", "Rundstykker", "Pãezinhos Redondos"],
+  ["dinamarca", "Rødgrød med Fløde", "Rødgrød com Creme"],
+  ["dinamarca", "Rødkål", "Repolho Roxo"],
+  ["dinamarca", "Rødspætte Stegt (Linguado Frito)", "Linguado Frito"],
+  ["dinamarca", "Smørrebrød (a base)", "Sanduíche Aberto (a base)"],
+  ["dinamarca", "Smørrebrød de Arenque", "Sanduíche Aberto de Arenque"],
+  ["dinamarca", "Smørrebrød de Camarão", "Sanduíche Aberto de Camarão"],
+  ["dinamarca", "Smørrebrød de Roast Beef", "Sanduíche Aberto de Rosbife"],
+  ["dinamarca", "Stegt Flæsk med Persillesovs", "Toicinho Frito com Molho de Salsinha"],
+  ["dinamarca", "Syltede Agurker", "Pepino em Conserva"],
+  ["dinamarca", "Syltede Løg", "Cebola em Conserva"],
+  ["dinamarca", "Syltede Rødbeder", "Beterraba em Conserva"],
 ];
+
+// Os 6 risotos que a leva 1 já tinha renomeado (Risotto X -> Risoto X) e a leva 2 renomeia de
+// novo (Risoto X -> Risoto de Y) — só estes exigem migração ENCADEADA (2 slugs "antigos": o
+// pré-dece1cb original e o intermediário de dece1cb, ambos precisam resolver pro final).
+const CHAINED = [
+  ["risotto-ai-frutti-di-mare", "risoto-ai-frutti-di-mare", "Risoto de Frutos do Mar"],
+  ["risotto-ai-funghi", "risoto-ai-funghi", "Risoto de Cogumelos"],
+  ["risotto-al-limone", "risoto-al-limone", "Risoto de Limão"],
+  ["risotto-al-parmigiano", "risoto-al-parmigiano", "Risoto de Parmesão"],
+  ["risotto-alla-barbabietola-beterraba", "risoto-alla-barbabietola-beterraba", "Risoto de Beterraba"],
+  ["risotto-alla-zucca-abobora", "risoto-alla-zucca-abobora", "Risoto de Abóbora"],
+];
+
+// Não renomeados nesta leva (ajustes do dono ao relatório de investigação) — teste negativo
+// específico: precisam continuar EXATAMENTE como estão.
+const KEPT_AS_IS = ["Cacio e Pepe", "Dumplings (Jiaozi)", "Crème Brûlée", "Risoto alla Milanese"];
 
 function main() {
   const before = loadPreviousPipeline();
@@ -122,7 +190,7 @@ function main() {
   const afterFlat = after.TagModel.getAllRecipesFlat();
 
   console.log("==================================================");
-  console.log("1. OS 25 NOMES NOVOS EXISTEM; OS 25 ANTIGOS SUMIRAM");
+  console.log("1. OS " + RENAMES.length + " NOMES NOVOS EXISTEM; OS ANTIGOS SUMIRAM; O QUE NÃO MUDOU CONTINUA IGUAL");
   console.log("==================================================");
   RENAMES.forEach(([catId, oldName, newName]) => {
     const now = afterFlat.find((it) => it.catId === catId && it.recipe.name === newName);
@@ -130,25 +198,31 @@ function main() {
     assert(!!now, catId + "/" + newName + " existe no estado atual");
     assert(!oldStill, catId + "/" + oldName + " NÃO existe mais (teste negativo)");
   });
+  KEPT_AS_IS.forEach((name) => {
+    assert(afterFlat.some((it) => it.recipe.name === name), name + " continua exatamente como estava (não renomeado nesta leva)");
+  });
 
   console.log("");
   console.log("==================================================");
-  console.log("2. ZERO COLISÃO DE SLUG — 398 receitas atuais + entre os 25 renomes");
+  console.log("2. ZERO COLISÃO DE NOME E DE SLUG — 398 receitas atuais + entre os " + RENAMES.length + " renomes");
   console.log("==================================================");
   const idCounts = {};
+  const nameCounts = {};
   afterFlat.forEach((it) => {
     idCounts[it.id] = (idCounts[it.id] || 0) + 1;
+    nameCounts[it.recipe.name] = (nameCounts[it.recipe.name] || 0) + 1;
   });
   const dupIds = Object.keys(idCounts).filter((id) => idCounts[id] > 1);
+  const dupNames = Object.keys(nameCounts).filter((n) => nameCounts[n] > 1);
   assert(afterFlat.length === 398, "total de receitas = 398 (obtido " + afterFlat.length + ")");
-  assert(dupIds.length === 0, "nenhum id duplicado entre as 398 receitas (obtido " + dupIds.length + " duplicado(s))");
-  const newIds = new Set(afterFlat.map((it) => it.id));
+  assert(dupIds.length === 0, "nenhum id duplicado entre as 398 receitas (obtido " + dupIds.length + ")");
+  assert(dupNames.length === 0, "nenhum NOME duplicado entre as 398 receitas (obtido " + dupNames.length + ") — pega colisão tipo Citrontærte x Torta de Limão");
   const renameNewIds = RENAMES.map(([catId, , newName]) => afterFlat.find((it) => it.catId === catId && it.recipe.name === newName).id);
-  assert(new Set(renameNewIds).size === 25, "os 25 novos slugs são todos distintos entre si");
+  assert(new Set(renameNewIds).size === RENAMES.length, "os " + RENAMES.length + " novos slugs são todos distintos entre si");
 
   console.log("");
   console.log("==================================================");
-  console.log("3. TAGS IDÊNTICAS ANTES x DEPOIS (renomear não deriva tag nenhuma)");
+  console.log("3. TAGS IDÊNTICAS ANTES x DEPOIS DA LEVA 2 (renomear não deriva tag nenhuma)");
   console.log("==================================================");
   RENAMES.forEach(([catId, oldName, newName]) => {
     const beforeItem = beforeFlat.find((it) => it.catId === catId && it.recipe.name === oldName);
@@ -168,9 +242,8 @@ function main() {
 
   console.log("");
   console.log("==================================================");
-  console.log("4. ALIAS DO ROUTER — os 25 slugs antigos resolvem pro novo");
+  console.log("4. ALIAS DO ROUTER — slugs antigos (incl. os 2 níveis da migração encadeada) resolvem pro final");
   console.log("==================================================");
-  // window.Storage precisa existir ANTES do router.js rodar (mesma ordem do index.html).
   const routerSandboxWindow = Object.assign({}, after);
   const mockLS = makeLocalStorageMock();
   routerSandboxWindow.Storage = loadStorageAgainst(after, mockLS);
@@ -180,87 +253,122 @@ function main() {
   runInSandbox(routerSandbox, fs.readFileSync(path.join(JS_DIR, "router.js"), "utf8"));
   const Router = routerSandbox.window.Router;
 
-  // pega o mapa direto do Storage carregado (fonte única, mesma tabela que o Router consome)
   const map = routerSandboxWindow.Storage.RENAME_SLUG_MAP;
-  assert(Object.keys(map).length === 25, "RENAME_SLUG_MAP tem 25 pares (obtido " + Object.keys(map).length + ")");
+  assert(Object.keys(map).length === 95, "RENAME_SLUG_MAP tem 95 pares — 25 leva 1 + 6 intermediárias + 64 leva 2 (obtido " + Object.keys(map).length + ")");
   Object.keys(map).forEach((oldSlug) => {
     const newSlug = map[oldSlug];
     global.location.hash = "#/receita/" + oldSlug;
     const route = Router.current();
     assert(route.name === "receita" && route.id === newSlug, "#/receita/" + oldSlug + " resolve pra " + newSlug + " (obtido: " + route.id + ")");
   });
+  // migração encadeada especificamente: as DUAS pontas do mesmo risoto resolvem pro MESMO final
+  CHAINED.forEach(([originalSlug, intermediateSlug]) => {
+    const finalFromOriginal = map[originalSlug];
+    const finalFromIntermediate = map[intermediateSlug];
+    assert(
+      finalFromOriginal === finalFromIntermediate,
+      "encadeado: " + originalSlug + " e " + intermediateSlug + " resolvem pro MESMO slug final (" + finalFromOriginal + ")"
+    );
+  });
   // teste negativo: um slug que NUNCA existiu não deve ser "resolvido" pra nada
   global.location.hash = "#/receita/isso-nao-existe-nunca";
   const noop = Router.current();
   assert(noop.id === "isso-nao-existe-nunca", "slug desconhecido passa direto, sem alias falso-positivo (teste negativo)");
-  // cozinhar/:id também
-  const [oneOld, oneNew] = Object.entries(map)[0];
-  global.location.hash = "#/cozinhar/" + oneOld;
+  // cozinhar/:id também, usando um par da migração encadeada
+  global.location.hash = "#/cozinhar/" + CHAINED[2][0]; // risotto-al-limone
   const cook = Router.current();
-  assert(cook.name === "cozinhar" && cook.id === oneNew, "#/cozinhar/" + oneOld + " também resolve pra " + oneNew);
+  assert(cook.name === "cozinhar" && cook.id === "risoto-de-limao", "#/cozinhar/" + CHAINED[2][0] + " resolve pro slug final (risoto-de-limao)");
 
   console.log("");
   console.log("==================================================");
-  console.log("5. TESTE NEGATIVO DE MIGRAÇÃO — favoritas/feitas sobrevivem ao rename");
+  console.log("5. TESTE NEGATIVO DE MIGRAÇÃO ENCADEADA — favoritada+feita pelos DOIS slugs antigos do MESMO risoto");
   console.log("==================================================");
   {
+    // simula: o usuário favoritou "Risotto al Limone" antes do dece1cb (slug pré-dece1cb),
+    // e TAMBÉM marcou "Risoto al Limone" como feita depois do dece1cb mas antes desta leva
+    // (slug intermediário) — os DOIS precisam convergir pro MESMO slug final, sem duplicar
+    // e sem orfanar nenhum dos dois.
+    const [originalSlug, intermediateSlug, finalName] = CHAINED[2]; // Risoto de Limão
     const mock = makeLocalStorageMock();
-    const [sampleOld, sampleNew] = Object.entries(map)[3]; // um qualquer, não o primeiro (evita viés)
-    // estado ANTIGO gravado direto no mock, como se o usuário tivesse favoritado/feito ANTES do rename
-    mock.setItem("cardapio-state-v2", JSON.stringify({ made: [sampleOld, "outra-receita-qualquer"], favorites: [sampleOld] }));
+    mock.setItem(
+      "cardapio-state-v2",
+      JSON.stringify({ favorites: [originalSlug], made: [intermediateSlug, "outra-receita-qualquer"] })
+    );
     const Storage1 = loadStorageAgainst(after, mock);
-    assert(Storage1.isFavorite(sampleNew) === true, "favorita pelo slug ANTIGO (" + sampleOld + ") sobrevive no slug NOVO (" + sampleNew + ")");
-    assert(Storage1.isMade(sampleNew) === true, "feita pelo slug ANTIGO sobrevive no slug NOVO");
-    assert(Storage1.isFavorite(sampleOld) === false, "slug antigo NÃO fica favoritado também (sem duplicata) — teste negativo");
+    const finalItem = afterFlat.find((it) => it.recipe.name === finalName);
+    const finalSlug = finalItem.id;
+    assert(Storage1.isFavorite(finalSlug) === true, "favoritada pelo slug ORIGINAL pré-dece1cb (" + originalSlug + ") sobrevive no slug final (" + finalSlug + ")");
+    assert(Storage1.isMade(finalSlug) === true, "feita pelo slug INTERMEDIÁRIO de dece1cb (" + intermediateSlug + ") sobrevive no MESMO slug final");
+    assert(Storage1.isFavorite(originalSlug) === false, "slug original não fica favoritado também — teste negativo");
+    assert(Storage1.isMade(intermediateSlug) === false, "slug intermediário não fica marcado como feito também — teste negativo");
     assert(Storage1.isMade("outra-receita-qualquer") === true, "receita não-renomeada no mesmo estado não é afetada — teste negativo");
   }
 
   console.log("");
   console.log("==================================================");
-  console.log("6. TESTE NEGATIVO DE MIGRAÇÃO — últimas visitadas (gusta-recentes-v1) sobrevivem");
+  console.log("6. TESTE NEGATIVO DE MIGRAÇÃO — favoritas/feitas sobrevivem (renome comum, não-encadeado)");
   console.log("==================================================");
   {
     const mock = makeLocalStorageMock();
-    const [sampleOld, sampleNew] = Object.entries(map)[7];
-    const otherRecipe = afterFlat.find((it) => !map[it.id]).id; // receita qualquer, não-renomeada
+    const [sampleOld, sampleNewSlug] = ["kartoffelsalat", "salada-de-batata"];
+    mock.setItem("cardapio-state-v2", JSON.stringify({ made: [sampleOld, "outra-receita-qualquer"], favorites: [sampleOld] }));
+    const Storage2 = loadStorageAgainst(after, mock);
+    assert(Storage2.isFavorite(sampleNewSlug) === true, "favorita pelo slug ANTIGO (" + sampleOld + ") sobrevive no slug NOVO (" + sampleNewSlug + ")");
+    assert(Storage2.isMade(sampleNewSlug) === true, "feita pelo slug ANTIGO sobrevive no slug NOVO");
+    assert(Storage2.isFavorite(sampleOld) === false, "slug antigo NÃO fica favoritado também (sem duplicata) — teste negativo");
+    assert(Storage2.isMade("outra-receita-qualquer") === true, "receita não-renomeada no mesmo estado não é afetada — teste negativo");
+  }
+
+  console.log("");
+  console.log("==================================================");
+  console.log("7. TESTE NEGATIVO DE MIGRAÇÃO — últimas visitadas (gusta-recentes-v1), caso encadeado");
+  console.log("==================================================");
+  {
+    const [originalSlug, intermediateSlug, finalName] = CHAINED[4]; // Risoto de Beterraba
+    const finalSlug = afterFlat.find((it) => it.recipe.name === finalName).id;
+    const otherRecipe = afterFlat.find((it) => !map[it.id]).id;
+    const mock = makeLocalStorageMock();
     mock.setItem(
       "gusta-recentes-v1",
       JSON.stringify({
         version: 1,
         items: [
-          { recipeId: sampleOld, viewedAt: 1000 },
+          { recipeId: intermediateSlug, viewedAt: 1000 },
           { recipeId: otherRecipe, viewedAt: 900 },
         ],
       })
     );
-    const Storage2 = loadStorageAgainst(after, mock);
-    const recent = Storage2.getRecentlyViewed();
-    const migrated = recent.find((it) => it.recipeId === sampleNew);
-    assert(!!migrated && migrated.viewedAt === 1000, "recipeId antigo (" + sampleOld + ") migrou pro novo (" + sampleNew + "), viewedAt preservado");
-    assert(!recent.some((it) => it.recipeId === sampleOld), "slug antigo não sobra na lista — teste negativo");
+    const Storage3 = loadStorageAgainst(after, mock);
+    const recent = Storage3.getRecentlyViewed();
+    const migrated = recent.find((it) => it.recipeId === finalSlug);
+    assert(!!migrated && migrated.viewedAt === 1000, "recipeId intermediário (" + intermediateSlug + ") migrou pro final (" + finalSlug + "), viewedAt preservado");
+    assert(!recent.some((it) => it.recipeId === intermediateSlug || it.recipeId === originalSlug), "nenhum dos dois slugs antigos sobra na lista — teste negativo");
     assert(recent.some((it) => it.recipeId === otherRecipe && it.viewedAt === 900), "receita não-renomeada na mesma lista não é afetada — teste negativo");
   }
 
   console.log("");
   console.log("==================================================");
-  console.log("7. BUSCA — nomes novos são acháveis (Search.searchRecipes)");
+  console.log("8. BUSCA — nomes novos são acháveis (Search.searchRecipes)");
   console.log("==================================================");
   const Search = after.Search;
   [
-    ["torta de maçã", "Torta de Maçã"],
-    ["strudel de maça", "Strudel de Maçã"],
-    ["frango cordon bleu", "Frango Cordon Bleu"],
-    ["croquetes", "Croquetes"],
-    ["risoto alla milanese", "Risoto alla Milanese"],
+    ["torta de limão dinamarquesa", "Torta de Limão Dinamarquesa"],
+    ["risoto de limão", "Risoto de Limão"],
+    ["sanduíche aberto de rosbife", "Sanduíche Aberto de Rosbife"],
+    ["pudim de caramelo", "Pudim de Caramelo"],
+    ["bife diane", "Bife Diane"],
   ].forEach(([query, expectedName]) => {
     const results = Search.searchRecipes(query, { limit: 5 });
     const found = results.some((r) => r.recipe.name === expectedName);
     assert(found, '"' + query + '" acha "' + expectedName + '" (top: ' + (results[0] ? results[0].recipe.name : "nenhum") + ")");
   });
-  // teste negativo: o nome ANTIGO não deveria mais ser o que a busca devolve como match de nome
-  const oldNameResults = Search.searchRecipes("apple pie", { limit: 5 });
-  const stillMatchesOldNameField = oldNameResults.some((r) => r.recipe.name === "Apple Pie");
-  assert(!stillMatchesOldNameField, "'apple pie' não acha nenhuma receita chamada 'Apple Pie' (nome não existe mais) — teste negativo");
+  // teste negativo: nome ANTIGO de um dos encadeados não deveria mais casar por nome
+  const oldNameResults = Search.searchRecipes("risotto al limone", { limit: 5 });
+  const stillMatchesOldName = oldNameResults.some((r) => r.recipe.name === "Risotto al Limone" || r.recipe.name === "Risoto al Limone");
+  assert(!stillMatchesOldName, "nenhuma receita chamada 'Risotto al Limone' ou 'Risoto al Limone' existe mais — teste negativo");
+  // teste negativo: Cacio e Pepe/Dumplings continuam achável pelo nome ORIGINAL (não foram renomeados)
+  const cacioResults = Search.searchRecipes("cacio e pepe", { limit: 3 });
+  assert(cacioResults.some((r) => r.recipe.name === "Cacio e Pepe"), "'Cacio e Pepe' continua achável pelo nome original (não renomeado nesta leva)");
 
   console.log("");
   console.log("==================================================");

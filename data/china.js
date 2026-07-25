@@ -200,7 +200,7 @@ window.RECIPES["china"] = [
     ]
   },
   {
-    name: "Kung Pao Chicken",
+    name: "Frango Kung Pao",
     subgroup: "Carnes e Aves",
     desc: "Frango em cubos salteado com pimentas secas, amendoim torrado e molho agridoce de shoyu e vinagre — prato picante típico de Sichuan.",
     origin: "China (Sichuan)",
@@ -712,7 +712,7 @@ window.RECIPES["china"] = [
 
   // ===================== SOPAS E CALDEIRÕES =====================
   {
-    name: "Hot Pot (Fondue Chinês)",
+    name: "Fondue Chinês",
     subgroup: "Sopas e Caldeirões",
     desc: "Panela de caldo fervente na mesa onde cada um cozinha carne fatiada fina, camarão, tofu, legumes e macarrão, mergulhando em molhos individuais.",
     origin: "China",
@@ -799,7 +799,7 @@ window.RECIPES["china"] = [
     ]
   },
   {
-    name: "Wonton Soup",
+    name: "Sopa de Wonton",
     subgroup: "Sopas e Caldeirões",
     desc: "Sopa de caldo de galinha com pequenos pastéis de massa recheados de camarão e porco, finalizada com folhas verdes e cebolinha.",
     origin: "China (Cantão)",

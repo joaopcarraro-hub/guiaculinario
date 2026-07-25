@@ -472,7 +472,7 @@ window.RECIPES["aves"] = [
     ]
   },
   {
-    name: "Magret de Canard",
+    name: "Magret de Pato",
     subgroup: "Pato",
     desc: "Peito de pato com a pele cortada em losango, selado a frio até crocante e servido rosado, fatiado com molho agridoce de frutas.",
     origin: "França (Gasconha)",
