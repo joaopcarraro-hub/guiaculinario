@@ -228,6 +228,14 @@
 
   // Busca contextual: só considera as coleções do próprio grupo (label da coleção
   // ou label/sinônimos das tags que ela filtra) — nunca busca receitas diretamente.
+  // Guarda o texto digitado na busca inline por grupo (chaveado por grupoId) numa variável de
+  // módulo simples — mesmo padrão de minhasReceitasTab (sobrevive só entre re-renders desta
+  // tela, não persiste em localStorage/URL). Sem isso, "Voltar" de uma receita aberta pela
+  // busca inline reconstrói a página do grupo em branco: o fromHash sozinho garante que o
+  // Voltar PARE no grupo certo, mas não repõe o texto nem os resultados, já que a busca
+  // inline nunca escreveu na URL (diferente de Coleção/Busca, que guardam o filtro no hash).
+  const grupoSearchQuery = {};
+
   function renderGrupo(grupoId) {
     const grupo = GRUPOS.find((g) => g.id === grupoId);
     if (!grupo) {
@@ -259,12 +267,18 @@
     descEl.textContent = grupo.desc;
     wrap.appendChild(descEl);
 
+    // fromHash: hash INTEIRO do grupo no momento deste render — mesmo padrão de Coleção/Busca/
+    // Minhas Receitas (currentHashPath), pra "Voltar" de uma receita achada pela busca inline
+    // parar aqui, e pro mapa de scroll por rota (scrollPositionsByHash) restaurar a posição.
+    const fromHash = currentHashPath();
+
     const searchWrap = document.createElement("div");
     searchWrap.className = "home-search-wrap";
     const search = document.createElement("input");
     search.type = "text";
     search.className = "home-search";
     search.placeholder = "Buscar em " + grupo.label.toLowerCase() + "...";
+    search.value = grupoSearchQuery[grupoId] || "";
     searchWrap.appendChild(search);
     wrap.appendChild(searchWrap);
 
@@ -333,18 +347,24 @@
       recipeResultsEl.appendChild(title);
       items.forEach((item) => {
         const cat = window.CATEGORIES.find((c) => c.id === item.catId);
-        recipeResultsEl.appendChild(renderRecipeCard(item, { catLabel: cat ? cat.label : item.catId }));
+        recipeResultsEl.appendChild(renderRecipeCard(item, { catLabel: cat ? cat.label : item.catId, fromHash: fromHash }));
       });
       return true;
     }
 
     search.addEventListener("input", () => {
       const q = search.value.trim();
+      grupoSearchQuery[grupoId] = q;
       renderGrid(q);
       const hasRecipeResults = renderRecipeMatches(q);
       categoriesLabel.textContent = hasRecipeResults ? "Categorias" : "";
     });
-    renderGrid("");
+    // Restaura a busca ao voltar de uma receita (mesmo texto de grupoSearchQuery usado acima
+    // pra preencher o input) — mesmo caminho do listener de "input", nunca lógica duplicada.
+    const initialQuery = search.value;
+    renderGrid(initialQuery);
+    const hasInitialRecipeResults = renderRecipeMatches(initialQuery);
+    categoriesLabel.textContent = hasInitialRecipeResults ? "Categorias" : "";
 
     content.appendChild(wrap);
   }

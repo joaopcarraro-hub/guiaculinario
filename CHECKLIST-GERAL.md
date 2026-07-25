@@ -155,10 +155,16 @@ hierarquia de área de toque confirmada por `elementFromPoint`).
    Confirmar na tela quando o deploy subir.
 3. ~~Quantidade "não compra quebrado"~~ — ✅ FEITO (ver bloco "Lista de Compras" acima, Fase 5).
 4. ~~Nomes de receita em português~~ — ✅ FEITO (ver bloco abaixo).
-5. Busca inline da página de grupo sem `fromHash` (pequeno) — 3º caminho que ficou de fora
-   quando o "Voltar preservando contexto" foi estendido. Fecha a consistência de navegação.
-   Sonnet 5 Extra, effort baixo. Dá pra encaixar o polimento do toggle (abaixo) no mesmo toque
-   se abrir o CSS.
+5. ~~Busca inline da página de grupo sem `fromHash`~~ — ✅ FEITO (2026-07-25). 4º caminho do
+   "Voltar preservando contexto" (`renderGrupo`) fechado, mesmo padrão exato dos outros 3
+   (Coleção/Busca/Minhas Receitas): `fromHash = currentHashPath()` passado pro card de
+   resultado. Diferença: a busca inline nunca escreveu o texto digitado na URL (diferente dos
+   outros 3), então só o fromHash não bastava — resolvido com variável de módulo
+   `grupoSearchQuery` (mesmo padrão de `minhasReceitasTab`, já usado em Minhas Receitas pro
+   mesmo tipo de problema) que persiste o texto e restaura no próximo render. Suíte versionada
+   `scripts/verify-grupo-search-fromhash-2026-07-25.js`. Verificado ao vivo no navegador: busca
+   "frango" em Proteínas, abre Paella (`from=grupo%2Fproteinas`), Voltar restaura busca e
+   resultados byte a byte; os outros 3 caminhos confirmados intactos (teste negativo).
 6. ~~Agrupamento por corredor na lista de compras~~ — ✅ FEITO (ver bloco "Lista de Compras"
    acima, Fase 4).
 
