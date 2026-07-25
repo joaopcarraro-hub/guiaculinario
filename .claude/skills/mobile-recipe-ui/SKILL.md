@@ -315,7 +315,8 @@ agora, chaveado por ingrediente (item+unit normalizado), não por receita.
 
 ### Multiplicador de porções (usa ingredientsStructured)
 
-Na tela de receita, o "🍽 N porções" de `.recipe-page-meta` vira um controle interativo
+Na tela de receita, o texto estático "N porções" de `.recipe-page-meta` (Fase 0c: sem emoji, ver
+extermínio de emoji abaixo) vira um controle interativo
 (`.portion-stepper`: botões −/+ redondos de 30px + `<input type="number">` central + sufixo de
 texto) sempre que `parseYieldBase` (app.js) consegue extrair uma base numérica segura do começo
 do texto de `recipe.yield` — ex. "4 porções" -> base 4, sufixo "porções"; "4-6 porções" -> base 4
@@ -508,16 +509,13 @@ multi-seleção coexistem:
   escolhido sai da grade e vira chip, nunca aparece nos dois lugares). Classes
   `.filter-tile-grid--dense`/`.filter-tile--dense` (4 colunas ≥380px, 3 em ≤380px — especificidade
   dobrada de propósito, ver comentário no CSS, senão a regra ≤380px de 2 colunas do
-  `.filter-tile-grid` base vencia por ordem de declaração). Ícone = emoji por ingrediente
-  (`INGREDIENT_EMOJI` em app.js), mesmo tratamento sem recolor de País — peixes sem emoji
-  Unicode próprio (salmão, robalo, atum, linguado, dourado, anchova, bacalhau, badejo, tilápia)
-  usam 🐟 genérico. **Corrigido, Fase 0a (2026-07-26)**: 26 de 69 valores ficam SEM ícone hoje
-  (o dado "8 de 51" estava desatualizado — a taxonomia de ingredientes cresceu desde que foi
-  medido) — label+contagem apenas, mesmo fallback seguro do Processador/Sous Vide em
-  Equipamento. **Decisão tomada**: emoji sai da grade de ingredientes por completo na Fase 0c
-  — vira só label+contagem pra TODOS os valores, não só os 26 sem cobertura (elimina a
-  inconsistência visual tile-com-emoji vs. tile-só-texto, não depende de achar emoji Unicode
-  pra cada ingrediente novo que a taxonomia ganhar). Combina em AND ou OR entre si por escolha do usuário —
+  `.filter-tile-grid` base vencia por ordem de declaração). Sem ícone — só label+contagem pra
+  TODOS os valores, mesmo fallback seguro do Processador/Sous Vide em Equipamento. **Fase 0c
+  (2026-07-25)**: `INGREDIENT_EMOJI` e `ingredientTileIconHtml` (app.js) foram removidos por
+  completo — a versão anterior mostrava emoji por ingrediente (peixes sem emoji Unicode próprio
+  usavam 🐟 genérico; 26 de 69 valores já ficavam sem ícone algum antes disso). Decisão fechada
+  do dono: elimina a inconsistência visual tile-com-emoji vs. tile-só-texto e não depende de
+  achar emoji Unicode pra cada ingrediente novo que a taxonomia ganhar. Combina em AND ou OR entre si por escolha do usuário —
   único toggle desse tipo entre as facetas: trilho único em pílula com trava deslizante
   ("Qualquer um destes"/"Todos estes", NÃO 2 botões separados), numa linha própria ANTES dos
   chips selecionados (logo abaixo do cabeçalho do acordeão), só visível com 2+ selecionados;
@@ -682,6 +680,42 @@ commitados). Mudanças de COMPORTAMENTO (não só visual) relevantes pra esta sk
   valores e ratios.
 - **Nomenclatura de tokens**: `--color-*` é oficial agora, nomes antigos (`--gold`, `--ink`
   etc.) viraram alias — ver docs/DESIGN-TOKENS.md.
+
+## Fase 0c — extermínio de emoji, primeira leva (2026-07-25)
+
+Inventário completo: 266 instâncias de emoji em 8 arquivos. Nesta leva morreram só 4 grupos —
+os outros dois (47 de ícone de categoria/hub em `categories.js`/`collections.js`/`app.js`, e a
+RENDERIZAÇÃO das 60 bandeiras via `COUNTRY_FLAG_EMOJI`/`countryTileIconHtml`) ficam de propósito
+pro item 6 do roadmap, junto com as fotos — nenhum dos dois foi tocado aqui.
+
+- **Ingrediente (43)**: `INGREDIENT_EMOJI` e `ingredientTileIconHtml` removidos por completo —
+  ver seção "Ingrediente" acima.
+- **Botão (8)**: 6 casos (✓ Já fiz, toggle de lista de compras, "Começar preparo", "Sair do modo
+  cozinhar", "Finalizar") perderam só o emoji — o texto já bastava, nenhum ícone novo. Os outros
+  2 (`.preparo-card__delete`, usado tanto na aba Preparos quanto na Lista de Compras) eram SÓ o
+  glifo "✕" sem texto ao lado — apagar sem repor deixaria o botão vazio, então ganharam o ícone
+  novo `close` (ver abaixo).
+- **Decoração de copy (6 contados + 1 achado durante a implementação)**: os metadados da PÁGINA
+  da receita (Total/Preparo/Cozimento/porções/dificuldade, `.recipe-page-meta`) e o ícone do
+  portion-stepper perderam o emoji e viraram texto puro, SEM ícone — decisão deliberada de NÃO
+  estender o padrão de ícone outline que o CARD da receita já usa pro mesmo dado
+  (`.recipe-meta-item` com `iconSvg("clock"/"gauge"/"bowl")`); a página e o card ficam com
+  tratamentos diferentes pra esse metadado por ora. O "⏱ Total" não estava nos 6 originais do
+  inventário (gap do levantamento — o emoji ⏱ cai fora da faixa Unicode varrida), mas é a mesma
+  linha `metaHtml` dos outros 4 que perderam emoji nesta leva — deixá-lo sozinho ficaria
+  inconsistente, então saiu junto.
+- **Fallback sem-foto (7 contados)**: os 6 que são de verdade sobre FOTO ausente (ícone de
+  coleção sem `icon`, thumb do card, thumb do preparo, hero da página, os 2 call sites genéricos
+  dentro de `applyImage()`) ganharam o ícone novo `photoOff`. O 7º ("Essa coleção ainda não tem
+  receitas — em breve. 🍳") NÃO é sobre foto — é decoração de mensagem de estado vazio — então
+  levou o mesmo tratamento do grupo "decoração de copy" (só perdeu o emoji, sem ícone).
+- **2 ícones novos em `ICONS`/`iconSvg()` (app.js)**: `close` (✕ genérico, outline, usado nos 2
+  botões só-ícone) e `photoOff` (moldura+sol+montanha, outline, usado nos 6 fallbacks de foto).
+  Ambos stroke-based (`currentColor`), mesmo sistema de sempre — sem arquivo, sem licença, cor
+  vem do CSS igual a todo o resto. Tamanho calibrado em CSS pra bater com o que o glifo/emoji
+  antigo ocupava em cada contêiner (`.preparo-card__delete svg` 16px, `.recipe-thumb`/
+  `.preparo-card__thumb.placeholder svg` 24px, `.recipe-hero.placeholder svg` 56px,
+  `.category-card__icon svg` 24px).
 
 ## Critérios de aceite
 

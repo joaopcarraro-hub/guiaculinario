@@ -47,6 +47,7 @@ function loadRealFlat() {
     // eslint-disable-next-line no-new-func
     new Function("window", fs.readFileSync(path.join(ROOT, rel), "utf8"))(sandbox.window);
   }
+  load("js/countries.js");
   load("js/categories.js");
   load("data/derivation-dict.js");
   load("js/tags.js");
@@ -185,8 +186,20 @@ function main() {
   // normalizar os dois lados, QUALQUER função de múltiplas linhas compararia como "diferente"
   // só por causa do \r\n, mesmo com conteúdo 100% igual. Normaliza os dois antes de comparar.
   const norm = (s) => s.replace(/\r\n/g, "\n");
-  const appJsBefore = norm(execSync("git show " + BASE_COMMIT + ":js/app.js", { cwd: ROOT, encoding: "utf8" }));
-  const appJsNormalized = norm(appJs);
+  // Fase 0c (2026-07-25, extermínio de emoji) trocou o "✕" do botão de remover por um ícone SVG
+  // — mudança legítima e não relacionada ao agrupamento por corredor que esta suíte protege.
+  // Sem isso, a asserção de "renderShoppingListPorReceita idêntica antes/depois" falsearia pra
+  // sempre a partir desse commit, mesmo sem regressão real (mesma causa-raiz documentada em
+  // scripts/../cardapio-verify-script-base-commit: comparação contra ref fixa não sobrevive a
+  // mudança legítima subsequente sem normalizar o que já é esperado). Normaliza os DOIS lados
+  // pro mesmo texto canônico antes de comparar — qualquer OUTRA divergência continua pegando.
+  const normalizeKnownFase0cIconChange = (s) =>
+    s.replace(
+      /deleteBtn\.(?:textContent = "✕"|innerHTML = iconSvg\("close", "preparo-card__delete-icon"\));/g,
+      "deleteBtn.__BOTAO_REMOVER_ICONE_NORMALIZADO__;"
+    );
+  const appJsBefore = normalizeKnownFase0cIconChange(norm(execSync("git show " + BASE_COMMIT + ":js/app.js", { cwd: ROOT, encoding: "utf8" })));
+  const appJsNormalized = normalizeKnownFase0cIconChange(norm(appJs));
   function extractFn(src, name) {
     const start = src.indexOf("function " + name + "(");
     if (start === -1) return null;

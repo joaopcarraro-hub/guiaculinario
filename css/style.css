@@ -604,6 +604,7 @@ body {
 /* era --gold-soft: ícone de placeholder/vazio usa --color-text-disabled (mesma regra do
    DESIGN-TOKENS.md pra ícones inativos). */
 .recipe-thumb.placeholder { color: var(--color-text-disabled); }
+.recipe-thumb.placeholder svg { width: 24px; height: 24px; } /* Fase 0c: substituiu o emoji 🍽, mesmo tamanho que --text-lg dava a ele */
 
 .recipe-title { min-width: 0; }
 .recipe-title h3 {
@@ -1368,6 +1369,7 @@ body.filter-modal-open { overflow: hidden; }
    elevação em dark mode; --line/--color-border já separa o card do fundo). */
 .category-card:hover { border-color: var(--color-accent-hover); }
 .category-card__icon { font-size: var(--text-xl); }
+.category-card__icon svg { width: 24px; height: 24px; } /* só quando collection.icon falta e cai no fallback SVG */
 .category-card__title { font-weight: 600; color: var(--color-text-primary); font-size: var(--text-base); line-height: var(--leading-tight); }
 .category-card__count {
   font-size: var(--text-xs);
@@ -1423,6 +1425,7 @@ body.filter-modal-open { overflow: hidden; }
    com âncora no rodapé a faixa visível vira y ∈ [25%, 62%], que é onde o prato está.
    Calibrar OLHANDO A TELA: se o prato ficar baixo demais, `center 70%`, depois `center 60%`. */
 .recipe-hero img { width: 100%; height: 100%; object-fit: cover; object-position: center bottom; display: block; }
+.recipe-hero.placeholder svg { width: 56px; height: 56px; } /* Fase 0c: substituiu o emoji 🍽 em 3.5rem, mesmo tamanho visual */
 
 .recipe-page-title h2 {
   font-family: var(--font-display);
@@ -1448,7 +1451,7 @@ body.filter-modal-open { overflow: hidden; }
   border-bottom: 1px solid var(--color-border);
 }
 
-/* Multiplicador de porções — substitui o "🍽 N porções" estático quando o yield tem uma base
+/* Multiplicador de porções — substitui o texto estático de porções quando o yield tem uma base
    numérica segura de extrair (parseYieldBase em app.js). Some como mais um item flex dentro de
    .recipe-page-meta (mesmo gap/wrap dos outros <span>), não como linha própria. */
 .portion-stepper {
@@ -1871,6 +1874,7 @@ body.filter-modal-open { overflow: hidden; }
 }
 .preparo-card__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .preparo-card__thumb.placeholder { color: var(--color-text-disabled); }
+.preparo-card__thumb.placeholder svg { width: 24px; height: 24px; }
 .preparo-card__info { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: var(--space-1); }
 .preparo-card__info strong { font-size: var(--text-base); color: var(--color-text-primary); }
 .preparo-card__step {
@@ -1895,6 +1899,7 @@ body.filter-modal-open { overflow: hidden; }
   cursor: pointer;
 }
 .preparo-card__delete:hover { color: var(--color-error); }
+.preparo-card__delete svg { width: 16px; height: 16px; } /* Fase 0c: substituiu o glifo "✕" em --text-base (16px) */
 
 #progress {
   font-size: var(--text-xs);

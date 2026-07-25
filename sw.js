@@ -12,7 +12,7 @@
 // bump serve pro caso offline — força o SW novo a instalar e o "install" a pré-popular o
 // cache com o CSS atual, em vez de deixar o fallback offline preso na cópia antiga até a
 // próxima visita online.
-const CACHE_NAME = "cardapio-v22";
+const CACHE_NAME = "cardapio-v23";
 
 const APP_SHELL = [
   "./",

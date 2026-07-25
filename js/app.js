@@ -35,6 +35,8 @@
     clock: '<circle cx="12" cy="12" r="8"/><path d="M12 7.5v4.5l3 2"/>',
     gauge: '<path d="M6 18v-4"/><path d="M12 18V9"/><path d="M18 18V6"/>',
     arrowUpRight: '<path d="M8 16 16 8"/><path d="M9 8h7v7"/>',
+    close: '<path d="M6 6l12 12"/><path d="M18 6 6 18"/>',
+    photoOff: '<rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="M5 16l4.5-4 3.5 3 2.5-2 3.5 3.5"/>',
   };
   function iconSvg(key, className) {
     return '<svg class="' + className + '" ' + ICON_SVG_ATTRS + ">" + ICONS[key] + "</svg>";
@@ -236,7 +238,7 @@
     const card = document.createElement("button");
     card.className = "category-card";
     card.innerHTML =
-      '<span class="category-card__icon">' + (collection.icon || "🍽") + "</span>" +
+      '<span class="category-card__icon">' + (collection.icon || iconSvg("photoOff", "category-card__icon-fallback")) + "</span>" +
       '<span class="category-card__title">' + collection.label + "</span>" +
       '<span class="category-card__count">' + allRecipes.length + " receitas</span>";
     card.addEventListener("click", () => Router.toCategoria(collection.id));
@@ -488,92 +490,14 @@
 
   // Emoji de bandeira pro piloto de tiles de País — caractere Unicode padrão (sem arquivo, sem
   // licença). Não recolore por estado: emoji não herda currentColor, e a borda do tile já
-  // indica seleção sozinha (mesmo tratamento dos 3 ícones PNG de Equipamento).
-  const COUNTRY_FLAG_EMOJI = {
-    "country:franca": "🇫🇷",
-    "country:italia": "🇮🇹",
-    "country:espanha": "🇪🇸",
-    "country:portugal": "🇵🇹",
-    "country:japao": "🇯🇵",
-    "country:china": "🇨🇳",
-    "country:coreia": "🇰🇷",
-    "country:tailandia": "🇹🇭",
-    "country:india": "🇮🇳",
-    "country:mexico": "🇲🇽",
-    "country:peru": "🇵🇪",
-    "country:alemanha": "🇩🇪",
-    "country:austria": "🇦🇹",
-    "country:hungria": "🇭🇺",
-    "country:grecia": "🇬🇷",
-    "country:marrocos": "🇲🇦",
-    "country:libano": "🇱🇧",
-    "country:eua": "🇺🇸",
-    "country:dinamarca": "🇩🇰",
-    "country:brasil": "🇧🇷",
-  };
+  // indica seleção sozinha (mesmo tratamento dos 3 ícones PNG de Equipamento). Fase 0c: os 20
+  // países vêm de window.COUNTRIES (js/countries.js) — fonte única compartilhada com
+  // categories.js/collections.js, sem dicionário próprio duplicado aqui.
   function countryTileIconHtml(tagId) {
-    const flag = COUNTRY_FLAG_EMOJI[tagId];
+    const country = window.COUNTRIES[tagId.replace("country:", "")];
+    const flag = country && country.emoji;
     if (!flag) return "";
     return '<span class="filter-tile__icon filter-tile__icon--emoji" aria-hidden="true">' + flag + "</span>";
-  }
-
-  // Emoji por ingrediente pro piloto de tiles de Ingrediente — mesmo raciocínio de País (sem
-  // arquivo, sem licença, sem recolor por estado). Peixes com espécie própria mas sem emoji
-  // dedicado no Unicode (salmão, robalo, atum, linguado, dourado, anchova, bacalhau, badejo,
-  // tilápia) usam 🐟 genérico — aceitável repetir, o label ao lado já diferencia. IDs que
-  // existem só como seasoning: (gengibre, curry — ver js/tags.js) NÃO entram aqui: a faceta
-  // Ingrediente só lê prefix "ingredient:", então essas duas tags nunca aparecem como opção
-  // desta seção, com ou sem emoji. "abobrinha" existe como ingredient: mas não veio na lista
-  // original — tratada como SEM ÍCONE, mesmo fallback seguro do Processador/Sous Vide.
-  const INGREDIENT_EMOJI = {
-    "ingredient:ovo": "🥚",
-    "ingredient:tomate": "🍅",
-    "ingredient:queijo": "🧀",
-    "ingredient:arroz": "🍚",
-    "ingredient:batata": "🥔",
-    "ingredient:milho": "🌽",
-    "ingredient:feijao": "🫘",
-    "ingredient:berinjela": "🍆",
-    "ingredient:cogumelo": "🍄",
-    "ingredient:abobora": "🎃",
-    "ingredient:pimentao": "🫑",
-    "ingredient:azeitona": "🫒",
-    "ingredient:limao": "🍋",
-    "ingredient:coco": "🥥",
-    "ingredient:castanha": "🌰",
-    "ingredient:chocolate": "🍫",
-    "ingredient:cafe": "☕",
-    "ingredient:vinho": "🍷",
-    "ingredient:cerveja": "🍺",
-    "ingredient:mel": "🍯",
-    "ingredient:espinafre": "🥬",
-    "ingredient:ervilha": "🫛",
-    "ingredient:amendoim": "🥜",
-    "ingredient:brocolis": "🥦",
-    "ingredient:cenoura": "🥕",
-    "ingredient:pao": "🍞",
-    "ingredient:pepino": "🥒",
-    "ingredient:camarao": "🦐",
-    "ingredient:lula": "🦑",
-    "ingredient:polvo": "🐙",
-    "ingredient:mexilhao": "🦪",
-    "ingredient:lagosta": "🦞",
-    "ingredient:ostra": "🦪",
-    "ingredient:caranguejo": "🦀",
-    "ingredient:salmao": "🐟",
-    "ingredient:robalo": "🐟",
-    "ingredient:atum": "🐟",
-    "ingredient:linguado": "🐟",
-    "ingredient:dourado": "🐟",
-    "ingredient:anchova": "🐟",
-    "ingredient:bacalhau": "🐟",
-    "ingredient:badejo": "🐟",
-    "ingredient:tilapia": "🐟",
-  };
-  function ingredientTileIconHtml(tagId) {
-    const emoji = INGREDIENT_EMOJI[tagId];
-    if (!emoji) return "";
-    return '<span class="filter-tile__icon filter-tile__icon--emoji" aria-hidden="true">' + emoji + "</span>";
   }
 
   // Ícones reais pro piloto de tiles de Equipamento — substituem os emoji provisórios. Arquivos
@@ -1018,7 +942,6 @@
                     '<button type="button" class="filter-tile filter-tile--dense" data-value="' +
                     o.tagId +
                     '">' +
-                    ingredientTileIconHtml(o.tagId) +
                     '<span class="filter-tile__label">' +
                     o.tag.label +
                     '</span><span class="filter-tile__count">' +
@@ -1256,7 +1179,7 @@
     const { primaryRecipes: basePrimary, relatedRecipes: baseRelated, allRecipes: baseAll } = TagModel.getRecipesByCollection(collection.id);
 
     if (!baseAll.length) {
-      content.innerHTML = '<div class="empty-state">Essa coleção ainda não tem receitas — em breve. 🍳</div>';
+      content.innerHTML = '<div class="empty-state">Essa coleção ainda não tem receitas — em breve.</div>';
       return;
     }
 
@@ -1328,7 +1251,7 @@
     function renderToolbarState() {
       countEl.innerHTML = "<strong>" + currentItems().length + " receita" + (currentItems().length === 1 ? "" : "s") + "</strong>";
       const doneCount = Storage.countMade(currentItems().map((i) => i.id));
-      progressEl.textContent = doneCount + " de " + currentItems().length + " já feitas ✓";
+      progressEl.textContent = doneCount + " de " + currentItems().length + " já feitas";
     }
 
     // Botão "Filtros" (com badge) + modal em acordeão (Bloco 3) — substitui a antiga barra de
@@ -1799,8 +1722,8 @@
 
   // ---------- Aba "Preparos": lista real de sessões em andamento (Fase 2) ----------
   // Só "em-andamento" (getActivePreparoSessions já filtra) — "concluido" nunca aparece aqui.
-  // Tocar no card retoma (#/cozinhar/:id, mesma sessão); "✕" remove a sessão do localStorage
-  // por completo (Storage.deletePreparoSession), não só esconde da lista.
+  // Tocar no card retoma (#/cozinhar/:id, mesma sessão); o botão de remover apaga a sessão do
+  // localStorage por completo (Storage.deletePreparoSession), não só esconde da lista.
   function renderPreparosList() {
     activeCat = null;
     refreshActiveCounts = null;
@@ -1836,7 +1759,7 @@
 
         const thumb = document.createElement("div");
         thumb.className = "preparo-card__thumb placeholder";
-        thumb.textContent = "🍽";
+        thumb.innerHTML = iconSvg("photoOff", "photo-placeholder__icon");
         if (recipe.image) applyImage(thumb, recipe.image);
         else loadRecipeImage(recipe, thumb);
         card.appendChild(thumb);
@@ -1850,7 +1773,7 @@
           const secs = Math.max(0, Math.round((timerState.endsAt - Date.now()) / 1000));
           const mm = String(Math.floor(secs / 60)).padStart(2, "0");
           const ss = String(secs % 60).padStart(2, "0");
-          timerHtml = '<span class="preparo-card__timer">⏱ ' + mm + ":" + ss + "</span>";
+          timerHtml = '<span class="preparo-card__timer">' + mm + ":" + ss + "</span>";
         }
 
         const info = document.createElement("div");
@@ -1865,7 +1788,7 @@
         deleteBtn.type = "button";
         deleteBtn.className = "preparo-card__delete";
         deleteBtn.setAttribute("aria-label", "Remover preparo de " + recipe.name);
-        deleteBtn.textContent = "✕";
+        deleteBtn.innerHTML = iconSvg("close", "preparo-card__delete-icon");
         deleteBtn.addEventListener("click", (e) => {
           e.stopPropagation();
           Storage.deletePreparoSession(session.recipeId);
@@ -2318,7 +2241,7 @@
       deleteBtn.type = "button";
       deleteBtn.className = "preparo-card__delete";
       deleteBtn.setAttribute("aria-label", "Remover " + recipe.name + " da lista de compras");
-      deleteBtn.textContent = "✕";
+      deleteBtn.innerHTML = iconSvg("close", "preparo-card__delete-icon");
       deleteBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         Storage.removeRecipeFromShoppingList(entry.recipeId);
@@ -2539,7 +2462,7 @@
 
     const thumb = document.createElement("div");
     thumb.className = "recipe-thumb placeholder";
-    thumb.textContent = "🍽";
+    thumb.innerHTML = iconSvg("photoOff", "photo-placeholder__icon");
     if (recipe.image) {
       applyImage(thumb, recipe.image);
     } else {
@@ -2806,7 +2729,7 @@
 
     const hero = document.createElement("div");
     hero.className = "recipe-hero placeholder";
-    hero.textContent = "🍽";
+    hero.innerHTML = iconSvg("photoOff", "photo-placeholder__icon");
     if (recipe.image) {
       applyImage(hero, recipe.image);
     } else {
@@ -2825,15 +2748,15 @@
     const metaRow = document.createElement("div");
     metaRow.className = "recipe-page-meta";
     let metaHtml = "";
-    if (recipe.time && recipe.time.total) metaHtml += "<span>⏱ Total: " + recipe.time.total + "</span>";
-    if (recipe.time && recipe.time.prep) metaHtml += "<span>🔪 Preparo: " + recipe.time.prep + "</span>";
-    if (recipe.time && recipe.time.cook) metaHtml += "<span>🔥 Cozimento: " + recipe.time.cook + "</span>";
+    if (recipe.time && recipe.time.total) metaHtml += "<span>Total: " + recipe.time.total + "</span>";
+    if (recipe.time && recipe.time.prep) metaHtml += "<span>Preparo: " + recipe.time.prep + "</span>";
+    if (recipe.time && recipe.time.cook) metaHtml += "<span>Cozimento: " + recipe.time.cook + "</span>";
     // Multiplicador de porções (usa ingredientsStructured, ver funções acima) só entra quando o
     // yield COMEÇA com um número seguro de extrair (parseYieldBase) — senão mostra o texto de
     // sempre, sem controle, pra não arriscar uma base errada.
     const yieldInfo = parseYieldBase(recipe.yield);
-    if (recipe.yield && !yieldInfo) metaHtml += "<span>🍽 " + recipe.yield + "</span>";
-    if (recipe.difficulty) metaHtml += "<span>📊 " + recipe.difficulty + "</span>";
+    if (recipe.yield && !yieldInfo) metaHtml += "<span>" + recipe.yield + "</span>";
+    if (recipe.difficulty) metaHtml += "<span>" + recipe.difficulty + "</span>";
     metaRow.innerHTML = metaHtml;
     page.appendChild(metaRow);
 
@@ -2842,7 +2765,6 @@
       const stepperWrap = document.createElement("div");
       stepperWrap.className = "portion-stepper";
       stepperWrap.innerHTML =
-        '<span class="portion-stepper__icon" aria-hidden="true">🍽</span>' +
         '<button type="button" class="portion-stepper__btn" data-dir="-1" aria-label="Diminuir porções">−</button>' +
         '<input type="number" class="portion-stepper__input" min="1" max="999" step="1" inputmode="numeric" ' +
         'aria-label="Número de porções" value="' +
@@ -2888,11 +2810,11 @@
     const isMade = Storage.isMade(item.id);
     const madeBtn = document.createElement("button");
     madeBtn.className = "action-btn" + (isMade ? " active" : "");
-    madeBtn.textContent = isMade ? "✓ Já fiz" : "Marcar como feita";
+    madeBtn.textContent = isMade ? "Já fiz" : "Marcar como feita";
     madeBtn.addEventListener("click", () => {
       const now = Storage.toggleMade(item.id);
       madeBtn.classList.toggle("active", now);
-      madeBtn.textContent = now ? "✓ Já fiz" : "Marcar como feita";
+      madeBtn.textContent = now ? "Já fiz" : "Marcar como feita";
     });
 
     // Favoritar troca de ESTRUTURA inteira ao alternar (docs/DESIGN-TOKENS.md), não só de cor:
@@ -2928,7 +2850,7 @@
     shoppingBtn.type = "button";
     function renderShoppingBtn(inList) {
       shoppingBtn.className = "action-btn" + (inList ? " active" : "");
-      shoppingBtn.textContent = inList ? "✓ Na lista de compras" : "🛒 Adicionar à lista de compras";
+      shoppingBtn.textContent = inList ? "Na lista de compras" : "Adicionar à lista de compras";
     }
     renderShoppingBtn(Storage.isRecipeInShoppingList(item.id));
     shoppingBtn.addEventListener("click", () => {
@@ -2949,7 +2871,7 @@
     if (recipe.steps && recipe.steps.length) {
       const cookBtn = document.createElement("button");
       cookBtn.className = "primary-cta";
-      cookBtn.textContent = "👩‍🍳 Começar preparo";
+      cookBtn.textContent = "Começar preparo";
       // Captura o multiplicador ATUAL do stepper (currentRatio(), já existe acima) e leva pro
       // modo de preparo via URL — só é usado se for criar uma sessão nova (Fase 2); retomar
       // uma sessão em andamento ignora isso e usa o portionMultiplier já salvo nela.
@@ -3132,7 +3054,7 @@
 
     const exitBtn = document.createElement("button");
     exitBtn.className = "back-button";
-    exitBtn.textContent = "✕ Sair do modo cozinhar";
+    exitBtn.textContent = "Sair do modo cozinhar";
     exitBtn.addEventListener("click", () => {
       // Bug do "timer fantasma" (corrigido aqui): antes, sair sem finalizar não limpava o
       // interval do timer — ele continuava rodando escondido (atualizando um timerBox já
@@ -3576,7 +3498,7 @@
         })
         .join("");
       prevBtn.disabled = stepIndex === 0;
-      nextBtn.textContent = stepIndex === totalSteps - 1 ? "Finalizar ✓" : "Próximo →";
+      nextBtn.textContent = stepIndex === totalSteps - 1 ? "Finalizar" : "Próximo →";
 
       // Troca de passo troca qual timer aparece na tela (ver comentário acima da função
       // getStepTimerState) — reinicia o ticker só se o timer DESSE passo estiver rodando.
@@ -3617,7 +3539,7 @@
   // Ordem de resolução, por receita:
   //   1. imagens/receitas/<slug>.webp   -> foto própria, gerada por scripts/gerar-imagens.js
   //   2. Wikipedia em runtime (cache no localStorage)  -> o que existia antes deste commit
-  //   3. placeholder 🍽
+  //   3. placeholder (ícone dedicado, sem foto)
   //
   // A foto própria vence sempre. E o resultado do teste dela NÃO vai pro localStorage: enquanto
   // o lote de 398 não termina, a mesma receita pode não ter webp agora e ter daqui a dez minutos.
@@ -3729,12 +3651,12 @@
       img.loading = "lazy";
       img.onerror = () => {
         el.classList.add("placeholder");
-        el.innerHTML = "🍽";
+        el.innerHTML = iconSvg("photoOff", "photo-placeholder__icon");
       };
       el.appendChild(img);
     } else {
       el.classList.add("placeholder");
-      el.innerHTML = "🍽";
+      el.innerHTML = iconSvg("photoOff", "photo-placeholder__icon");
     }
   }
 

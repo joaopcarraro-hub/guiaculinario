@@ -79,9 +79,9 @@ real de navegação — `history.back()`/equivalente), NUNCA um destino fixo har
 (ex.: "#/categoria/X" cravado no código, ignorando de onde o usuário realmente veio).
 
 EXCEÇÃO: a tela do modo de preparo (cozinhar) NUNCA deve ter botão voltar adicional — só o
-botão "✕ Sair do modo de cozinhar" (já existe, `renderCookMode`/`exitBtn` em app.js) resolve a
-saída daquela tela. Nenhum botão voltar extra deve ser adicionado ali, mesmo depois do
-redesenho.
+botão "Sair do modo cozinhar" (já existe, `renderCookMode`/`exitBtn` em app.js; texto sem "✕",
+Fase 0c) resolve a saída daquela tela. Nenhum botão voltar extra deve ser adicionado ali, mesmo
+depois do redesenho.
 
 Isso NÃO impede um botão de navegação DIFERENTE de "voltar" — o nome da receita no cabeçalho
 (`.cook-title__link`, usando a classe compartilhada `.text-link`: texto + ícone arrowUpRight

@@ -43,6 +43,7 @@ function loadRealFlat() {
     // eslint-disable-next-line no-new-func
     new Function("window", fs.readFileSync(path.join(ROOT, rel), "utf8"))(sandbox.window);
   }
+  load("js/countries.js");
   load("js/categories.js");
   load("data/derivation-dict.js");
   load("js/tags.js");

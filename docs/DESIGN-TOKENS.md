@@ -190,9 +190,54 @@ diretamente. Remoção dos alias fica pra uma rodada futura.
   a 0,66rem só mede 3,81:1 sobre `--color-bg-secondary`, abaixo de 4,5:1 AA pra texto; o ícone é
   uso gráfico, exigência 3:1, cumprida); inativo `--color-text-disabled`.
 
-## Ícones
+## Iconografia
+
 Outline, espessura consistente, monocromático. Ativos `--color-accent`, inativos
 `--color-text-disabled`.
+
+**Sistema (`ICON_SVG_ATTRS`/`ICONS`/`iconSvg()`, topo de `js/app.js`):** todo ícone novo do app é
+um `<path>`/`<circle>`/`<rect>` dentro de um `viewBox="0 0 24 24"`, `fill="none"`,
+`stroke="currentColor"`, `stroke-width="1.8"`, `stroke-linecap`/`stroke-linejoin="round"`. A cor
+nunca é fixa no path — vem sempre do `color` do elemento ancestral via `currentColor`, o mesmo
+mecanismo de token de cor do resto do app (`--color-accent`/`--color-text-disabled`/etc.).
+`iconSvg(key, className)` monta a tag a partir de uma entrada do dicionário `ICONS` — sem
+arquivo, sem `<img>`, sem `fetch()` (mesma razão anti-race-condition do `EQUIPMENT_SVG_MARKUP`:
+um ícone carregado de forma assíncrona pode renderizar em branco se o modal abrir antes do
+fetch terminar).
+
+**Regra (Fase 0c): emoji nunca é ícone.** Ícone de produto (ação, estado, categoria de dado) usa
+sempre `iconSvg()`. Emoji cru só é aceitável em copy decorativa opcional — e mesmo aí, a Fase 0c
+tirou todos os casos que existiam (ver skill `mobile-recipe-ui`, seção "Fase 0c"). As duas
+exceções que restam hoje (emoji de categoria/hub em `categories.js`/`collections.js`, e as
+bandeiras de país) não são exceções À REGRA — são migração pendente, adiada de propósito pro
+item 6 do roadmap (junto com as fotos), não um caso de uso aprovado pra emoji novo.
+
+**Tamanhos em uso, por contexto (`css/style.css`, sempre `width`/`height` explícitos — um SVG
+sem essas duas propriedades cai no tamanho intrínseco do navegador, não no `font-size` que um
+emoji herdava de graça):**
+
+| Contexto | Ícone | Tamanho | Seletor |
+|---|---|---|---|
+| Botão de remover (`.preparo-card__delete`, Preparos e Lista de Compras) | `close` | 16px | `.preparo-card__delete svg` |
+| Thumb de card sem foto (`.recipe-thumb`, `.preparo-card__thumb`) | `photoOff` | 24px | `.recipe-thumb.placeholder svg`, `.preparo-card__thumb.placeholder svg` |
+| Ícone de categoria sem `icon` definido (raríssimo — os 49 hoje têm todos) | `photoOff` | 24px | `.category-card__icon svg` |
+| Hero da página de receita sem foto (`.recipe-hero`) | `photoOff` | 56px | `.recipe-hero.placeholder svg` |
+
+Calibrado pra bater com o que o emoji/glifo antigo ocupava em cada contêiner (16px ≈
+`--text-base` do glifo "✕"; 24px ≈ `--text-lg` do 🍽 nos thumbs; 56px ≈ os `3.5rem` do 🍽 no
+hero) — não são valores arbitrários, são o mesmo peso visual de antes, só com um SVG no lugar
+do caractere.
+
+**`photoOff` — spec do placeholder "sem foto" (componente de produto, não decoração):**
+Representa um ESTADO de dado ausente (nenhuma foto própria nem fallback da Wikipédia resolveu),
+não um enfeite — por isso é sempre acompanhado da classe `.placeholder` no elemento (contrato
+de `loadRecipeImage()`/`applyImage()` em `docs/CONTRATO-IMAGENS-REDESIGN.md` §8.1: a ausência de
+foto tem que ser sinalizada de forma detectável e estável). Cor: herda `--color-text-disabled`
+do elemento `.placeholder` ancestral (nunca cor própria). Fundo do contêiner:
+`--color-surface-elevated`, o mesmo em todas as 3 superfícies (thumb de card, thumb de preparo,
+hero). Estilizar esse estado (fundo, borda, animação) é decisão livre da frente de design a
+qualquer momento — o único contrato fixo é o sinal (`.placeholder` presente + ausência de
+`<img>`), não a aparência.
 
 ## Estados
 Hover `--color-accent-hover` · Pressed: leve redução de escala (`scale(0.97)`) + opacidade
