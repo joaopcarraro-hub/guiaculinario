@@ -88,6 +88,24 @@ foram decisão explícita do dono. Suíte versionada
 `scripts/verify-shopping-sections-2026-07-24.js`. Verificado ao vivo no navegador (10 receitas
 reais cobrindo as 10 seções, ordem conferida ponta a ponta).
 
+Fase 5 — sub-produto derivado, "não compra quebrado" (2026-07-24): núcleo que não se compra
+sozinho (gema/clara, raspas/suco/casca de limão/limão-siciliano/laranja, casca de parmesão)
+nunca vira item próprio na visão Geral — sempre funde no item-base. Regra: base_direto +
+MÁXIMO(sub-produtos entre si) — nunca soma, porque a mesma fruta rende raspas E suco ao mesmo
+tempo, e todo ovo rende exatamente 1 gema E 1 clara. Ex. real: 2 ovos + 1 gema + 6 claras = 8
+ovos (2 + máximo(1,6)), não 9. Tabela de rendimento pra cítricos marcada como estimativa,
+sempre pelo valor MENOR do intervalo típico e arredondada pra cima (assimetria de risco).
+Achado durante a investigação: 27 linhas reais de "suco de N limões" (quantidade escrita no
+texto do ingrediente, não no campo qty) escapavam do canônico "suco de limão" — corrigido no
+mesmo commit, incluindo o canônico novo "suco de laranja" que não existia. Cortes de ave/boi/
+suíno (peito de frango, coxa, etc.) confirmados como NÃO sub-produto — são cortes vendidos
+avulsos no Brasil, ninguém compra o animal inteiro pra ter o corte. Mecânica: `SUBPRODUCT_OF`
+em `data/shopping-dict.js` (mesmo padrão do `PANTRY_SET`), bucket + pós-passe de máximo em
+`buildShoppingListGroups` (`js/app.js`). Suíte versionada
+`scripts/verify-subprodutos-2026-07-24.js`, sem nenhuma dependência de git (só valores
+literais). Verificado ao vivo no navegador (4 cenários: ovo, cítricos, negativo de corte de
+ave, `casca de parmesão` sem quantidade).
+
 ### Nomes de receita em português
 
 398 receitas classificadas (136 já PT, 234 nome próprio mantido, 28 candidatos investigados).
@@ -135,11 +153,7 @@ hierarquia de área de toque confirmada por `elementFromPoint`).
 1. ~~Busca~~ — ✅ FEITO (ver bloco acima).
 2. ~~Tag órfã "Frito"/"Assado" sem resultado~~ — ✅ FEITO (filtro de tag morta, Pacote 1).
    Confirmar na tela quando o deploy subir.
-3. Quantidade "não compra quebrado" — ex.: "3 ovos + 2 gemas" deve virar "5 ovos" na lista de
-   compras. NÃO é coberto pela normalização já feita (aquilo resolve texto e unidade de venda;
-   isto é SUB-PRODUTO DERIVADO — gema/clara vêm de dentro do ovo). Precisa de investigação
-   própria: varrer o acervo e medir quantos ingredientes têm esse padrão antes de definir a
-   regra geral. Investigação + execução: Sonnet 5 Extra, effort médio.
+3. ~~Quantidade "não compra quebrado"~~ — ✅ FEITO (ver bloco "Lista de Compras" acima, Fase 5).
 4. ~~Nomes de receita em português~~ — ✅ FEITO (ver bloco abaixo).
 5. Busca inline da página de grupo sem `fromHash` (pequeno) — 3º caminho que ficou de fora
    quando o "Voltar preservando contexto" foi estendido. Fecha a consistência de navegação.

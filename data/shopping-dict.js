@@ -215,6 +215,19 @@
     // ---- auditoria de cobertura (2026-07-23): fechamento dos clusters restantes ----
     // redundância cultural (o genérico É o específico no Brasil)
     "suco de limão-tahiti": "suco de limão",
+    // achado na investigação de sub-produto derivado (2026-07-24): quantidade de fruta escrita
+    // dentro do próprio texto do ingrediente (não no campo qty estruturado) — sem isso, "suco
+    // de 2 limões" e "suco de 1/2 limão" viram canônicos DIFERENTES de "suco de limão" e ficam
+    // fora da soma/máximo do sub-produto. Parênteses já são removidos pela Camada 1 antes desta
+    // consulta, então "suco de 1 limão (para o quiabo)" e "suco de 2 limões (dividido)" também
+    // caem aqui.
+    "suco de 1 limão": "suco de limão",
+    "suco de 1-2 limões": "suco de limão",
+    "suco de 1/2 limão": "suco de limão",
+    "suco de 2 limões": "suco de limão",
+    "suco de 3 limões": "suco de limão",
+    "raspas de 1 limão": "raspas de limão",
+    "suco de 2 laranjas": "suco de laranja",
     "cominho em pó": "cominho",
     "orégano seco": "orégano",
     "acém bovino": "acém",
@@ -581,6 +594,7 @@
     "sálvia": "Hortifruti",
     "shiso": "Hortifruti",
     "suco cítrico": "Hortifruti",
+    "suco de laranja": "Hortifruti",
     "suco de limão": "Hortifruti",
     "suco de limão-siciliano": "Hortifruti",
     "tomate": "Hortifruti",
@@ -1085,6 +1099,51 @@
     return SECTION_MAP[String(core || "").trim().toLowerCase()] || "outros";
   }
 
+  // ---- Sub-produto derivado — "não compra quebrado" (2026-07-24) ----
+  // Núcleo que NÃO se compra sozinho, só como fração de um item-base que TAMBÉM é canônico
+  // próprio (gema/clara vêm de dentro do ovo). Todo core aqui NUNCA vira grupo próprio na
+  // visão Geral — sempre funde no `base`, via js/app.js.
+  //
+  // `base`: núcleo pro qual funde. `perMl`: fator de rendimento estimado (1 ml do sub-produto
+  // medido em volume equivale a `perMl` unidades do item-base — ex.: 1/30 = 30 ml de suco por
+  // fruta) — SEM `perMl`, a quantidade medida em volume não tem como converter e o item vira
+  // fallback pra `perCount`. `perCount`: quantas unidades do item-base 1 unidade CONTADA (sem
+  // unidade de medida, ex. "2 raspas de limão") do sub-produto representa — default 1 (1
+  // conta = 1 fruta) quando omitido. `noQuantity: true`: nunca contribui número, só funde o
+  // nome da receita no grupo do item-base (ex.: casca de parmesão — não tem rendimento
+  // conhecido em gramas de queijo, e o item-base já teria "sobra" de casca se comprado por
+  // outro motivo).
+  //
+  // Regra de combinação (js/app.js): sub-produtos do MESMO item-base tomam o MÁXIMO entre si
+  // (nunca soma) — a mesma fruta rende raspas E suco ao mesmo tempo, então pedir os dois não
+  // dobra a necessidade. `base` direto (ex.: "2 limões" puro) SOMA por cima do máximo dos
+  // sub-produtos: total = base_direto + MÁXIMO(sub-produto A, sub-produto B, ...). Exceção
+  // biológica confirmada: ovo (gema+clara vêm do MESMO ovo, sempre, sem exceção — máximo é
+  // exato, não estimativa). Cítricos são estimativa de rendimento culinário (marcado EST
+  // abaixo), arredondada SEMPRE pra cima e pelo valor MENOR do intervalo típico (assimetria de
+  // risco: comprar fruta a mais é barato, comprar de menos impede a receita).
+  const SUBPRODUCT_OF = {
+    "gema": { base: "ovo" },
+    "clara": { base: "ovo", perMl: 1 / 30 }, // EST: 1 clara ≈ 30 ml (2 colheres de sopa)
+    "suco de limão": { base: "limão", perMl: 1 / 30 }, // EST: 1 limão ≈ 30 ml de suco
+    "raspas de limão": { base: "limão", perMl: 1 / 5 }, // EST: 1 limão ≈ 5 ml (1 colher de chá) de raspas
+    "casca de limão": { base: "limão" },
+    "rodelas de limão": { base: "limão" },
+    "suco de limão-siciliano": { base: "limão-siciliano", perMl: 1 / 45 }, // EST: fruta maior, mais suco
+    "raspas de limão-siciliano": { base: "limão-siciliano", perMl: 1 / 8 }, // EST
+    "casca de limão-siciliano": { base: "limão-siciliano" },
+    "fatias finas de limão-siciliano": { base: "limão-siciliano", perCount: 0.25 }, // EST: ~4 fatias finas por fruta
+    "suco de laranja": { base: "laranja", perMl: 1 / 120 }, // EST
+    "raspas de laranja": { base: "laranja", perMl: 1 / 15 }, // EST
+    "casca de laranja": { base: "laranja" },
+    "rodelas de laranja": { base: "laranja" },
+    "casca de parmesão": { base: "queijo parmesão", noQuantity: true },
+  };
+
+  function subproductOf(core) {
+    return SUBPRODUCT_OF[String(core || "").trim().toLowerCase()] || null;
+  }
+
   // ---- Fase 3B: unidade de VENDA pra medidas de colher/xícara ----
   // Princípio: a lista de compras exibe a unidade em que o item é VENDIDO (rótulo da
   // embalagem), não a unidade em que a receita mede. Colher e xícara nunca aparecem em
@@ -1246,5 +1305,5 @@
     return t;
   }
 
-  return { KNOWN_UNITS: KNOWN_UNITS, CANONICAL: CANONICAL, STRIP_WORDS: STRIP_WORDS, STRIP_PHRASES: STRIP_PHRASES, PLURALS: PLURALS, PANTRY_SET: PANTRY_SET, SPOON_TO_GRAM: SPOON_TO_GRAM, SPOON_NO_QUANTITY: SPOON_NO_QUANTITY, PACKAGE_SIZE: PACKAGE_SIZE, SECTION_ORDER: SECTION_ORDER, SECTION_MAP: SECTION_MAP, purchaseCore: purchaseCore, pluralFor: pluralFor, isPantry: isPantry, spoonToGram: spoonToGram, isSpoonNoQuantity: isSpoonNoQuantity, packageFor: packageFor, sectionFor: sectionFor };
+  return { KNOWN_UNITS: KNOWN_UNITS, CANONICAL: CANONICAL, STRIP_WORDS: STRIP_WORDS, STRIP_PHRASES: STRIP_PHRASES, PLURALS: PLURALS, PANTRY_SET: PANTRY_SET, SPOON_TO_GRAM: SPOON_TO_GRAM, SPOON_NO_QUANTITY: SPOON_NO_QUANTITY, PACKAGE_SIZE: PACKAGE_SIZE, SECTION_ORDER: SECTION_ORDER, SECTION_MAP: SECTION_MAP, SUBPRODUCT_OF: SUBPRODUCT_OF, purchaseCore: purchaseCore, pluralFor: pluralFor, isPantry: isPantry, spoonToGram: spoonToGram, isSpoonNoQuantity: isSpoonNoQuantity, packageFor: packageFor, sectionFor: sectionFor, subproductOf: subproductOf };
 });

@@ -1896,6 +1896,14 @@
     const preparos = {};
     const pantry = {};
     const aGosto = {};
+    // Sub-produto derivado ("não compra quebrado", 2026-07-24): núcleo tipo gema/clara/raspas
+    // de limão nunca vira grupo próprio — acumula aqui, convertido pro equivalente do
+    // item-base (ShoppingDict.subproductOf), e funde no grupo do item-base no pós-passe
+    // depois do loop principal. subprodutos[base][subCore] = quantidade equivalente
+    // acumulada; subprodutosMeta[base] = pairs/recipeNames de TODAS as linhas daquele base
+    // (inclusive as sem quantidade — nunca perde a receita da lista, só não soma número).
+    const subprodutos = {};
+    const subprodutosMeta = {};
     Storage.getShoppingListRecipes().forEach((entry) => {
       const recipeItem = TagModel.findRecipeById(entry.recipeId);
       if (!recipeItem) return;
@@ -1913,6 +1921,30 @@
           }
           const family = it.unit ? UNIT_FAMILY[it.unit] : null;
           const core = ShoppingDict.purchaseCore(it.item);
+          // Sub-produto derivado: nunca vira item próprio, sempre funde no item-base — checa
+          // ANTES da despensa/a-gosto/acúmulo normal porque é uma classificação por
+          // IDENTIDADE do núcleo, não pela forma da quantidade.
+          const subOf = ShoppingDict.subproductOf(core);
+          if (subOf) {
+            let amount = null;
+            if (it.qty !== null && it.qty !== undefined) amount = it.qty;
+            else if (it.qtyRange) amount = it.qtyRange[1]; // limite superior — assimetria de risco
+            let baseEquivalent = 0;
+            if (amount !== null && !subOf.noQuantity) {
+              if (family === "volume" && subOf.perMl && it.unit) {
+                baseEquivalent = amount * UNIT_TO_BASE_FACTOR[it.unit] * subOf.perMl;
+              } else {
+                baseEquivalent = amount * (subOf.perCount !== undefined ? subOf.perCount : 1);
+              }
+              baseEquivalent *= entry.portionMultiplier;
+            }
+            if (!subprodutos[subOf.base]) subprodutos[subOf.base] = {};
+            subprodutos[subOf.base][core] = (subprodutos[subOf.base][core] || 0) + baseEquivalent;
+            if (!subprodutosMeta[subOf.base]) subprodutosMeta[subOf.base] = { pairs: {}, recipeNames: {} };
+            subprodutosMeta[subOf.base].pairs[normalizeGroupKey(it.item) + "|" + (it.unit || "")] = { item: it.item, unit: it.unit || null };
+            subprodutosMeta[subOf.base].recipeNames[recipe.name] = true;
+            return;
+          }
           // Despensa (Fase 2): item cuja quantidade típica é irrelevante frente ao pacote
           // doméstico sai da soma e vai pra seção própria — COM ou SEM número (o que decide
           // é o TIPO de item, não ter quantidade). Conjunto estrito em ShoppingDict.PANTRY_SET.
@@ -1991,6 +2023,30 @@
       } else {
         groups[core + "|UNIT:"] = { itemLabel: core, family: null, literalUnit: null, lo: 0, hi: 0, hasQuantity: false, pairs: aGosto[core].pairs, recipeNames: aGosto[core].recipeNames, unitsSeen: {} };
       }
+    });
+
+    // Pós-passe do sub-produto derivado: MÁXIMO entre os sub-produtos do MESMO item-base
+    // (nunca soma — a mesma fruta rende raspas E suco ao mesmo tempo; dentro do MESMO
+    // sub-produto as linhas já somaram normal, lá em cima, pelo próprio core). Soma por cima
+    // do que o item-base já tinha de uso DIRETO (ex.: "3 ovos" puro, sem ser gema/clara de
+    // ninguém) — mesmo grupo "base|UNIT:" onde o uso direto sem unidade já cai. Arredonda pra
+    // cima (assimetria de risco). maxEquivalent 0 (a-gosto, ou sub-produto sem rendimento
+    // conhecido tipo casca de parmesão) nunca inventa quantidade — só funde a receita.
+    Object.keys(subprodutos).forEach((base) => {
+      const maxEquivalent = Math.max(0, ...Object.values(subprodutos[base]));
+      const targetKey = base + "|UNIT:";
+      if (!groups[targetKey]) {
+        groups[targetKey] = { itemLabel: base, family: null, literalUnit: null, lo: 0, hi: 0, hasQuantity: false, pairs: {}, recipeNames: {}, unitsSeen: {} };
+      }
+      const g = groups[targetKey];
+      if (maxEquivalent > 0) {
+        const rounded = Math.ceil(maxEquivalent - 1e-9);
+        g.lo += rounded;
+        g.hi += rounded;
+        g.hasQuantity = true;
+      }
+      Object.assign(g.pairs, subprodutosMeta[base].pairs);
+      Object.keys(subprodutosMeta[base].recipeNames).forEach((n) => { g.recipeNames[n] = true; });
     });
 
     const groupList = Object.keys(groups)

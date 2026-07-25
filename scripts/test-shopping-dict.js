@@ -151,6 +151,18 @@ assertMerge("negi", "negi", "cebolinha grossa");
 // vegetal — recipe.name já foi traduzido, mas o texto de ingrediente em outras receitas ainda
 // usava o nome dinamarquês (ver data/shopping-dict.js CANONICAL)
 assertMerge("rødkål", "rødkål", "repolho roxo");
+// achado na investigação de sub-produto derivado (2026-07-24): quantidade de fruta escrita
+// dentro do texto do ingrediente ("suco de 2 limões") em vez do campo qty — sem fundir, 27
+// linhas reais do acervo ficavam fora do canônico "suco de limão" e escapavam da regra de
+// sub-produto (parênteses já são removidos pela Camada 1 antes desta consulta, por isso os
+// mesmos casos cobrem as variantes "(para o quiabo)"/"(dividido)").
+assertMerge("suco de 1 limão", "suco de 1 limão (para o quiabo)", "suco de limão");
+assertMerge("suco de 1-2 limões", "suco de 1-2 limões", "suco de limão");
+assertMerge("suco de 1/2 limão", "suco de 1/2 limão", "suco de limão");
+assertMerge("suco de 2 limões", "suco de 2 limões (dividido)", "suco de limão");
+assertMerge("suco de 3 limões", "suco de 3 limões", "suco de limão");
+assertMerge("raspas de 1 limão", "raspas de 1 limão", "raspas de limão");
+assertMerge("suco de 2 laranjas", "suco de 2 laranjas", "suco de laranja");
 
 // Redundância cultural (o genérico É o específico no Brasil)
 assertMerge("cominho em pó", "cominho em pó", "cominho");
