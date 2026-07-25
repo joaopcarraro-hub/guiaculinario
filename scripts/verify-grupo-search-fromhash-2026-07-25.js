@@ -99,9 +99,16 @@ function main() {
 
   console.log("");
   console.log("==================================================");
-  console.log("6. BOTÃO PRÓPRIO DE VOLTAR DO GRUPO (Router.toHome) — fora do escopo desta tarefa, confirmado intacto");
+  console.log("6. BOTÃO PRÓPRIO DE VOLTAR DO GRUPO (Router.toHome) — destino preservado através da expansão pro flutuante");
   console.log("==================================================");
-  assert(grupoFnBody.includes('back.addEventListener("click", () => Router.toHome());'), "botão '← Voltar' do topo do grupo continua indo pra Home direto — não fazia parte do bug relatado, não foi tocado");
+  // Atualizado 2026-07-25 (leva do item 1 do roadmap, rodada 2): na época desta suíte
+  // (verify-grupo-search-fromhash), o botão de voltar do grupo era um back.addEventListener
+  // inline, fora do escopo daquela tarefa. Uma leva posterior, aprovada em separado, expandiu o
+  // botão flutuante da receita pra TODA tela com página-mãe, incluindo o grupo — o elemento
+  // trocou (agora via createBackFloat, ver scripts/verify-back-float-2026-07-25.js), mas o
+  // DESTINO que esta suíte protege (Router.toHome(), nunca um grupo/coleção hardcoded) continua
+  // idêntico — só a asserção precisou acompanhar a nova forma de construir o botão.
+  assert(grupoFnBody.includes('createBackFloat("Home", () => Router.toHome())'), "botão de voltar do topo do grupo continua indo pra Home direto (agora via createBackFloat, destino intacto)");
 
   console.log("");
   console.log("==================================================");

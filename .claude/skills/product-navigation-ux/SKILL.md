@@ -68,34 +68,59 @@ reais (não placeholder mais) — Minhas Receitas (favoritas/já feitas em abas)
 de sessões de cozinha em andamento) e Lista de Compras (2 visões já funcionam: "Por receita" e
 "Geral" com soma agrupada entre receitas por família de unidade, ver mobile-recipe-ui/SKILL.md).
 
-## Botão Voltar (item 1 do roadmap — flutuante, implementado 2026-07-25)
+## Botão Voltar (item 1 do roadmap — flutuante, expandido pra todas as telas com página-mãe)
 
-A página de receita (`renderReceita`) trocou o `.back-button` contextual fixo do topo (texto
-"← Voltar para X") por um botão circular flutuante (`.back-float`, `position: fixed`,
-topo-esquerda, acompanha o scroll — nunca esconde/mostra, sem variação hide-on-scroll por
-enquanto). Isso foi só uma troca de APRESENTAÇÃO — o MECANISMO por baixo não mudou: continua o
-mesmo `fromHash`/`currentHashPath()` de sempre, os mesmos 4 caminhos ("voltar preservando
-contexto": Coleção, Busca, Minhas Receitas, busca inline de grupo/hub) intactos, mesmo
-`Router.navigate(fromHash)` no clique. O rótulo que antes era texto visível ("Voltar para X")
-virou `aria-label` dinâmico (o botão agora só tem o ícone `chevronLeft`), com a MESMA cadeia de
-fallback de antes (coleção de origem → "Pesquisar" → "Minhas Receitas" → categoria da receita).
+**Rodada 1 (2026-07-25):** a página de receita (`renderReceita`) trocou o `.back-button`
+contextual fixo do topo (texto "← Voltar para X") por um botão circular flutuante (`.back-float`,
+`position: fixed`, topo-esquerda, acompanha o scroll — nunca esconde/mostra, sem variação
+hide-on-scroll por enquanto). Isso foi só uma troca de APRESENTAÇÃO — o MECANISMO por baixo não
+mudou: continua o mesmo `fromHash`/`currentHashPath()` de sempre, os mesmos 4 caminhos ("voltar
+preservando contexto": Coleção, Busca, Minhas Receitas, busca inline de grupo/hub) intactos,
+mesmo `Router.navigate(fromHash)` no clique. O rótulo que antes era texto visível ("Voltar para
+X") virou `aria-label` dinâmico (o botão agora só tem o ícone `chevronLeft`), com a MESMA cadeia
+de fallback de antes (coleção de origem → "Pesquisar" → "Minhas Receitas" → categoria da
+receita).
+
+**Rodada 2 (mesma data, leva aprovada em separado):** expandido pra TODA tela com página-mãe.
+`renderGrupo` e `renderCategory` (cabeçalho de coleção) tinham seus PRÓPRIOS botões "← Voltar"
+textuais — descritos numa versão anterior desta skill como "destino hardcoded pra Home", o que
+só era exato pra `renderGrupo`; `renderCategory` já era dinâmico ANTES desta rodada
+(`hideFromGrupoGrid` ? Home : grupo dono da coleção ? esse grupo : Home — correção registrada
+aqui). Os dois agora usam o MESMO `.back-float`/`createBackFloat()` da receita (helper
+compartilhado em `js/app.js`, nunca duplicado por tela) — só trocou o elemento, a lógica de
+destino de cada um ficou idêntica à de antes:
+- `renderGrupo`: destino sempre Home — único pai real dos 5 hubs (proteínas/países só têm tile
+  na Home; "Mais Categorias" só tem o link da Home; tempo/dificuldade não têm NENHUM link hoje,
+  só URL direta, mas Home segue sendo o único pai estrutural). Sem ambiguidade.
+- `renderCategory`: destino = grupo dono da coleção (`GRUPOS.find` por `collectionGroup`), ou
+  Home só nas 2 exceções `hideFromGrupoGrid` (massas, sobremesas-classicas — únicas 2 coleções
+  linkadas direto da Home em vez de uma grade de grupo). Confirmado por grep que TODA coleção
+  tem exatamente 1 entry point real (nunca 2), então nenhum caso ficou ambíguo nesta rodada — 0
+  telas com TODO-1b pendente.
+
 Ver `docs/DESIGN-TOKENS.md` ("Componentes") pra spec visual completa (dimensões, véu, z-index,
-contraste) e `scripts/verify-back-float-2026-07-25.js` pra a suíte versionada.
+contraste) e `scripts/verify-back-float-2026-07-25.js` pra a suíte versionada (as duas rodadas).
 
-`renderGrupo` e `renderCategory` (cabeçalho de coleção) têm seus PRÓPRIOS botões "← Voltar"
-fixos no topo, com destino hardcoded pra Home — esses são elementos DIFERENTES do botão desta
-seção (não fazem parte do mecanismo "voltar preservando contexto" por fromHash) e ficaram FORA
-do escopo desta rodada; continuam exatamente como estavam.
+Busca/Pesquisar, Minhas Receitas, Preparos e Lista de Compras são abas de nível superior da
+barra inferior — não têm página-mãe (múltiplos entry points, ou nenhum "pai" conceitual, mesmo
+comentário já existia no código antes desta tarefa) — não ganham `.back-float`.
 
 A regra de navegação, já valendo antes desta rodada e reafirmada aqui: o botão voltar deve
 SEMPRE voltar pra última tela realmente visitada pelo usuário (histórico real de navegação —
 `fromHash`/`history.back()`/equivalente), NUNCA um destino fixo hardcoded na tela (ex.:
-"#/categoria/X" cravado no código, ignorando de onde o usuário realmente veio).
+"#/categoria/X" cravado no código, ignorando de onde o usuário realmente veio). Onde não existe
+histórico de verdade (grupo/categoria não usam fromHash, usam navegação direta) mas o pai é
+estrutural e único, voltar pro pai real conta como cumprir a regra — só vira "hardcoded ruim"
+se o destino for fixo APESAR de existir mais de um caminho real de chegada.
 
 EXCEÇÃO: a tela do modo de preparo (cozinhar) NUNCA deve ter botão voltar adicional — só o
-botão "Sair do modo cozinhar" (já existe, `renderCookMode`/`exitBtn` em app.js; texto sem "✕",
-Fase 0c) resolve a saída daquela tela. Nenhum botão voltar extra deve ser adicionado ali, mesmo
-depois do redesenho.
+botão "Sair do modo cozinhar" resolve a saída daquela tela, e continua sendo o ÚNICO controle
+flutuante ali (nenhum `.back-float` nunca deve aparecer no modo cozinhar). Rodada 2: esse botão
+virou pílula flutuante (`.exit-cook-float`, `createExitCookFloat()` em app.js — ícone `close` já
+existente da Fase 0c + texto "Sair", mesma linguagem visual do `.back-float`: véu, borda,
+z-float, estados), devolvendo o peso visual que o ✕ removido na Fase 0c dava. Continua sendo
+"sair", não "voltar" — `aria-label` fixo "Sair do modo cozinhar", nunca dinâmico. Nenhum botão
+de voltar extra deve ser adicionado ali, mesmo depois do redesenho.
 
 Isso NÃO impede um botão de navegação DIFERENTE de "voltar" — o nome da receita no cabeçalho
 (`.cook-title__link`, usando a classe compartilhada `.text-link`: texto + ícone arrowUpRight

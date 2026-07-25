@@ -173,8 +173,7 @@ body {
 .tag-chip--selected,
 .filter-modal .tag-chip--selected,
 .update-toast__btn,
-.back-button,
-.back-float,
+.chrome-float,
 .checklist label,
 .cook-timer-controls button,
 .cook-timer-display__part,
@@ -206,8 +205,7 @@ body {
 .tag-chip--selected:active,
 .filter-modal .tag-chip--selected:active,
 .update-toast__btn:active,
-.back-button:active,
-.back-float:active,
+.chrome-float:active,
 .checklist label:active,
 .cook-timer-controls button:active,
 .cook-timer-display__part:active,
@@ -1385,41 +1383,47 @@ body.filter-modal-open { overflow: hidden; }
 
 /* ---------- Página de receita ---------- */
 .recipe-page { max-width: 720px; }
-.back-button {
-  background: none;
-  border: none;
-  /* era --gold: ghost-text puro (sem fundo/borda), 14.4px falha o limiar 18px+. --ink-soft. */
-  color: var(--color-text-secondary);
-  font-family: var(--font-ui);
-  font-size: var(--text-sm);
-  cursor: pointer;
-  padding: var(--space-2) 0;
-  margin-bottom: var(--space-3);
-  min-height: 44px;
-}
-/* Botão de voltar flutuante da página de receita — substitui o .back-button de topo só aqui
-   (renderReceita em js/app.js); as outras telas que usam .back-button não mudam. Véu escuro
-   FIXO (não so-hover/tema): funciona tanto sobre o tema escuro quanto sobre o hero de foto
-   clara (regra §8.1, docs/CONTRATO-IMAGENS-REDESIGN.md — nunca elemento claro solto sobre foto
-   clara). Sem backdrop-filter de propósito: celular modesto é público-alvo. */
-.back-float {
+/* Controles flutuantes de topo (item 1 do roadmap, expandido pra todas as telas com
+   página-mãe + "Sair" do modo cozinhar) — véu escuro FIXO (não só hover/tema): funciona tanto
+   sobre o tema escuro quanto sobre o hero de foto clara (regra §8.1,
+   docs/CONTRATO-IMAGENS-REDESIGN.md — nunca elemento claro solto sobre foto clara). Sem
+   backdrop-filter de propósito: celular modesto é público-alvo. .back-float (circular, receita/
+   coleção/grupo) e .exit-cook-float (pílula, modo cozinhar) SEMPRE levam .chrome-float junto
+   (createBackFloat/createExitCookFloat em js/app.js) — base compartilhada, nunca duplicada. */
+.chrome-float {
   position: fixed;
   top: calc(env(safe-area-inset-top) + var(--space-3));
   left: calc(env(safe-area-inset-left) + var(--space-3));
   z-index: var(--z-float);
+  border: 1px solid var(--color-border);
+  background: rgba(15, 15, 14, 0.55);
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+.back-float {
   width: 44px;
   height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  border: 1px solid var(--color-border);
-  background: rgba(15, 15, 14, 0.55);
-  color: var(--color-text-primary);
   padding: 0;
-  cursor: pointer;
 }
 .back-float__icon { width: 22px; height: 22px; }
+/* Mesmas proporções de .filter-trigger (pill 44px + ícone 18px já estabelecido no app) — só
+   troca o fundo pro véu flutuante em vez de --color-surface. */
+.exit-cook-float {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 0 var(--space-5);
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+.exit-cook-float__icon { width: 18px; height: 18px; flex-shrink: 0; }
 .recipe-hero {
   width: 100%;
   /* era `height: 220px` FIXO, e altura fixa fazia o enquadramento depender da largura da tela.
@@ -1991,8 +1995,7 @@ body.filter-modal-open { overflow: hidden; }
   .tag-chip--selected:active,
   .filter-modal .tag-chip--selected:active,
   .update-toast__btn:active,
-  .back-button:active,
-  .back-float:active,
+  .chrome-float:active,
   .checklist label:active,
   .cook-timer-controls button:active,
   .cook-timer-display__part:active,
@@ -2073,8 +2076,7 @@ body.filter-modal-open { overflow: hidden; }
 .home-more-categories:focus-visible,
 .home-tile:focus-visible,
 .category-card:focus-visible,
-.back-button:focus-visible,
-.back-float:focus-visible,
+.chrome-float:focus-visible,
 .portion-stepper__btn:focus-visible,
 .action-btn:focus-visible,
 .recipe-page-heart:focus-visible,

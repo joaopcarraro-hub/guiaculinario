@@ -43,6 +43,32 @@
     return '<svg class="' + className + '" ' + ICON_SVG_ATTRS + ">" + ICONS[key] + "</svg>";
   }
 
+  // ---------- Controles flutuantes de topo (item 1 do roadmap) ----------
+  // Compartilhados por toda tela com página-mãe (receita, coleção, grupo/hub) e pelo "Sair" do
+  // modo cozinhar — ver .chrome-float/.back-float/.exit-cook-float no CSS. Centraliza a
+  // construção do elemento aqui pra nunca duplicar classe/ícone/estrutura entre os call sites.
+  function createBackFloat(destLabel, onClick) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "chrome-float back-float";
+    btn.setAttribute("aria-label", "Voltar para " + destLabel);
+    btn.innerHTML = iconSvg("chevronLeft", "back-float__icon");
+    btn.addEventListener("click", onClick);
+    return btn;
+  }
+
+  // Modo cozinhar nunca tem "voltar" (regra fixa da skill product-navigation-ux) — isto NÃO é
+  // um createBackFloat com destino "Sair"; é um controle diferente, mesma linguagem visual.
+  function createExitCookFloat(onClick) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "chrome-float exit-cook-float";
+    btn.setAttribute("aria-label", "Sair do modo cozinhar");
+    btn.innerHTML = iconSvg("close", "exit-cook-float__icon") + "<span>Sair</span>";
+    btn.addEventListener("click", onClick);
+    return btn;
+  }
+
   // Fase 0a (auditoria de acessibilidade 2026-07-25): torna um elemento não-nativo (div/span
   // com só um listener de "click") operável por teclado — Tab alcança, Enter/Espaço ativa.
   // Enter/Espaço só disparam el.click() (nunca duplicam a lógica do listener original) — o
@@ -272,11 +298,10 @@
     const wrap = document.createElement("div");
     wrap.className = "grupo-view";
 
-    const back = document.createElement("button");
-    back.className = "back-button";
-    back.textContent = "← Voltar";
-    back.addEventListener("click", () => Router.toHome());
-    wrap.appendChild(back);
+    // Home é o único pai real: proteinas/cozinhas vêm de tile da Home, fundamentos vem do link
+    // "Mais categorias" da Home, tempo/dificuldade não têm link nenhum hoje (só URL direta) —
+    // nenhum grupo tem mais de 1 entry point, então não há ambiguidade aqui (ver relatório).
+    wrap.appendChild(createBackFloat("Home", () => Router.toHome()));
 
     const titleEl = document.createElement("h2");
     titleEl.textContent = grupo.icon + " " + grupo.label;
@@ -1162,18 +1187,25 @@
   function renderCategory(collection, initialFacetTags, initialRole, initialIngredientMode) {
     refreshActiveCounts = null;
     header.innerHTML =
-      '<button type="button" class="back-button">← Voltar</button><h2>' +
+      "<h2>" +
       collection.label +
       "</h2>" +
       (collection.desc ? '<div class="desc">' + collection.desc + "</div>" : "");
     const grupo = GRUPOS.find((g) => g.collectionGroup === collection.group);
-    header.querySelector(".back-button").addEventListener("click", () => {
-      // hideFromGrupoGrid (Bloco 2, item 2): a coleção não aparece mais na grade do grupo, então
-      // "voltar pro grupo" seria um beco sem saída visual — volta pra Home (única entrada real).
-      if (collection.hideFromGrupoGrid) Router.toHome();
-      else if (grupo) Router.toGrupo(grupo.id);
-      else Router.toHome();
-    });
+    // Único entry point real de qualquer coleção, confirmado por grep: renderCollectionCard (só
+    // chamado de dentro da grade do grupo dono) OU, pras 2 exceções hideFromGrupoGrid (massas,
+    // sobremesas-classicas), o tile da própria Home — nunca os dois pra mesma coleção, então o
+    // destino abaixo nunca é ambíguo (mesma lógica de antes, só trocou de elemento).
+    header.insertBefore(
+      createBackFloat(collection.hideFromGrupoGrid || !grupo ? "Home" : grupo.label, () => {
+        // hideFromGrupoGrid (Bloco 2, item 2): a coleção não aparece mais na grade do grupo, então
+        // "voltar pro grupo" seria um beco sem saída visual — volta pra Home (única entrada real).
+        if (collection.hideFromGrupoGrid) Router.toHome();
+        else if (grupo) Router.toGrupo(grupo.id);
+        else Router.toHome();
+      }),
+      header.firstChild
+    );
     content.innerHTML = "";
     progressEl.textContent = "";
 
@@ -2717,20 +2749,16 @@
     // fixo no topo do fluxo. Rótulo vira aria-label (o botão não tem mais texto visível, só o
     // ícone chevron-esquerda), preservando o mesmo contexto que o texto antigo dava.
     const backDestLabel = backCollection ? backCollection.label : fromBusca ? "Pesquisar" : fromMinhasReceitas ? "Minhas Receitas" : cat ? cat.label : catId;
-    const back = document.createElement("button");
-    back.type = "button";
-    back.className = "back-float";
-    back.setAttribute("aria-label", "Voltar para " + backDestLabel);
-    back.innerHTML = iconSvg("chevronLeft", "back-float__icon");
-    // Volta pro hash de origem EXATO (mesmas tags/role/imode na coleção, tags/text/imode na
-    // busca, ou só a rota certa pra Minhas Receitas) quando disponível — só cai no
-    // Router.toCategoria "seco" (sem filtro) quando a receita foi aberta sem NENHUM contexto de
-    // origem (ex. link direto/bookmark sem fromHash).
-    back.addEventListener("click", () => {
-      if (fromHash) Router.navigate(fromHash);
-      else Router.toCategoria(backCollection ? backCollection.id : catId);
-    });
-    page.appendChild(back);
+    page.appendChild(
+      createBackFloat(backDestLabel, () => {
+        // Volta pro hash de origem EXATO (mesmas tags/role/imode na coleção, tags/text/imode na
+        // busca, ou só a rota certa pra Minhas Receitas) quando disponível — só cai no
+        // Router.toCategoria "seco" (sem filtro) quando a receita foi aberta sem NENHUM contexto
+        // de origem (ex. link direto/bookmark sem fromHash).
+        if (fromHash) Router.navigate(fromHash);
+        else Router.toCategoria(backCollection ? backCollection.id : catId);
+      })
+    );
 
     const hero = document.createElement("div");
     hero.className = "recipe-hero placeholder";
@@ -3057,10 +3085,11 @@
     const page = document.createElement("div");
     page.className = "cook-page";
 
-    const exitBtn = document.createElement("button");
-    exitBtn.className = "back-button";
-    exitBtn.textContent = "Sair do modo cozinhar";
-    exitBtn.addEventListener("click", () => {
+    // Modo cozinhar continua SEM botão de voltar (regra fixa da skill product-navigation-ux) —
+    // isto é "Sair", não "Voltar": vira pílula flutuante (mesma linguagem visual do back-float,
+    // ver .chrome-float no CSS) em vez do antigo back-button textual, devolvendo o peso visual
+    // que o glifo de fechar removido na Fase 0c dava (emoji nunca é ícone, nem em comentário).
+    const exitBtn = createExitCookFloat(() => {
       // Bug do "timer fantasma" (corrigido aqui): antes, sair sem finalizar não limpava o
       // interval do timer — ele continuava rodando escondido (atualizando um timerBox já
       // desconectado do DOM) até a página recarregar de verdade. Passo atual e timer já ficam

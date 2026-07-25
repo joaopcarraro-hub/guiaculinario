@@ -190,33 +190,48 @@ diretamente. Remoção dos alias fica pra uma rodada futura.
   `--color-text-primary` (**Fase 0a**: antes os dois herdavam `--color-accent`, mas o rótulo
   a 0,66rem só mede 3,81:1 sobre `--color-bg-secondary`, abaixo de 4,5:1 AA pra texto; o ícone é
   uso gráfico, exigência 3:1, cumprida); inativo `--color-text-disabled`.
-- **Botão de voltar flutuante (`.back-float`, item 1 do roadmap) — só na página de receita,
-  substitui o `.back-button` de topo que existia ali.** `position: fixed`, topo-esquerda,
-  `top`/`left` somam `env(safe-area-inset-top/left)` + `--space-3` (12px). 44×44px exato
-  (`box-sizing: border-box` global — a borda de 1px fica DENTRO dos 44px, não os aumenta),
-  círculo (`border-radius: 50%`), `z-index: var(--z-float)`. Fundo `rgba(15, 15, 14, 0.55)` —
-  véu fixo (não reage a tema/hover), igual sobre o tema escuro e sobre foto clara de hero (regra
-  §8.1 do `CONTRATO-IMAGENS-REDESIGN.md`: nenhum elemento claro solto sobre foto clara). SEM
+- **Controles flutuantes de topo (`.chrome-float`, item 1 do roadmap) — base compartilhada de
+  `.back-float` (voltar) e `.exit-cook-float` (sair do modo cozinhar).** `position: fixed`,
+  topo-esquerda, `top`/`left` somam `env(safe-area-inset-top/left)` + `--space-3` (12px),
+  `z-index: var(--z-float)`, fundo `rgba(15, 15, 14, 0.55)` — véu fixo (não reage a tema/hover),
+  igual sobre o tema escuro e sobre foto clara de hero (regra §8.1 do
+  `CONTRATO-IMAGENS-REDESIGN.md`: nenhum elemento claro solto sobre foto clara). SEM
   `backdrop-filter` (celular modesto é público-alvo). Borda 1px `--color-border` — a mesma cor
   do véu já é ~idêntica a `--color-bg`, então sobre tela sem foto a borda é o que separa a forma
-  do círculo do fundo por trás (sem ela o círculo quase desaparece num fundo já escuro). Ícone
-  `chevronLeft` (novo em `ICONS`/`iconSvg()`, mesmo sistema outline stroke-based do resto do
-  app), 22px (mesmo tamanho do ícone da bottom nav), cor `--color-text-primary`. Estados
-  `:active`/`:focus-visible` reaproveitam as MESMAS listas compartilhadas que `.back-button` já
-  usava (tokens `--motion-base`, `--focus-ring-*`) — nenhum CSS de estado novo/solto.
-  `aria-label` dinâmico "Voltar para X" (mesma cadeia de fallback do texto antigo: coleção de
-  origem → "Pesquisar" → "Minhas Receitas" → categoria da receita), já que o botão não tem mais
-  texto visível. Contraste do ícone contra o véu (fórmula de luminância WCAG, mesmo método já
-  usado nesta tabela pros tokens de cor — **calculado, não medido ao vivo**: sessão sem acesso a
-  screenshot/DOM real, ver relatório da tarefa): sobre `--color-bg` puro, 17,03:1; sobre um tom
-  claro/quente representativo do acervo de fotos (`rgb(232,214,176)`), 4,83:1; no PIOR CASO
-  teórico (véu sobre branco puro, mais claro que qualquer foto real do acervo), 3,76:1 — os 3
-  passam o mínimo de 3:1 exigido pra ícone/elemento gráfico (WCAG 1.4.11; o botão não tem texto
-  visível, então 4,5:1 de texto não se aplica aqui). Compensação óptica do chevron (vértice
-  "pesa" visualmente pro lado que aponta) fica pendente de confirmação visual ao vivo — o path
-  escolhido já é geometricamente centrado (centroide do traço em (12,12) no viewBox 24×24,
-  conferido por cálculo), mas o ajuste fino por percepção não pôde ser calibrado nesta sessão
-  pelo mesmo motivo acima.
+  do controle do fundo por trás (sem ela ele quase desaparece num fundo já escuro). Estados
+  `:active`/`:focus-visible` ficam UMA vez só na base `.chrome-float`, reaproveitando as mesmas
+  listas compartilhadas que já existiam (tokens `--motion-base`, `--focus-ring-*`) — as duas
+  subclasses herdam junto, nenhum CSS de estado duplicado por variante.
+  - `.back-float` (círculo, 44×44px exato — `box-sizing: border-box` global, a borda de 1px fica
+    DENTRO dos 44px, não os aumenta). Ícone `chevronLeft` (`ICONS`/`iconSvg()`, outline
+    stroke-based), 22px (mesmo tamanho do ícone da bottom nav), cor `--color-text-primary`.
+    `aria-label` dinâmico "Voltar para X". **Presente em toda tela com página-mãe**: página de
+    receita (`renderReceita`, item 1 original — cadeia de fallback do rótulo: coleção de origem
+    → "Pesquisar" → "Minhas Receitas" → categoria da receita), coleção/categoria
+    (`renderCategory` — rótulo = grupo dono da coleção, ou "Home" nas 2 exceções
+    `hideFromGrupoGrid`) e grupo/hub (`renderGrupo` — rótulo sempre "Home", único pai real dos 5
+    hubs). Construído por um helper único, `createBackFloat(destLabel, onClick)` em `js/app.js`
+    — nenhuma tela duplica a criação do elemento, só passa o rótulo e o destino.
+  - `.exit-cook-float` (pílula, `border-radius: 999px`, mesmas proporções de `.filter-trigger`
+    já estabelecido no app — `min-height: 44px`, ícone 18px). Ícone `close` (já existia desde a
+    Fase 0c, reaproveitado) + texto "Sair" num `<span>`, `aria-label` FIXO "Sair do modo
+    cozinhar" (não é dinâmico — não é "voltar", é "sair"). Só no modo de preparo
+    (`renderCookMode`), via `createExitCookFloat(onClick)` — substitui o antigo botão textual
+    "Sair do modo cozinhar" (`.back-button`), devolvendo o peso visual que o ✕ removido na Fase
+    0c dava. O modo cozinhar continua SEM nenhum botão de voltar — isto é o único controle
+    flutuante que existe nessa tela, por regra fixa da skill `product-navigation-ux`.
+  - Contraste do ícone/texto contra o véu (fórmula de luminância WCAG, mesmo método já usado
+    nesta tabela pros tokens de cor — **calculado, não medido ao vivo**: sessão sem acesso a
+    screenshot/DOM real nas duas rodadas desta tarefa, ver relatório): sobre `--color-bg` puro,
+    17,03:1; sobre um tom claro/quente representativo do acervo de fotos (`rgb(232,214,176)`),
+    4,83:1; no PIOR CASO teórico (véu sobre branco puro, mais claro que qualquer foto real do
+    acervo), 3,76:1 — os 3 passam o mínimo de 3:1 exigido pra ícone/elemento gráfico (WCAG
+    1.4.11; nenhum dos dois controles tem texto visível grande o bastante pra exigir 4,5:1, e o
+    "Sair" da pílula, texto pequeno sobre fundo já contrastado, herda a mesma folga). Compensação
+    óptica do chevron (vértice "pesa" visualmente pro lado que aponta) segue pendente de
+    confirmação visual ao vivo — o path escolhido já é geometricamente centrado (centroide do
+    traço em (12,12) no viewBox 24×24, conferido por cálculo), mas o ajuste fino por percepção
+    não pôde ser calibrado em nenhuma das duas rodadas, pelo mesmo motivo de acesso a navegador.
 
 ## Iconografia
 
