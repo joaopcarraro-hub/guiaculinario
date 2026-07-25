@@ -25,6 +25,8 @@ copiado como texto plano para outra conversa, sem nenhum símbolo de formataçã
 - Todo push que altera qualquer arquivo do APP_SHELL (css/style.css, js/app.js, index.html)
   DEVE incluir bump do CACHE_NAME no sw.js, no mesmo push. Checar isso é parte do relatório
   de qualquer fase.
+- Ferramentas que reescrevem arquivos do repo devem preservar LF; git diff --ignore-cr-at-eol
+  --name-only é a checagem padrão contra poluição de fim de linha antes de qualquer commit.
 
 ## Foto de receita
 
