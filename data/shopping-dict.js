@@ -303,6 +303,11 @@
     "salsa": "salsinha",
     "aipo": "salsão",
     "negi": "cebolinha grossa",
+    // achado na investigação de seção de mercado (2026-07-24): recipe.name já traduzido de
+    // Rødkål pra Repolho Roxo, mas o texto de ingrediente em OUTRAS receitas que referenciam
+    // repolho roxo como componente ainda usa o nome dinamarquês — mesmo vegetal, sem isso
+    // vira 2 canônicos diferentes na lista de compras.
+    "rødkål": "repolho roxo",
   };
 
   // ---- Formas plurais de EXIBIÇÃO (visão Geral, grupos de contagem sem unidade) ----

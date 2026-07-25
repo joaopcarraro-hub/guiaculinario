@@ -147,6 +147,10 @@ assertMerge("parmesão", "parmesão", "queijo parmesão");
 assertMerge("salsa", "salsa", "salsinha");
 assertMerge("aipo", "aipo", "salsão");
 assertMerge("negi", "negi", "cebolinha grossa");
+// achado na investigação de seção de mercado (2026-07-24): rødkål é repolho roxo, mesmo
+// vegetal — recipe.name já foi traduzido, mas o texto de ingrediente em outras receitas ainda
+// usava o nome dinamarquês (ver data/shopping-dict.js CANONICAL)
+assertMerge("rødkål", "rødkål", "repolho roxo");
 
 // Redundância cultural (o genérico É o específico no Brasil)
 assertMerge("cominho em pó", "cominho em pó", "cominho");
