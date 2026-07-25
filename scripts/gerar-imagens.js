@@ -76,12 +76,39 @@ const EIXO_A = {
   A3: { louca: "deep off-white ceramic bowl", angulo: "45 degrees above the table", lente: "50mm f/2.8" },
   A4: { louca: "rustic terracotta baking dish", angulo: "45 degrees above the table", lente: "35mm f/2.8" },
   A5: { louca: "wooden serving board", angulo: "40 degrees above the table", lente: "35mm f/2.8" },
-  A6: { louca: "small dessert plate", angulo: "30 degrees above the table", lente: "85mm f/2.2" },
+  // `perto: true` em A6/A7 — ver o bloco EIXO_A/ENQUADRAMENTO logo abaixo. Sem isso o modelo lê
+  // "small dessert plate" ao pé da letra e desenha um pratinho pequeno num quadro grande.
+  A6: { louca: "small dessert plate", angulo: "30 degrees above the table", lente: "85mm f/2.2", perto: true },
   // A7 existe por uma razão só: sobremesa líquida ou cremosa não fica em pé num pratinho raso.
   // Crème brûlée vive num ramequim, affogato e zabaglione num copo, risalamande e rødgrød numa
   // tigelinha. Eram 6 receitas indo pro A6 e as 6 sairiam obviamente erradas na foto.
-  A7: { louca: "small deep dessert bowl", angulo: "30 degrees above the table", lente: "85mm f/2.2" },
+  A7: { louca: "small deep dessert bowl", angulo: "30 degrees above the table", lente: "85mm f/2.2", perto: true },
+
+  // --- Louças dos arquétipos que NÃO são prato pronto (ver ARQUETIPO abaixo) ---
+  // Não são "mais uma louça": só fazem sentido junto com o arquétipo certo, porque o problema
+  // delas nunca foi o recipiente, foi a mesa de jantar montada em volta.
+  A8: { louca: "small ceramic sauce jug with a spouted lip", angulo: "35 degrees above the worktop", lente: "50mm f/2.5", perto: true },
+  A9: { louca: "small clear glass jar and a shallow ramekin beside it", angulo: "40 degrees above the worktop", lente: "50mm f/2.5", perto: true },
+  A10: { louca: "wooden work board", angulo: "40 degrees above the worktop", lente: "50mm f/2.8" },
 };
+
+// ENQUADRAMENTO. Duas frases, e a escolha entre elas é por louça, não por gosto.
+//
+// O que o teste de 25/07 mostrou: instrução de TAMANHO o modelo obedece ("large in the frame",
+// "completely visible" — nas 6 fotos nenhuma louça ficou cortada). Instrução de POSIÇÃO ele ignora,
+// e tentar impor custou duas rodadas (ver cabeçalho). Então aqui só se fala de tamanho.
+//
+// A6 e A7 saíram com prato pequeno demais porque a própria descrição da louça diz "small", e o
+// "margin of bare table all around it" reforça. Com a foto virando ~60% do card no redesenho, isso
+// deixa de ser imperfeição e vira card de mesa vazia. `perto` troca a margem por uma fração
+// explícita do quadro — número, não adjetivo.
+const ENQ_PADRAO = (louca, desloc) =>
+  `The ${louca} is large in the frame and completely visible — no part of it is cut off by any` +
+  ` edge of the picture — sitting ${desloc}, with a margin of bare table showing all around it.`;
+
+const ENQ_PERTO = (louca, desloc) =>
+  `The ${louca} is completely visible — no part of it is cut off by any edge of the picture — and` +
+  ` fills about two thirds of the width of the picture, close to the camera, sitting ${desloc}.`;
 
 // Nível 0 — as poucas exceções que ganham ATÉ do catId, e o critério pra entrar aqui é estreito de
 // propósito: só entra o caso em que a louça da categoria CONTRADIZ FISICAMENTE o prato, não o caso
@@ -227,6 +254,163 @@ const DESLOCAMENTO = [
   "a little off to the right of centre",
 ];
 
+// =================================================================================================
+// ARQUÉTIPO — o eixo que faltava. Ver §9.2 de docs/CONTRATO-IMAGENS-REDESIGN.md.
+//
+// 63 das 398 receitas NÃO são prato pronto para comer, e o template inteiro assumia que eram.
+// Trocar a louça não resolve: o problema é a MESA DE JANTAR MONTADA EM VOLTA. Todo o EIXO_B põe
+// taça de vinho, garfo sobre guardanapo e segundo prato vazio — cenografia de refeição — em 100%
+// das fotos. Para uma Água de Tomate ou um Pó de Azeitona isso afirma visualmente que a coisa é
+// um jantar, e ela não é.
+//
+// A PROVA DE QUE É O EIXO B, E NÃO A LOUÇA, ESTÁ NESTE ARQUIVO: o comentário do B4 registra que os
+// props antigos (jarra + colher de pau + ramo de ervas) foram TROCADOS porque "liam como mise en
+// place — cena de quem vai cozinhar", contrariando o briefing de prato pronto. Para os 63 o
+// briefing é o inverso, então a correção do B4 também é o inverso. Não dá para servir os dois
+// briefings com um eixo B só.
+//
+// São quatro arquétipos:
+//   prato    335 receitas  mesa posta, prato pronto, alguém prestes a comer   (o de sempre)
+//   molho     17 receitas  molheira na bancada, fio caindo                     (categoria `molhos`)
+//   preparo   40 receitas  mise en place: pote, ramequim, colher, bancada
+//   processo   6 receitas  matéria-prima em transformação, SEM prato montado   (as técnicas puras)
+//
+// O `processo` é o caso que o dono deixou em aberto: são técnicas sem forma visual própria
+// (Sous-vide, Dry Aging, Defumação, Cura, Fermentação, Espelho de Molho). Para elas o template
+// antigo mandava "show the dish as it really looks when cooked" — e NÃO EXISTE PRATO. O modelo
+// inventaria um, convincente e falso. Aqui o prompt é reescrito para mostrar a matéria-prima no
+// estado da técnica e proíbe explicitamente prato montado; se ainda assim sair inventado, a
+// decisão registrada é ficarem sem foto.
+// =================================================================================================
+
+const CAT_ARQUETIPO = {
+  molhos: "molho",
+  contemporaneos: "preparo",
+  "tecnicas-contemporaneas-2": "preparo",
+};
+
+// As 6 técnicas puras, por nome. Vivem dentro de `tecnicas-contemporaneas-2` (que é `preparo`),
+// então precisam vencer o catId — mesma lógica das REGRAS_FORTES do eixo A.
+const TECNICAS_PURAS =
+  /^(sous-vide|matura[çc][ãa]o seca|defuma[çc][ãa]o caseira|cura de peixes|legumes fermentados|espelho de molho)/i;
+
+function escolherArquetipo(catId, recipe) {
+  if (TECNICAS_PURAS.test(recipe.name)) return "processo";
+  return CAT_ARQUETIPO[catId] || "prato";
+}
+
+// -------------------------------------------------------------------------------------------------
+// PROMPTS INDIVIDUAIS DAS 6 TÉCNICAS PURAS
+//
+// Por que estas 6 não podem sair do template, nem do template `processo`: elas não compartilham
+// NADA além da bancada. Uma peça de carne maturada, um saco a vácuo num banho-maria e um pote de
+// fermentação não têm recipiente comum, escala comum nem props comuns. O `processo` genérico
+// provou isso na primeira tentativa — gerou, para uma costela de 4 kg em maturação, "uma colher de
+// chá e uma pitada do ingrediente cru espalhada" e "alguns grãos caídos na bancada". Props de
+// tempero numa peça de carne.
+//
+// ÂNCORAS MANTIDAS EM TODAS AS 6 (é o que faz elas conversarem com as outras 392):
+//   luz natural difusa · superfície clara ocupando o quadro inteiro · tons quentes ·
+//   nada atrás (sem parede/janela/cômodo) · sem texto, mãos, pessoas · assunto grande no quadro
+//
+// EXCEÇÃO DELIBERADA — "Espelho de Molho": é técnica de EMPLATAMENTO. Ela vive num prato, por
+// definição. Proibir prato aqui, como o `processo` faz, produziria o oposto da técnica. É a única
+// das 6 que fica num prato — e mesmo assim sem outros componentes, porque o assunto é o espelho.
+// -------------------------------------------------------------------------------------------------
+const ANCORA =
+  " The pale surface fills the entire frame from edge to edge. There is nothing behind it: no wall," +
+  " no window, no room, no horizon line, no background scene of any kind — everything visible is an" +
+  " object sitting on this surface. Bright diffused natural daylight from the left, casting a soft" +
+  " light-toned shadow to the right. Warm white, honey and cream tones, never cool grey or bluish." +
+  " Shallow depth of field, 50mm f/2.8. Natural imperfect kitchen styling, not styled in a studio." +
+  " No text, no watermarks, no labels, no lettering, no printed or handwritten text on jars, bottles," +
+  " packaging or any surface, no frame or border, no hands, no people, no floor, no plain or gradient" +
+  " background, no studio backdrop, not dark or moody, not cold or clinical.";
+
+const PROMPTS_TECNICA = {
+  "Sous-vide (Técnica Geral)":
+    "A photorealistic photograph of the sous-vide technique on a pale wooden kitchen worktop. A thick" +
+    " beef steak, vacuum-sealed flat inside a clear plastic bag with sprigs of thyme and a knob of" +
+    " butter visible pressed against the meat, lies large and completely visible in the frame, close" +
+    " to the camera, filling about two thirds of the width. Beside it, a clear water bath container" +
+    " with an immersion circulator clipped to the rim, water still and clear. Condensation on the bag." +
+    " Shot from about 40 degrees above the worktop." + ANCORA,
+
+  "Maturação Seca (Dry Aging)":
+    "A photorealistic photograph of dry-aged beef on a pale wooden board that fills the frame. A large" +
+    " bone-in beef rib loin, its outer surface dark, dry and crusted from weeks of ageing, one end" +
+    " freshly trimmed to reveal the deep ruby marbled meat underneath — the contrast between the dry" +
+    " crust and the fresh cut is the subject. The piece is large and completely visible, close to the" +
+    " camera, filling about two thirds of the width. A thin trimming knife rests on the board beside" +
+    " it, with a few dark trimmings. Shot from about 35 degrees above the board." + ANCORA,
+
+  "Defumação Caseira":
+    "A photorealistic photograph of home smoking on a pale wooden worktop. A fillet of fish with a" +
+    " glossy amber-bronze smoked surface rests on a small wire rack, large and completely visible," +
+    " close to the camera, filling about two thirds of the width. Beneath and around the rack, a" +
+    " shallow pan with a scattering of pale wood chips, a few of them charred dark. A faint wisp of" +
+    " thin blue smoke rises and dissipates. Shot from about 35 degrees above the worktop." + ANCORA,
+
+  "Cura de Peixes e Carnes":
+    "A photorealistic photograph of salt-curing on a pale wooden worktop. A salmon fillet lies half" +
+    " buried in a thick bed of coarse salt and sugar inside a shallow ceramic tray, part of the flesh" +
+    " uncovered and already deepened to a firm translucent orange, fresh dill fronds and cracked" +
+    " pepper pressed into the cure. The tray is large and completely visible, close to the camera," +
+    " filling about two thirds of the width. Loose salt grains scattered on the worktop. Shot from" +
+    " about 40 degrees above the worktop." + ANCORA,
+
+  "Legumes Fermentados":
+    "A photorealistic photograph of vegetable fermentation on a pale wooden worktop. A tall clear" +
+    " glass jar, large and completely visible, close to the camera, filling about two thirds of the" +
+    " height of the picture, packed with shredded cabbage and sliced carrot fully submerged in cloudy" +
+    " brine, a scattering of mustard seeds, small bubbles clinging to the inside of the glass, a" +
+    " glass weight holding the vegetables down and a cloth tied over the mouth with string. Shot from" +
+    " about 30 degrees above the worktop, close to eye level with the jar." + ANCORA,
+
+  // A única das 6 que fica num prato — ver comentário acima.
+  "Espelho de Molho":
+    "A photorealistic photograph of the sauce-mirror plating technique. A wide shallow white porcelain" +
+    " plate, large and completely visible, close to the camera, filling about two thirds of the width," +
+    " sits on a pale wooden worktop. Across the base of the plate, a dark glossy reduction has been" +
+    " swept into a single smooth even circle, thin and perfectly level, catching the light in one soft" +
+    " highlight, its outer edge slightly irregular where the spoon lifted. Nothing else is on the" +
+    " plate — no food, no garnish. The back of a spoon rests on the worktop beside it with a smear of" +
+    " the same sauce. Shot from about 45 degrees above the plate." + ANCORA,
+};
+
+// Eixo B paralelo: BANCADA DE TRABALHO, não mesa posta. Nenhum talher de jantar, nenhum segundo
+// prato, nenhuma taça de vinho — são justamente os objetos que dizem "isto é uma refeição".
+const EIXO_B_TRABALHO = [
+  {
+    mesa: "a pale wooden kitchen worktop",
+    props: "a small spoon resting on a folded work cloth",
+    fundoMesa: "an empty glass jar, a few loose ingredients and the handle of a knife",
+    luz: "bright diffused daylight falling across the worktop from the left, gentle and even, casting a soft light-toned directional shadow to the right",
+    tom: "warm white and honey tones",
+  },
+  {
+    // ERA "pale grey stone kitchen worktop", e o próprio prompt já mandava logo abaixo
+    // "never cool grey or bluish". As duas instruções brigavam e a SUPERFÍCIE ganhava:
+    // Hollandaise e Pickles saíram cinza-frio no meio de um acervo inteiro em carvalho quente.
+    // Prova de que era esta linha, e não o arquétipo: Óleo Aromático caiu no T3 (madeira) e ficou
+    // consistente. Como o cenário é sorteado por hash entre 3, o T2 pegava ~1 em cada 3 das 57
+    // receitas de molho+preparo — cerca de 19 fotos frias. Superfície agora é quente e continua
+    // sendo pedra, pra não virar madeira nos três cenários.
+    mesa: "a warm cream-toned limestone kitchen worktop",
+    props: "a teaspoon and a scattering of the raw ingredient",
+    fundoMesa: "a small sieve, a folded cloth and a second empty jar",
+    luz: "bright soft daylight falling across the worktop from the upper right, casting a gentle light shadow to the left",
+    tom: "warm cream and ivory tones",
+  },
+  {
+    mesa: "a worn light wooden work board covering the whole surface",
+    props: "a small palette knife lying flat",
+    fundoMesa: "a bowl of the raw ingredient and a crumpled linen cloth",
+    luz: "bright warm daylight falling from the right, casting a clear but soft light shadow to the left",
+    tom: "warm oatmeal and straw tones",
+  },
+];
+
 // ---------------------------------------------------------------------------
 // Prompts escritos à mão pras 3 receitas de teste. Se a receita tem entrada aqui, usa esta.
 // O --teste gera A MESMA receita com prompt manual e com prompt automático, pra medir quanto o
@@ -332,47 +516,92 @@ function montarPrompt(catId, recipe, { ignorarManual = false } = {}) {
     return { texto: PROMPTS_MANUAIS[recipe.name], origem: "manual", A: "-", B: "-" };
   }
 
-  const codA = escolherGeometria(catId, recipe);
+  // As 6 técnicas puras têm prompt escrito à mão e ele vale SEMPRE, inclusive no --gerar do lote —
+  // diferente do PROMPTS_MANUAIS acima, que é material de comparação do --teste e por isso aceita
+  // `ignorarManual`. Aqui não há template alternativo válido: o genérico produz props errados.
+  if (Object.prototype.hasOwnProperty.call(PROMPTS_TECNICA, recipe.name)) {
+    return { texto: PROMPTS_TECNICA[recipe.name], origem: "tecnica", A: "-", B: "-", arq: "processo" };
+  }
+
+  // ARQUÉTIPO decide DOIS eixos de uma vez: a louça e a mesa. Foi o erro da versão anterior tratar
+  // isso como problema de louça só — ver o bloco ARQUETIPO acima.
+  const arq = escolherArquetipo(catId, recipe);
+  const LOUCA_POR_ARQUETIPO = { molho: "A8", preparo: "A9", processo: "A10" };
+  const codA = LOUCA_POR_ARQUETIPO[arq] || escolherGeometria(catId, recipe);
   const A = EIXO_A[codA];
   const h = hash(recipe.name);
-  const idxB = h % EIXO_B.length;
-  const B = EIXO_B[idxB];
+  const bancada = arq !== "prato";
+  const LISTA_B = bancada ? EIXO_B_TRABALHO : EIXO_B;
+  const idxB = h % LISTA_B.length;
+  const B = LISTA_B[idxB];
   // segundo hash pro deslocamento, senão mesa e posição andam sempre juntas
   const desloc = DESLOCAMENTO[hash(recipe.name + "|pos") % DESLOCAMENTO.length];
   const ingredientes = ingredientesPrincipais(recipe);
   const desc = (recipe.desc || "").replace(/\s+/g, " ").trim().replace(/[.;]+$/, "");
 
+  // --- as 5 frases que mudam por arquétipo ---
+  // Cada uma existe porque a versão de "prato pronto" era literalmente falsa para os 63:
+  //  abertura   "about to be eaten" afirma refeição
+  //  fidelidade "as it really looks when cooked" — gel/pó/óleo não é "cooked", técnica não tem prato
+  //  guarnição  molho e preparo não levam guarnição de prato montado
+  //  contraste  "the food is the DARKEST thing in the frame" briga com Água de Tomate, que é
+  //             transparente e é a coisa mais CLARA do quadro. Vira "o assunto é o mais nítido".
+  //  negativo   `processo` proíbe explicitamente prato montado, que é o risco registrado na §9.2
+  const ABERTURA = {
+    prato: `, just served and about to be eaten, seen from across a home dining table.`,
+    molho: `, freshly made and still warm, in a sauce jug on a kitchen worktop, not served as a meal.`,
+    preparo: `, as prepared, a component kept ready on a kitchen worktop, not plated as a meal.`,
+    processo: `, shown mid-technique on a kitchen worktop: the raw material in the state this technique leaves it in, not plated as a meal.`,
+  };
+  const FIDELIDADE = {
+    prato: `Show the dish as it really looks when cooked, faithful to those ingredients.`,
+    molho: `Show the sauce with the exact colour, gloss and thickness those ingredients give it.`,
+    preparo: `Show the preparation with the exact colour and texture those ingredients give it, nothing else added.`,
+    processo: `Show only the raw material itself in that state — do not compose a finished dish out of it.`,
+  };
+  const superficie = bancada ? "worktop" : "table";
+  const enquadrar = A.perto ? ENQ_PERTO : ENQ_PADRAO;
+
   const texto = [
     `A photorealistic food photograph of "${recipe.name}"`,
-    recipe.origin ? `, a dish from ${recipe.origin}` : "",
-    `, just served and about to be eaten, seen from across a home dining table.`,
-    desc ? ` The dish, described in Portuguese: "${desc}".` : "",
-    ingredientes.principais.length ? ` Its main visible ingredients, in Portuguese: ${ingredientes.principais.join(", ")}. Show the dish as it really looks when cooked, faithful to those ingredients.` : "",
-    ingredientes.guarnicao.length ? ` Garnished and served with, in Portuguese: ${ingredientes.guarnicao.join(", ")} — show these exactly as named, do not substitute a similar-looking ingredient.` : "",
-    ` The ${A.louca} is large in the frame and completely visible — no part of it is cut off by any`,
-    ` edge of the picture — sitting ${desloc}, with a margin of bare table showing all around it.`,
-    ` The food is arranged loosely and unevenly, not in any pattern, with natural imperfections:`,
-    ` a crumb or two fallen on the table, an uneven edge, a small smear or drip.`,
+    recipe.origin && !bancada ? `, a dish from ${recipe.origin}` : "",
+    ABERTURA[arq],
+    desc ? ` ${bancada ? "It is" : "The dish"}${bancada ? "" : ","} described in Portuguese: "${desc}".` : "",
+    ingredientes.principais.length ? ` Its main visible ingredients, in Portuguese: ${ingredientes.principais.join(", ")}. ${FIDELIDADE[arq]}` : "",
+    !bancada && ingredientes.guarnicao.length ? ` Garnished and served with, in Portuguese: ${ingredientes.guarnicao.join(", ")} — show these exactly as named, do not substitute a similar-looking ingredient.` : "",
+    ` ${enquadrar(A.louca, desloc)}`,
+    bancada
+      ? ` The contents are loose and uneven, not arranged in any pattern, with natural imperfections: a drip down the side, a smear, a few grains fallen on the ${superficie}.`
+      : ` The food is arranged loosely and unevenly, not in any pattern, with natural imperfections: a crumb or two fallen on the table, an uneven edge, a small smear or drip.`,
     ` Muted natural tones, warm and appetising, not oversaturated.`,
     ` The surface of ${B.mesa} fills the entire frame from edge to edge. There is nothing behind the`,
-    ` table: no wall, no window, no room, no kitchen, no horizon line, no background scene of any`,
-    ` kind — everything visible in the picture is an object sitting on this table.`,
-    ` ${cap(B.props)} are near the front, and further back on the same table ${B.fundoMesa},`,
+    ` ${superficie}: no wall, no window, no room, no kitchen, no horizon line, no background scene of any`,
+    ` kind — everything visible in the picture is an object sitting on this ${superficie}.`,
+    ` ${cap(B.props)} are near the front, and further back on the same ${superficie} ${B.fundoMesa},`,
     ` all softly out of focus.`,
-    ` Shot from close to the table, from about ${A.angulo}, ${A.lente}, shallow depth of field.`,
+    ` Shot from close to the ${superficie}, from about ${A.angulo}, ${A.lente}, shallow depth of field.`,
     ` ${cap(B.luz)}.`,
-    ` Bright, airy and warm: every surface is in ${B.tom}, never cool grey or bluish, and the food`,
-    ` is the darkest and most saturated thing in the frame. Natural imperfect home styling, not`,
-    ` styled in a studio.`,
+    bancada
+      ? ` Bright, airy and warm: every surface is in ${B.tom}, never cool grey or bluish, and the subject is the sharpest and most defined thing in the frame. Natural imperfect kitchen styling, not styled in a studio.`
+      : ` Bright, airy and warm: every surface is in ${B.tom}, never cool grey or bluish, and the food is the darkest and most saturated thing in the frame. Natural imperfect home styling, not styled in a studio.`,
+    bancada ? ` No dinner plate, no cutlery laid for eating, no wine glass, no meal setting.` : "",
+    arq === "processo" ? ` No plated dish, no garnish, no restaurant presentation — this is a technique, not a course.` : "",
     // "no chair / no furniture / no floor": a versão auto da Paella deixou escapar um encosto de
     // cadeira e uma nesga de parede no canto. Negativo nomeado funciona (parede e janela sumiram
     // assim); o que NÃO funciona é instrução POSITIVA de posição — ver o bloco do cabeçalho.
-    ` No text, no watermarks, no frame or border, no hands, no people, no chairs, no furniture other`,
-    ` than the table itself, no floor, no plain or gradient background, no studio backdrop, nothing`,
-    ` arranged symmetrically, not dark or moody, not cold or clinical.`,
+    // "no text" sozinho NÃO segurou: o pote de Pickles Rápidos saiu com uma etiqueta escrita
+    // "PICKLES RÁPIDOS" no meio da faixa visível do app. O negativo genérico perde para o
+    // preenchimento de cena — pote de conserva "costuma ter" etiqueta, e o modelo completa.
+    // Negativo genérico não vence expectativa de cena; negativo NOMEADO vence (foi assim que
+    // parede e cadeira sumiram). Por isso etiqueta, rótulo e escrita à mão vão nomeados, e
+    // nomeando os suportes onde aparecem: pote, garrafa, embalagem.
+    ` No text, no watermarks, no labels, no lettering, no printed or handwritten text on jars,`,
+    ` bottles, packaging or any surface, no frame or border, no hands, no people, no chairs, no`,
+    ` furniture other than the ${superficie} itself, no floor, no plain or gradient background, no`,
+    ` studio backdrop, nothing arranged symmetrically, not dark or moody, not cold or clinical.`,
   ].join("");
 
-  return { texto, origem: "auto", A: codA, B: `B${idxB + 1}` };
+  return { texto, origem: "auto", A: codA, B: `${bancada ? "T" : "B"}${idxB + 1}`, arq };
 }
 
 // ---------------------------------------------------------------------------
@@ -389,6 +618,39 @@ const EXT_POR_MIME = { "image/png": ".png", "image/jpeg": ".jpg", "image/webp": 
 // determinístico. Insistir 4x num prompt bloqueado só queima tempo em 398 itens.
 const STATUS_RETENTAVEL = new Set([408, 429, 500, 502, 503, 504]);
 const ESPERAS_MS = [8000, 20000, 45000];   // 4 tentativas no total
+
+// -------------------------------------------------------------------------------------------------
+// 429 NÃO É UM ERRO SÓ, SÃO DOIS — e tratar os dois igual custou 4 horas de espera inútil.
+//
+// Aconteceu no lote de 25/07/2026: na imagem 148 o projeto bateu o TETO DE GASTO mensal do AI Studio
+// e a API passou a devolver 429 com "RESOURCE_EXHAUSTED / exceeded its monthly spending cap". Como
+// 429 estava na lista de retentáveis, o script fez 4 tentativas por receita — 8s + 20s + 45s = 73s
+// cada — nas 235 restantes. Quase 5 horas retentando um erro que NUNCA ia passar sozinho, porque
+// depende de alguém entrar no console e levantar o teto.
+//
+// A distinção:
+//   429 de RITMO  (rate limit, "too many requests")  -> transitório. Esperar resolve. Retentar.
+//   429 de TETO   (quota / spend cap / billing)      -> permanente até ação humana. Abortar TUDO.
+//
+// E abortar tem que ser o LOTE INTEIRO, não só a receita: se o teto caiu, todas as próximas vão
+// falhar igual. Continuar só produz um relatório de centenas de "erros" que escondem a causa única.
+// Dinheiro não se perde em nenhum dos casos — erro não devolve imagem, logo não há cobrança.
+const RE_TETO = /spending cap|spend cap|RESOURCE_EXHAUSTED|quota|billing|exceeded your current/i;
+
+class ErroTeto extends Error {
+  constructor(corpo) {
+    super(
+      "TETO DE GASTO ATINGIDO — o projeto bateu o limite de gasto no AI Studio.\n" +
+      "  Isto NÃO é falta de crédito e NÃO passa sozinho: alguém precisa levantar o teto em\n" +
+      "  https://ai.studio/spend  (Gerenciar limite de gasto do projeto).\n" +
+      "  Nada foi cobrado por esta chamada — erro não devolve imagem.\n" +
+      "  Depois de levantar o teto, rode o MESMO comando: o gerador pula tudo que já existe.\n" +
+      "  Resposta da API: " + corpo.slice(0, 300)
+    );
+    this.name = "ErroTeto";
+    this.abortarLote = true;
+  }
+}
 
 const dormir = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -422,6 +684,8 @@ async function gerar(prompt, destinoBase, aviso) {
     }
 
     if (!res.ok) {
+      // Teto ANTES da checagem de retentável: 429 de teto entraria na lista e seria retentado 4x.
+      if ((res.status === 429 || res.status === 403) && RE_TETO.test(corpo)) throw new ErroTeto(corpo);
       if (STATUS_RETENTAVEL.has(res.status) && !ultima) {
         if (aviso) aviso(`HTTP ${res.status}, esperando ${ESPERAS_MS[tentativa] / 1000}s e tentando de novo`);
         await dormir(ESPERAS_MS[tentativa]);
@@ -815,6 +1079,42 @@ async function main() {
       console.log("  custo zero de API, e é a diferença entre a louça certa e tigela funda em tudo.");
     }
 
+    // ------------------------------------------------------------------------------------------
+    // DIAGNÓSTICO DE ARQUÉTIPO — irmão do bloco de geometria acima, e ele faltava.
+    //
+    // O bloco de cima avisa quando uma receita cai no default de LOUÇA. Não existia equivalente
+    // para ARQUÉTIPO, e esse erra pior: louça errada dá foto estranha, arquétipo errado dá foto
+    // FALSA — um molho sai com mesa posta, taça de vinho e segundo prato vazio ao lado, afirmando
+    // que é um jantar. E como `prato` é o default, o erro é sempre silencioso: a receita nova
+    // simplesmente não aparece em lista nenhuma.
+    //
+    // Por isso aqui a lógica é invertida em relação ao bloco de cima. Lá se listam as órfãs;
+    // aqui se lista o que CASOU com regra de não-prato, para você conferir se está completo —
+    // o que falta aparecer é justamente o que não dá para detectar automaticamente.
+    // ------------------------------------------------------------------------------------------
+    const porArq = {};
+    alvo.forEach(({ catId, recipe }) => {
+      const a = escolherArquetipo(catId, recipe);
+      (porArq[a] = porArq[a] || []).push(`${recipe.name} [${catId}]`);
+    });
+    console.log("\ncomo o arquétipo foi decidido:");
+    ["prato", "molho", "preparo", "processo"].forEach((a) => {
+      console.log(`  ${a.padEnd(9)} ${String((porArq[a] || []).length).padStart(4)}`);
+    });
+    const naoPrato = ["molho", "preparo", "processo"].flatMap((a) => porArq[a] || []);
+    console.log(`\nreceitas que NÃO são prato pronto: ${naoPrato.length}`);
+    console.log("-".repeat(72));
+    ["molho", "preparo", "processo"].forEach((a) => {
+      const l = porArq[a] || [];
+      if (!l.length) return;
+      console.log(`${String(l.length).padStart(3)}  ${a}`);
+      console.log(`     ${l.join(" | ")}`);
+    });
+    console.log("-".repeat(72));
+    console.log("^ CONFIRA se falta alguma. Arquétipo é decidido por catId (CAT_ARQUETIPO) e por");
+    console.log("  nome (TECNICAS_PURAS); tudo que não casa vira `prato` EM SILÊNCIO — mesa posta,");
+    console.log("  talher e taça de vinho. Molho ou técnica em categoria nova cai aqui sem avisar.");
+
     console.log("\nexemplo de prompt gerado (primeira receita sem prompt manual):");
     const ex = alvo.find(({ recipe }) => !temPromptManual(recipe.name));
     if (ex) {
@@ -938,7 +1238,9 @@ async function main() {
 
   // teste / gerar
   let gerados = 0, pulados = 0, erros = 0;
+  let abortouPorTeto = false;
   for (const { catId, recipe } of alvo) {
+    if (abortouPorTeto) break;
     const s = slug(recipe.name);
 
     // no modo teste, gera as DUAS versões da mesma receita pra comparar manual vs. template
@@ -973,6 +1275,16 @@ async function main() {
       } catch (e) {
         console.error(`  ! ${base}: ${e.message}`);
         erros++;
+        // Teto de gasto derruba o LOTE, não só a receita — ver o comentário do ErroTeto.
+        // Sem isto, as 235 receitas seguintes falham igual e o relatório final vira uma parede
+        // de erros que esconde a causa única. Sai pela porta de baixo com o que já foi feito.
+        if (e.abortarLote) {
+          console.error(`\n>>> LOTE INTERROMPIDO na receita "${base}". Nada foi cobrado por ela.`);
+          console.error(`>>> ${gerados} geradas nesta rodada, ${erros} erro(s). O que já está em disco está seguro.`);
+          console.error(`>>> Levante o teto e rode o MESMO comando: o gerador pula o que já existe.\n`);
+          abortouPorTeto = true;
+          break;
+        }
       }
     }
   }

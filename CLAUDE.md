@@ -26,6 +26,31 @@ copiado como texto plano para outra conversa, sem nenhum símbolo de formataçã
   DEVE incluir bump do CACHE_NAME no sw.js, no mesmo push. Checar isso é parte do relatório
   de qualquer fase.
 
+## Foto de receita
+
+O acervo tem foto **própria e gerada**, uma por receita, em `imagens/receitas/<slug>.webp`.
+Nunca busque foto na web para uma receita, e nunca acrescente campo de imagem em `data/*.js`:
+o caminho é derivado do `name`, e guardá-lo criaria uma segunda fonte da verdade.
+Contrato completo em `docs/CONTRATO-IMAGENS-REDESIGN.md`; como operar em `docs/COMO-RODAR-IMAGENS.md`.
+
+- **Receita nova não tem foto até alguém rodar um comando.** Depois de adicionar em `data/*.js`:
+
+  ```
+  node scripts/gerar-imagens.js --receita="Nome Exato"          # dry run, custo zero
+  node scripts/gerar-imagens.js --gerar --receita="Nome Exato"  # gera, ~R$ 0,34
+  ```
+
+- **Ler o dry run antes de gerar não é opcional.** Ele imprime o ARQUÉTIPO e a LOUÇA escolhidos, e
+  os dois erram em silêncio. Arquétipo `prato` monta mesa posta com talher e taça — errado para
+  molho, preparação ou técnica. Louça sem regra cai no default (tigela funda).
+- **Renomear receita órfã a foto.** O nome do arquivo sai do `name`. Renomeou, gere de novo — senão
+  o app cai no fallback da Wikipédia sem erro nenhum no console.
+- **Não use a skill `ai-image-generator` para foto de receita.** Ela é genérica e não conhece os
+  arquétipos, o contrato de slug nem as decisões de enquadramento deste projeto. Para receita, o
+  caminho é sempre `scripts/gerar-imagens.js`.
+- **Custa dinheiro real.** Toda geração é chamada de API paga. Sem `--gerar` nada é cobrado; o dry
+  run é o default de propósito.
+
 ## Sessões paralelas e git
 - PROIBIDO `git add -A`, `git add .` ou qualquer commit de escopo aberto. Todo commit usa
   pathspec explícito dos arquivos da PRÓPRIA sessão.

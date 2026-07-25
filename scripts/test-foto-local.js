@@ -173,11 +173,34 @@ ok(
 
 // 5. Receita SEM webp em disco não pode ser tratada como "tem foto". Enquanto o lote não roda,
 //    a esmagadora maioria está nesse estado — e o app tem que cair no fallback, não mostrar quadrado quebrado.
+// Este teste ANCORAVA numa receita real sem foto ("Sauerbraten") e quebrou sozinho quando o lote
+// terminou e as 398 passaram a ter webp — falso alarme, não regressão. Ancorar em estado que o
+// projeto tem por objetivo eliminar é erro de teste. Agora usa um nome que nunca vai existir,
+// então vale igual com 0 ou com 398 fotos prontas.
 const semFoto = receitas.filter((r) => !fs.existsSync(path.join(DIR_SAIDA, slugApp(r.name) + ".webp")));
+const inexistente = "Receita Que Nao Existe No Acervo XYZ";
 ok(
-  "receita sem webp NÃO resolve pra caminho local",
-  !fs.existsSync(path.join(DIR_SAIDA, slugApp("Sauerbraten") + ".webp")),
-  `"Sauerbraten" sem foto; ${semFoto.length} de ${receitas.length} ainda sem webp`
+  "nome sem webp em disco NÃO resolve pra caminho local (cai no fallback)",
+  !fs.existsSync(path.join(DIR_SAIDA, slugApp(inexistente) + ".webp")),
+  `cobertura atual: ${receitas.length - semFoto.length} de ${receitas.length} com foto própria`
+);
+
+// 0 BYTES É PIOR QUE AUSENTE. Aconteceu de verdade em 25/07/2026: o processo de exportação foi
+// morto no meio da escrita e deixou agnolotti.webp com 0 byte. O arquivo EXISTE, então qualquer
+// checagem por existência (inclusive a minha, na hora de reexportar) o considera pronto — mas o
+// navegador dispara onerror, o app cai no fallback da Wikipédia e ninguém vê erro nenhum.
+// Tamanho mínimo em 10 KB: o menor webp legítimo do acervo tem 66 KB, então 10 KB só pega lixo.
+const quebrados = fs
+  .readdirSync(DIR_SAIDA)
+  .filter((f) => f.endsWith(".webp"))
+  .map((f) => ({ f, size: fs.statSync(path.join(DIR_SAIDA, f)).size }))
+  .filter((x) => x.size < 10 * 1024);
+ok(
+  "NENHUM webp vazio ou truncado",
+  quebrados.length === 0,
+  quebrados.length
+    ? quebrados.map((x) => `${x.f} (${x.size}B)`).join(", ")
+    : `${fs.readdirSync(DIR_SAIDA).filter((f) => f.endsWith(".webp")).length} arquivos, todos acima de 10 KB`
 );
 
 // 6. Não pode sobrar chamada no formato antigo: loadRecipeImage() agora recebe a RECEITA.
@@ -197,6 +220,86 @@ ok(
   !/localStorage/.test(corpoFotoLocal),
   "cache do teste local vive só em memória (Map), morre no reload"
 );
+
+// =======================================================================================
+// PROCESSO — o que dispara a foto de uma receita NOVA
+//
+// Estes testes não protegem código, protegem PROCESSO. Descoberta de 25/07/2026: o pipeline
+// inteiro estava construído e nada o disparava. Pior, o documento oficial de adicionar receita
+// mandava buscar foto na Wikipédia e gravar num campo `image:` que nenhuma receita tem e que o
+// app nunca leu. Receita nova entrava com URL inerte e sem foto própria — e ninguém percebia,
+// porque aparecia foto na tela (o fallback). Falha silenciosa é o padrão deste projeto inteiro,
+// e é o que estes testes existem para quebrar.
+// =======================================================================================
+console.log("\nPROCESSO (receita nova)");
+
+const claudeMd = fs.readFileSync(path.join(ROOT, "CLAUDE.md"), "utf8");
+const docCat = fs.readFileSync(path.join(ROOT, "docs", "prompt-categorizar-receita.md"), "utf8");
+const skillImg = path.join(ROOT, ".claude", "skills", "ai-image-generator", "SKILL.md");
+
+ok(
+  "CLAUDE.md manda rodar gerar-imagens.js em receita nova",
+  /gerar-imagens\.js/.test(claudeMd) && /--gerar --receita/.test(claudeMd),
+  "CLAUDE.md é o único arquivo que toda sessão lê sozinha — é o único gatilho real"
+);
+
+// NEGATIVO: o campo morto não pode voltar ao documento oficial.
+ok(
+  "doc de receita nova NÃO pede URL de foto",
+  !/image:\s*"https?:/.test(docCat),
+  'o antigo `image: "https://..."` era ignorado pelo app e fingia que a receita tinha foto'
+);
+
+// NEGATIVO: nem a instrução de buscar na Wikipedia.
+ok(
+  "doc de receita nova NÃO manda buscar foto na Wikipedia",
+  !/Buscar uma foto do prato/i.test(docCat),
+  "instruía a fazer exatamente o que o pipeline substituiu"
+);
+
+// NEGATIVO: e nenhuma receita pode ter o campo de volta. Se alguém reintroduzir, vira uma
+// segunda fonte da verdade — e a errada, porque o app resolve pelo nome.
+const comCampoImagem = fs
+  .readdirSync(path.join(ROOT, "data"))
+  .filter((f) => f.endsWith(".js"))
+  .filter((f) => /^\s*(image|img|foto|imagem)\s*:/m.test(fs.readFileSync(path.join(ROOT, "data", f), "utf8")));
+ok(
+  "NENHUM data/*.js tem campo de imagem",
+  comCampoImagem.length === 0,
+  comCampoImagem.length ? comCampoImagem.join(", ") : "0 de 42 arquivos"
+);
+
+ok(
+  "a skill genérica de imagem está escopada para fora de foto de receita",
+  fs.existsSync(skillImg) && /NÃO use esta skill para foto de receita/.test(fs.readFileSync(skillImg, "utf8")),
+  "sem isso uma sessão futura escolhe a skill errada e gera fora do padrão, gastando dinheiro"
+);
+
+// NEGATIVO forte: se CAT_ARQUETIPO ou TECNICAS_PURAS quebrarem, TUDO vira `prato` — o default —
+// e as 63 receitas que não são prato saem com mesa posta e taça de vinho, sem erro nenhum.
+const arqFn = extrairFuncao(GERADOR, "escolherArquetipo");
+{
+  const srcGer = fs.readFileSync(GERADOR, "utf8");
+  const i = srcGer.indexOf("const CAT_ARQUETIPO");
+  const j = srcGer.indexOf("function escolherArquetipo");
+  const fim = srcGer.indexOf("}", srcGer.indexOf("{", j)) + 1;
+  const escolher = new Function(`${srcGer.slice(i, fim)}; return escolherArquetipo;`)();
+  const w = {};
+  for (const f of fs.readdirSync(path.join(ROOT, "data")).filter((f) => f.endsWith(".js"))) {
+    try { new Function("window", fs.readFileSync(path.join(ROOT, "data", f), "utf8"))(w); } catch (e) {}
+  }
+  const conta = {};
+  for (const cat in w.RECIPES || {}) for (const r of w.RECIPES[cat]) {
+    const a = escolher(cat, r); conta[a] = (conta[a] || 0) + 1;
+  }
+  const naoPrato = (conta.molho || 0) + (conta.preparo || 0) + (conta.processo || 0);
+  ok(
+    "as regras de arquétipo REALMENTE disparam (nem tudo virou `prato`)",
+    naoPrato === 63 && conta.processo === 6,
+    `prato ${conta.prato}, molho ${conta.molho}, preparo ${conta.preparo}, processo ${conta.processo} — não-prato ${naoPrato}, esperado 63`
+  );
+}
+void arqFn;
 
 // =======================================================================================
 console.log(`\n${passes} passaram, ${falhas} falharam\n`);

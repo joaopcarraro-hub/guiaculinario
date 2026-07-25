@@ -17,10 +17,12 @@ você deve:
 1. **Pesquisar a receita de verdade**, priorizando fontes confiáveis (site oficial de instituição
    culinária, livros/chefs reconhecidos, Wikipedia, sites especializados de receita bem
    estabelecidos) — não invente ingredientes/passos, e não misture receitas de pratos diferentes.
-2. **Buscar uma foto do prato** — não precisa ser uma imagem licenciada/registrada nem nada formal,
-   só uma URL de imagem pública que mostre o prato de verdade (ex.: Wikipedia/Wikimedia Commons,
-   ou outra fonte de imagem direta) — é só pra ficar visual no site, não precisa se preocupar com
-   direitos de uso.
+2. **NÃO buscar foto.** Esta etapa existia até 25/07/2026 e foi removida — não procure URL de
+   imagem, não use Wikipedia/Wikimedia, não preencha campo de foto nenhum. A foto do prato é
+   **gerada**, não encontrada: `scripts/gerar-imagens.js` produz uma foto própria, no padrão visual
+   do acervo, e o app a resolve sozinho pelo NOME da receita (ver §3 abaixo e
+   `docs/CONTRATO-IMAGENS-REDESIGN.md`). URL de terceiro aqui não é só desnecessária: ela é ignorada
+   pelo app e dá a falsa impressão de que a receita já tem foto.
 3. Devolver um objeto JavaScript pronto, seguindo **exatamente** este formato e ordem de campos:
 
 ```js
@@ -29,7 +31,10 @@ você deve:
   subgroup: "Nome do subgrupo dentro da categoria (opcional, veja abaixo)",
   desc: "Uma frase curta e apetitosa descrevendo o prato — não repita o nome.",
   origin: "País ou região de origem (ex.: 'Itália (Roma)', 'Brasil', 'Ásia')",
-  image: "https://url-direta-de-uma-foto-do-prato.jpg",
+  // NÃO existe campo de imagem. Havia um `image:` aqui até 25/07/2026 e ele era MORTO:
+  // nenhuma das 398 receitas tem esse campo e js/app.js nunca leu esse nome. O caminho da foto
+  // é derivado do `name` (ver §3), então guardá-lo seria uma segunda fonte da verdade — e a
+  // errada. Não reintroduza.
   time: { prep: "X min", cook: "Y min", total: "Z min" },
   yield: "N porções",
   difficulty: "Fácil" | "Média" | "Média-alta" | "Difícil",
@@ -53,10 +58,26 @@ você deve:
 Regras de conteúdo:
 - Todos os campos são obrigatórios, exceto `subgroup` e `tips` (que podem ser omitidos se não
   fizerem sentido).
-- `image` é obrigatório sempre que você encontrar uma foto real e confiável do prato — só deixe
-  de fora se genuinamente não achar nenhuma imagem confiável (o site tem um fallback automático via
-  Wikipedia pra esses casos, mas ele falha bastante pra pratos menos conhecidos, então é melhor já
-  vir com a URL certa).
+- **Foto: não é campo, é comando.** Depois que a receita estiver em `data/*.js`, rode na raiz do
+  repo, com a chave setada:
+
+  ```
+  node scripts/gerar-imagens.js --receita="Nome Exato da Receita"          # dry run, custo zero
+  node scripts/gerar-imagens.js --gerar --receita="Nome Exato da Receita"  # gera, ~R$ 0,34
+  ```
+
+  **Leia o dry run antes de gerar.** Ele imprime o arquétipo e a louça escolhidos. Duas coisas
+  para conferir, porque erram em silêncio:
+
+  1. **Arquétipo.** `prato` monta mesa posta com talher e taça — certo para um prato, errado para
+     molho, preparação ou técnica. Se a receita nova for molho/preparo/técnica e o dry run disser
+     `prato`, a regra precisa de ajuste em `CAT_ARQUETIPO` antes de gerar.
+  2. **Louça.** Categoria nova sem regra cai no default (tigela funda). O dry run lista as receitas
+     nessa situação num bloco próprio.
+
+  O nome do arquivo sai do `name` da receita, então **renomear uma receita depois de gerar a foto
+  deixa o arquivo órfão** — o app volta a não achar foto e cai na Wikipédia, sem erro visível.
+  Renomeou, gere de novo.
 - `desc` é UMA frase, apetitosa, sem repetir o nome do prato.
 - `ingredients` e `steps` devem ser completos, detalhados e fiéis à fonte pesquisada — nada de
   "modo de preparo resumido" nem passos inventados.
