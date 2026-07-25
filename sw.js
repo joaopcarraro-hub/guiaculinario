@@ -6,7 +6,13 @@
 // v21: foto própria da receita (imagens/receitas/*.webp) + object-position/aspect-ratio no hero.
 // Mudaram css/style.css e js/app.js, que já estavam no APP_SHELL — sem subir a versão o
 // cache-first serviria a versão velha dos dois e a mudança simplesmente não apareceria.
-const CACHE_NAME = "cardapio-v21";
+// v22: hotfix — fase 0b (tipografia + espaçamento) mudou css/style.css sem subir a versão.
+// Shell/dado é network-first (só os ícones são cache-first, ver isIconRequest abaixo), então
+// quem está online já recebe o CSS novo na próxima requisição independente da versão aqui; o
+// bump serve pro caso offline — força o SW novo a instalar e o "install" a pré-popular o
+// cache com o CSS atual, em vez de deixar o fallback offline preso na cópia antiga até a
+// próxima visita online.
+const CACHE_NAME = "cardapio-v22";
 
 const APP_SHELL = [
   "./",

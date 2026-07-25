@@ -22,6 +22,9 @@ copiado como texto plano para outra conversa, sem nenhum símbolo de formataçã
   preferência, valores literais. Comparação por SHA fixo QUEBRA se o histórico for reescrito
   (squash/rebase): antes de qualquer reescrita de histórico, converter essas comparações pra
   literais.
+- Todo push que altera qualquer arquivo do APP_SHELL (css/style.css, js/app.js, index.html)
+  DEVE incluir bump do CACHE_NAME no sw.js, no mesmo push. Checar isso é parte do relatório
+  de qualquer fase.
 
 ## Sessões paralelas e git
 - PROIBIDO `git add -A`, `git add .` ou qualquer commit de escopo aberto. Todo commit usa
