@@ -1,0 +1,12 @@
+# Masters full-res da geração de imagem (imagens/master/*.jpg|png).
+# ~900 KB cada x 398 receitas = ~360 MB. Não entram no git, e não precisam:
+#  - o que o app serve é imagens/receitas/*.webp (~180 KB), esse SIM é commitado;
+#  - o repo mora dentro do OneDrive, então os masters já têm backup automático;
+#  - e `node scripts/gerar-imagens.js --exportar` regera todos os webp a partir
+#    deles a custo ZERO de API, então o master é o que não se pode perder — mas
+#    guardar 360 MB de binário em git é a pior forma possível de não perder.
+imagens/master/
+
+# Backups que o `--aplicar` cria antes de escrever em data/*.js. São temporários:
+# depois de conferir o `git diff data/`, apague.
+data/*.js.bak
