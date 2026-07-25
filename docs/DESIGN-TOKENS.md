@@ -37,22 +37,76 @@ tagline) e `Simbolo_app.png` (ícone do app, fundo vermelho + símbolo "g" com c
 | `--color-accent-light` | `#D97A45` | ⚠️ **SEM REGRA DE USO DEFINIDA** — ver pendência abaixo |
 | `--color-highlight` | `#D9A441` | ⚠️ **SEM REGRA DE USO DEFINIDA** — ver pendência abaixo |
 
-## Tipografia
-⚠️ **Família tipográfica em decisão (Fase 0a, 2026-07-26)** — "Inter (fallback SF Pro/Roboto)"
-nunca chegou a ser implementada: o código real usa Georgia/serif no corpo (`body`) e Helvetica
-Neue/Arial/sans-serif no resto (auditoria de 2026-07-25 confirmou 0 ocorrências de
-Inter/SF Pro/Roboto no CSS). Direção pra Fase 0b: títulos em serif (Georgia/`ui-serif`) + UI em
-sans do sistema — substitui a escala Inter abaixo, que fica só como referência histórica de
-tamanho/peso até a Fase 0b definir a família final:
+## Tipografia — Fase 0b (2026-07-25)
+Decisão final: títulos/nomes em serif (`--font-display`), resto em sans do sistema
+(`--font-ui`) — direção que já estava registrada como pendência da Fase 0a, implementada aqui.
+Zero ocorrências de Inter/SF Pro/Roboto seguem confirmadas (a escala Inter do rascunho nunca
+foi implementada); a tabela Display/H1/H2/H3/Body/Caption/Small do rascunho anterior fica só
+como referência histórica de tamanho/peso, substituída pela escala de 6 degraus abaixo.
 
-Display 34 Bold · H1 30 Bold · H2 24 Bold · H3 20 SemiBold · Body 16 Regular · Caption 14
-Regular · Small 12 Regular.
+**Famílias:**
+- `--font-ui`: `-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif` — `body` e todo o app, exceto os 3 seletores de NOME/título abaixo.
+- `--font-display`: `ui-serif, Georgia, 'Iowan Old Style', 'Palatino Linotype', serif` — SOMENTE título da receita (`.recipe-page-title h2`), título no card de receita (`.recipe-title h3`) e título de categoria/hub (`#category-header h2`). Peso sempre 400 nesses 3 (o peso serif vem do desenho da própria fonte, não de font-weight).
+  - **Home:** não existe hoje um título de página na home — `renderHome` só monta os tiles principais e "Mais categorias", ambos `<button>` (excluídos por regra: botões nunca levam serif). Se um título de página entrar na home no futuro, ele se junta a esta lista.
+  - Botões, chips, nav, metadados, labels de seção uppercase (ex. "INGREDIENTES"), inputs e copy funcional ficam sempre em `--font-ui`, mesmo quando visualmente grandes.
 
-Tracking (letter-spacing) depende do tamanho, nunca 1 valor fixo pra tudo: negativo nos 2
-maiores títulos do app (-0.02em no título de categoria/página ~32px, -0.015em no título da
-receita ~27px), mais negativo quanto maior o tamanho. O tracking positivo já usado em texto
-pequeno uppercase (labels, chips: 0.04–0.06em) não muda — regra nova só se aplica aos títulos
-grandes que ainda não tinham letter-spacing definido.
+**Escala de tamanho (raiz 16px, piso 12px — nada abaixo de `--text-xs`):**
+
+| Token | rem | px |
+|---|---|---|
+| `--text-xs` | 0.75rem | 12px |
+| `--text-sm` | 0.875rem | 14px |
+| `--text-base` | 1rem | 16px |
+| `--text-md` | 1.1875rem | 19px |
+| `--text-lg` | 1.5rem | 24px |
+| `--text-xl` | 1.875rem | 30px |
+
+93 dos 95 `font-size` do CSS foram mapeados pro degrau mais próximo (o 95º é a raiz
+`:root{font-size:16px}`, não um estilo de componente — não entra na contagem de mapeamento).
+Nenhum valor caiu exatamente numa das 5 fronteiras da escala (13/15/17,5/21,5/27px), então a
+regra de desempate por papel (título → degrau maior, UI/metadata → degrau menor) não chegou a
+ser usada na prática — registrada mesmo assim pra mapeamentos futuros. Rótulo da bottom-nav
+(0.66rem/10,56px) sobe pro piso `--text-xs` (12px) — intencional, verificado sem quebra de
+layout na nav.
+
+**Exceções documentadas (fora da escala — tamanho de componente, não tipografia de texto):**
+- `.cook-timer-display` (dígitos do timer, `font-variant-numeric: tabular-nums`): `2.2rem`
+  literal, com comentário no CSS.
+- `.recipe-hero` (ícone de placeholder quando a receita não tem foto): `3.5rem` literal, com
+  comentário no CSS. Mapear pro `--text-xl` (30px) encolheria o ícone quase pela metade
+  (56px→30px) — achado durante a implementação: o `3.5rem` citado originalmente como "dígitos
+  do timer" pertence na verdade a este ícone, não ao timer (que é 2,2rem); corrigido aqui.
+
+**Pesos:** todo `bold`/`700` em contexto sans virou `600` (16 ocorrências). Serif display
+sempre `400`.
+
+**Leading (line-height):**
+
+| Token | Valor | Uso |
+|---|---|---|
+| `--leading-tight` | 1.2 | títulos |
+| `--leading-snug` | 1.35 | UI |
+| `--leading-base` | 1.55 | leitura (descrição, ingredientes, passos) |
+
+Os 8 valores encontrados no CSS (1 · 1,15 · 1,2 · 1,25 · 1,35 · 1,4 · 1,5 · 1,55) foram
+mapeados pro degrau mais próximo, sem empate exato em nenhuma das 2 fronteiras (1,275/1,45).
+
+**Tracking (letter-spacing) do serif display — substitui a regra flat da Fase 0a:**
+Escala com o tamanho do PRÓPRIO serif display, recalibrada pra Georgia (a regra anterior,
+-0.02em fixo nos "2 maiores títulos", foi calibrada pra Helvetica Neue, que fecha entreletra
+menos e tolera mais tracking negativo que um serif):
+
+| Tamanho do serif display | letter-spacing |
+|---|---|
+| >=28px | -0.015em |
+| 20–27px | -0.01em |
+| <20px | 0 (sem tracking negativo) |
+
+Aplicado hoje: `#category-header h2` e `.recipe-page-title h2` (ambos 30px, tier >=28px →
+-0.015em) e `.recipe-title h3` (19px, tier <20px → 0). Nenhum título atual cai no tier
+intermediário (20–27px) — registrado mesmo assim pra próximos títulos nessa faixa. Elementos
+sans (chips, labels uppercase etc.) mantêm seus valores de tracking positivo existentes
+(0,04–0,06em), não afetados por esta regra.
 
 ## Grid e espaçamento
 Base 8px: 4, 8, 12, 16, 24, 32, 40. Padding padrão de card: 16px. Margem lateral: 20px.
