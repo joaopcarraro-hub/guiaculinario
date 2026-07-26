@@ -1707,13 +1707,22 @@ body.filter-modal-open { overflow: hidden; }
   color: var(--color-text-primary);
 }
 
-/* Banner do hub (item 6) — imagem de categoria/hub borrada em faixa no topo, só nos 3 hubs
-   alcançáveis (GRUPO_BANNER_IMAGE em app.js: fundamentos/proteinas/cozinhas). position:fixed +
-   z-index:-1, MESMO mecanismo de .recipe-hero: escapa do padding-top de #main pra alcançar o
-   topo real do viewport (onde o chrome-float também senta, ver exceção de --chrome-clearance
-   acima) e some atrás da folha (.grupo-sheet) sem precisar de contexto de empilhamento próprio
-   (bucket negativo sempre pinta antes do fluxo normal não-posicionado). scale(1.1) esconde a
-   borda mais clara que o blur cria nas quinas do próprio container. */
+/* Banner do hub (item 6) — imagem de categoria/hub em faixa no topo, só nos 3 hubs alcançáveis
+   (GRUPO_BANNER_IMAGE em app.js: fundamentos/proteinas/cozinhas). position:fixed + z-index:-1,
+   MESMO mecanismo de .recipe-hero: escapa do padding-top de #main pra alcançar o topo real do
+   viewport (onde o chrome-float também senta, ver exceção de --chrome-clearance acima) e some
+   atrás da folha (.grupo-sheet) sem precisar de contexto de empilhamento próprio (bucket
+   negativo sempre pinta antes do fluxo normal não-posicionado).
+   CALIBRAÇÃO FINAL (rodada pós-8.1.1, 2026-07-26): banner deixou de ser borrado — blur(6px) +
+   scale(1.1) (a rodada 1 original) serviam pra sustentar texto-sobre-imagem direto no banner,
+   spec que a 8.1.1 aposentou faz tempo (título/busca vivem SEMPRE na folha sólida, nunca sobre
+   a foto — ver comentário de .grupo-sheet abaixo). Sem esse motivo, o blur só reduzia a foto sem
+   necessidade — banner nítido casa com a gramática de .recipe-hero (também sem blur). scale
+   removido junto: só existia pra esconder a borda que o PRÓPRIO blur criava nas quinas do
+   container, não tem mais o que esconder. Contraste do back-float sobre a foto nítida continua
+   garantido pelo véu PRÓPRIO do botão (`.chrome-float`, `rgba(15, 15, 14, 0.55)`, ver seção
+   "Controles flutuantes de topo" abaixo) — nunca dependeu de o banner estar borrado, checado ao
+   vivo nesta rodada contra o pixel mais claro de cada um dos 3 banners. */
 .grupo-banner {
   position: fixed;
   top: 0;
@@ -1729,8 +1738,6 @@ body.filter-modal-open { overflow: hidden; }
   height: 100%;
   object-fit: cover;
   display: block;
-  filter: blur(6px);
-  transform: scale(1.1);
 }
 /* A FOLHA do hub (item 6) — mesma gramática de .recipe-page sobre .recipe-hero: bleed total
    (escapa do padding/max-width de #main), fundo sólido, cantos superiores arredondados com

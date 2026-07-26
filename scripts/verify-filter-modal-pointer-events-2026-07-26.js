@@ -100,7 +100,9 @@ function main() {
   // não desta suíte — mesmo padrão de literal-encadeado das outras suítes do projeto.
   // v31 -> v32: stale de novo, desta vez por um fix pontual (centralização vertical do mesmo
   // header, css/style.css) — mesmo padrão, também externo a este hotfix.
-  assert(/const CACHE_NAME = "cardapio-v33";/.test(swJs), "CACHE_NAME v29 -> v30 -> v31 -> v32 -> v33 (v33 é o item final do redesenho visual, item 6 do roadmap-mestre, externo a este hotfix, ver comentário acima)");
+  // v32 -> v33 -> v34 -> v35: item final do redesenho visual, rumo novo de Países, calibração
+  // final do banner de hub — todos externos a este hotfix, mesmo padrão de sempre.
+  assert(/const CACHE_NAME = "cardapio-v35";/.test(swJs), "CACHE_NAME v29 -> v30 -> v31 -> v32 -> v33 -> v34 -> v35 (v35 é a calibração final do banner de hub, externa a este hotfix, ver comentário acima)");
 
   console.log("");
   console.log("==================================================");

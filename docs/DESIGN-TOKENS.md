@@ -598,10 +598,11 @@ diretamente. Remoção dos alias fica pra uma rodada futura.
     (`position: fixed; top/left: 0; z-index: -1`, MESMO mecanismo do hero — escapa do
     padding-top de `#main` pra alcançar o topo real do viewport, onde o `.chrome-float` também
     senta) tem `height: var(--hub-banner-h)` (`clamp(180px, 28vh, 280px)` — ~25-30vh, referência
-    390×844 dá 236,32px). A imagem (`.grupo-banner__img`) leva `filter: blur(6px)` +
-    `transform: scale(1.1)` (esconde a borda mais clara que o blur cria nas quinas do próprio
-    container) — aqui SIM tem blur, ao contrário dos tiles, porque é fundo decorativo, não
-    identificação. `.grupo-sheet` é a FOLHA: `width: 100vw` + `margin-left: calc(50% - 50vw)`
+    390×844 dá 236,32px). A imagem (`.grupo-banner__img`) é NÍTIDA — sem `filter`/`transform`
+    própria (calibração final pós-8.1.1, 2026-07-26: o `blur(6px)` + `scale(1.1)` original
+    sustentava texto-sobre-imagem direto no banner, spec que a 8.1.1 já tinha aposentado; sem
+    esse motivo, mesma gramática nítida de `.recipe-hero`). `.grupo-sheet` é a FOLHA: `width:
+    100vw` + `margin-left: calc(50% - 50vw)`
     (bleed total, mesma técnica de `.recipe-page`), `background: var(--color-bg)`, cantos
     superiores `--radius-sheet`, sobrepõe só os últimos 24px do banner
     (`margin-top: calc(var(--hub-banner-h) - 24px - var(--space-10))`, subtraindo o padding-top
@@ -610,7 +611,10 @@ diretamente. Remoção dos alias fica pra uma rodada futura.
     `--space-5` em vez de `--space-10`, espelhando a troca de padding de `#main` nesse ponto).
     Título (`.grupo-view h2`, agora `--font-display` peso 400, `--text-xl`/30px, tier `>=28px`
     → `-0.015em`) e a busca do hub (`.home-search-wrap`) vivem SEMPRE dentro de `.grupo-sheet` —
-    nunca sobre o blur. **Descrição textual do hub morreu** (decisão antiga do roadmap, fechada
+    nunca sobre a foto. Contraste do back-float sobre a foto nítida vem do véu PRÓPRIO do botão
+    (`.chrome-float`, `rgba(15, 15, 14, 0.55)`), nunca dependeu do banner estar borrado — medido
+    ao vivo contra o pixel mais claro dos 3 banners (ver relatório da tarefa pros números).
+    **Descrição textual do hub morreu** (decisão antiga do roadmap, fechada
     nesta rodada) — `grupo.desc` não existe mais em nenhum grupo, bannerizado ou não.
     **chrome-clearance:** hubs COM banner entram na MESMA exceção "float sobre mídia" da página
     de receita — `.grupo-view.has-banner { padding-top: 0; }` (o back-float senta sobre o

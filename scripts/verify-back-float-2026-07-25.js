@@ -216,7 +216,9 @@ function main() {
   // vertical do h4 (css/style.css mudou), também fora desta feature.
   // v32 -> v33: item final do redesenho visual (item 6 do roadmap-mestre) — tile de
   // categoria/home e banner de hub, ver scripts/verify-categoria-tiles-2026-07-26.js.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v33";'), "CACHE_NAME v33 — 9º bump desde esta suíte (v24->v25 carrossel, v25->v26 redesenho do card, v26->v27/v27->v28/v28->v29 redesenho da página de receita em 3 rodadas, v29->v30 hotfix de pointer-events, v30->v31 header de ingredientes, v31->v32 fix de centralização do mesmo header, v32->v33 item final do redesenho visual), mesma regra do CLAUDE.md");
+  // v33 -> v34: rumo novo de Países — mural de bandeiras extinto, tile de país vira foto de
+  // receita-assinatura. v34 -> v35: calibração final do banner de hub — blur/scale removidos.
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v35";'), "CACHE_NAME v35 — 11º bump desde esta suíte (v24->v25 carrossel, v25->v26 redesenho do card, v26->v27/v27->v28/v28->v29 redesenho da página de receita em 3 rodadas, v29->v30 hotfix de pointer-events, v30->v31 header de ingredientes, v31->v32 fix de centralização do mesmo header, v32->v33 item final do redesenho visual, v33->v34 rumo novo de Países, v34->v35 calibração final do banner de hub), mesma regra do CLAUDE.md");
 
   console.log("");
   console.log("==================================================");

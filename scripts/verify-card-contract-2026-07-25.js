@@ -260,7 +260,11 @@ function main() {
   // novo, também fora desta feature.
   // v31 -> v32: fix pontual (2026-07-26) — centralização vertical do mesmo header de
   // ingredientes, css/style.css mudou de novo, também fora desta feature.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v33";'), "CACHE_NAME v33 (item final do redesenho visual, item 6 do roadmap-mestre, mexeu em css/style.css e js/app.js de novo, fora desta feature)");
+  // v33 -> v34: rumo novo de Países (2026-07-26) — mural de bandeiras extinto, tile de país
+  // vira foto de receita-assinatura, css/style.css e js/app.js mudaram de novo, fora desta
+  // feature. v34 -> v35: calibração final do banner de hub (2026-07-26) — blur/scale removidos
+  // de .grupo-banner__img, só css/style.css, também fora desta feature.
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v35";'), "CACHE_NAME v35 (calibração final do banner de hub, fora desta feature)");
   assert(!swJs.includes('const CACHE_NAME = "cardapio-v25";'), "v25 não sobrevive — teste negativo");
 
   console.log("");

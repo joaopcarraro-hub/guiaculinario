@@ -301,7 +301,9 @@ function main() {
   // CACHE_NAME sobe 1x só por commit, então a asserção sempre acompanha o valor MAIS recente.
   // v31 -> v32: fix pontual de centralização vertical do mesmo header (seção 15) — css/style.css
   // mudou de novo, mesma regra de sempre (todo push que toca APP_SHELL bumpa CACHE_NAME).
-  assert(/const CACHE_NAME = "cardapio-v33";/.test(swJs), "CACHE_NAME v31 -> v32 (fix de centralização do header de ingredientes, seção 15) -> v33 (item final do redesenho visual, item 6 do roadmap-mestre, fora desta feature)");
+  // v32 -> v33: item final do redesenho visual. v33 -> v34: rumo novo de Países. v34 -> v35:
+  // calibração final do banner de hub (blur/scale removidos) — todos fora desta feature.
+  assert(/const CACHE_NAME = "cardapio-v35";/.test(swJs), "CACHE_NAME v33 (item final do redesenho visual) -> v34 (rumo novo de Países) -> v35 (calibração final do banner de hub, fora desta feature)");
 
   console.log("");
   console.log("==================================================");

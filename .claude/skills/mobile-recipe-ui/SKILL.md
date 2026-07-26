@@ -905,15 +905,19 @@ confirmando que cada caminho resolvido existe de fato em disco.
   outline (`bowl`/`flame`/`globe`/`cupcake`) morreu, substituído por foto — as 4 entradas sempre
   têm imagem (2 de categoria, 2 de banner de hub), zero fallback aqui.
 - **Banner de hub (`.grupo-banner`/`.grupo-sheet`, `renderGrupo`) — só nos 3 hubs alcançáveis por
-  link real da Home (Mais Categorias/Proteínas/Países).** Imagem borrada (`filter: blur(6px)`)
-  em faixa no topo (~25-30vh) + folha (`--radius-sheet`) que sobrepõe a base do banner, MESMA
-  gramática de `.recipe-hero`/`.recipe-page` (foto fixa + folha por cima), simplificada (sem
-  parallax de scroll — o hub é uma lista de tiles, não um funil de leitura longo). Título (agora
-  SERIF de verdade — achado desta rodada: `.grupo-view h2` nunca tinha sido serif apesar do que
-  `docs/DESIGN-TOKENS.md` já registrava, corrigido no mesmo commit) e a busca do hub vivem sempre
-  na folha. **Descrição textual do hub morreu** (decisão antiga do roadmap, fechada aqui) —
-  `grupo.desc`/`GRUPOS[].desc` não existem mais, em nenhum grupo. Tempo/dificuldade (rotas
-  órfãs, sem imagem) mantêm o título simples de sempre, sem banner.
+  link real da Home (Mais Categorias/Proteínas/Países).** Imagem NÍTIDA (calibração final
+  pós-8.1.1, 2026-07-26 — `blur(6px)`/`scale(1.1)` originais removidos: sustentavam
+  texto-sobre-imagem direto no banner, spec que a 8.1.1 já tinha aposentado; contraste do
+  back-float continua garantido pelo véu PRÓPRIO do botão, `rgba(15, 15, 14, 0.55)`, nunca
+  dependeu do banner borrado) em faixa no topo (~25-30vh) + folha (`--radius-sheet`) que
+  sobrepõe a base do banner, MESMA gramática de `.recipe-hero`/`.recipe-page` (foto fixa + folha
+  por cima), simplificada (sem parallax de scroll — o hub é uma lista de tiles, não um funil de
+  leitura longo). Título (agora SERIF de verdade — achado desta rodada: `.grupo-view h2` nunca
+  tinha sido serif apesar do que `docs/DESIGN-TOKENS.md` já registrava, corrigido no mesmo
+  commit) e a busca do hub vivem sempre na folha. **Descrição textual do hub morreu** (decisão
+  antiga do roadmap, fechada aqui) — `grupo.desc`/`GRUPOS[].desc` não existem mais, em nenhum
+  grupo. Tempo/dificuldade (rotas órfãs, sem imagem) mantêm o título simples de sempre, sem
+  banner.
   - **chrome-clearance ampliado:** hubs COM banner entram na mesma exceção "float sobre mídia"
     que a página de receita já tinha (`.grupo-view.has-banner { padding-top: 0; }` — o back-float
     senta sobre o banner de propósito). Hubs SEM banner continuam reservando

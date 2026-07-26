@@ -354,8 +354,15 @@ function main() {
   const homeBandRule = ruleBody(css, ".home-tile__band {", ".home-tile__band");
   assert(homeBandRule.includes("background: var(--color-bg);"), ".home-tile__band é SÓLIDA (var(--color-bg))");
   const grupoBannerImgRule = ruleBody(css, ".grupo-banner__img {", ".grupo-banner__img");
-  assert(grupoBannerImgRule.includes("blur(6px)"), ".grupo-banner__img usa blur(6px), conforme especificado (fundamentos/proteinas — cozinhas agora é mosaico, ver seção 6c)");
+  // CALIBRAÇÃO FINAL pós-8.1.1 (2026-07-26): banner deixou de ser borrado — o blur sustentava
+  // texto-sobre-imagem direto no banner, spec que a 8.1.1 já tinha aposentado (título/busca
+  // vivem sempre na folha sólida). scale(1.1) morre junto — só existia pra esconder a borda que
+  // o PRÓPRIO blur criava, sem blur não tem mais o que esconder.
+  assert(!grupoBannerImgRule.includes("blur("), "TESTE NEGATIVO: .grupo-banner__img NÃO tem mais blur — banner nítido, mesma gramática de .recipe-hero");
+  assert(!grupoBannerImgRule.includes("scale("), "TESTE NEGATIVO: .grupo-banner__img NÃO tem mais scale de compensação — não sobrou borda de blur pra esconder");
   assert(!/\.grupo-sheet\s*\{[^}]*blur/.test(css), "TESTE NEGATIVO: .grupo-sheet (a folha/conteúdo) NÃO leva blur — só o banner por trás dela");
+  const chromeFloatRule = ruleBody(css, ".chrome-float {", ".chrome-float");
+  assert(chromeFloatRule.includes("rgba(15, 15, 14, 0.55)"), "véu PRÓPRIO do back-float/exit-cook-float (rgba(15, 15, 14, 0.55)) inalterado — é ele, não o blur do banner, quem garante contraste do ícone sobre a foto (medido ao vivo, ver relatório da tarefa)");
 
   console.log("");
   console.log("==================================================");
@@ -518,10 +525,10 @@ function main() {
 
   console.log("");
   console.log("==================================================");
-  console.log("9. SERVICE WORKER — v34 (bump do rumo novo de Países) + APP_SHELL completo");
+  console.log("9. SERVICE WORKER — v35 (calibração final do banner de hub, sem blur) + APP_SHELL completo");
   console.log("==================================================");
   const swJs = fs.readFileSync(path.join(ROOT, "sw.js"), "utf8");
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v34";'), "CACHE_NAME v34 — css/style.css e js/app.js mudaram no rumo novo de Países, os dois no APP_SHELL");
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v35";'), "CACHE_NAME v35 — css/style.css mudou (banner de hub sem blur), está no APP_SHELL");
   // Regressão que passou despercebida desde que js/countries.js foi criado: o arquivo é
   // pré-requisito duro de js/categories.js e js/collections.js (os dois leem window.COUNTRIES
   // no topo, fora de função) e não estava no APP_SHELL. Ficava no cache só de carona, pelo
