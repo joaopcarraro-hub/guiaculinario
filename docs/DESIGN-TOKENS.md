@@ -232,6 +232,25 @@ diretamente. Remoção dos alias fica pra uma rodada futura.
     confirmação visual ao vivo — o path escolhido já é geometricamente centrado (centroide do
     traço em (12,12) no viewBox 24×24, conferido por cálculo), mas o ajuste fino por percepção
     não pôde ser calibrado em nenhuma das duas rodadas, pelo mesmo motivo de acesso a navegador.
+- **`--chrome-clearance` (hotfix 2026-07-26, problema sistêmico) — espaço reservado no topo de
+  qualquer tela que tenha um `.chrome-float` misturado com conteúdo em fluxo normal.** Achado
+  confirmado pelo dono em 3 telas: a pílula `.exit-cook-float` ("Sair") cobria o nome/atalho da
+  receita no modo cozinhar; o `.back-float` cobria o título nas páginas de categoria e de
+  grupo/hub. Decisão de produto: o CONTEÚDO desce, o float NÃO se move — a posição do chrome
+  (topo-esquerda, `env(safe-area-inset-top) + --space-3`) é uma convenção já aprendida pelo
+  usuário nas outras telas, então mover o CONTEÚDO custa menos que mover o controle.
+  `--chrome-clearance: calc(env(safe-area-inset-top, 0px) + var(--space-3) + 44px +
+  var(--space-3))` — mesma fórmula do `top` do float (safe-area + `--space-3`) mais a altura do
+  float (44px) mais outro `--space-3` de respiro, então o conteúdo começa exatamente 12px abaixo
+  da borda inferior do float, nunca por baixo dele. Aplicado como `padding-top` em 3 lugares —
+  `.cook-page` (modo cozinhar), `.grupo-view` (grupo/hub) e `#category-header:has(.chrome-float)`
+  (categoria — escopado por `:has()` porque só `renderCategory` de fato popula
+  `#category-header`; toda outra tela deixa esse elemento vazio, e um `padding-top`
+  incondicional criaria um vão vazio no topo delas). **EXCEÇÃO deliberada, não um esquecimento:
+  a página de receita (`.recipe-page`) não usa este token** — ali o `.back-float`/
+  `.recipe-hero__heart` sobrepõem a foto de propósito (redesenho "item 1 de Deixar pro Fable,
+  depois"), é o efeito visual desejado, não o bug que este token corrige nas outras 3 telas.
+  Suíte: `scripts/verify-back-float-2026-07-25.js` (seção 15).
 - **Carrossel "Vistas recentemente" (`.recent-views`/`.recent-views__rail`/`.recent-card`,
   DEPOIS do bloco de categorias — tiles + "Mais categorias" — na home, item 4 do roadmap-mestre;
   posição corrigida 2026-07-26, era antes dos tiles na primeira leva) — mini-card, scroll

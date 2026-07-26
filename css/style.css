@@ -122,6 +122,20 @@
      usado). Arredondado com folga pra 76px pra não depender de remedir se um label mudar. */
   --bottom-nav-height: 76px;
 
+  /* HOTFIX 2026-07-26 (problema 2, sistêmico): chrome-float (.back-float/.exit-cook-float,
+     44px, top: env(safe-area-inset-top) + --space-3) cobria conteúdo que começa no topo da
+     tela — pílula "Sair" sobre nome/atalho no modo cozinhar, back-float sobre o título em
+     categoria e grupo/hub. Decisão do estrategista: o CONTEÚDO desce, o float NÃO se move
+     (posição do chrome é convenção aprendida, mexer nela custaria mais que mover o conteúdo).
+     --chrome-clearance = a MESMA fórmula do top do float (safe-area + --space-3) + a altura do
+     float (44px) + mais um --space-3 de respiro — resultado: o conteúdo começa exatamente
+     --space-3 abaixo da borda inferior do float, nunca por baixo dele. Usado como padding-top
+     em .cook-page, .grupo-view e #category-header:has(.chrome-float) (só quando populado —
+     ver comentário perto dessas regras). EXCEÇÃO deliberada e documentada: a página de receita
+     (.recipe-page) NÃO usa este token — lá o float sobrepor a foto é o efeito desejado (ver
+     docs/DESIGN-TOKENS.md). */
+  --chrome-clearance: calc(env(safe-area-inset-top, 0px) + var(--space-3) + 44px + var(--space-3));
+
   /* ---- Fase 0b (tipografia): direção serif-título/sans-UI definida na Fase 0a
      (docs/DESIGN-TOKENS.md) — família, escala e pesos decididos aqui. */
   --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -315,10 +329,34 @@ body {
    dele — clique morto, silencioso (sem erro nenhum, só não fazia nada). pointer-events:none em
    body (que não tem NENHUM conteúdo clicável próprio) + auto nos filhos reais (#bottom-nav,
    #category-header, #recipes-content) restaura o clique de tudo que já funcionava — a fresta
-   vazia do padding-top de #main fica sem nada pra interceptar, liberando o coração por trás. */
-body { pointer-events: none; }
-#bottom-nav, #category-header, #recipes-content { pointer-events: auto; }
+   vazia do padding-top de #main fica sem nada pra interceptar, liberando o coração por trás.
 
+   HOTFIX 2026-07-26: essa whitelist só cobria filhos ESTÁTICOS de body (os 3 acima, do
+   index.html). Mas document.body.appendChild(...) também é usado em runtime pra 2 overlays
+   soltos — .filter-modal-overlay (js/app.js, abre/fecha o modal de Filtros) e .update-toast
+   (aviso de nova versão) — nenhum dos dois tem pointer-events próprio, então herdavam none e
+   ficavam com clique morto por inteiro (modal: reportado, não selecionava filtro nem fechava;
+   toast: achado só na auditoria desta correção, botão "Atualizar" igualmente morto). Mesma
+   causa raiz, 2ª vítima sem estar diretamente ligada ao coração — por isso a whitelist central
+   aqui, não pointer-events:auto disperso em cada regra de componente: mantém num único lugar
+   auditável tudo que precisa disso por viver fora de #recipes-content/#bottom-nav/#category-
+   header. scripts/verify-filter-modal-pointer-events-2026-07-26.js audita TODO
+   document.body.appendChild em app.js contra esta lista — um 3º caso futuro sem entrada aqui
+   quebra o teste. Se a lista continuar crescendo a cada overlay novo, considerar inverter a
+   abordagem (isolar hero/coração da receita no próprio stacking context, devolvendo
+   pointer-events normal pro body) — avaliado nesta correção e descartado por ora: mudança de
+   arquitetura maior que o escopo de um hotfix, registrada como recomendação de acompanhamento. */
+body { pointer-events: none; }
+#bottom-nav, #category-header, #recipes-content, .filter-modal-overlay, .update-toast { pointer-events: auto; }
+
+/* padding-top: var(--chrome-clearance) (hotfix 2026-07-26) — só renderCategory de fato popula
+   #category-header (back-float + h2 + desc); toda outra tela faz header.innerHTML = "" (fica
+   vazio). :has(.chrome-float) escopa o respiro só pra quando o float está mesmo lá dentro —
+   sem isso, um padding-top incondicional criaria um vão vazio no topo de toda tela que NÃO usa
+   #category-header (home, busca, receita, minhas receitas, etc.), regredindo layouts que já
+   estavam corretos. Mesmo padrão de escopo condicional já usado em #recipes-content:has(.home-
+   view) ~ #progress (carrossel "Vistas recentemente", 2026-07-25). */
+#category-header:has(.chrome-float) { padding-top: var(--chrome-clearance); }
 #category-header h2 {
   font-family: var(--font-display);
   font-weight: 400;
@@ -1508,6 +1546,10 @@ body.filter-modal-open { overflow: hidden; }
 }
 
 /* ---------- Página de grupo ---------- */
+/* padding-top: var(--chrome-clearance) (hotfix 2026-07-26) — o back-float (Home) é
+   position:fixed, primeiro filho do DOM mas fora do fluxo; sem este padding o título (h2,
+   primeiro filho em fluxo) começava colado no topo, por baixo do float. */
+.grupo-view { padding-top: var(--chrome-clearance); }
 .grupo-view h2 { margin: 0 0 var(--space-05); }
 .grupo-view .desc { margin-bottom: var(--space-5); }
 
@@ -1868,7 +1910,10 @@ body.filter-modal-open { overflow: hidden; }
 .primary-cta:hover { background: var(--color-accent-hover); } /* era #8f6624 hardcoded */
 
 /* ---------- Modo cozinhar ---------- */
-.cook-page { max-width: 600px; }
+/* padding-top: var(--chrome-clearance) (hotfix 2026-07-26) — a pílula .exit-cook-float ("Sair")
+   é position:fixed, não ocupa espaço no fluxo; sem este padding o nome/atalho da receita
+   (.cook-title, primeiro filho em fluxo) começava colado no topo, por baixo da pílula. */
+.cook-page { max-width: 600px; padding-top: var(--chrome-clearance); }
 /* Padrão compartilhado "nome clicável com ícone colado" — usado no cabeçalho do modo de
    preparo (.cook-title) E no nome de cada receita na Lista de Compras
    (.shopping-list__recipe-name-link). Sempre inline-flex/fit-content (nunca full-width, nem

@@ -293,7 +293,10 @@ function main() {
   console.log("==================================================");
   console.log("12. SERVICE WORKER — bump (rodada 3 muda css/js de novo, revisão do dono: proporção)");
   console.log("==================================================");
-  assert(/const CACHE_NAME = "cardapio-v29";/.test(swJs), "CACHE_NAME v28 -> v29 nesta rodada (revisão do dono: padding da folha, tags revertidas, país fora da fileira)");
+  // v29 -> v30: literal ficou stale por causa do hotfix 2026-07-26 (whitelist de pointer-events
+  // ganhou .filter-modal-overlay/.update-toast, ver scripts/verify-filter-modal-pointer-events-
+  // 2026-07-26.js), não por uma nova rodada desta feature — CACHE_NAME é global ao sw.js.
+  assert(/const CACHE_NAME = "cardapio-v30";/.test(swJs), "CACHE_NAME v29 -> v30 (stale por hotfix externo a esta suíte, ver comentário acima)");
 
   console.log("");
   console.log("==================================================");

@@ -19,7 +19,7 @@
 // v26: redesenho completo do card de receita (item 2 do roadmap-mestre) — foto 16:9 sangrando +
 // coração flutuante + faixa nome/1 chip, substitui header em grid/descrição/meta/cat-chip em
 // todos os 6 call sites. css/style.css e js/app.js mudaram.
-const CACHE_NAME = "cardapio-v29";
+const CACHE_NAME = "cardapio-v30";
 
 const APP_SHELL = [
   "./",

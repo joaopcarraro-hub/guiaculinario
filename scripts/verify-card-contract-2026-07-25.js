@@ -254,7 +254,9 @@ function main() {
   // Atualizado (item 1 de "Deixar pro Fable, depois"): css/style.css e js/app.js mudaram de
   // novo no redesenho da página de receita, v26 -> v27 — esta asserção acompanha o bump MAIS
   // RECENTE, mesma regra das outras suítes desta família (nunca prender a versão no passado).
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v29";'), "CACHE_NAME v29 (css/style.css e js/app.js mudaram de novo — rodada 3 do redesenho da página de receita, revisão do dono de proporção)");
+  // v29 -> v30: hotfix 2026-07-26 (pointer-events da whitelist de body), não uma rodada desta
+  // feature — ver scripts/verify-filter-modal-pointer-events-2026-07-26.js.
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v30";'), "CACHE_NAME v30 (hotfix de pointer-events mexeu em css/style.css de novo, fora desta feature)");
   assert(!swJs.includes('const CACHE_NAME = "cardapio-v25";'), "v25 não sobrevive — teste negativo");
 
   console.log("");

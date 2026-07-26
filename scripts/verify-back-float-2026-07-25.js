@@ -208,7 +208,9 @@ function main() {
   // (verify-card-contract-2026-07-25.js, redesenho completo do card) — mesma regra do CLAUDE.md,
   // cada leva que muda css/style.css ou js/app.js sobe a versão, e esta asserção sempre
   // acompanha o bump MAIS RECENTE, nunca uma versão presa no passado.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v29";'), "CACHE_NAME v29 — 5º bump desde esta suíte (v24->v25 carrossel, v25->v26 redesenho do card, v26->v27/v27->v28/v28->v29 redesenho da página de receita, 3 rodadas), mesma regra do CLAUDE.md");
+  // v29 -> v30: hotfix 2026-07-26 (pointer-events da whitelist de body, ver
+  // scripts/verify-filter-modal-pointer-events-2026-07-26.js), não uma rodada desta feature.
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v30";'), "CACHE_NAME v30 — 6º bump desde esta suíte (v24->v25 carrossel, v25->v26 redesenho do card, v26->v27/v27->v28/v28->v29 redesenho da página de receita em 3 rodadas, v29->v30 hotfix de pointer-events), mesma regra do CLAUDE.md");
 
   console.log("");
   console.log("==================================================");
@@ -221,6 +223,44 @@ function main() {
   const tokens = fs.readFileSync(tokensPath, "utf8");
   assert(tokens.includes("chrome-float"), "DESIGN-TOKENS.md documenta a base compartilhada .chrome-float");
   assert(tokens.includes("exit-cook-float"), "DESIGN-TOKENS.md documenta a pílula .exit-cook-float");
+
+  console.log("");
+  console.log("==================================================");
+  console.log("15. CHROME-CLEARANCE — hotfix 2026-07-26 (problema 2): chrome-float cobria título/atalho no topo de 3 telas (cozinhar, categoria, grupo/hub). Decisão do estrategista: conteúdo desce, float não se move.");
+  console.log("==================================================");
+  const tokenMatch = css.match(/--chrome-clearance:\s*calc\(\s*env\(safe-area-inset-top,\s*0px\)\s*\+\s*var\(--space-3\)\s*\+\s*44px\s*\+\s*var\(--space-3\)\s*\);/);
+  assert(!!tokenMatch, "--chrome-clearance: calc(env(safe-area-inset-top, 0px) + var(--space-3) + 44px + var(--space-3)) declarado em :root");
+
+  const cookPageRule = css.slice(css.indexOf(".cook-page {"), css.indexOf("}", css.indexOf(".cook-page {")));
+  assert(/padding-top:\s*var\(--chrome-clearance\);/.test(cookPageRule), "modo cozinhar: .cook-page reserva padding-top: var(--chrome-clearance) (pílula Sair não cobre mais nome/atalho)");
+
+  const grupoViewStart = css.indexOf(".grupo-view {");
+  assert(grupoViewStart > 0, "regra base .grupo-view { encontrada (nova nesta correção — antes só existiam regras descendentes h2/.desc)");
+  const grupoViewRule = css.slice(grupoViewStart, css.indexOf("}", grupoViewStart));
+  assert(/padding-top:\s*var\(--chrome-clearance\);/.test(grupoViewRule), "grupo/hub: .grupo-view reserva padding-top: var(--chrome-clearance) (back-float não cobre mais o título)");
+
+  const catHeaderClearanceMatch = css.match(/#category-header:has\(\.chrome-float\)\s*\{[^}]*padding-top:\s*var\(--chrome-clearance\);[^}]*\}/);
+  assert(!!catHeaderClearanceMatch, "categoria: #category-header:has(.chrome-float) reserva padding-top: var(--chrome-clearance) — escopado só a quando o back-float está presente (só renderCategory popula #category-header de verdade; toda outra tela faz header.innerHTML = \"\", :has() evita respiro vazio nas demais)");
+
+  console.log("");
+  console.log("==================================================");
+  console.log("15b. TESTE NEGATIVO — página de receita NÃO ganha chrome-clearance (exceção deliberada e documentada: float sobrepõe a foto, é o comportamento desejado)");
+  console.log("==================================================");
+  const recipePageRule = css.slice(css.indexOf(".recipe-page {", css.indexOf("/* A FOLHA")), css.indexOf("}", css.indexOf(".recipe-page {", css.indexOf("/* A FOLHA"))));
+  assert(!/chrome-clearance/.test(recipePageRule), "TESTE NEGATIVO: .recipe-page não reserva --chrome-clearance — o back-float da receita continua sobre a foto/hero, comportamento desejado");
+  const receitaFnStart = appJs.indexOf("Storage.recordRecipeView(id);");
+  const receitaHeaderClearIdx = appJs.indexOf('header.innerHTML = "";', receitaFnStart);
+  const receitaHeaderClearClose = receitaHeaderClearIdx >= 0 && receitaHeaderClearIdx - receitaFnStart < 2000;
+  assert(receitaHeaderClearClose, "TESTE NEGATIVO: renderReceita continua limpando #category-header (header.innerHTML = \"\", <2000 chars depois de recordRecipeView) — nunca populado ali, então a regra :has(.chrome-float) nunca dispara na página de receita");
+
+  console.log("");
+  console.log("==================================================");
+  console.log("15c. DOCS — DESIGN-TOKENS.md documenta --chrome-clearance e a regra (com a exceção da página de receita)");
+  console.log("==================================================");
+  const tokensDocPath = path.join(ROOT, "docs", "DESIGN-TOKENS.md");
+  const tokensDoc = fs.readFileSync(tokensDocPath, "utf8");
+  assert(tokensDoc.includes("--chrome-clearance"), "DESIGN-TOKENS.md documenta o token --chrome-clearance");
+  assert(/exce[cç][aã]o/i.test(tokensDoc.slice(tokensDoc.indexOf("--chrome-clearance"), tokensDoc.indexOf("--chrome-clearance") + 1500)), "DESIGN-TOKENS.md documenta a exceção da página de receita perto do token (não só o token solto)");
 
   console.log("");
   console.log("==================================================");

@@ -155,7 +155,9 @@ function main() {
   // checagem agora confirma que a cadeia continuou (v27 presente) sem "prender" a versão no v25.
   // Atualizado de novo (item 1 de "Deixar pro Fable, depois"): v26 -> v27, redesenho da página
   // de receita mudou css/style.css e js/app.js mais uma vez.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v29";'), "CACHE_NAME v29 — sucessor de v28 (redesenho da página de receita, rodada 2), css/style.css e js/app.js mudaram de novo na rodada 3 (revisão do dono)");
+  // v29 -> v30: hotfix 2026-07-26 (pointer-events da whitelist de body), não uma rodada desta
+  // feature — ver scripts/verify-filter-modal-pointer-events-2026-07-26.js.
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v30";'), "CACHE_NAME v30 — sucessor de v29 via hotfix de pointer-events (fora desta feature, css/style.css mudou de novo)");
   assert(!swJs.includes('const CACHE_NAME = "cardapio-v25";'), "v25 não sobrevive — teste negativo (a versão desta tarefa foi sucedida, não deixada presa)");
   assert(swJs.includes('"css/style.css"') && swJs.includes('"js/app.js"'), "css/style.css e js/app.js seguem no APP_SHELL precache");
 
