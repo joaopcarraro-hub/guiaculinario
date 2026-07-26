@@ -22,7 +22,10 @@
 // v31: leva final de sobras (2026-07-26) — header de ingredientes expandido perdeu o contador
 // "(N)" (desalinhava com porções+chevron), contagem sobrevive só no aria-label do colapsado.
 // js/app.js mudou.
-const CACHE_NAME = "cardapio-v31";
+// v32: fix pontual (2026-07-26) — h4 "Ingredientes" do mesmo header ainda renderizava mais alto
+// que porções+chevron; causa raiz era um empate de especificidade CSS resolvido por ordem no
+// arquivo, deixando 12px de margin-bottom residual só no h4. css/style.css mudou.
+const CACHE_NAME = "cardapio-v32";
 
 const APP_SHELL = [
   "./",

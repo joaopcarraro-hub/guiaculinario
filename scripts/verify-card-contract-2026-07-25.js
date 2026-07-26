@@ -258,7 +258,9 @@ function main() {
   // feature — ver scripts/verify-filter-modal-pointer-events-2026-07-26.js.
   // v30 -> v31: leva final de sobras (2026-07-26) — header de ingredientes, js/app.js mudou de
   // novo, também fora desta feature.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v31";'), "CACHE_NAME v31 (leva final de sobras mexeu em js/app.js de novo, fora desta feature)");
+  // v31 -> v32: fix pontual (2026-07-26) — centralização vertical do mesmo header de
+  // ingredientes, css/style.css mudou de novo, também fora desta feature.
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v32";'), "CACHE_NAME v32 (fix pontual mexeu em css/style.css de novo, fora desta feature)");
   assert(!swJs.includes('const CACHE_NAME = "cardapio-v25";'), "v25 não sobrevive — teste negativo");
 
   console.log("");

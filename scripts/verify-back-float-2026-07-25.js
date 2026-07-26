@@ -212,7 +212,9 @@ function main() {
   // scripts/verify-filter-modal-pointer-events-2026-07-26.js), não uma rodada desta feature.
   // v30 -> v31: leva final de sobras (2026-07-26) — header de ingredientes perdeu o contador
   // expandido, js/app.js mudou de novo, também fora desta feature.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v31";'), "CACHE_NAME v31 — 7º bump desde esta suíte (v24->v25 carrossel, v25->v26 redesenho do card, v26->v27/v27->v28/v28->v29 redesenho da página de receita em 3 rodadas, v29->v30 hotfix de pointer-events, v30->v31 header de ingredientes), mesma regra do CLAUDE.md");
+  // v31 -> v32: fix pontual (2026-07-26) — mesmo header de ingredientes, agora centralização
+  // vertical do h4 (css/style.css mudou), também fora desta feature.
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v32";'), "CACHE_NAME v32 — 8º bump desde esta suíte (v24->v25 carrossel, v25->v26 redesenho do card, v26->v27/v27->v28/v28->v29 redesenho da página de receita em 3 rodadas, v29->v30 hotfix de pointer-events, v30->v31 header de ingredientes, v31->v32 fix de centralização do mesmo header), mesma regra do CLAUDE.md");
 
   console.log("");
   console.log("==================================================");

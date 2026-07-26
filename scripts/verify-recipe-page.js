@@ -299,7 +299,9 @@ function main() {
   // v30 -> v31: mesma situação, desta vez pela leva final de sobras (header de ingredientes,
   // seção 14 abaixo) — essa sim é desta suíte/feature (.recipe-page), a diferença é só que
   // CACHE_NAME sobe 1x só por commit, então a asserção sempre acompanha o valor MAIS recente.
-  assert(/const CACHE_NAME = "cardapio-v31";/.test(swJs), "CACHE_NAME v30 -> v31 (esta rodada é da própria suíte — header de ingredientes, seção 14)");
+  // v31 -> v32: fix pontual de centralização vertical do mesmo header (seção 15) — css/style.css
+  // mudou de novo, mesma regra de sempre (todo push que toca APP_SHELL bumpa CACHE_NAME).
+  assert(/const CACHE_NAME = "cardapio-v32";/.test(swJs), "CACHE_NAME v31 -> v32 (fix de centralização do header de ingredientes, seção 15)");
 
   console.log("");
   console.log("==================================================");
@@ -338,6 +340,21 @@ function main() {
     /collapseBtn\.setAttribute\("aria-label", "Ocultar ingredientes"\);/.test(receitaFnBody),
     "estado expandido inicial (is-open por padrão): aria-label continua só \"Ocultar ingredientes\", sem contador (contador é exclusivo do colapsado)"
   );
+
+  console.log("");
+  console.log("==================================================");
+  console.log("15. CENTRALIZAÇÃO VERTICAL DO HEADER DE INGREDIENTES — fix pontual, 2026-07-26 (h4 renderizava mais ALTO que porções+chevron, achado do dono via print). Causa raiz: empate de especificidade (0,1,1) entre .ingredients-header h4 e .recipe-page-section h4 — em empate, quem vem DEPOIS no arquivo vence, e a regra de margin-bottom:var(--space-3) vem depois, deixando 12px residual só no h4 (medido ao vivo: 6px de offset = metade do residual, exatamente como a matemática de align-items:center prevê para um box com margem assimétrica).");
+  console.log("==================================================");
+  const ingHeaderRuleAlign = sliceRule(css, ".ingredients-header {", "regra .ingredients-header");
+  assert(/align-items:\s*center;/.test(ingHeaderRuleAlign), "align-items:center no container do header — centraliza a CAIXA de cada item direto (h4, .ingredients-header__controls) no eixo cruzado");
+  const ingControlsRuleAlign = sliceRule(css, ".ingredients-header__controls {", "regra .ingredients-header__controls");
+  assert(/align-items:\s*center;/.test(ingControlsRuleAlign), "align-items:center também no sub-container de controles — centraliza stepper/yield-text CONTRA o chevron dentro dele, mesma lógica um nível abaixo");
+  assert(
+    css.includes(".recipe-page-section .ingredients-header h4 { margin: 0; }"),
+    "fix: seletor do zero-margin do h4 leva o prefixo .recipe-page-section — eleva a especificidade pra (0,2,1), vence .recipe-page-section h4 (0,1,1) SEMPRE, não só quando por acaso vem depois no arquivo (causa raiz do bug)"
+  );
+  const sharedH4Rule = sliceRule(css, ".recipe-page-section h4 {", "regra compartilhada .recipe-page-section h4 (Modo de preparo, Dicas etc.)");
+  assert(/margin:\s*0 0 var\(--space-3\);/.test(sharedH4Rule), "TESTE NEGATIVO: a regra COMPARTILHADA (.recipe-page-section h4, usada por outros headers como 'Modo de preparo') não foi tocada — o fix é local ao ingredients-header, não muda o espaçamento de mais ninguém");
 
   console.log("");
   console.log("==================================================");

@@ -1071,7 +1071,14 @@ body.filter-modal-open { overflow: hidden; }
   gap: var(--space-3);
   padding: var(--space-2) var(--space-05);
 }
-.ingredients-header h4 { margin: 0; }
+/* CAUSA RAIZ do desalinhamento vertical (achado do dono, print): esta regra empatava em
+   especificidade (0,1,1) com .recipe-page-section h4 (linha ~1869, margin-bottom var(--space-3))
+   — em empate, quem vem DEPOIS no arquivo vence, e aquela regra vem depois desta. O h4 ficava
+   com 12px de margin-bottom residual que o resto da linha (stepper/yield/chevron) não tem;
+   align-items:center centraliza a CAIXA de cada item, então a caixa mais alta do h4 (texto + 12px
+   só embaixo) deixava o texto visualmente ACIMA do centro real da linha. Prefixo
+   .recipe-page-section eleva pra (0,2,1) — vence sempre, independe da ordem no arquivo. */
+.recipe-page-section .ingredients-header h4 { margin: 0; }
 .ingredients-header__controls {
   display: flex;
   align-items: center;
