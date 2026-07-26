@@ -518,10 +518,24 @@ function main() {
 
   console.log("");
   console.log("==================================================");
-  console.log("9. SERVICE WORKER — v33 (bump desta leva)");
+  console.log("9. SERVICE WORKER — v34 (bump do rumo novo de Países) + APP_SHELL completo");
   console.log("==================================================");
   const swJs = fs.readFileSync(path.join(ROOT, "sw.js"), "utf8");
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v33";'), "CACHE_NAME v33 — css/style.css, js/app.js, js/categories.js e js/collections.js mudaram, todos no APP_SHELL");
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v34";'), "CACHE_NAME v34 — css/style.css e js/app.js mudaram no rumo novo de Países, os dois no APP_SHELL");
+  // Regressão que passou despercebida desde que js/countries.js foi criado: o arquivo é
+  // pré-requisito duro de js/categories.js e js/collections.js (os dois leem window.COUNTRIES
+  // no topo, fora de função) e não estava no APP_SHELL. Ficava no cache só de carona, pelo
+  // cache.put do handler network-first — some numa evicção ou num offline logo após a primeira
+  // visita, e aí o app não degrada, quebra. Agora que ele carrega o signatureRecipe dos 20
+  // tiles, é shell. O teste de ORDEM é a parte que importa: precachear na ordem errada não
+  // quebra o install (addAll não executa nada), mas deixa a lista mentindo sobre a dependência.
+  const shellStart = swJs.indexOf("const APP_SHELL = [");
+  const shellSrc = swJs.slice(shellStart, swJs.indexOf("];", shellStart));
+  assert(shellSrc.includes('"js/countries.js"'), "js/countries.js está no APP_SHELL (pré-requisito de categories.js/collections.js e fonte do signatureRecipe dos 20 tiles)");
+  assert(
+    shellSrc.indexOf('"js/countries.js"') < shellSrc.indexOf('"js/categories.js"') && shellSrc.indexOf('"js/countries.js"') < shellSrc.indexOf('"js/collections.js"'),
+    "js/countries.js vem ANTES de categories.js e collections.js no APP_SHELL — mesma ordem do index.html"
+  );
 
   console.log("");
   console.log("==================================================");

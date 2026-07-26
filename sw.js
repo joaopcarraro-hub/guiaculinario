@@ -31,13 +31,27 @@
 // extermínio final de emoji funcional em categories.js/collections.js/app.js. Os 4 arquivos
 // mudaram e os 4 estão no APP_SHELL abaixo (css/style.css, js/app.js, js/categories.js,
 // js/collections.js).
-const CACHE_NAME = "cardapio-v33";
+// v34: rumo novo de Países — o tile de país virou foto da receita-assinatura e o mural de
+// bandeiras foi extinto (as 2 superfícies de Países usam imagens/categorias/paises.webp).
+// Mudaram css/style.css e js/app.js, os dois no APP_SHELL.
+// v34 corrige TAMBÉM uma falha antiga que só apareceu agora: js/countries.js NUNCA esteve no
+// APP_SHELL, apesar de o index.html carregá-lo e de js/categories.js e js/collections.js
+// dependerem de window.COUNTRIES já existir quando rodam. Como shell/dado é network-first, o
+// arquivo entrava no cache de carona (o handler faz cache.put de toda resposta 200), então o
+// buraco só aparecia em dois casos: primeira visita seguida de offline antes de qualquer
+// segunda carga, e evicção do cache. Nos dois, COUNTRIES fica indefinido e o app quebra na
+// hora — não degrada. Agora que countries.js carrega também o signatureRecipe dos 20 tiles do
+// hub Países, ele deixou de ser dado acessório e virou shell de verdade. Precachear é o certo.
+const CACHE_NAME = "cardapio-v34";
 
 const APP_SHELL = [
   "./",
   "index.html",
   "manifest.json",
   "css/style.css",
+  // ANTES de categories.js/collections.js, mesma ordem do index.html: os dois leem
+  // window.COUNTRIES no topo do próprio arquivo, não numa função chamada depois.
+  "js/countries.js",
   "js/categories.js",
   "js/tags.js",
   "js/collections.js",
