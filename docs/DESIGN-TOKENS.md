@@ -232,6 +232,37 @@ diretamente. Remoção dos alias fica pra uma rodada futura.
     confirmação visual ao vivo — o path escolhido já é geometricamente centrado (centroide do
     traço em (12,12) no viewBox 24×24, conferido por cálculo), mas o ajuste fino por percepção
     não pôde ser calibrado em nenhuma das duas rodadas, pelo mesmo motivo de acesso a navegador.
+- **Carrossel "Vistas recentemente" (`.recent-views`/`.recent-views__rail`/`.recent-card`,
+  DEPOIS do bloco de categorias — tiles + "Mais categorias" — na home, item 4 do roadmap-mestre;
+  posição corrigida 2026-07-26, era antes dos tiles na primeira leva) — mini-card, scroll
+  horizontal puro.** `.recent-views` usa `margin-top: var(--space-6)` (24px, colapsa com o
+  `margin-bottom: var(--space-4)` de `.home-more-categories` — resultado efetivo 24px, o maior
+  dos dois, não a soma) — a separação do bloco de categorias é só espaçamento, nunca borda.
+  `#progress` (elemento COMPARTILHADO por toda tela — nunca mudar a regra base) ganhou um
+  override só pra home (`#recipes-content:has(.home-view) ~ #progress`, zera margin-top/
+  padding-top/border-top) porque fica sempre vazio ali e sua borda sobrava como linha solta sem
+  propósito. Título
+  (`.recent-views__title`): mesmo padrão sans uppercase pequeno já usado nos labels de seção
+  (`--text-sm`, `text-transform: uppercase`, `letter-spacing: 0.06em`, `--color-text-secondary`).
+  Trilho (`.recent-views__rail`): `overflow-x: auto` + `scroll-snap-type: x mandatory` +
+  `scroll-snap-align: start` nos filhos — SEM nenhum JS de carrossel, scrollbar oculta
+  (`scrollbar-width: none` + `::-webkit-scrollbar { display: none }`, mesmo par já usado em
+  `.cook-timer-wheel`). Sem padding próprio — herda o inset de 20px de `#main`, mesma convenção
+  de `.home-tiles`. Mini-card (`.recent-card`, `flex: 0 0 26vw; min-width: 84px; max-width:
+  140px`): calibrado pro viewport de referência de 390px — ~101px de card, cabem 3 inteiros +
+  uma fatia do 4º dentro dos ~350px úteis. Foto 16:9 (`.recent-card__thumb`, `aspect-ratio: 16 /
+  9`, `object-fit: cover`, raio `var(--radius)` = 14px — o card PADRÃO de receita/preparo, não o
+  literal 20px dos tiles grandes da home) + nome abaixo (`.recent-card__name`, `--font-display`
+  peso 400, `--text-sm` = 14px, `letter-spacing: 0` — tier `<20px` da escala de tracking do
+  serif, ver "Tipografia" acima — `-webkit-line-clamp: 2`). Nada além de foto e nome: sem país,
+  sem meta, sem coração — item de navegação rápida, não um `recipe-card` reduzido. Foto sempre
+  via `loadRecipeImage(recipe, el)`/`applyImage()` (contrato `CONTRATO-IMAGENS-REDESIGN.md` §3),
+  nunca lógica própria — `loading="lazy"` já vem de `applyImage()`, não duplicado aqui. Estados
+  `:active`/`:focus-visible`: `.recent-card` entra nas MESMAS listas compartilhadas de
+  `.recipe-card`/`.category-card`/`.home-tile` etc., nenhuma regra de estado isolada. Ausente por
+  completo (nem título nem trilho) quando `Storage.getRecentlyViewed()` está vazio.
+  `fromHash="home"` no clique é contrato público à parte — ver "Botão Voltar" em
+  `product-navigation-ux/SKILL.md`.
 
 ## Iconografia
 

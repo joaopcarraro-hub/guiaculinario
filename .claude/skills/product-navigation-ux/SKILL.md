@@ -113,6 +113,15 @@ histórico de verdade (grupo/categoria não usam fromHash, usam navegação dire
 estrutural e único, voltar pro pai real conta como cumprir a regra — só vira "hardcoded ruim"
 se o destino for fixo APESAR de existir mais de um caminho real de chegada.
 
+**Rodada 3 (item 4 do roadmap-mestre, carrossel "Vistas recentemente" da home):** `fromHash =
+"home"` (string literal) é um valor PÚBLICO e documentado do contrato de `fromHash` — origem:
+os mini-cards do carrossel de recentes, único lugar que emite esse valor
+(`Router.toReceita(id, "home")` em `buildRecentlyViewedSection`, `js/app.js`). `parseHash`
+(`js/router.js`) trata `"home"` explicitamente, ao lado do `raw` vazio de sempre — não depende
+do fallback genérico do fim da função — e `renderReceita` calcula `fromHome` à parte pro rótulo
+do back-float ("Início"), pelo mesmo motivo que `fromBusca`/`fromMinhasReceitas` já tinham rótulo
+próprio. Suíte dedicada em `scripts/verify-recentes-ui-2026-07-25.js`.
+
 EXCEÇÃO: a tela do modo de preparo (cozinhar) NUNCA deve ter botão voltar adicional — só o
 botão "Sair do modo cozinhar" resolve a saída daquela tela, e continua sendo o ÚNICO controle
 flutuante ali (nenhum `.back-float` nunca deve aparecer no modo cozinhar). Rodada 2: esse botão

@@ -14,7 +14,9 @@
 // próxima visita online.
 // v24: botão de voltar da página de receita virou flutuante (.back-float, acompanha o scroll) —
 // mesmo mecanismo de navegação por fromHash, só apresentação. css/style.css e js/app.js mudaram.
-const CACHE_NAME = "cardapio-v24";
+// v25: carrossel "Vistas recentemente" na home (item 4 do roadmap-mestre) — UI nova sobre o
+// rastreamento que já existia em storage.js. css/style.css e js/app.js mudaram.
+const CACHE_NAME = "cardapio-v25";
 
 const APP_SHELL = [
   "./",

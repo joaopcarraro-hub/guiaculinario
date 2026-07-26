@@ -17,7 +17,7 @@ Mobile primeiro. Desktop depois.
 
 A home deve ser simples e guiada.
 
-Mostrar só:
+Mostrar só, nesta ordem:
 - 4 tiles grandes: Massas, Proteínas, Navegar por Países, Sobremesas.
 - "Mais categorias" — entrada pequena, num canto, ABAIXO dos tiles (era acima, invertido numa
   rodada de correção — só troca de ordem de appendChild, mesmo comportamento). Ganhou pill
@@ -26,12 +26,35 @@ Mostrar só:
   invisível como elemento interativo. Texto continua em `--color-text-secondary`, nunca
   `--color-accent` (texto pequeno, falha WCAG AA); o ÍCONE (não o texto) usa `--color-accent`
   — ícone não tem a restrição de ghost-text que texto pequeno tem.
+- Carrossel "Vistas recentemente" — condicional, só quando o histórico não está vazio, DEPOIS
+  do bloco de categorias acima (ver parágrafo "Como era vs. como ficou" abaixo — posição corrigida
+  2026-07-26, era antes dos tiles na primeira leva).
 
 Sem contador de progresso ("X de Y receitas já feitas") — removido, era resíduo do sistema
 antigo de tracking, redundante nesta tela.
 
-Sem busca livre e sem atalhos de Favoritos/Quero fazer/Histórico na home — isso migrou pra
-barra de navegação inferior (aba Pesquisar e, no futuro, aba Minhas Receitas).
+**Como era vs. como ficou (correção, item 4 do roadmap-mestre CHECKLIST-GERAL.md):** esta seção
+dizia, sem exceção, "sem busca livre e sem atalhos de Favoritos/Quero fazer/Histórico na home".
+Isso CONTINUA valendo pra busca livre e pra Favoritos/Quero fazer — nenhum dos dois ganhou
+atalho na home, seguem só na barra de navegação inferior. Deixou de valer só pra "Histórico": um
+carrossel "Vistas recentemente" (mini-card com foto 16:9 + nome em até 2 linhas, nada além
+disso — sem país, sem meta, sem coração) foi aprovado e implementado na home, DEPOIS do bloco de
+categorias (tiles + "Mais categorias") — posição corrigida 2026-07-26 (julgamento visual do
+dono), a primeira leva tinha colocado antes dos tiles. Não é um retorno do antigo atalho
+genérico de histórico — é um componente próprio e CONDICIONAL: ausente por completo (nem título
+nem trilho) quando `Storage.getRecentlyViewed()` está vazio, nunca aparece "quebrado" ou em
+branco. Lê esse mesmo `Storage.getRecentlyViewed()` (dado já rastreado desde antes, só faltava
+UI) via `buildRecentlyViewedSection()` em `js/app.js`; scroll horizontal por CSS puro
+(`overflow-x`/`scroll-snap-type: x mandatory`, sem nenhum JS de carrossel), ~3 cards inteiros +
+fatia do 4º visíveis em 390px. A separação do bloco de categorias pro carrossel é só espaçamento
+(`.recent-views` `margin-top: var(--space-6)`) — a antiga linha horizontal ali era a borda
+COMPARTILHADA de `#progress` (elemento único, reusado por toda tela; fica vazio na home), zerada
+só pra home via `#recipes-content:has(.home-view) ~ #progress`, sem tocar a regra base nem
+nenhuma outra tela. Clique navega com `fromHash="home"` literal — contrato público e
+documentado (ver "Botão Voltar" em `product-navigation-ux/SKILL.md`), nunca `currentHashPath()`
+(que devolve `""`, falsy, na home — faria o back-float da receita cair na categoria em vez de
+voltar pra Home). Spec visual completa (dimensões, tokens, estados) em docs/DESIGN-TOKENS.md
+("Componentes"); suíte versionada em `scripts/verify-recentes-ui-2026-07-25.js`.
 
 Cada tile grande deve ter:
 - ícone outline monocromático (`--color-text-primary`) + label

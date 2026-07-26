@@ -186,6 +186,7 @@ body {
 .shopping-list__clear,
 .shopping-list__recipe-chevron,
 .shopping-list__recipe-row,
+.recent-card,
 .text-link {
   transition: transform var(--motion-base) var(--motion-easing), opacity var(--motion-base) var(--motion-easing);
 }
@@ -218,6 +219,7 @@ body {
 .shopping-list__clear:active,
 .shopping-list__recipe-chevron:active,
 .shopping-list__recipe-row:active,
+.recent-card:active,
 .text-link:active {
   transform: scale(0.97);
   opacity: 0.85;
@@ -1346,6 +1348,75 @@ body.filter-modal-open { overflow: hidden; }
 .home-tile__icon { width: 30px; height: 30px; color: var(--color-text-primary); }
 .home-tile__label { font-weight: 600; font-size: var(--text-base); color: var(--color-text-primary); }
 
+/* Carrossel "Vistas recentemente" (DEPOIS do bloco de categorias — tiles + Mais categorias —,
+   item 4 do roadmap-mestre CHECKLIST-GERAL.md; posição corrigida 2026-07-26, julgamento visual
+   do dono, era antes dos tiles na primeira leva). Scroll horizontal PURO — overflow-x +
+   scroll-snap, sem nenhum JS de carrossel — primeiro uso desse padrão fora do seletor vertical
+   do timer (.cook-timer-wheel); documentado em mobile-recipe-ui/SKILL.md. Sem padding próprio
+   no trilho: herda o inset de 20px que #main já aplica (mesma convenção de .home-tiles/
+   .home-more-categories, nenhum dos dois duplica padding lateral próprio). */
+.recent-views {
+  /* --space-6 (24px): colapsa com o margin-bottom (--space-4, 16px) de .home-more-categories
+     pela regra padrão de colapso de margens entre irmãos em fluxo normal (nenhum dos dois tem
+     padding/borda que quebre o colapso) — resultado efetivo é o MAIOR dos dois, 24px, não a
+     soma. Mesmo ritmo de espaçamento só-visual pedido pra separar o bloco de categorias do
+     carrossel (ver override de #progress abaixo — a linha antiga saía dali, não daqui). */
+  margin-top: var(--space-6);
+}
+.recent-views__title {
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-3);
+}
+.recent-views__rail {
+  display: flex;
+  gap: var(--space-3);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.recent-views__rail::-webkit-scrollbar { display: none; }
+/* 26vw por card: em 390px (viewport de referência do contrato), ~101px de card — 3 inteiros +
+   fatia visível do 4º dentro dos ~350px úteis (390 − 20px × 2 de #main). min/max-width evitam
+   card espremido demais numa tela bem estreita ou esticado demais numa bem larga. */
+.recent-card {
+  flex: 0 0 26vw;
+  min-width: 84px;
+  max-width: 140px;
+  scroll-snap-align: start;
+  cursor: pointer;
+}
+.recent-card__thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--color-surface-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.recent-card__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.recent-card__thumb.placeholder { color: var(--color-text-disabled); }
+.recent-card__thumb.placeholder svg { width: 24px; height: 24px; }
+.recent-card__name {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--text-sm);
+  line-height: var(--leading-tight);
+  letter-spacing: 0; /* serif <20px não leva tracking negativo, docs/DESIGN-TOKENS.md */
+  color: var(--color-text-primary);
+  margin-top: var(--space-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .category-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -1937,6 +2008,18 @@ body.filter-modal-open { overflow: hidden; }
   padding-top: var(--space-3);
   border-top: 1px solid var(--color-border);
 }
+/* #progress é COMPARTILHADO por toda tela (elemento único, texto trocado por render* — ex.
+   contagem em categoria/busca) — a regra acima nunca muda pras outras telas. Na home,
+   progressEl.textContent fica sempre "" (renderHome), então a borda/padding sobravam como uma
+   linha solta sem propósito (julgamento visual do dono, 2026-07-26) bem onde o bloco de
+   categorias termina. :has() escopa a remoção só à home (via a marca .home-view que só
+   renderHome usa) sem tocar a regra base nem exigir reset em nenhuma outra função de render —
+   a separação vira só espaçamento, ver margin-top de .recent-views acima. */
+#recipes-content:has(.home-view) ~ #progress {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
 
 /* ---------- Toast de atualização do Service Worker ---------- */
 /* Fica acima da barra de navegação inferior (--bottom-nav-height, mesmo token do fix de
@@ -2008,10 +2091,11 @@ body.filter-modal-open { overflow: hidden; }
   .shopping-list__clear:active,
   .shopping-list__recipe-chevron:active,
   .shopping-list__recipe-row:active,
+  .recent-card:active,
   .text-link:active {
     transform: none;
   } /* Fase 0a: lista estendida junto com o bloco de :active acima — reduced-motion continua
-       suprimindo só a escala (sobra opacidade), mesmo princípio original, agora nos 30. */
+       suprimindo só a escala (sobra opacidade), mesmo princípio original, agora nos 31. */
   .filter-modal {
     animation: none;
   }
@@ -2088,6 +2172,7 @@ body.filter-modal-open { overflow: hidden; }
 .cook-nav-btn:focus-visible,
 .preparo-card:focus-visible,
 .preparo-card__delete:focus-visible,
+.recent-card:focus-visible,
 .update-toast__btn:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);

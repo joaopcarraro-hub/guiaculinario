@@ -18,7 +18,13 @@
 
   function parseHash() {
     const raw = location.hash.replace(/^#\/?/, "");
-    if (!raw) return { name: "home" };
+    // "home" é fromHash PÚBLICO e documentado (contrato do carrossel "Vistas recentemente" da
+    // Home — Router.toReceita(id, "home"), ver product-navigation-ux/SKILL.md e
+    // scripts/verify-recentes-ui-2026-07-25.js). Checagem EXPLÍCITA aqui, ao lado do "raw" vazio
+    // de sempre — NÃO depende do fallback genérico do fim desta função: se esse fallback mudar
+    // no futuro (deixar de resolver pra home), "home" continua resolvendo, porque é tratado aqui
+    // em cima, não lá embaixo por acidente.
+    if (!raw || raw === "home") return { name: "home" };
 
     const [pathPart, queryPart] = raw.split("?");
     const parts = pathPart.split("/").map(function (p) {

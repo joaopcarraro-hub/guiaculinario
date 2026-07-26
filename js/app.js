@@ -425,6 +425,67 @@
     { id: "sobremesas", label: "Sobremesas", icon: "cupcake", go: () => Router.toCategoria("sobremesas-classicas") },
   ];
 
+  // Carrossel "Vistas recentemente" (item 4 do roadmap-mestre, CHECKLIST-GERAL.md — dado já
+  // rastreado por Storage.recordRecipeView/getRecentlyViewed desde antes desta tarefa, só
+  // faltava a UI). Só lê o que storage.js já resolve (mais recente primeiro, deduplicado, cap
+  // 10) e resolve cada recipeId pelo MESMO TagModel.findRecipeById que renderReceita usa — sem
+  // reimplementar ordem/dedup/cap aqui. Devolve null (nenhum elemento, nem título nem trilho)
+  // quando não há histórico, pra renderHome simplesmente não anexar nada — ver critério "seção
+  // ausente com histórico vazio" no relatório da tarefa.
+  function buildRecentlyViewedSection() {
+    const recentItems = Storage.getRecentlyViewed()
+      .map((entry) => {
+        const item = TagModel.findRecipeById(entry.recipeId);
+        return item ? { id: item.id, recipe: item.recipe } : null;
+      })
+      .filter(Boolean);
+    if (!recentItems.length) return null;
+
+    const section = document.createElement("div");
+    section.className = "recent-views";
+
+    const title = document.createElement("h2");
+    title.className = "recent-views__title";
+    title.textContent = "Vistas recentemente";
+    section.appendChild(title);
+
+    const rail = document.createElement("div");
+    rail.className = "recent-views__rail";
+    recentItems.forEach((item) => {
+      const card = document.createElement("div");
+      card.className = "recent-card";
+      card.setAttribute("aria-label", "Ver receita de " + item.recipe.name);
+      makeKeyboardClickable(card);
+      card.addEventListener("click", () => {
+        // "home" é fromHash literal e PÚBLICO (contrato documentado em
+        // product-navigation-ux/SKILL.md), nunca currentHashPath() — na Home, currentHashPath()
+        // devolve "" (falsy), o que faria Router.toReceita NEM anexar "?from=" e o back-float
+        // cair na categoria da receita em vez de voltar pra Home.
+        Router.toReceita(item.id, "home");
+      });
+
+      const thumb = document.createElement("div");
+      thumb.className = "recent-card__thumb placeholder";
+      thumb.innerHTML = iconSvg("photoOff", "photo-placeholder__icon");
+      if (item.recipe.image) {
+        applyImage(thumb, item.recipe.image);
+      } else {
+        loadRecipeImage(item.recipe, thumb);
+      }
+
+      const name = document.createElement("div");
+      name.className = "recent-card__name";
+      name.textContent = item.recipe.name;
+
+      card.appendChild(thumb);
+      card.appendChild(name);
+      rail.appendChild(card);
+    });
+    section.appendChild(rail);
+
+    return section;
+  }
+
   function renderHome() {
     activeCat = null;
     refreshActiveCounts = null;
@@ -456,6 +517,12 @@
     // reordenação de appendChild, nenhum comportamento muda.
     wrap.appendChild(tilesGrid);
     wrap.appendChild(moreCategorias);
+
+    // Carrossel de recentes DEPOIS do bloco de categorias (julgamento visual do dono,
+    // 2026-07-26 — subiu antes disso, mudou pra cá na mesma tarefa). Ordem final da home:
+    // tiles -> Mais categorias -> Vistas recentemente.
+    const recentSection = buildRecentlyViewedSection();
+    if (recentSection) wrap.appendChild(recentSection);
 
     content.appendChild(wrap);
   }
@@ -2734,6 +2801,12 @@
     const backCollection = fromCollectionId && window.COLLECTIONS.find((c) => c.id === fromCollectionId);
     const fromBusca = !!fromHash && fromHash.indexOf("busca") === 0;
     const fromMinhasReceitas = !!fromHash && fromHash.indexOf("minhas-receitas") === 0;
+    // "home" é fromHash PÚBLICO e documentado (contrato do carrossel "Vistas recentemente" da
+    // Home, ver buildRecentlyViewedSection acima e product-navigation-ux/SKILL.md). Checagem
+    // EXPLÍCITA, não só pra navegação (parseHash já trata à parte) — sem isto o RÓTULO abaixo
+    // cairia no "cat ? cat.label : catId", mostrando a categoria da receita como se fosse a
+    // origem, mesmo o clique realmente voltando pra Home.
+    const fromHome = fromHash === "home";
 
     activeCat = catId;
     refreshActiveCounts = null;
@@ -2748,7 +2821,7 @@
     // Flutuante (acompanha o scroll, ver .back-float no CSS) — substitui o antigo back-button
     // fixo no topo do fluxo. Rótulo vira aria-label (o botão não tem mais texto visível, só o
     // ícone chevron-esquerda), preservando o mesmo contexto que o texto antigo dava.
-    const backDestLabel = backCollection ? backCollection.label : fromBusca ? "Pesquisar" : fromMinhasReceitas ? "Minhas Receitas" : cat ? cat.label : catId;
+    const backDestLabel = backCollection ? backCollection.label : fromBusca ? "Pesquisar" : fromMinhasReceitas ? "Minhas Receitas" : fromHome ? "Início" : cat ? cat.label : catId;
     page.appendChild(
       createBackFloat(backDestLabel, () => {
         // Volta pro hash de origem EXATO (mesmas tags/role/imode na coleção, tags/text/imode na

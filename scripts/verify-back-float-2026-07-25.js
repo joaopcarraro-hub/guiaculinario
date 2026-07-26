@@ -140,8 +140,8 @@ function main() {
   const receitaFnBody = sliceFn(appJs, "function renderReceita(id, fromHash) {", "renderReceita");
   assert(receitaFnBody.includes("createBackFloat(backDestLabel, () => {"), "renderReceita chama o helper compartilhado (não constrói o botão inline mais)");
   assert(
-    receitaFnBody.includes("const backDestLabel = backCollection ? backCollection.label : fromBusca ? \"Pesquisar\" : fromMinhasReceitas ? \"Minhas Receitas\" : cat ? cat.label : catId;"),
-    "cadeia de fallback do destino idêntica à rodada 1 (coleção > busca > minhas receitas > categoria da receita)"
+    receitaFnBody.includes("const backDestLabel = backCollection ? backCollection.label : fromBusca ? \"Pesquisar\" : fromMinhasReceitas ? \"Minhas Receitas\" : fromHome ? \"Início\" : cat ? cat.label : catId;"),
+    "cadeia de fallback do destino: rodada 1 preservada + elo novo pra Home (item 4, carrossel de recentes — coleção > busca > minhas receitas > home > categoria da receita), ver scripts/verify-recentes-ui-2026-07-25.js"
   );
   assert(receitaFnBody.includes("if (fromHash) Router.navigate(fromHash);"), "fromHash real (histórico) tem prioridade — mecanismo intacto");
   assert(receitaFnBody.includes("else Router.toCategoria(backCollection ? backCollection.id : catId);"), "Router.toCategoria só é fallback sem contexto — nunca destino hardcoded");
@@ -202,9 +202,9 @@ function main() {
 
   console.log("");
   console.log("==================================================");
-  console.log("13. SERVICE WORKER — v24 mantido (só css/js do APP_SHELL mudaram de novo, mesmo lote não-pushado)");
+  console.log("13. SERVICE WORKER — v25 (item 4, carrossel de recentes, mudou css/js de novo)");
   console.log("==================================================");
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v24";'), "CACHE_NAME continua v24 — sem novo bump, mesmo lote da rodada 1 ainda não pushado");
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v25";'), "CACHE_NAME v25 — bump seguinte ao v24 desta suíte, causado por scripts/verify-recentes-ui-2026-07-25.js, mesma regra do CLAUDE.md");
 
   console.log("");
   console.log("==================================================");
