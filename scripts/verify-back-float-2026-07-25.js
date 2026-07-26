@@ -202,9 +202,13 @@ function main() {
 
   console.log("");
   console.log("==================================================");
-  console.log("13. SERVICE WORKER — v25 (item 4, carrossel de recentes, mudou css/js de novo)");
+  console.log("13. SERVICE WORKER — v26 (item 2, redesenho do card, mudou css/js de novo)");
   console.log("==================================================");
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v25";'), "CACHE_NAME v25 — bump seguinte ao v24 desta suíte, causado por scripts/verify-recentes-ui-2026-07-25.js, mesma regra do CLAUDE.md");
+  // Cadeia de bumps desde esta suíte: v25 (verify-recentes-ui-2026-07-25.js, carrossel) -> v26
+  // (verify-card-contract-2026-07-25.js, redesenho completo do card) — mesma regra do CLAUDE.md,
+  // cada leva que muda css/style.css ou js/app.js sobe a versão, e esta asserção sempre
+  // acompanha o bump MAIS RECENTE, nunca uma versão presa no passado.
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v26";'), "CACHE_NAME v26 — 2º bump desde esta suíte (v24->v25 carrossel, v25->v26 redesenho do card), mesma regra do CLAUDE.md");
 
   console.log("");
   console.log("==================================================");

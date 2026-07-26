@@ -55,9 +55,13 @@ function main() {
   console.log("==================================================");
   console.log("2. CARD DE RESULTADO DA BUSCA INLINE PASSA fromHash (o bug relatado)");
   console.log("==================================================");
+  // Atualizado 2026-07-25 (redesenho completo do card de receita, item 2 do roadmap-mestre,
+  // leva aprovada em separado): catLabel foi removido de TODOS os 6 call sites do card nesta
+  // tarefa (o chip de categoria morreu do componente em qualquer contexto) — a linha mudou de
+  // forma, mas o que esta suíte protege (fromHash chegando ao renderRecipeCard) continua intacto.
   assert(
-    grupoFnBody.includes('recipeResultsEl.appendChild(renderRecipeCard(item, { catLabel: cat ? cat.label : item.catId, fromHash: fromHash }));'),
-    "renderRecipeMatches passa fromHash pro renderRecipeCard (antes: só catLabel, sem fromHash)"
+    grupoFnBody.includes('recipeResultsEl.appendChild(renderRecipeCard(item, { fromHash: fromHash }));'),
+    "renderRecipeMatches passa fromHash pro renderRecipeCard (catLabel saiu do card inteiro no redesenho, fromHash continua)"
   );
 
   console.log("");
@@ -88,13 +92,18 @@ function main() {
   console.log("==================================================");
   console.log("5. TESTE NEGATIVO — os outros 3 caminhos continuam EXATAMENTE iguais");
   console.log("==================================================");
+  // Atualizado 2026-07-25 (redesenho completo do card, item 2 do roadmap-mestre, leva aprovada
+  // em separado): catLabel saiu dos 6 call sites; renderCategory e os 3 de renderBusca também
+  // passaram a calcular countryOverride (regra do país só com 2+ filtros ativos, ver
+  // scripts/verify-card-contract-2026-07-25.js) no mesmo objeto de opts. As linhas mudaram de
+  // forma, mas fromHash — o que esta suíte protege — não mudou de posição em nenhuma delas.
   // Coleção (renderRecipeCard nos resultados de coleção)
-  assert(appJs.includes("sortedItems.forEach((item) => listEl.appendChild(renderRecipeCard(item, { fromHash: fromHash })));"), "Coleção: fromHash intacto (linha idêntica à de antes desta tarefa)");
+  assert(appJs.includes("sortedItems.forEach((item) => listEl.appendChild(renderRecipeCard(item, { fromHash: fromHash, countryOverride: countryOverride })));"), "Coleção: fromHash intacto (linha ganhou countryOverride no redesenho do card, catLabel nunca existiu aqui)");
   // Busca
-  assert(appJs.includes('resultsEl.appendChild(renderRecipeCard(item, { catLabel: cat ? cat.label : item.catId, fromHash: fromHash }));'), "Busca: fromHash intacto na lista principal");
+  assert(appJs.includes('resultsEl.appendChild(renderRecipeCard(item, { fromHash: fromHash, countryOverride: countryOverride }));'), "Busca: fromHash intacto na lista principal (catLabel saiu, countryOverride entrou no redesenho do card)");
   assert(appJs.includes("function renderPreviewSection(title, items, fromHash) {"), "Busca: renderPreviewSection continua recebendo fromHash como parâmetro");
   // Minhas Receitas
-  assert(appJs.includes('content.appendChild(renderRecipeCard(item, { catLabel: cat ? cat.label : item.catId, fromHash: fromHash }));'), "Minhas Receitas: fromHash intacto");
+  assert(appJs.includes('content.appendChild(renderRecipeCard(item, { fromHash: fromHash }));'), "Minhas Receitas: fromHash intacto (catLabel saiu no redesenho; sem conceito de filtro de país aqui, não ganhou countryOverride)");
   assert(appJs.includes('// fromHash aqui é só "minhas-receitas" (rota sem query)'), "Minhas Receitas: comentário/padrão original intacto (não reescrito)");
 
   console.log("");

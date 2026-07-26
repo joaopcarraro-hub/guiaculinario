@@ -115,10 +115,15 @@ assert(
     "categoria/hub"
 );
 assert(
-  byFile["css/style.css"].after === byFile["css/style.css"].before + 2,
-  "css/style.css: subiu +2 (não regressão) — 3 comentários novos desta leva citam o emoji " +
-    "substituído a título de registro (🍽 x2 + \"✕\" x1, mesmo padrão do 1 comentário que já " +
-    "existia antes e foi atualizado); nenhum é código executável/renderizado"
+  byFile["css/style.css"].after === byFile["css/style.css"].before + 1,
+  "css/style.css: +1 sobre o BASE_COMMIT (não regressão) — era +2 até o redesenho completo do " +
+    "card (item 2 do roadmap-mestre, 2026-07-25): esta leva REMOVEU `.recipe-thumb` inteira " +
+    "(card antigo morreu), levando junto o comentário 'Fase 0c: substituiu o emoji 🍽' que " +
+    "vivia em `.recipe-thumb.placeholder svg` — não é um caso novo de emoji cru, é a perda de UM " +
+    "dos 2 comentários que geravam aquele +2. Sobram 2 code points (não regressão, código de " +
+    "produto continua livre de emoji): `.recipe-hero.placeholder svg` (🍽, página da receita, " +
+    "não tocada por este redesenho) e `.preparo-card__delete svg` (\"✕\", Preparos, não " +
+    "relacionado a card de receita)."
 );
 assert(byFile["CHECKLIST-GERAL.md"].after === byFile["CHECKLIST-GERAL.md"].before, "CHECKLIST-GERAL.md: inalterado (não é escopo desta leva, teste negativo de que não foi tocado)");
 

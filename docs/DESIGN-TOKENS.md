@@ -263,6 +263,61 @@ diretamente. Remoção dos alias fica pra uma rodada futura.
   completo (nem título nem trilho) quando `Storage.getRecentlyViewed()` está vazio.
   `fromHash="home"` no clique é contrato público à parte — ver "Botão Voltar" em
   `product-navigation-ux/SKILL.md`.
+- **Card de receita — redesenho completo (`.recipe-card`, item 2 do roadmap-mestre "Deixar pro
+  Fable, depois") — foto 16:9 sangrando + coração flutuante + faixa nome/1 chip.** Substitui o
+  card antigo (header em grid com thumb 48x48, título+origem+chip de categoria, descrição, até
+  3 tags e meta de rodapé com tempo/complexidade/porções) em TODOS os 6 call sites
+  (`renderGrupo`, `renderCategory`, `renderBusca` ×3, `renderMinhasReceitas`) — divergência
+  zero, protegida por `scripts/verify-card-contract-2026-07-25.js`. `.recipe-card` vira
+  `position: relative; overflow: hidden` (sem padding próprio — a foto sangra até a borda,
+  cortada nos 2 cantos superiores pelo raio `var(--radius)` do próprio card, sem raio duplicado
+  na foto); `.recipe-card__photo` é a caixa 16:9 (`aspect-ratio: 16 / 9`, mesma janela segura do
+  recorte 4:3 do `CONTRATO-IMAGENS-REDESIGN.md` §5 — 75% da altura do master visível, dentro de
+  1:1–2:1, sem ajuste de `object-position`, mesmo tratamento já validado do
+  `.recent-card__thumb`); abaixo, `.recipe-card__body` (padding padrão de card,
+  `--space-4`/`--space-5`) com `.recipe-card__name` (`--font-display` 19px/`--text-md`, peso
+  400, sem tracking — tier `<20px` da escala — até 2 linhas por `-webkit-line-clamp`) e no
+  máximo 1 `.recipe-card__tag` na mesma linha (`display: flex; align-items: flex-start` alinha
+  o chip com a 1ª linha do nome; `flex-shrink: 0` no chip garante que só o nome quebra por
+  baixo). Foto sempre via `loadRecipeImage(recipe, el)`/`applyImage()` (contrato
+  `CONTRATO-IMAGENS-REDESIGN.md` §3), nunca lógica própria; placeholder `photoOff` da Fase 0c,
+  24px (mesmo tamanho do `.recent-card__thumb.placeholder`, não o hero de 56px).
+  - **Coração (`.recipe-card__heart`)**: círculo flutuante sobre a foto, canto superior direito
+    (`top`/`right: var(--space-3)`), mesma linguagem visual do `.chrome-float` — véu
+    `rgba(15, 15, 14, 0.55)`, borda 1px `var(--color-border)` — só o tamanho muda (36px visual,
+    vs. 44px do `.back-float`). Hit-area invisível via `::after`/`inset: -10px` (mesma técnica
+    Fase 0a, ~10px de padding invisível). Estado favoritado continua `--color-accent` sólido,
+    como antes. **Ajuste de contraste feito nesta rodada**: o contorno PARADO (não-favoritado)
+    trocou de `--color-text-disabled` pra `--color-text-primary` *só dentro do card*
+    (`.recipe-card__heart .recipe-heart-icon path` — `.recipe-page-heart`, sobre
+    `--color-surface` sólido, nunca foto, continua com a cor base, não precisou do ajuste).
+    Motivo: `--color-text-disabled` contra o véu sobre foto mediu (fórmula de luminância WCAG,
+    mesmo método usado nesta tabela) ~1,22:1 no pior caso calculado (véu sobre branco) e ~1,57:1
+    no tom quente de referência (`rgb(232,214,176)`, mesmo usado pro cálculo do `.chrome-float`
+    acima) — bem abaixo do 3:1 mínimo pra ícone/elemento gráfico (WCAG 1.4.11).
+    `--color-text-primary` contra o MESMO véu já estava calculado nesta tabela pro
+    `.chrome-float` (17,03:1 / 4,83:1 / 3,76:1 nos 3 casos de referência) — reaproveitado aqui
+    sem recalcular, já que veu e cor são idênticos.
+  - **Regra da tag (`singleCardTagId`, `js/app.js`)**: no máximo 1 chip, nunca mais. Prioridade
+    `dish_type:` > `protein:` > nenhum (sem chip) — nunca `country:`, EXCETO quando a tela tem
+    2+ tags `country:` DISTINTAS ativas no filtro (`hasMultiCountryFilter`, calculado 1x por
+    render da lista a partir do estado de filtro de cada tela — `selectedFacetTags` em
+    `renderCategory`, `tagIds` em `renderBusca` — nunca por card individual): aí o chip vira o
+    país da PRÓPRIA receita, SUBSTITUINDO tipo-de-prato/proteína, nunca somando (disciplina de 1
+    chip). `renderGrupo` e `renderMinhasReceitas` não têm conceito de filtro de país nessas
+    telas — nunca fabricam o override, seguem sempre a prioridade tipo-de-prato/proteína normal.
+    Chip reaproveita `buildTagChipsEl`/`.tag-chip-link` (pill, borda, `--text-xs`, clicável pra
+    busca filtrada) — mesmo padrão visual de sempre, só a quantidade mudou (1 em vez de até 3).
+  - **O que morreu, em TODOS os contextos, sem exceção**: chip de categoria (`opts.catLabel`/
+    `.cat-chip`, existia em 4 dos 6 call sites, nunca em `renderCategory` — a única divergência
+    do card antigo, agora irrelevante), origem/país como texto (`.origin`), descrição
+    (`.recipe-card-desc`), badge de contexto de busca por ingrediente (`.recipe-card-context`,
+    já não tinha nenhum caller de verdade — `opts.contextTagId` removido junto), e a linha de
+    meta com tempo/complexidade/porções (`.recipe-meta`/`.recipe-meta-item`, ícones
+    `clock`/`gauge`/`bowl` — esses ícones continuam em uso na página da própria receita, só
+    saíram do card). `priorityTagIds`/`TAG_CHIP_PRIORITY`/`buildTagChipsEl` continuam existindo
+    e em uso — servem também a `.recipe-page-tags` (até 8 tags na página da receita), não
+    tocada por este redesenho.
 
 ## Iconografia
 

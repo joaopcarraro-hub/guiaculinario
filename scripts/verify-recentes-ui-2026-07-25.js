@@ -147,10 +147,14 @@ function main() {
 
   console.log("");
   console.log("==================================================");
-  console.log("10. Service worker — CACHE_NAME v24 -> v25 no mesmo commit");
+  console.log("10. Service worker — CACHE_NAME v24 -> v25 no commit desta tarefa");
   console.log("==================================================");
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v25";'), "CACHE_NAME v25 (css/style.css e js/app.js mudaram)");
-  assert(!swJs.includes('const CACHE_NAME = "cardapio-v24";'), "v24 não sobrevive — teste negativo");
+  // Atualizado 2026-07-25 (redesenho completo do card, item 2 do roadmap-mestre, leva aprovada
+  // em separado): mais uma mudança em css/style.css e js/app.js bumpou v25 -> v26. O que esta
+  // suíte protege (v25 sucedendo v24 corretamente NAQUELE commit) já é fato consumado — a
+  // checagem agora confirma que a cadeia continuou (v26 presente) sem "prender" a versão no v25.
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v26";'), "CACHE_NAME v26 — sucessor de v25 (desta tarefa), css/style.css e js/app.js mudaram de novo no redesenho do card");
+  assert(!swJs.includes('const CACHE_NAME = "cardapio-v25";'), "v25 não sobrevive — teste negativo (a versão desta tarefa foi sucedida, não deixada presa)");
   assert(swJs.includes('"css/style.css"') && swJs.includes('"js/app.js"'), "css/style.css e js/app.js seguem no APP_SHELL precache");
 
   console.log("");

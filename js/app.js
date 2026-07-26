@@ -183,6 +183,26 @@
     return wrap;
   }
 
+  // ---------- Regra da 1 tag do card (redesenho do card de receita) ----------
+  // Funções puras (sem closure sobre DOM/TagModel) de propósito — scripts/verify-card-contract-
+  // 2026-07-25.js extrai e executa as duas isoladamente pra simular o cenário de 2+ filtros de
+  // país sem precisar de navegador. Prioridade: tipo-de-prato > proteína, NUNCA país — exceto
+  // quando o filtro ativo da tela tem 2+ country: distintos, aí o país da própria receita
+  // SUBSTITUI a tag (nunca soma, disciplina de 1 chip só).
+  function hasMultiCountryFilter(tagIds) {
+    return new Set((tagIds || []).filter((id) => id.indexOf("country:") === 0)).size >= 2;
+  }
+  function singleCardTagId(item, opts) {
+    const tags = item.tags || [];
+    if (opts && opts.countryOverride) {
+      const countryId = tags.find((t) => t.indexOf("country:") === 0);
+      if (countryId) return countryId;
+    }
+    const dishType = tags.find((t) => t.indexOf("dish_type:") === 0);
+    if (dishType) return dishType;
+    return tags.find((t) => t.indexOf("protein:") === 0) || null;
+  }
+
   // ---------- Grupos macro (home -> página de grupo -> coleção -> receita) ----------
   const GRUPOS = [
     { id: "fundamentos", label: "Mais Categorias", icon: "🥣", desc: "Aprenda as bases, técnicas e preparos essenciais da culinária.", collectionGroup: "Fundamentos" },
@@ -391,8 +411,7 @@
       title.textContent = 'Receitas com "' + q + '"';
       recipeResultsEl.appendChild(title);
       items.forEach((item) => {
-        const cat = window.CATEGORIES.find((c) => c.id === item.catId);
-        recipeResultsEl.appendChild(renderRecipeCard(item, { catLabel: cat ? cat.label : item.catId, fromHash: fromHash }));
+        recipeResultsEl.appendChild(renderRecipeCard(item, { fromHash: fromHash }));
       });
       return true;
     }
@@ -1425,7 +1444,11 @@
       // syncUrl() (ver onApply em renderFacets), então location.hash aqui sempre reflete o
       // filtro atual de verdade no momento em que o card é criado.
       const fromHash = currentHashPath();
-      sortedItems.forEach((item) => listEl.appendChild(renderRecipeCard(item, { fromHash: fromHash })));
+      // Com 2+ country: distintos em selectedFacetTags, o chip do card vira o país da receita
+      // (regra do redesenho do card, CHECKLIST-GERAL.md item 2). Calculado 1x por render da
+      // lista, não por card — depende só do filtro ativo, não de cada receita.
+      const countryOverride = hasMultiCountryFilter(selectedFacetTags);
+      sortedItems.forEach((item) => listEl.appendChild(renderRecipeCard(item, { fromHash: fromHash, countryOverride: countryOverride })));
     }
 
     sortSelect.addEventListener("change", () => {
@@ -1648,9 +1671,9 @@
       // de reconstruir que perder um filtro de coleção, então preservar aqui importa tanto
       // quanto lá.
       const fromHash = currentHashPath();
+      const countryOverride = hasMultiCountryFilter(tagIds);
       sortedItems.forEach((item) => {
-        const cat = window.CATEGORIES.find((c) => c.id === item.catId);
-        resultsEl.appendChild(renderRecipeCard(item, { catLabel: cat ? cat.label : item.catId, fromHash: fromHash }));
+        resultsEl.appendChild(renderRecipeCard(item, { fromHash: fromHash, countryOverride: countryOverride }));
       });
     }
 
@@ -1723,13 +1746,13 @@
 
     function renderPreviewSection(title, items, fromHash) {
       if (!items.length) return;
+      const countryOverride = hasMultiCountryFilter(tagIds);
       const label = document.createElement("div");
       label.className = "tagsearch-group-label";
       label.textContent = title + " (" + items.length + ")";
       resultsEl.appendChild(label);
       items.forEach((r) => {
-        const cat = window.CATEGORIES.find((c) => c.id === r.item.catId);
-        resultsEl.appendChild(renderRecipeCard(r.item, { catLabel: cat ? cat.label : r.item.catId, fromHash: fromHash }));
+        resultsEl.appendChild(renderRecipeCard(r.item, { fromHash: fromHash, countryOverride: countryOverride }));
       });
     }
 
@@ -1753,13 +1776,13 @@
       renderPreviewSection("Mais resultados por texto", out.block2, fromHash);
       if (!out.block1.length && !out.block2.length) {
         if (out.partial.length) {
+          const countryOverride = hasMultiCountryFilter(tagIds);
           const label = document.createElement("div");
           label.className = "tagsearch-group-label";
           label.textContent = "Nenhuma receita bate com todos os termos — resultados parciais";
           resultsEl.appendChild(label);
           out.partial.forEach((r) => {
-            const cat = window.CATEGORIES.find((c) => c.id === r.item.catId);
-            resultsEl.appendChild(renderRecipeCard(r.item, { catLabel: cat ? cat.label : r.item.catId, fromHash: fromHash }));
+            resultsEl.appendChild(renderRecipeCard(r.item, { fromHash: fromHash, countryOverride: countryOverride }));
           });
         } else {
           resultsEl.innerHTML = '<div class="empty-state">Nenhuma receita encontrada para "' + query + '".<br>Tente outro termo ou escolha uma tag abaixo.</div>';
@@ -2528,8 +2551,7 @@
       // precisamos que "Voltar" pare AQUI em vez de cair na categoria própria da receita.
       const fromHash = currentHashPath();
       items.forEach((item) => {
-        const cat = window.CATEGORIES.find((c) => c.id === item.catId);
-        content.appendChild(renderRecipeCard(item, { catLabel: cat ? cat.label : item.catId, fromHash: fromHash }));
+        content.appendChild(renderRecipeCard(item, { fromHash: fromHash }));
       });
     }
   }
@@ -2556,26 +2578,23 @@
     card.setAttribute("aria-label", "Ver receita de " + recipe.name);
     makeKeyboardClickable(card);
 
-    // ---------- header: thumb | título+origem | coração de favoritar ----------
-    const cardHeader = document.createElement("div");
-    cardHeader.className = "recipe-header";
-
-    const thumb = document.createElement("div");
-    thumb.className = "recipe-thumb placeholder";
-    thumb.innerHTML = iconSvg("photoOff", "photo-placeholder__icon");
+    // ---------- foto 16:9, sangrando até as bordas do card (cantos superiores herdam
+    // border-radius via overflow:hidden em .recipe-card — a foto em si não tem raio próprio) ----------
+    const photo = document.createElement("div");
+    photo.className = "recipe-card__photo placeholder";
+    photo.innerHTML = iconSvg("photoOff", "photo-placeholder__icon");
     if (recipe.image) {
-      applyImage(thumb, recipe.image);
+      applyImage(photo, recipe.image);
     } else {
-      loadRecipeImage(recipe, thumb);
+      loadRecipeImage(recipe, photo);
     }
+    card.appendChild(photo);
 
-    const titleBlock = document.createElement("div");
-    titleBlock.className = "recipe-title";
-    titleBlock.innerHTML =
-      "<h3>" + recipe.name + "</h3>" +
-      (opts.catLabel ? '<div class="cat-chip">' + opts.catLabel + "</div>" : "") +
-      (recipe.origin ? '<div class="origin">' + recipe.origin + "</div>" : "");
-
+    // Coração: círculo flutuante sobre a foto (canto superior direito), mesma linguagem visual
+    // do .chrome-float. NUNCA filho de `photo`: loadRecipeImage/applyImage fazem innerHTML=""
+    // nesse elemento quando a foto resolve (mesmo o caminho "local" é assíncrono), o que
+    // apagaria o botão se ele morasse dentro — por isso é irmão de `photo`, direto em `card`
+    // (que é position:relative), e se sobrepõe por posicionamento, não por ordem no DOM.
     const isFav = Storage.isFavorite(item.id);
     const heartBtn = document.createElement("button");
     heartBtn.type = "button";
@@ -2588,54 +2607,23 @@
       heartBtn.classList.toggle("is-favorite", now);
       heartBtn.setAttribute("aria-label", now ? "Remover dos favoritos" : "Favoritar");
     });
+    card.appendChild(heartBtn);
 
-    cardHeader.appendChild(thumb);
-    cardHeader.appendChild(titleBlock);
-    cardHeader.appendChild(heartBtn);
-    card.appendChild(cardHeader);
+    // ---------- faixa de conteúdo: nome + 1 chip, nada mais (descrição/país/meta/chip de
+    // categoria morreram em TODOS os contextos, ver docs/DESIGN-TOKENS.md e mobile-recipe-ui/SKILL.md) ----------
+    const body = document.createElement("div");
+    body.className = "recipe-card__body";
 
-    // ---------- descrição (resumo, 2 linhas) ----------
-    if (recipe.desc) {
-      const desc = document.createElement("div");
-      desc.className = "recipe-card-desc";
-      desc.textContent = recipe.desc;
-      card.appendChild(desc);
-    }
+    const name = document.createElement("h3");
+    name.className = "recipe-card__name";
+    name.textContent = recipe.name;
+    body.appendChild(name);
 
-    // ---------- tags (prioritárias + contexto de "relacionada", se houver) ----------
-    const cardTagIds = priorityTagIds(item.tags || [], 3);
-    if (cardTagIds.length || opts.contextTagId) {
-      const tagsWrap = buildTagChipsEl(cardTagIds, "recipe-card-tags");
-      if (opts.contextTagId) {
-        const contextTag = TagModel.getTagById(opts.contextTagId);
-        if (contextTag) {
-          const badge = document.createElement("span");
-          badge.className = "recipe-card-context";
-          badge.textContent = contextTag.label;
-          tagsWrap.appendChild(badge);
-        }
-      }
-      card.appendChild(tagsWrap);
+    const cardTagId = singleCardTagId(item, opts);
+    if (cardTagId) {
+      body.appendChild(buildTagChipsEl([cardTagId], "recipe-card__tag"));
     }
-
-    // ---------- meta (tempo, complexidade, porções) — ícone outline monocromático + valor ----------
-    const meta = document.createElement("div");
-    meta.className = "recipe-meta";
-    let metaHtml = "";
-    if (recipe.time && recipe.time.total) {
-      metaHtml +=
-        '<span class="recipe-meta-item">' + iconSvg("clock", "recipe-meta-item__icon") + "<span>" + recipe.time.total + "</span></span>";
-    }
-    if (recipe.difficulty) {
-      metaHtml +=
-        '<span class="recipe-meta-item">' + iconSvg("gauge", "recipe-meta-item__icon") + "<span>" + recipe.difficulty + "</span></span>";
-    }
-    if (recipe.yield) {
-      metaHtml +=
-        '<span class="recipe-meta-item">' + iconSvg("bowl", "recipe-meta-item__icon") + "<span>" + recipe.yield + "</span></span>";
-    }
-    meta.innerHTML = metaHtml;
-    card.appendChild(meta);
+    card.appendChild(body);
 
     return card;
   }

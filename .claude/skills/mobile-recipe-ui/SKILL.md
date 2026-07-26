@@ -232,13 +232,52 @@ Regras:
 - sem CTA nem ações próprias — o card inteiro é a área de toque
 - área de toque confortável
 
-### Redesenho (docs/DESIGN-TOKENS.md) — card sem ações nem CTA
+### Redesenho completo do card (item 2 do roadmap-mestre) — foto 16:9 + coração flutuante + nome/1 chip
 
-`renderRecipeCard` (app.js) é a função ÚNICA compartilhada por 5 pontos de chamada — 4 telas
-distintas: `renderCategory` (categoria/coleção, 2 call sites por causa dos 2 modos de
-ordenação), `renderBusca` (busca global), `renderGrupo` (resultado de busca por ingrediente
-dentro de um hub) e `renderMinhasReceitas` (aba Minhas Receitas, ver seção própria abaixo).
-Mudar a função muda as 5 de uma vez, sem duplicação.
+O card descrito nas rodadas anteriores desta seção (sem ações/CTA, header em grid, meta de
+rodapé) morreu por completo nesta rodada — não foi ajuste, nasceu um card novo. Spec fechada e
+números (dimensões, tokens, contraste calculado) ficam em docs/DESIGN-TOKENS.md ("Componentes"
+→ "Card de receita — redesenho completo"); aqui fica o resumo de comportamento.
+
+`renderRecipeCard` (app.js) é a função ÚNICA compartilhada por **6 call sites em 4 telas**
+(contagem corrigida nesta rodada — a versão anterior desta skill dizia 5, com 2 erros que quase
+se cancelavam: contava 2 call sites em `renderCategory`, quando na verdade é 1 — os "2 modos de
+ordenação" apenas re-renderizam a mesma `renderList()` ao trocar de valor, não são 2 pontos
+físicos no código — e contava 1 em `renderBusca`, quando na verdade são 3: lista principal
+`renderResults()`, preview ao vivo `renderPreviewSection()` [chamada 2x, "Com esses filtros" e
+"Mais resultados por texto"] e o fallback de resultados parciais em `renderPreviewResults()`).
+Telas: `renderCategory` (categoria/coleção), `renderBusca` (busca global, as 3 acima),
+`renderGrupo` (resultado de busca por ingrediente dentro de um hub) e `renderMinhasReceitas`
+(aba Minhas Receitas, ver seção própria abaixo). Mudar a função muda as 6 de uma vez, sem
+duplicação — e as 6 agora produzem uma estrutura byte a byte idêntica (divergência zero,
+protegida por `scripts/verify-card-contract-2026-07-25.js`).
+
+**O que nasceu**: foto 16:9 sangrando até as bordas do card (`.recipe-card__photo` — o card vira
+`position: relative; overflow: hidden`, sem padding próprio; os 2 cantos superiores são
+cortados pelo raio do próprio card, a foto não tem raio duplicado) → coração flutuante sobre a
+foto (ver parágrafo mais abaixo) → faixa `.recipe-card__body` com nome + no máximo 1 chip na
+mesma linha (`.recipe-card__name`/`.recipe-card__tag`, `align-items: flex-start` alinha o chip
+com a 1ª linha do nome; o chip nunca encolhe — só o nome quebra por baixo, até 2 linhas).
+
+**O que morreu, em TODOS os 6 contextos, sem exceção**: chip de categoria (`opts.catLabel`/
+`.cat-chip` — existia em 4 dos 5 call sites antigos, nunca em `renderCategory`; essa já era a
+ÚNICA divergência visual do card antigo entre telas, e agora é irrelevante porque o recurso
+inteiro saiu), origem/país como texto solto, descrição, o badge de contexto de busca
+(`.recipe-card-context`/`opts.contextTagId` — já era código morto, nenhum dos 6 call sites
+passava `contextTagId`, removido junto por higiene), e a linha de meta com
+tempo/complexidade/porções (ver parágrafo "Metadados" mais abaixo, agora histórico).
+`priorityTagIds`/`TAG_CHIP_PRIORITY`/`buildTagChipsEl` continuam existindo e em uso — servem
+também `.recipe-page-tags` (até 8 tags na página da própria receita), não tocada por esta rodada.
+
+**Regra da tag única (`singleCardTagId`, `js/app.js`)**: tipo-de-prato > proteína > nenhum chip
+— NUNCA país, EXCETO quando a tela tem 2+ tags `country:` DISTINTAS ativas no filtro
+(`hasMultiCountryFilter`, calculado 1x por render da lista — `selectedFacetTags` em
+`renderCategory`, `tagIds` em `renderBusca` — nunca recalculado por card individual). Nesse
+caso o chip vira o país da PRÓPRIA receita, SUBSTITUINDO tipo-de-prato/proteína, nunca somando
+(disciplina de 1 chip só). `renderGrupo` e `renderMinhasReceitas` não têm noção de filtro de
+país nessas telas e nunca fabricam esse override — seguem sempre a prioridade normal. O chip
+reaproveita `buildTagChipsEl`/`.tag-chip-link` (pill, borda, `--text-xs`, clicável pra busca
+filtrada, `stopPropagation` de sempre) — mesmo padrão visual de sempre, só a quantidade mudou.
 
 Removido do card: os ícones de ação antigos (já feito ✓ / favoritar ★ / quero fazer 🔖,
 `.recipe-card-actions`) e a barra de CTA "Ver receita" (`.recipe-card-cta`) como elemento
@@ -284,23 +323,30 @@ Ordem dos 2 botões na tela de receita: Favoritar primeiro (esquerda), "Marcar c
 (direita) — só ordem de `appendChild` em `renderReceita`, nenhuma lógica muda.
 
 No card, o coração fica no canto superior direito (mesmo slot onde antes ficava o chevron —
-`chevronRight`/`.recipe-card__chevron` foram REMOVIDOS, não existe mais afordance de seta).
-Por estar dentro de um card inteiramente clicável, o clique no coração precisa de
+`chevronRight`/`.recipe-card__chevron` foram REMOVIDOS na Fase 0a, não existe mais afordance de
+seta). **Redesenho completo desta rodada**: o "canto superior direito" deixou de ser uma célula
+de grid (`.recipe-header`, removida) e virou posicionamento flutuante de verdade sobre a foto
+(`position: absolute`, mesma linguagem visual do `.chrome-float` — véu `rgba(15, 15, 14, 0.55)`
++ borda 1px `var(--color-border)` — só o tamanho muda, 36px vs. 44px do `.back-float`; hit-area
+`::after` de sempre). Contorno parado trocou de `--color-text-disabled` pra
+`--color-text-primary` só dentro do card (sobre foto, fundo imprevisível — `--color-text-
+disabled` falha o mínimo de contraste 3:1 nesse contexto; `.recipe-page-heart`, sobre superfície
+sólida, não precisou do ajuste); estado favoritado continua `--color-accent`, sem mudança. Por
+estar dentro de um card inteiramente clicável, o clique no coração precisa de
 `e.stopPropagation()` ANTES de alternar o favorito, senão o clique vaza pro
 `card.addEventListener("click", ...)` e navega pra receita por engano. Verificado via teste de
-hash: clicar no coração NÃO muda `location.hash`; clicar em qualquer outra parte do card
-(título, descrição, header perto do coração) muda normalmente.
+hash: clicar no coração NÃO muda `location.hash`; clicar em qualquer outra parte do card (nome,
+chip, foto) muda normalmente.
 
-Metadados (tempo, complexidade, porções — nessa ordem) usam ícone outline monocromático + valor
-(`.recipe-meta-item`, `clock`/`gauge`/`bowl` no objeto `ICONS` compartilhado do topo do arquivo
-— mesmo sistema stroke-based `ICON_SVG_ATTRS` da nav inferior/tiles da home). `--color-text-
-disabled` pro ícone, `--color-text-secondary` pro valor — mesmo par de tokens já usado nos
-metadados do modal de filtro. A LINHA de metadados (`.recipe-meta`) fica no RODAPÉ do card,
-depois da descrição e das tags — full-width, alinhada à esquerda (`justify-content: flex-start`,
-sem `width`/`margin-left` customizado). Uma rodada anterior tentou mover pra logo abaixo do
-título ocupando só a metade direita (`width: 50%`) — não ficou bom visualmente e foi revertida
-de volta pra posição original de rodapé. Imagem, título, origem/país e chips de tag (país/tipo)
-não mudaram.
+**Histórico, morto no redesenho desta rodada**: o card já teve uma linha de metadados no rodapé
+(tempo/complexidade/porções, ícone outline + valor via `.recipe-meta-item`, tokens
+`clock`/`gauge`/`bowl` do objeto `ICONS`) e chegou a ter uma rodada experimental que tentou
+mover essa linha pra logo abaixo do título (`width: 50%`) — revertida por não ficar boa
+visualmente. Toda essa linha (`.recipe-meta`/`.recipe-meta-item`) foi removida por completo
+nesta rodada, em TODOS os contextos — os ícones `clock`/`gauge`/`bowl` continuam existindo e em
+uso na página da própria receita, só saíram do card. Imagem, título e chips de tag NÃO
+continuam como antes — ver a seção "Redesenho completo do card" acima pro estado atual (foto
+16:9, nome, no máximo 1 chip com a regra de país).
 
 ### Ingredientes: EXPANDIDA por padrão (revertido de novo — acordeão reaproveitado do modal de filtro)
 
