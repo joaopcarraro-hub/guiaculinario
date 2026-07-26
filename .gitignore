@@ -7,6 +7,18 @@
 #    guardar 360 MB de binário em git é a pior forma possível de não perder.
 imagens/master/
 
+# Mesma regra pro acervo de CATEGORIA (scripts/gerar-categorias.js). Aqui são só 19 masters,
+# então não é o volume que manda — é a coerência: master é insumo regenerável em webp a custo
+# zero, e o que o app serve é imagens/categorias/*.webp, esse sim commitado.
+imagens/master-categorias/
+
+# NOTA — imagens/bandeiras/*.svg NÃO está ignorado, e é decisão consciente, não esquecimento.
+# Os 20 SVG são insumo, mesmo papel dos masters acima, mas a regra dos masters existe por TAMANHO
+# (306 MB) e aqui são 349 KB no total. O que o app serve é o .webp 600x600 exportado deles; o SVG
+# fica porque é a única fonte reprodutível pra reexportar noutro tamanho, e porque o repositório
+# externo de onde vieram (hampusborgos/country-flags, domínio público) pode sumir ou mudar.
+# Perder 349 KB de reprodutibilidade pra economizar 349 KB seria um mau negócio.
+
 # Backups que o `--aplicar` cria antes de escrever em data/*.js. São temporários:
 # depois de conferir o `git diff data/`, apague.
 data/*.js.bak
