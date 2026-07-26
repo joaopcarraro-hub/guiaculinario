@@ -555,16 +555,22 @@ body {
    .recipe-card — a foto não tem raio próprio) + coração flutuante + faixa nome+1 chip. */
 .recipe-card__photo {
   width: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 2 / 1;
   background: var(--color-surface-elevated);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .recipe-card__photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
-/* Janela segura do recorte 4:3 (docs/CONTRATO-IMAGENS-REDESIGN.md §5): 16:9 mostra 75% da
-   altura do master, dentro de 1:1-2:1 — sem ajuste de object-position, mesmo tratamento do
-   .recent-card__thumb (também 16:9, mesmo precedente já validado). */
+/* Ajuste de julgamento visual (2026-07-25): era 16:9, virou 2:1 pra encolher a foto e abrir
+   espaço pra descrição sem crescer a altura total do card. Janela segura do recorte 4:3
+   (docs/CONTRATO-IMAGENS-REDESIGN.md §5): 2:1 mostra 67% da altura do master (4/(3*2)),
+   ainda dentro de 1:1-2:1 — sem ajuste de object-position, o recorte central de 67% (y
+   16,5%-83,5%) cobre com folga o prato (y 25%-80% no master, medido no documento). Inspeção
+   visual direta em 3 arquétipos variados (torta-de-maca.webp raso, chateaubriand.webp alto,
+   bouillabaisse.webp tigela funda) confirmou: nos 3, o alimento fica entre ~27% e ~80% da
+   altura, nunca chegando nas faixas cortadas — só decoração de fundo (topo) e aba vazia do
+   prato/guardanapo (base) saem do quadro. Ver relatório da tarefa pra detalhe por foto. */
 .recipe-card__photo.placeholder { color: var(--color-text-disabled); }
 .recipe-card__photo.placeholder svg { width: 24px; height: 24px; }
 
@@ -613,6 +619,12 @@ body {
    1ª linha do nome; o nome quebra por baixo até 2 linhas, o chip nunca encolhe/quebra). */
 .recipe-card__body {
   padding: var(--space-4) var(--space-5);
+}
+/* Nome+chip na mesma faixa (align-items:flex-start alinha o chip com a 1ª linha do nome; o
+   chip nunca encolhe/quebra, só o nome quebra por baixo). Extraído de .recipe-card__body pra
+   virar bloco simples — a descrição (abaixo, ajuste de julgamento visual 2026-07-25) empilha
+   naturalmente por baixo sem precisar de flex-direction:column nem gap extra no pai. */
+.recipe-card__row {
   display: flex;
   align-items: flex-start;
   gap: var(--space-2);
@@ -636,6 +648,22 @@ body {
    lista; disciplina de 1 chip só). flex-shrink:0 é o que garante "nowrap": o item nunca cede
    espaço pro nome, então nunca quebra de linha — só o nome quebra. */
 .recipe-card__tag { flex-shrink: 0; }
+/* Descrição — ajuste de julgamento visual (2026-07-25), volta abaixo do nome+chip. Teto
+   DEFINITIVO de 2 linhas por clamp (era 1 linha com nowrap+ellipsis, ajuste fino do dono no
+   mesmo dia depois de ver ao vivo) — teto, não piso: descrição curta que caiba em 1 linha
+   ocupa só 1, sem altura reservada fantasma; nunca ultrapassa 2. Ausente do DOM por completo
+   quando recipe.desc não existe (guard em js/app.js) — sem linha fantasma vazia. País/meta/
+   cat-chip continuam mortos; só a descrição voltou. */
+.recipe-card__desc {
+  margin-top: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-snug);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 
 @media (max-width: 700px) {
   /* mesma correção do bug de conteúdo tampado pela nav fixa — só top/laterais mudam pra 20px,

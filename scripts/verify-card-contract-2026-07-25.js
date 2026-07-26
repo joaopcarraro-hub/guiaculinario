@@ -111,12 +111,25 @@ function main() {
   assert(cardBody.includes('"recipe-card__photo'), "card tem container de foto novo (recipe-card__photo)");
   assert(cardBody.includes('"recipe-card__heart'), "card mantém o botão de coração (recipe-card__heart)");
   assert(cardBody.includes('"recipe-card__body"'), "card tem a faixa de conteúdo nova (recipe-card__body)");
+  assert(cardBody.includes('"recipe-card__row"'), "nome+chip moraram num sub-bloco próprio (recipe-card__row), pra descrição poder ficar abaixo sem quebrar o alinhamento deles");
   assert(cardBody.includes('"recipe-card__name"'), "card tem o nome (recipe-card__name)");
   assert(cardBody.includes("singleCardTagId("), "card usa a função central da regra de 1 chip (não duplica a lógica inline)");
   assert(
-    !/recipe-meta|cat-chip|catLabel|recipe-card-desc|recipe-card-context|recipe-header|recipe-thumb\b|"origin"|class="origin"/.test(cardBody),
-    "sem meta/país-origem/descrição/cat-chip/contexto/thumb-antigo — teste NEGATIVO de conteúdo morto"
+    !/recipe-meta|cat-chip|catLabel|recipe-card-context|recipe-header|recipe-thumb\b|"origin"|class="origin"/.test(cardBody),
+    "sem meta/país-origem/cat-chip/contexto/thumb-antigo — teste NEGATIVO de conteúdo morto (descrição NÃO entra mais nesta lista — voltou, ver seção 2b)"
   );
+
+  console.log("");
+  console.log("==================================================");
+  console.log("2b. Descrição — linha única condicional (ajuste de julgamento visual, 2026-07-25)");
+  console.log("==================================================");
+  assert(cardBody.includes("if (recipe.desc)"), "descrição só é criada quando recipe.desc existe — sem isso, linha fantasma vazia");
+  assert(cardBody.includes('"recipe-card__desc"'), "descrição usa a classe nova recipe-card__desc");
+  assert(cardBody.includes("desc.textContent = recipe.desc"), "descrição usa textContent (nunca innerHTML — recipe.desc é texto livre, não HTML)");
+  // Teste estrutural: a criação do elemento de descrição precisa estar DENTRO do
+  // `if (recipe.desc) { ... }` — não pode ser criada incondicionalmente e só populada depois.
+  const descGuardMatch = cardBody.match(/if \(recipe\.desc\) \{[\s\S]*?\n {4}\}/);
+  assert(!!descGuardMatch && descGuardMatch[0].includes('"recipe-card__desc"'), "a criação do elemento (não só o texto) fica dentro do guard condicional, indentação de 4 espaços fecha o if");
 
   console.log("");
   console.log("==================================================");
@@ -175,10 +188,39 @@ function main() {
   assert(/\.recipe-card\s*\{[^}]*position:\s*relative;/.test(styleCss), ".recipe-card é a base de posicionamento do coração flutuante (position: relative)");
   assert(/\.recipe-card\s*\{[^}]*overflow:\s*hidden;/.test(styleCss), ".recipe-card corta a foto nos cantos superiores pelo próprio raio (overflow: hidden), sem raio duplicado na foto");
   assert(!/\.recipe-card\s*\{[^}]*padding:\s*var\(--space-4\)\s*var\(--space-5\);/.test(styleCss), "teste NEGATIVO: .recipe-card não tem mais padding fixo (a foto sangra até a borda; o padding migrou pro recipe-card__body)");
-  assert(styleCss.includes(".recipe-card__photo {") && /\.recipe-card__photo\s*\{[^}]*aspect-ratio:\s*16\s*\/\s*9;/.test(styleCss), "foto do card é 16:9 (janela segura do recorte 4:3, §5 do contrato de imagens)");
+  // Ajuste de julgamento visual (2026-07-25): 16:9 -> 2:1. §5 do CONTRATO-IMAGENS-REDESIGN:
+  // 2:1 mostra 67% da altura do master (4/(3*2)), ainda dentro da janela segura 1:1->2:1 — o
+  // prato (y 25%-80% medido no master) cabe inteiro no recorte central de 67% (y 16,5%-83,5%
+  // com object-position padrão/center, sem ajuste). Ver relatório da tarefa pra inspeção visual
+  // de 3 fotos variadas confirmando isso na prática, não só na fórmula.
+  assert(!styleCss.includes("aspect-ratio: 16 / 9;") || !/\.recipe-card__photo\s*\{[^}]*aspect-ratio:\s*16\s*\/\s*9;/.test(styleCss), "teste NEGATIVO: foto do card não é mais 16:9");
+  assert(styleCss.includes(".recipe-card__photo {") && /\.recipe-card__photo\s*\{[^}]*aspect-ratio:\s*2\s*\/\s*1;/.test(styleCss), "foto do card é 2:1 (janela segura do recorte 4:3, §5 do contrato de imagens — 67% da altura do master)");
   assert(styleCss.includes(".recipe-card__body {") && /\.recipe-card__body\s*\{[^}]*padding:\s*var\(--space-4\)\s*var\(--space-5\);/.test(styleCss), "faixa de conteúdo herda o padding padrão de card (16px/20px, tokens)");
-  assert(/\.recipe-card__body\s*\{[^}]*display:\s*flex;/.test(styleCss) && /\.recipe-card__body\s*\{[^}]*align-items:\s*flex-start;/.test(styleCss), "nome+chip na mesma faixa, alinhados ao topo (chip acompanha a 1ª linha do nome)");
+  assert(
+    styleCss.includes(".recipe-card__row {") && /\.recipe-card__row\s*\{[^}]*display:\s*flex;/.test(styleCss) && /\.recipe-card__row\s*\{[^}]*align-items:\s*flex-start;/.test(styleCss),
+    "nome+chip na mesma faixa (recipe-card__row), alinhados ao topo (chip acompanha a 1ª linha do nome) — extraído de recipe-card__body pra descrição poder ficar abaixo em bloco simples"
+  );
   assert(/\.recipe-card__tag\s*\{[^}]*flex-shrink:\s*0;/.test(styleCss), "chip nunca encolhe/quebra (nowrap) — só o nome quebra por baixo");
+  // Ajuste fino do dono (2026-07-25, mesmo dia): teto de 1 linha virou teto de 2 (clamp),
+  // decisão definitiva em revisão visual. nowrap/text-overflow:ellipsis (1 linha) saem;
+  // entra o mesmo padrão de clamp já usado em recipe-card__name (display:-webkit-box +
+  // -webkit-line-clamp + -webkit-box-orient:vertical + overflow:hidden) — teto, não piso:
+  // descrição curta que caiba em 1 linha ocupa só 1, sem altura reservada fantasma.
+  assert(!/\.recipe-card__desc\s*\{[^}]*white-space:\s*nowrap;/.test(styleCss), "teste NEGATIVO: descrição não é mais nowrap de 1 linha só");
+  assert(
+    styleCss.includes(".recipe-card__desc {") &&
+      /\.recipe-card__desc\s*\{[^}]*display:\s*-webkit-box;/.test(styleCss) &&
+      /\.recipe-card__desc\s*\{[^}]*-webkit-line-clamp:\s*2;/.test(styleCss) &&
+      /\.recipe-card__desc\s*\{[^}]*-webkit-box-orient:\s*vertical;/.test(styleCss) &&
+      /\.recipe-card__desc\s*\{[^}]*overflow:\s*hidden;/.test(styleCss),
+    "descrição: teto de 2 linhas por clamp (display:-webkit-box + -webkit-line-clamp:2 + -webkit-box-orient:vertical + overflow:hidden)"
+  );
+  assert(/\.recipe-card__desc\s*\{[^}]*line-height:\s*var\(--leading-snug\);/.test(styleCss), "descrição usa --leading-snug (token, mesma leitura apertada de legenda que o resto do card)");
+  assert(
+    /\.recipe-card__desc\s*\{[^}]*font-size:\s*var\(--text-sm\);/.test(styleCss) && /\.recipe-card__desc\s*\{[^}]*color:\s*var\(--color-text-secondary\);/.test(styleCss),
+    "descrição em --text-sm / --color-text-secondary, conforme spec do ajuste"
+  );
+  assert(/\.recipe-card__desc\s*\{[^}]*margin-top:\s*var\(--space-1\);/.test(styleCss), "margem da descrição por token (--space-1), nunca valor literal");
   assert(styleCss.includes(".recipe-card__name {") && /\.recipe-card__name\s*\{[^}]*-webkit-line-clamp:\s*2;/.test(styleCss), "nome até 2 linhas (clamp)");
   assert(/\.recipe-card__name\s*\{[^}]*font-family:\s*var\(--font-display\);/.test(styleCss) && /\.recipe-card__name\s*\{[^}]*font-size:\s*var\(--text-md\);/.test(styleCss), "nome em --font-display 19px (--text-md), peso 400 (regra 0b)");
   assert(styleCss.includes(".recipe-card__heart {") && /\.recipe-card__heart\s*\{[^}]*background:\s*rgba\(15, 15, 14, 0\.55\);/.test(styleCss), "coração usa o mesmo véu do chrome-float");

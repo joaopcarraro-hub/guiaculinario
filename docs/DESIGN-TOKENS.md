@@ -264,24 +264,65 @@ diretamente. Remoção dos alias fica pra uma rodada futura.
   `fromHash="home"` no clique é contrato público à parte — ver "Botão Voltar" em
   `product-navigation-ux/SKILL.md`.
 - **Card de receita — redesenho completo (`.recipe-card`, item 2 do roadmap-mestre "Deixar pro
-  Fable, depois") — foto 16:9 sangrando + coração flutuante + faixa nome/1 chip.** Substitui o
-  card antigo (header em grid com thumb 48x48, título+origem+chip de categoria, descrição, até
-  3 tags e meta de rodapé com tempo/complexidade/porções) em TODOS os 6 call sites
-  (`renderGrupo`, `renderCategory`, `renderBusca` ×3, `renderMinhasReceitas`) — divergência
-  zero, protegida por `scripts/verify-card-contract-2026-07-25.js`. `.recipe-card` vira
-  `position: relative; overflow: hidden` (sem padding próprio — a foto sangra até a borda,
+  Fable, depois") — foto 2:1 sangrando + coração flutuante + faixa nome/1 chip/descrição.**
+  Substitui o card antigo (header em grid com thumb 48x48, título+origem+chip de categoria,
+  descrição, até 3 tags e meta de rodapé com tempo/complexidade/porções) em TODOS os 6 call
+  sites (`renderGrupo`, `renderCategory`, `renderBusca` ×3, `renderMinhasReceitas`) —
+  divergência zero, protegida por `scripts/verify-card-contract-2026-07-25.js`. `.recipe-card`
+  vira `position: relative; overflow: hidden` (sem padding próprio — a foto sangra até a borda,
   cortada nos 2 cantos superiores pelo raio `var(--radius)` do próprio card, sem raio duplicado
-  na foto); `.recipe-card__photo` é a caixa 16:9 (`aspect-ratio: 16 / 9`, mesma janela segura do
-  recorte 4:3 do `CONTRATO-IMAGENS-REDESIGN.md` §5 — 75% da altura do master visível, dentro de
-  1:1–2:1, sem ajuste de `object-position`, mesmo tratamento já validado do
-  `.recent-card__thumb`); abaixo, `.recipe-card__body` (padding padrão de card,
-  `--space-4`/`--space-5`) com `.recipe-card__name` (`--font-display` 19px/`--text-md`, peso
-  400, sem tracking — tier `<20px` da escala — até 2 linhas por `-webkit-line-clamp`) e no
-  máximo 1 `.recipe-card__tag` na mesma linha (`display: flex; align-items: flex-start` alinha
-  o chip com a 1ª linha do nome; `flex-shrink: 0` no chip garante que só o nome quebra por
-  baixo). Foto sempre via `loadRecipeImage(recipe, el)`/`applyImage()` (contrato
-  `CONTRATO-IMAGENS-REDESIGN.md` §3), nunca lógica própria; placeholder `photoOff` da Fase 0c,
-  24px (mesmo tamanho do `.recent-card__thumb.placeholder`, não o hero de 56px).
+  na foto); `.recipe-card__photo` é a caixa 2:1 (`aspect-ratio: 2 / 1` — **ajustada de 16:9 pra
+  2:1 num julgamento visual posterior à 1ª leva**, ver bullet "Ajuste de julgamento visual"
+  abaixo para o porquê e os números exatos); abaixo, `.recipe-card__body` (padding padrão de
+  card, `--space-4`/`--space-5`) contendo `.recipe-card__row` (`display: flex;
+  align-items: flex-start`, nome + no máximo 1 `.recipe-card__tag` na mesma linha — o chip
+  acompanha a 1ª linha do nome, `flex-shrink: 0` no chip garante que só o nome quebra por
+  baixo) com `.recipe-card__name` (`--font-display` 19px/`--text-md`, peso 400, sem tracking —
+  tier `<20px` da escala — até 2 linhas por `-webkit-line-clamp`), e opcionalmente
+  `.recipe-card__desc` empilhada abaixo (ver bullet do ajuste). Foto sempre via
+  `loadRecipeImage(recipe, el)`/`applyImage()` (contrato `CONTRATO-IMAGENS-REDESIGN.md` §3),
+  nunca lógica própria; placeholder `photoOff` da Fase 0c, 24px (mesmo tamanho do
+  `.recent-card__thumb.placeholder`, não o hero de 56px).
+  - **Ajuste de julgamento visual (2026-07-25, mesmo dia, após ver o card no ar)**: foto
+    16:9→2:1 e descrição de volta como linha única. Razão da foto: §5 do
+    `CONTRATO-IMAGENS-REDESIGN.md` — 2:1 mostra 67% da altura do master (`4/(3*2)`), ainda
+    dentro da janela segura 1:1–2:1, sem precisar de `object-position` (o recorte central de
+    67%, y 16,5%–83,5%, cobre com folga o prato, y 25%–80% medido no documento). Inspeção
+    visual direta em 3 arquétipos (`torta-de-maca.webp` raso, `chateaubriand.webp` alto,
+    `bouillabaisse.webp` tigela funda) confirmou o alimento sempre entre ~27% e ~80% da
+    altura nos 3 — nunca alcança as faixas cortadas; só decoração de fundo (topo) e aba vazia
+    de prato/guardanapo (base) saem do quadro. Medido ao vivo em 390px (Béchamel, frança):
+    antes (16:9, sem descrição) card 350×252,75px, foto 348×195,75px; depois (2:1, com
+    descrição) card 350×254px, foto 348×174px (2:1 exato) — foto encolheu 21,75px, card total
+    ficou só 1,25px mais alto (a descrição some quase toda a diferença, como previsto).
+    `.recipe-card__desc` (novo): `.recipe-card__row` sai de `.recipe-card__body` e vira
+    sub-bloco próprio (`display: flex`), liberando `.recipe-card__body` como bloco simples
+    onde a descrição empilha por baixo sem precisar de `flex-direction: column`. Descrição em
+    `--text-sm`/`--color-text-secondary`, `margin-top: var(--space-1)`. Elemento só existe no
+    DOM quando `recipe.desc` é truthy (guard em `js/app.js`, `if (recipe.desc) { ... }`) — sem
+    linha fantasma vazia quando a receita não tem descrição. País/meta/chip de categoria
+    continuam mortos — só a descrição voltou.
+  - **Ajuste fino do dono (2026-07-25, mesmo dia, 2ª rodada de revisão visual): teto de 1
+    linha virou teto DEFINITIVO de 2 linhas.** Era `white-space: nowrap; overflow: hidden;
+    text-overflow: ellipsis` (1 linha); virou o mesmo padrão de clamp já usado em
+    `.recipe-card__name` — `display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient:
+    vertical; overflow: hidden; line-height: var(--leading-snug)`. Teto, não piso: descrição
+    curta o bastante pra caber em 1 linha ocupa só 1, sem altura reservada fantasma —
+    confirmado com um texto sintético curto ("Prato simples e rápido.", 23 caracteres): altura
+    renderizada 18,89px, idêntica a 1 linha (`--leading-snug` a 14px = 18,9px), sem sobra.
+    **Achado ao medir os dados reais**: nenhuma das 398 receitas tem descrição curta o
+    bastante pra caber em 1 linha só nos 308px úteis do card (a mais curta encontrada,
+    "Affogato", 74 caracteres, já precisa de 2 linhas) — ou seja, o caso "1 linha real" da
+    spec é sempre sintético/hipotético no acervo atual, nunca observado numa receita de
+    verdade; o mecanismo funciona (comprovado acima), só não há exemplo real pra mostrar.
+    Medido ao vivo em 390px (Béchamel, frança, descrição de 95 caracteres que precisa de 3
+    linhas sem clamp): card 254px (1 linha, ajuste anterior) → 272,78px (2 linhas, este
+    ajuste) — cresceu 18,78px, exatamente 1 linha a mais (`--leading-snug` 18,9px). Como
+    82 das 83 receitas de França (e 379 das 398 do acervo) precisam de 2+ linhas pra caber a
+    descrição inteira, ~272,78px passa a ser a altura típica do card com descrição — 1 exemplo
+    real de cada categoria: "Béchamel" (95 car., corta com reticências ao fim da 2ª linha,
+    natural seria 3), "Camarão à Provençal (para servir com arroz)" (94 car., cabe exato em 2
+    linhas, sem cortar nada), e o caso de 1 linha real inexistente descrito acima.
   - **Coração (`.recipe-card__heart`)**: círculo flutuante sobre a foto, canto superior direito
     (`top`/`right: var(--space-3)`), mesma linguagem visual do `.chrome-float` — véu
     `rgba(15, 15, 14, 0.55)`, borda 1px `var(--color-border)` — só o tamanho muda (36px visual,

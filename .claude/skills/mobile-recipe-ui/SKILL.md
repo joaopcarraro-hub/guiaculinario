@@ -252,22 +252,48 @@ Telas: `renderCategory` (categoria/coleção), `renderBusca` (busca global, as 3
 duplicação — e as 6 agora produzem uma estrutura byte a byte idêntica (divergência zero,
 protegida por `scripts/verify-card-contract-2026-07-25.js`).
 
-**O que nasceu**: foto 16:9 sangrando até as bordas do card (`.recipe-card__photo` — o card vira
+**O que nasceu**: foto sangrando até as bordas do card (`.recipe-card__photo` — o card vira
 `position: relative; overflow: hidden`, sem padding próprio; os 2 cantos superiores são
 cortados pelo raio do próprio card, a foto não tem raio duplicado) → coração flutuante sobre a
-foto (ver parágrafo mais abaixo) → faixa `.recipe-card__body` com nome + no máximo 1 chip na
-mesma linha (`.recipe-card__name`/`.recipe-card__tag`, `align-items: flex-start` alinha o chip
-com a 1ª linha do nome; o chip nunca encolhe — só o nome quebra por baixo, até 2 linhas).
+foto (ver parágrafo mais abaixo) → faixa `.recipe-card__body` com `.recipe-card__row` (nome + no
+máximo 1 chip na mesma linha, `.recipe-card__name`/`.recipe-card__tag`, `align-items: flex-start`
+alinha o chip com a 1ª linha do nome; o chip nunca encolhe — só o nome quebra por baixo, até 2
+linhas) e, opcionalmente, `.recipe-card__desc` empilhada abaixo. **Ajuste de julgamento visual no
+mesmo dia, depois de ver o card no ar**: a foto era 16:9, virou 2:1 (mostra 67% da altura do
+master em vez de 75%, ainda dentro da janela segura do §5 de `CONTRATO-IMAGENS-REDESIGN.md`) pra
+abrir espaço pra descrição sem crescer o card — medido em 390px: card foi de 252,75px pra 254px
+(quase igual, como previsto), foto de 195,75px pra 174px. Verificação de que nenhum prato corta
+em 2:1: inspeção visual de 3 fotos de arquétipo variado (torta rasa, corte alto, tigela funda)
+confirmou o alimento sempre entre ~27%-80% da altura, dentro da janela cortada de 16,5%-83,5% —
+só fundo (topo) e aba vazia de prato/guardanapo (base) saem. `.recipe-card__row` existe
+justamente pra separar nome+chip (uma faixa) da descrição (outra, abaixo) dentro do mesmo
+`.recipe-card__body`, que virou bloco simples (sem `display:flex` próprio).
+
+**Ajuste fino do dono, 2ª rodada de revisão no mesmo dia: teto de 1 linha virou teto
+DEFINITIVO de 2.** A descrição nasceu com `white-space: nowrap` (1 linha, ellipsis); depois de
+ver ao vivo, o dono decidiu por um teto de 2 linhas — mesmo padrão de clamp que
+`.recipe-card__name` já usa (`display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient:
+vertical; overflow: hidden`, mais `line-height: var(--leading-snug)`). Continua teto, não piso:
+uma descrição curta o bastante pra caber em 1 linha ocupa só 1 linha de altura, sem espaço
+reservado — confirmado com texto sintético curto, já que **nenhuma das 398 receitas do acervo
+tem descrição curta o bastante pra realmente testar isso ao vivo** (a mais curta, "Affogato",
+74 caracteres, já precisa de 2 linhas nos 308px úteis do card — achado ao medir os dados reais
+pra este ajuste, não uma limitação da regra). Medido em 390px: card com descrição de 2 linhas
+(o caso comum — 379 das 398 receitas, 82 das 83 de França precisam de 2+ linhas) fica em
+~272,78px (Béchamel, antes 254px com 1 linha só, +18,78px = 1 linha inteira a mais).
 
 **O que morreu, em TODOS os 6 contextos, sem exceção**: chip de categoria (`opts.catLabel`/
 `.cat-chip` — existia em 4 dos 5 call sites antigos, nunca em `renderCategory`; essa já era a
 ÚNICA divergência visual do card antigo entre telas, e agora é irrelevante porque o recurso
-inteiro saiu), origem/país como texto solto, descrição, o badge de contexto de busca
+inteiro saiu), origem/país como texto solto, o badge de contexto de busca
 (`.recipe-card-context`/`opts.contextTagId` — já era código morto, nenhum dos 6 call sites
 passava `contextTagId`, removido junto por higiene), e a linha de meta com
-tempo/complexidade/porções (ver parágrafo "Metadados" mais abaixo, agora histórico).
-`priorityTagIds`/`TAG_CHIP_PRIORITY`/`buildTagChipsEl` continuam existindo e em uso — servem
-também `.recipe-page-tags` (até 8 tags na página da própria receita), não tocada por esta rodada.
+tempo/complexidade/porções (ver parágrafo "Metadados" mais abaixo, agora histórico). A
+descrição morreu na 1ª leva e VOLTOU no ajuste de julgamento visual do mesmo dia (ver acima) —
+não é uma exceção à regra "não reabrir decisão fechada", é a própria frente de design revendo o
+resultado ao vivo, o processo normal deste projeto. `priorityTagIds`/`TAG_CHIP_PRIORITY`/
+`buildTagChipsEl` continuam existindo e em uso — servem também `.recipe-page-tags` (até 8 tags
+na página da própria receita), não tocada por esta rodada.
 
 **Regra da tag única (`singleCardTagId`, `js/app.js`)**: tipo-de-prato > proteína > nenhum chip
 — NUNCA país, EXCETO quando a tela tem 2+ tags `country:` DISTINTAS ativas no filtro

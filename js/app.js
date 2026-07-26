@@ -2609,20 +2609,34 @@
     });
     card.appendChild(heartBtn);
 
-    // ---------- faixa de conteúdo: nome + 1 chip, nada mais (descrição/país/meta/chip de
-    // categoria morreram em TODOS os contextos, ver docs/DESIGN-TOKENS.md e mobile-recipe-ui/SKILL.md) ----------
+    // ---------- faixa de conteúdo: nome + 1 chip (recipe-card__row) + descrição opcional
+    // em 1 linha abaixo (ajuste de julgamento visual, 2026-07-25). País/meta/chip de
+    // categoria continuam mortos em TODOS os contextos — só a descrição voltou, ver
+    // docs/DESIGN-TOKENS.md e mobile-recipe-ui/SKILL.md ----------
     const body = document.createElement("div");
     body.className = "recipe-card__body";
+
+    const row = document.createElement("div");
+    row.className = "recipe-card__row";
 
     const name = document.createElement("h3");
     name.className = "recipe-card__name";
     name.textContent = recipe.name;
-    body.appendChild(name);
+    row.appendChild(name);
 
     const cardTagId = singleCardTagId(item, opts);
     if (cardTagId) {
-      body.appendChild(buildTagChipsEl([cardTagId], "recipe-card__tag"));
+      row.appendChild(buildTagChipsEl([cardTagId], "recipe-card__tag"));
     }
+    body.appendChild(row);
+
+    if (recipe.desc) {
+      const desc = document.createElement("div");
+      desc.className = "recipe-card__desc";
+      desc.textContent = recipe.desc;
+      body.appendChild(desc);
+    }
+
     card.appendChild(body);
 
     return card;
