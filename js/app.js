@@ -218,36 +218,18 @@
   // os 3 hubs alcançáveis por link real da Home têm banner (fundamentos/proteinas/cozinhas).
   // tempo/dificuldade são rotas órfãs (nenhum link no app, só URL direta) e continuam sem banner,
   // tratamento tipográfico simples de sempre — ver renderGrupo.
-  // cozinhas NÃO usa imagem própria (rodada 2, pós-revisão do dono): hub-cozinhas.webp (temperos)
-  // ARQUIVADO — fica em disco, mas nenhum código lê mais esse caminho — porque a composição
-  // "perdia identidade" nesta superfície e no tile "Países" da Home. As duas usam o mosaico de
-  // bandeiras (buildFlagMosaicHtml abaixo) em vez de foto.
+  // cozinhas usa imagens/categorias/paises.webp (imagem-conceito de 5 pratos, commit 282417e) —
+  // MESMO asset no banner deste hub e no tile "Países" da Home (HOME_MAIN_TILES), exatamente como
+  // os outros 2 hubs fazem com o seu. Isto encerra a linhagem "mosaico/mural de bandeiras"
+  // (rodadas 2-4), que só existia porque a foto de temperos antes usada aqui perdia identidade:
+  // o mural morreu junto com ela, e a BANDEIRA agora só vive na faceta País do modal de Filtros
+  // (.filter-tile--photo). O tile de país DENTRO deste hub também deixou de ser bandeira e passou
+  // a mostrar a foto da receita-assinatura — ver countrySignatureRecipe/renderCollectionCard.
   const GRUPO_BANNER_IMAGE = {
     fundamentos: "imagens/categorias/hub-fundamentos.webp",
     proteinas: "imagens/categorias/hub-proteinas.webp",
+    cozinhas: "imagens/categorias/paises.webp",
   };
-  const GRUPO_BANNER_MOSAIC = new Set(["cozinhas"]);
-
-  // Mural de bandeiras INTEIRAS (item 6, rodada 2 "mosaico" -> rodada 3 "grid 3x3 recortado" ->
-  // rodada 4 "mural de bandeiras completas") — MESMO componente usado no tile "Países" da Home
-  // (HOME_MAIN_TILES/renderHome) e no banner do hub Países (GRUPO_BANNER_MOSAIC/renderGrupo): 4
-  // bandeiras, sempre as mesmas 4 na mesma ordem, pra consistência entre as duas superfícies.
-  // Blur/véu ficam inteiramente no CSS (.flag-mosaic) — grid 2x2, corte por célula é só a
-  // diferença de proporção entre o host (4:3 na Home, ~1,65:1 no banner) e o asset (3:2), bem
-  // menor que o corte da rodada 3 (ver comentário de .flag-mosaic em css/style.css pras contas).
-  // Ordem (preenchimento em ordem de leitura do grid 2x2, esquerda->direita, cima->baixo)
-  // escolhida maximizando contraste de cor dominante entre vizinhas ortogonais:
-  //   BR verde        | FR azul
-  //   JP branco-vermelho | ES vermelho-amarelo
-  // Nenhum par de mesma cor dominante é vizinho (BR-FR, FR-ES, ES-JP, JP-BR todos distintos).
-  const FLAG_MOSAIC_ISO2 = ["BR", "FR", "JP", "ES"];
-  function buildFlagMosaicHtml() {
-    return (
-      '<div class="flag-mosaic">' +
-      FLAG_MOSAIC_ISO2.map((iso2) => '<img src="imagens/bandeiras/' + iso2 + '.webp" alt="" loading="lazy">').join("") +
-      "</div>"
-    );
-  }
 
   function normText(s) {
     return (s || "").toString().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
@@ -315,8 +297,11 @@
 
   // Acervo de imagem de categoria (item 6 do roadmap-mestre, scripts/gerar-categorias.js) — 16
   // ids (8 Fundamentos + 8 Proteínas), paridade 1:1 confirmada por investigação contra
-  // window.COLLECTIONS (ver relatório da tarefa: zero tile órfão nesses 2 grupos). País usa
-  // bandeira (iso2), não este acervo — ver collectionTileImageSrc logo abaixo. Por tempo/Por
+  // window.COLLECTIONS (ver relatório da tarefa: zero tile órfão nesses 2 grupos). País NÃO usa
+  // este acervo: usa a foto da receita-assinatura (imagens/receitas/, resolvida por
+  // countrySignatureRecipe + loadRecipeImage) — ver collectionTileImageSrc logo abaixo. O acervo
+  // de categoria tem ainda paises.webp, mas só como imagem-conceito de HUB (banner + tile da
+  // Home, GRUPO_BANNER_IMAGE/HOME_MAIN_TILES), nunca como tile de coleção. Por tempo/Por
   // dificuldade (7 coleções, rotas órfãs sem link nenhum no app) não têm imagem — fallback
   // tipográfico limpo (faixa + nome, sem buraco).
   const CATEGORY_TILE_IMAGE_IDS = new Set([
@@ -324,15 +309,36 @@
     "aves", "carnes-bovinas", "suinos", "peixes", "frutos-do-mar", "col-ovo", "cordeiro", "col-vegetariana",
   ]);
 
-  // Caminho da imagem de um tile de coleção — categoria (imagens/categorias/<id>.webp) ou
-  // bandeira de país (imagens/bandeiras/<iso2>.webp; window.COUNTRIES é a fonte única do iso2,
-  // js/countries.js). null = sem imagem mapeada, tile cai no fallback tipográfico.
+  // Caminho da imagem de um tile de coleção de CATEGORIA (imagens/categorias/<id>.webp).
+  // País NÃO passa por aqui: desde o rumo novo de Países (26/07/2026) o tile de país não é mais
+  // bandeira e sim a FOTO da receita-assinatura, resolvida em runtime pela mesma cascata das
+  // outras superfícies de receita (loadRecipeImage: foto própria -> Wikipedia -> placeholder) —
+  // ver countrySignatureRecipe abaixo e renderCollectionCard. Bandeira sobreviveu só na faceta
+  // País do modal de Filtros (renderCountryTileSectionBody/.filter-tile--photo), que continua
+  // lendo o iso2 de window.COUNTRIES. null = sem imagem mapeada, tile cai no fallback tipográfico.
   function collectionTileImageSrc(collection) {
-    if (collection.collectionType === "country") {
-      const country = window.COUNTRIES[collection.id];
-      return country ? "imagens/bandeiras/" + country.iso2 + ".webp" : null;
-    }
+    if (collection.collectionType === "country") return null;
     return CATEGORY_TILE_IMAGE_IDS.has(collection.id) ? "imagens/categorias/" + collection.id + ".webp" : null;
+  }
+
+  // Receita-assinatura de um país — o prato que o tile do hub Países mostra. window.COUNTRIES
+  // (js/countries.js) é MAPA CURADO, não derivado: "qual prato lê aquele país de relance" é
+  // julgamento humano, e a §4 do CONTRATO-IMAGENS-REDESIGN.md registra Países como a ÚNICA
+  // exceção documentada à regra "nenhuma receita representa categoria" (que segue valendo pras
+  // demais categorias, todas com imagem-conceito própria).
+  //
+  // ATENÇÃO — RESOLVE POR NOME CONTRA O ACERVO INTEIRO (TagModel.getAllRecipesFlat), NUNCA contra
+  // RECIPES[catId]: 5 dos 20 apontam pra receita que mora FORA da categoria do próprio país —
+  // brasil->brasileiros, franca->padaria, italia->massas, espanha->frutos-do-mar,
+  // hungria->carnes-bovinas. Quem buscar dentro da categoria do país deixa esses 5 com tile sem
+  // foto e SEM UM ERRO NO CONSOLE, que é a classe de falha cara deste projeto (mesma lição do
+  // slugFoto/gerar-imagens.js). scripts/verify-categoria-tiles-2026-07-26.js §7 falha se
+  // qualquer um dos 20 não resolver, resolver ambíguo ou não tiver .webp em disco.
+  function countrySignatureRecipe(collectionId) {
+    const country = window.COUNTRIES[collectionId];
+    if (!country || !country.signatureRecipe) return null;
+    const item = TagModel.getAllRecipesFlat().find((i) => i.recipe.name === country.signatureRecipe);
+    return item ? item.recipe : null;
   }
 
   // Card compartilhado por TODOS os hubs (Fundamentos/Proteínas/Países/Tempo/
@@ -344,14 +350,22 @@
   // (.category-card__band) por baixo, nunca sobre o pixel da foto. Emoji de ícone morreu (era
   // collection.icon) — sem imagem mapeada, __media fica vazio (cor de fundo neutra via CSS, sem
   // ícone nenhum: "faixa + nome, sem buraco"). Tile de país (collectionType "country") ganha
-  // .category-card--flag (rodada 2, pós-revisão do dono): bandeira BORRADA + véu, nunca nítida
-  // — nítida quebrava a identidade do tile. Categoria continua sem blur (foto normal).
+  // .category-card--country: mídia 4:3 (proporção de FOTO DE PRATO, a mesma do tile grande da
+  // Home — não os 3:2 de bandeira nem o 1:1 de categoria) com a foto da receita-assinatura
+  // NÍTIDA, sem blur nem véu. Blur/véu eram muleta de bandeira (achado do dono na rodada 2:
+  // bandeira nítida quebrava a identidade do tile); foto de prato é o conteúdo certo, não
+  // precisa ser disfarçada. A faixa sólida com nome + contagem é idêntica à de categoria — a
+  // regra-mãe (texto nunca senta em imagem) vale aqui igual.
+  // A foto entra em runtime (loadRecipeImage, async) em vez de <img src> direto no innerHTML:
+  // é a MESMA cascata foto própria -> Wikipedia -> placeholder das outras superfícies de
+  // receita, então um país cuja receita-assinatura ainda não tem .webp cai no mesmo placeholder
+  // conhecido em vez de num <img> quebrado.
   function renderCollectionCard(collection) {
     const { allRecipes } = TagModel.getRecipesByCollection(collection.id);
+    const isCountry = collection.collectionType === "country";
     const imgSrc = collectionTileImageSrc(collection);
-    const isFlag = collection.collectionType === "country";
     const card = document.createElement("button");
-    card.className = "category-card" + (isFlag ? " category-card--flag" : "");
+    card.className = "category-card" + (isCountry ? " category-card--country" : "");
     card.innerHTML =
       '<span class="category-card__media">' +
       (imgSrc ? '<img class="category-card__img" src="' + imgSrc + '" alt="" loading="lazy">' : "") +
@@ -360,6 +374,10 @@
       '<span class="category-card__title">' + collection.label + "</span>" +
       '<span class="category-card__count">' + allRecipes.length + " receitas</span>" +
       "</span>";
+    if (isCountry) {
+      const signature = countrySignatureRecipe(collection.id);
+      if (signature) loadRecipeImage(signature, card.querySelector(".category-card__media"));
+    }
     card.addEventListener("click", () => Router.toCategoria(collection.id));
     return card;
   }
@@ -389,8 +407,7 @@
 
     const wrap = document.createElement("div");
     const bannerImg = GRUPO_BANNER_IMAGE[grupoId] || null;
-    const bannerMosaic = GRUPO_BANNER_MOSAIC.has(grupoId);
-    const hasBanner = !!bannerImg || bannerMosaic;
+    const hasBanner = !!bannerImg;
     wrap.className = "grupo-view" + (hasBanner ? " has-banner" : "");
 
     // Home é o único pai real: proteinas/cozinhas vêm de tile da Home, fundamentos vem do link
@@ -398,9 +415,9 @@
     // nenhum grupo tem mais de 1 entry point, então não há ambiguidade aqui (ver relatório).
     wrap.appendChild(createBackFloat("Home", () => Router.toHome()));
 
-    // Banner do hub (item 6 do roadmap-mestre): imagem borrada (ou mosaico de bandeiras, só
-    // cozinhas — rodada 2) em faixa no topo, só nos 3 hubs com banner (fundamentos/proteinas/
-    // cozinhas) — tempo/dificuldade ficam com o título simples de sempre, sem banner.
+    // Banner do hub (item 6 do roadmap-mestre): imagem borrada em faixa no topo, só nos 3 hubs
+    // com banner (fundamentos/proteinas/cozinhas, todos os 3 com foto própria desde que o mural
+    // de bandeiras morreu) — tempo/dificuldade ficam com o título simples de sempre, sem banner.
     // .grupo-sheet é a FOLHA que sobrepõe a base do banner (mesma gramática de .recipe-page
     // sobre .recipe-hero, CONTRATO-IMAGENS-REDESIGN.md §8.1): o título (serif) e a busca do hub
     // vivem SEMPRE na folha, nunca sobre o blur. Descrição textual do hub morreu (decisão antiga
@@ -409,7 +426,7 @@
     if (hasBanner) {
       const banner = document.createElement("div");
       banner.className = "grupo-banner";
-      banner.innerHTML = bannerMosaic ? buildFlagMosaicHtml() : '<img class="grupo-banner__img" src="' + bannerImg + '" alt="" loading="lazy">';
+      banner.innerHTML = '<img class="grupo-banner__img" src="' + bannerImg + '" alt="" loading="lazy">';
       wrap.appendChild(banner);
 
       const sheet = document.createElement("div");
@@ -530,15 +547,16 @@
   // img: item 6 do roadmap-mestre — substitui o ícone outline (bowl/flame/globe/cupcake) por
   // foto de categoria/hub (mesmo acervo de renderCollectionCard); 2 apontam pra categoria
   // (massas/sobremesas-classicas), 2 pro banner do próprio hub (proteinas/cozinhas).
-  // cozinhas usa mosaic (rodada 2, pós-revisão do dono) em vez de img — hub-cozinhas.webp
-  // (temperos) arquivado, ver comentário de GRUPO_BANNER_MOSAIC acima. label "Navegar por
-  // Países" -> "Países" (rodada 3): o label longo quebrava em 2 linhas e deixava esse tile
-  // mais alto que os outros 3 na mesma fileira do grid — "Países" cabe em 1 linha, igual aos
-  // outros, e já é o mesmo label usado no título do próprio hub (GRUPOS acima).
+  // cozinhas usa paises.webp — MESMO asset do banner do hub Países (GRUPO_BANNER_IMAGE acima),
+  // como proteinas já fazia com o seu; as 4 entradas voltam a ser homogêneas (todas com img,
+  // nenhum caminho especial). label "Navegar por Países" -> "Países" (rodada 3): o label longo
+  // quebrava em 2 linhas e deixava esse tile mais alto que os outros 3 na mesma fileira do grid
+  // — "Países" cabe em 1 linha, igual aos outros, e já é o mesmo label usado no título do
+  // próprio hub (GRUPOS acima).
   const HOME_MAIN_TILES = [
     { id: "massas", label: "Massas", img: "imagens/categorias/massas.webp", go: () => Router.toCategoria("massas") },
     { id: "proteinas", label: "Proteínas", img: "imagens/categorias/hub-proteinas.webp", go: () => Router.toGrupo("proteinas") },
-    { id: "cozinhas", label: "Países", mosaic: true, go: () => Router.toGrupo("cozinhas") },
+    { id: "cozinhas", label: "Países", img: "imagens/categorias/paises.webp", go: () => Router.toGrupo("cozinhas") },
     { id: "sobremesas", label: "Sobremesas", img: "imagens/categorias/sobremesas-classicas.webp", go: () => Router.toCategoria("sobremesas-classicas") },
   ];
 
@@ -628,7 +646,7 @@
       card.className = "home-tile";
       card.innerHTML =
         '<span class="home-tile__media">' +
-        (tile.mosaic ? buildFlagMosaicHtml() : '<img class="home-tile__img" src="' + tile.img + '" alt="" loading="lazy">') +
+        '<img class="home-tile__img" src="' + tile.img + '" alt="" loading="lazy">' +
         "</span>" +
         '<span class="home-tile__band"><span class="home-tile__label">' + tile.label + "</span></span>";
       card.addEventListener("click", tile.go);

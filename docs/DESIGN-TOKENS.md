@@ -587,9 +587,9 @@ diretamente. Remoção dos alias fica pra uma rodada futura.
     (mais alto que o 1:1 da grade — "tile grande" também na proporção). Nome MAIOR que
     `.category-card__title` de propósito (tamanho por classe de tile, hierarquia grande vs.
     grade): `--text-md` (19px) em vez de `--text-sm` (14px), mesmo tier `<20px` de tracking. As 4
-    entradas (Massas, Proteínas, Navegar por Países, Sobremesas) SEMPRE têm imagem — 2 apontam
+    entradas (Massas, Proteínas, Países, Sobremesas) SEMPRE têm imagem — 2 apontam
     pra uma categoria (`massas.webp`/`sobremesas-classicas.webp`) e 2 pro banner do próprio hub
-    (`hub-proteinas.webp`/`hub-cozinhas.webp`) — zero caso de fallback aqui. Ícone outline
+    (`hub-proteinas.webp`/`paises.webp`) — zero caso de fallback aqui. Ícone outline
     (`bowl`/`flame`/`globe`/`cupcake`, `iconSvg()`) morreu — substituído pela foto.
   - **Banner de hub (`.grupo-banner`/`.grupo-sheet`, `renderGrupo`) — só nos 3 hubs alcançáveis
     por link real da Home (Mais Categorias/Proteínas/Países; tempo/dificuldade são rotas órfãs,
@@ -661,7 +661,12 @@ diretamente. Remoção dos alias fica pra uma rodada futura.
      vizinho de 2 linhas de nome na mesma fileira, expondo uma tira vazia de
      `--color-surface-elevated` embaixo da faixa mais curta).
   4. **Mosaico de bandeiras substitui a foto de temperos (`hub-cozinhas.webp`) no tile "Países"
-     da Home e no banner do hub Países** — o dono achou a composição sem identidade nessas 2
+     da Home e no banner do hub Países** — ⚠️ **REVOGADO pelo rumo novo de Países (26/07/2026),
+     ver seção própria no fim deste documento.** O mosaico não existe mais em lugar nenhum:
+     `.flag-mosaic`, `buildFlagMosaicHtml()`, `FLAG_MOSAIC_ISO2`, `GRUPO_BANNER_MOSAIC` e os
+     tokens `--flag-mosaic-blur`/`--flag-mosaic-veil` foram removidos, e `hub-cozinhas.webp` saiu
+     do repo. Registro histórico abaixo mantido só pra explicar por que a linhagem existiu.
+     O dono achou a composição sem identidade nessas 2
      superfícies especificamente (o resto do acervo de categoria continua igual).
      `hub-cozinhas.webp` fica ARQUIVADO em disco, sem consumidor. `.flag-mosaic`: 9 bandeiras
      fixas (`FLAG_MOSAIC_ISO2` em app.js), cada uma com `blur(var(--flag-mosaic-blur))` +

@@ -944,7 +944,11 @@ confirmando que cada caminho resolvido existe de fato em disco.
    são `<span>` (inline por padrão) — `aspect-ratio` não pegava sem `display: block` explícito.
 4. Mosaico de bandeiras (CSS, `.flag-mosaic`) substitui a foto de temperos no tile "Países" da
    Home e no banner do hub Países — o dono achou a composição sem identidade nessas 2
-   superfícies. `hub-cozinhas.webp` arquivado (mantido em disco, sem consumidor).
+   superfícies. ⚠️ **REVOGADO no rumo novo de Países (26/07/2026)**: as 2 superfícies passaram a
+   usar `imagens/categorias/paises.webp` (imagem-conceito de 5 pratos), o mosaico foi removido
+   inteiro do código e `hub-cozinhas.webp` saiu do repo. Bandeira sobreviveu só na faceta País do
+   modal de Filtros; o tile de país do hub virou a FOTO da receita-assinatura
+   (`window.COUNTRIES[].signatureRecipe`). Registro mantido como histórico da linhagem.
 
 **Calibração final, rodada 3 (mesmo dia) — 3 ajustes pós-revisão ao vivo, ver
 `docs/DESIGN-TOKENS.md` pros números exatos:** blur do tile de país individual 6px→2,5px

@@ -130,8 +130,9 @@ camada 1 responde de disco e a 2 nunca é alcançada.
 | 2 | Card de receita em lista | `.recipe-thumb img` | 48×48 (1:1) | default (`center`) | `app.js:2546` |
 | 3 | Mini card de histórico/preparo | `.preparo-card__thumb img` | 48×48 (1:1) | default (`center`) | `app.js:1841` |
 | 4 | Tile de categoria | `.category-card` | **não usa foto de receita** | — | — |
+| 5 | Tile de **país** (hub Países) | `.category-card--country .category-card__media img` | `aspect-ratio: 4/3` | default (`center`) | `renderCollectionCard` |
 
-As superfícies 1–3 usam `object-fit: cover`.
+As superfícies 1–3 e 5 usam `object-fit: cover`.
 
 ### A #4 NÃO consome foto de receita — decisão fechada
 
@@ -154,6 +155,45 @@ O layout final do tile é da frente de design (item 6 do roadmap dela). Este doc
 apenas que a superfície **não é cliente deste pipeline**, para que ninguém tente ligar as duas coisas
 mais adiante.
 
+### PAÍSES — a exceção documentada à regra acima (26/07/2026)
+
+A regra "**nenhuma receita representa categoria**" continua valendo para **todas as categorias**.
+**Países é a única exceção**, e é exceção **explícita, curada e fechada** — não uma brecha.
+
+O tile de país (superfície #5) deixou de mostrar a bandeira e passou a mostrar a **foto da
+receita-assinatura do país**: o prato que um brasileiro reconhece de relance como daquele país.
+
+**Por que Países pode e categoria não.** A pergunta que o §4 encerrou era *derivativa* — "qual
+receita **representa** esta categoria?" — e não tem resposta não-arbitrária: qualquer critério
+automático ("a mais popular", "a primeira") produz um representante que muda quando o acervo muda,
+e um tile cuja identidade oscila sozinha. País é outra pergunta: **"qual prato lê aquele país"**
+tem resposta cultural estável e conhecida (Feijoada, Paella, Pad Thai), que não se deriva de dado
+nenhum. Por isso o mapa é **curado à mão**, não computado.
+
+| | |
+|---|---|
+| Fonte | `window.COUNTRIES[<id>].signatureRecipe` em `js/countries.js` — **mapa curado, não derivado** |
+| Resolução | `countrySignatureRecipe()` em `app.js`, por **nome exato** |
+| Escopo da busca | **`TagModel.getAllRecipesFlat()` — o acervo INTEIRO** |
+| Pipeline da foto | o **mesmo** de #1–#3: `loadRecipeImage()` → foto própria → Wikipedia → placeholder |
+| Proporção da mídia | **4:3**, igual ao tile grande da Home (composição overhead: corta só as laterais) |
+| Blur/véu | **nenhum** — a foto aparece nítida, como a de categoria. Blur/véu eram muleta de bandeira |
+
+> ⚠️ **Resolver contra `RECIPES[catId]` é o erro que este parágrafo existe para impedir.**
+> **5 dos 20** apontam para receita que mora **fora** da categoria do próprio país —
+> `brasil`→`brasileiros`, `franca`→`padaria`, `italia`→`massas`, `espanha`→`frutos-do-mar`,
+> `hungria`→`carnes-bovinas`. Buscar dentro da categoria do país deixa esses 5 com o tile vazio
+> **e sem um erro no console** — a classe de falha cara deste projeto (mesma lição do
+> `slug()`/`slugFoto()` no §2). `scripts/verify-categoria-tiles-2026-07-26.js` §7 falha a suite
+> se qualquer um dos 20 não resolver, resolver ambíguo ou não tiver `.webp` em disco.
+
+**O que isto NÃO autoriza.** Não autoriza derivar representante para nenhuma outra categoria, nem
+transformar `signatureRecipe` em campo genérico de coleção. A exceção é de Países e para de pé
+por ser curada; o dia em que alguém quiser computá-la, ela vira exatamente o que o §4 proibiu.
+
+**Trocar é barato:** muda-se o nome em `js/countries.js` e pronto — as candidatas-reserva já
+avaliadas ficam anotadas linha a linha, para a próxima troca não recomeçar a análise.
+
 ### Proporção por acervo — deliberada, não inconsistência
 
 São três acervos com três proporções, e isso é decisão, não descuido:
@@ -163,6 +203,11 @@ São três acervos com três proporções, e isso é decisão, não descuido:
 | Receita | **4:3** (1184×888) | hero de página, ver §5 e §6.1 |
 | Categoria | **1:1** (600×600) | tile quadrado, spec original do §4 |
 | Bandeira | **3:2** (600×400) | 14 das 20 já são 3:2 nativas — corte quadrado era desperdício |
+
+Desde 26/07/2026 o acervo de **bandeira** tem **um único consumidor**: a faceta País do modal de
+Filtros (`.filter-tile--photo`). O tile do hub Países migrou para a foto da receita-assinatura
+(exceção acima), e o mosaico/mural de bandeiras que ocupava o banner do hub e o tile da Home foi
+removido — as 2 superfícies usam `imagens/categorias/paises.webp`, do acervo de categoria.
 
 A regra que unifica é **"mídia casa com asset"**: a área de mídia do componente adota a proporção do
 próprio arquivo, então `cover` vira o corte MÍNIMO que cobre a caixa, em vez de um corte imposto de

@@ -278,7 +278,7 @@ function main() {
   assert(/padding-top:\s*0;/.test(hasBannerRule), "TESTE POSITIVO: .grupo-view.has-banner zera o padding-top — back-float senta no banner, igual .recipe-page sobre o hero");
   assert(/padding-top:\s*var\(--chrome-clearance\);/.test(grupoViewRule), "TESTE NEGATIVO (regressão): .grupo-view base CONTINUA reservando --chrome-clearance — tempo/dificuldade (hubs sem banner) intactos");
   const grupoFnBody2 = sliceFn(appJs, "function renderGrupo(grupoId) {", "renderGrupo (15d)");
-  assert(grupoFnBody2.includes('"grupo-view" + (hasBanner ? " has-banner" : "")'), "renderGrupo aplica has-banner condicionalmente (foto OU mosaico, ver GRUPO_BANNER_IMAGE/GRUPO_BANNER_MOSAIC) — nunca fixo");
+  assert(grupoFnBody2.includes('"grupo-view" + (hasBanner ? " has-banner" : "")'), "renderGrupo aplica has-banner condicionalmente (ver GRUPO_BANNER_IMAGE — fonte ÚNICA de banner desde que o mosaico foi extinto, 26/07/2026) — nunca fixo");
   assert(/float sobre m[ií]dia/i.test(css), "comentário de :root (--chrome-clearance) nomeia a exceção 'float sobre mídia' ampliada nesta rodada");
 
   console.log("");

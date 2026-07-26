@@ -172,10 +172,11 @@ const ACERVO = [
   // não pode virar sem graça — vale a mesma regra de prato no auge.
   { id: "hub-fundamentos", label: "Mais Categorias (hub)", assunto: "a stone mortar with fresh green pesto just ground in it, the pestle resting inside, and a whisk with glossy sauce clinging to the wires", superficie: "wooden worktop" },
   { id: "hub-proteinas", label: "Proteínas (hub)", assunto: "a board with three cooked proteins side by side and well spaced — sliced pink beef, a golden-skinned fish fillet and a glossy roast chicken thigh", superficie: "wooden worktop" },
-  // ARQUIVADA (26/07/2026): a versão de temperos foi substituída pela imagem-conceito abaixo.
-  // Mantida no acervo porque o arquivo `hub-cozinhas.webp` é o que js/app.js (221, 533) e
-  // css/style.css (49) referenciam hoje — apagar a entrada aqui não apagaria a referência lá.
-  { id: "hub-cozinhas", label: "Países (hub) — ARQUIVADA", assunto: "three small bowls of vivid whole spices — deep red paprika, golden saffron threads and green cardamom — well spaced apart", superficie: "limestone worktop" },
+  // A entrada `hub-cozinhas` (temperos) viveu aqui como ARQUIVADA porque js/app.js e css/style.css
+  // ainda apontavam pro arquivo. No rumo novo de Países (26/07/2026) a última referência morreu e
+  // o .webp saiu do repo (git rm) — a entrada foi removida junto, senão a próxima rodada do
+  // gerador ressuscitaria em disco um asset sem consumidor nenhum. A imagem-conceito abaixo é a
+  // sucessora, e é ela que as 2 superfícies de Países usam.
 
   // IMAGEM-CONCEITO "PAÍSES" — curadoria fechada pela frente de design, 26/07/2026.
   // Único item com promptManual. Cinco pratos de reconhecimento instantâneo, cada um na sua louça.

@@ -33,29 +33,20 @@
      sempre vista BORRADA), então um clamp simples basta. Referência 390x844: 28vh = 236,32px,
      dentro da faixa. */
   --hub-banner-h: clamp(180px, 28vh, 280px);
-  /* Correção pós-revisão do dono (item 6, rodada 2, 2026-07-26): bandeira NÍTIDA no tile de país
-     quebrava a identidade visual — voltou a ser fundo borrado com véu, como o roadmap original
-     já prescrevia. 2 números calibráveis, ver .category-card--flag/.filter-tile--photo.
+  /* Correção pós-revisão do dono (item 6, rodada 2, 2026-07-26): bandeira NÍTIDA quebrava a
+     identidade visual — voltou a ser fundo borrado com véu, como o roadmap original já
+     prescrevia. 2 números calibráveis. Consumidor ÚNICO desde o rumo novo de Países
+     (26/07/2026): .filter-tile--photo, a faceta País do modal de Filtros — o tile do hub Países
+     não é mais bandeira e sim a foto NÍTIDA da receita-assinatura (.category-card--country), e
+     não usa nenhum destes 2.
      Rodada 3: 6px "virava mancha" -> 2,5px (bandeira reconhecível, só borda suavizada).
      Rodada 4 (causa raiz — a área de mídia agora casa a proporção 3:2 do asset, ver
      scripts/exportar-bandeiras.js/.py; cover já é o corte mínimo, não sobra distorção pro blur
      disfarçar): 2,5px ainda era mais que o necessário — quase imperceptível a 1px, véu (não o
      blur) é quem preserva a identidade escura da faixa por cima. Confirmado ao vivo: Brasil
-     legível como Brasil no hub Países e no modal de Filtros, borda so de leve suavizada. */
+     legível como Brasil no modal de Filtros, borda só de leve suavizada. */
   --flag-blur: 1px;
   --flag-veil: rgba(15, 15, 14, 0.35);
-  /* Mural de bandeiras (item 6, rodada 2 "mosaico" -> rodada 4 "mural de bandeiras INTEIRAS") —
-     substitui a foto de temperos no tile "Países" da Home e no banner do hub Países (as duas
-     viviam de hub-cozinhas.webp, agora arquivado). Ver .flag-mosaic/.flag-mosaic__grid.
-     Rodada 3 tinha virado grid 3x3 recortado (9 bandeiras CORTADAS, textura de vitral). Rodada 4
-     troca por bandeiras COMPLETAS: célula 3:2 = a proporção do próprio asset, zero corte por
-     célula (ver relatório da tarefa pras medidas de grid por superfície). Blur consideravelmente
-     mais leve que a rodada 3 (célula maior e SEM corte não precisa de tanto blur pra não competir
-     com o texto por cima) — véu mais forte que o do tile individual porque aqui o objetivo
-     continua "fundo decorativo com textura de vários países", não identificação de UMA bandeira
-     específica. */
-  --flag-mosaic-blur: 1.5px;
-  --flag-mosaic-veil: rgba(15, 15, 14, 0.45);
   font-size: 16px;
 
   /* ---- Design tokens v3 (docs/DESIGN-TOKENS.md) ----
@@ -1246,9 +1237,9 @@ body.filter-modal-open { overflow: hidden; }
    miniatura (min-height:76px herdado de .filter-tile, sem mudança de tamanho). .filter-tile__icon
    /--emoji (bandeira Unicode) morreram — ver renderCountryTileSectionBody em js/app.js. Border
    de seleção (.is-selected) continua vindo da regra genérica .filter-tile.is-selected acima,
-   sem duplicar aqui. Bandeira BORRADA + véu (rodada 2, pós-revisão do dono — mesmos
-   --flag-blur/--flag-veil do .category-card--flag, mesmo motivo: nítida quebrava a
-   identidade). */
+   sem duplicar aqui. Bandeira BORRADA + véu (rodada 2, pós-revisão do dono: nítida quebrava a
+   identidade). Desde o rumo novo de Países (26/07/2026) esta é a ÚNICA superfície de bandeira
+   que restou no app — e portanto a única consumidora de --flag-blur/--flag-veil. */
 /* Rodada 4 (causa raiz — proporção do asset): media e faixa viraram blocos EMPILHADOS em fluxo
    normal (mesma correção já aplicada em .category-card/.home-tile na rodada de crop) — min-
    height:76px (herdado de .filter-tile) deixa de ser a altura total do tile, que agora cresce
@@ -1512,10 +1503,10 @@ body.filter-modal-open { overflow: hidden; }
    .category-card, "tile grande" também na proporção. .home-tile__band vem DEPOIS, em fluxo
    normal, empilhada por baixo — nunca sobrepondo a imagem (mesma correção do .category-card,
    ver comentário lá: a faixa absoluta fatiava o prato). Ícone outline (bowl/flame/globe/
-   cupcake) morreu — 3 das 4 entradas têm foto (ver HOME_MAIN_TILES em app.js); a 4ª
-   ("Navegar por Países") usa o mosaico de bandeiras (.flag-mosaic) em vez de foto — ver
-   comentário próprio abaixo. Fundo neutro (--color-surface-elevated) é só o estado antes da
-   imagem carregar. */
+   cupcake) morreu — as 4 entradas têm foto (ver HOME_MAIN_TILES em app.js), inclusive "Países",
+   que usa paises.webp desde o rumo novo de Países (26/07/2026) e encerrou a linhagem do mural
+   de bandeiras. Fundo neutro (--color-surface-elevated) é só o estado antes da imagem
+   carregar. */
 .home-tile {
   overflow: hidden;
   border: 1px solid var(--color-border);
@@ -1546,60 +1537,6 @@ body.filter-modal-open { overflow: hidden; }
    classe de tile, ver relatório da tarefa). Tier <20px da escala de tracking (sem letter-
    spacing negativo). */
 .home-tile__label { font-family: var(--font-display); font-weight: 400; font-size: var(--text-md); line-height: var(--leading-tight); color: var(--color-text-primary); }
-
-/* Mural de bandeiras (item 6, rodada 2 "mosaico" -> rodada 4 "mural de bandeiras INTEIRAS") —
-   substitui a foto de categoria/hub em 2 superfícies que perderam identidade com a imagem de
-   temperos (hub-cozinhas.webp, arquivado em disco mas sem consumidor: tile "Países" da Home,
-   .home-tile__media, e banner do hub Países, .grupo-banner). MESMO componente/MESMAS 4
-   bandeiras nas 2 (buildFlagMosaicHtml()/FLAG_MOSAIC_ISO2 em app.js). Container hospedeiro
-   (.home-tile__media ou .grupo-banner) precisa ser position:relative ou fixed (já são) pro
-   inset:0 resolver contra ele, não contra um ancestral mais distante.
-   Rodada 3 tinha virado grid 3x3 recortado (9 bandeiras cortadas, "textura de vitral"). Rodada 4
-   troca por bandeiras COMPLETAS: grid 2x2 (4 células) — numa grade N×N (linhas=colunas), cada
-   célula herda a MESMA proporção do container hospedeiro (geometria: dividir W e H pelo mesmo N
-   preserva a razão W/H) — não da célula "3:2 ideal" isolada. Corte por object-fit:cover vira só
-   a diferença entre a proporção do host e a do asset (3:2), pequena nos 2 hosts reais, medido ao
-   vivo em 390x844 (getComputedStyle real, não estimativa de token): tile da Home (host 4:3=
-   1,3333, célula medida 82x61,125=1,3415) corta 10,57% da LARGURA da bandeira (5,28% de cada
-   lado); banner do hub (host medido 375x236,3125=1,5869, célula 186x116,656=1,5944) corta 5,92%
-   da ALTURA (2,96% de cada lado). 3x3 daria o MESMO percentual de corte (é geometria de N×N, não
-   do número de células) — 2x2 escolhido por dar bandeiras maiores/mais reconhecíveis com o mesmo corte.
-   As 4 (FLAG_MOSAIC_ISO2, preenchimento em ordem de leitura do grid) escolhidas maximizando
-   contraste de cor dominante entre vizinhas: BR verde / FR azul / JP branco-vermelho / ES
-   vermelho-amarelo — nenhum par de mesma cor dominante é vizinho. gap (2-3px) e o fundo por
-   trás dele usam --color-surface-elevated, mesmo tom neutro já usado como placeholder "sem
-   foto" — lê como moldura fina entre bandeiras, não como buraco. */
-.flag-mosaic {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  gap: 3px;
-  background: var(--color-surface-elevated);
-}
-.flag-mosaic img {
-  /* min-width/min-height:0 — achado ao vivo: sem isso, o mínimo automático de item de grid
-     (que considera o aspect-ratio intrínseco da imagem, 3:2, quando um eixo já é definido pela
-     coluna) vira o PISO da linha, e se esse piso exceder a altura real do container (caso do
-     banner do hub, medido em 390px), o grid ESTOURA por baixo do overflow:hidden do host em vez
-     de encolher via 1fr — bandeira de baixo cortada por engano, silenciosamente (0 erro no
-     console). min:0 remove o piso e deixa 1fr dividir o espaço real disponível. */
-  min-width: 0;
-  min-height: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  filter: blur(var(--flag-mosaic-blur));
-  transform: scale(1.03);
-}
-.flag-mosaic::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: var(--flag-mosaic-veil);
-}
 
 /* Carrossel "Vistas recentemente" (DEPOIS do bloco de categorias — tiles + Mais categorias —,
    item 4 do roadmap-mestre CHECKLIST-GERAL.md; posição corrigida 2026-07-26, julgamento visual
@@ -1680,8 +1617,9 @@ body.filter-modal-open { overflow: hidden; }
 /* Tile de categoria (item 6 do roadmap-mestre, corrigido na rodada 2 pós-revisão do dono) —
    regra-mãe: texto nunca senta em imagem. .category-card__media é um bloco PRÓPRIO (não mais
    position:absolute cobrindo o card inteiro) com aspect-ratio:1 — a ÁREA DE IMAGEM é o quadrado
-   INTEIRO do asset gerado (600x600), zero corte, SEM blur (blur é só do banner de hub e do
-   próprio tile de país, ver .grupo-banner/.category-card--flag). .category-card__band vem
+   INTEIRO do asset gerado (600x600), zero corte, SEM blur (blur é só do banner de hub, ver
+   .grupo-banner — o tile de país também perdeu o blur quando deixou de ser bandeira e virou foto
+   de prato, ver .category-card--country). .category-card__band vem
    DEPOIS, em fluxo normal, empilhada por baixo — nunca sobrepondo a imagem (achado da rodada 1:
    a faixa absoluta cobria a base do quadrado 1:1 e fatiava o prato; corrigido virando bloco
    separado, mesma gramática do .recipe-card__photo + .recipe-card__body, que nunca se sobrepõem).
@@ -1704,24 +1642,30 @@ body.filter-modal-open { overflow: hidden; }
 .category-card:hover { border-color: var(--color-accent-hover); }
 .category-card__media { display: block; position: relative; aspect-ratio: 1; overflow: hidden; }
 .category-card__img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
-/* Tile de país (rodada 2) — bandeira BORRADA + véu, nunca nítida (achado do dono: nítida quebra
-   a identidade do tile). --flag-blur/--flag-veil calibráveis em :root.
-   Rodada 4 (causa raiz — proporção do asset, não só blur/zoom): o acervo de bandeira agora É
-   3:2 (scripts/exportar-bandeiras.js/.py, 600x400) — a área de mídia casa essa proporção em vez
-   de herdar o aspect-ratio:1 de categoria, então object-fit:cover já é o corte MÍNIMO possível
-   (~zero, ver relatório da tarefa pros números por bandeira). scale(1.02) substitui o 1.15
-   antigo — só o suficiente pra esconder a borda clara de um blur agora bem mais leve (ver
-   --flag-blur em :root), não pra compensar um corte de proporção que não existe mais. REGRA
-   GERAL (docs/DESIGN-TOKENS.md): área de mídia de tile de bandeira casa a proporção do asset;
-   zoom é o mínimo que cobre. */
-.category-card--flag .category-card__media { aspect-ratio: 3 / 2; }
-.category-card--flag .category-card__img { filter: blur(var(--flag-blur)); transform: scale(1.02); }
-.category-card--flag .category-card__media::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: var(--flag-veil);
+/* Tile de país (rumo novo de Países, 26/07/2026) — deixou de ser BANDEIRA e passou a ser a FOTO
+   da receita-assinatura do país (window.COUNTRIES[].signatureRecipe; ver countrySignatureRecipe
+   /renderCollectionCard em js/app.js). Consequências de estilo, todas revertendo muletas que
+   só existiam por ser bandeira:
+   - aspect-ratio 4:3, não os 3:2 do asset de bandeira nem o 1:1 de categoria: é a MESMA
+     proporção de .home-tile__media, e pelo mesmo motivo — foto de prato é composição overhead
+     centrada, 4:3 corta só as laterais, simetricamente, nunca o topo/base onde mora o prato.
+   - SEM blur e SEM véu (--flag-blur/--flag-veil não são lidos aqui, só por .filter-tile--photo).
+     Blur/véu eram muleta pra bandeira nítida não quebrar a identidade do tile; foto de prato é o
+     conteúdo certo do tile, então aparece nítida, exatamente como a foto de categoria.
+   - o <img> vem de applyImage (js/app.js), que monta o elemento em runtime e NÃO carrega a
+     classe .category-card__img — por isso o seletor de dimensionamento aqui é por tag (img),
+     não por classe. Mudar applyImage pra emitir classe quebraria esta regra em silêncio.
+   Estado placeholder ("sem foto") segue a MESMA gramática de .recipe-card__photo/
+   .recent-card__thumb: applyImage acrescenta .placeholder e injeta o ícone photoOff. */
+.category-card--country .category-card__media {
+  aspect-ratio: 4 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+.category-card--country .category-card__media img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+.category-card--country .category-card__media.placeholder { color: var(--color-text-disabled); }
+.category-card--country .category-card__media.placeholder svg { width: 24px; height: 24px; }
 .category-card__band {
   display: flex;
   flex-direction: column;
