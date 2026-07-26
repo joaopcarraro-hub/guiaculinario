@@ -256,7 +256,9 @@ function main() {
   // RECENTE, mesma regra das outras suítes desta família (nunca prender a versão no passado).
   // v29 -> v30: hotfix 2026-07-26 (pointer-events da whitelist de body), não uma rodada desta
   // feature — ver scripts/verify-filter-modal-pointer-events-2026-07-26.js.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v30";'), "CACHE_NAME v30 (hotfix de pointer-events mexeu em css/style.css de novo, fora desta feature)");
+  // v30 -> v31: leva final de sobras (2026-07-26) — header de ingredientes, js/app.js mudou de
+  // novo, também fora desta feature.
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v31";'), "CACHE_NAME v31 (leva final de sobras mexeu em js/app.js de novo, fora desta feature)");
   assert(!swJs.includes('const CACHE_NAME = "cardapio-v25";'), "v25 não sobrevive — teste negativo");
 
   console.log("");

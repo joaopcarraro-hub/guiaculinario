@@ -296,7 +296,10 @@ function main() {
   // v29 -> v30: literal ficou stale por causa do hotfix 2026-07-26 (whitelist de pointer-events
   // ganhou .filter-modal-overlay/.update-toast, ver scripts/verify-filter-modal-pointer-events-
   // 2026-07-26.js), não por uma nova rodada desta feature — CACHE_NAME é global ao sw.js.
-  assert(/const CACHE_NAME = "cardapio-v30";/.test(swJs), "CACHE_NAME v29 -> v30 (stale por hotfix externo a esta suíte, ver comentário acima)");
+  // v30 -> v31: mesma situação, desta vez pela leva final de sobras (header de ingredientes,
+  // seção 14 abaixo) — essa sim é desta suíte/feature (.recipe-page), a diferença é só que
+  // CACHE_NAME sobe 1x só por commit, então a asserção sempre acompanha o valor MAIS recente.
+  assert(/const CACHE_NAME = "cardapio-v31";/.test(swJs), "CACHE_NAME v30 -> v31 (esta rodada é da própria suíte — header de ingredientes, seção 14)");
 
   console.log("");
   console.log("==================================================");
@@ -314,6 +317,27 @@ function main() {
   const contratoPath = path.join(ROOT, "docs", "CONTRATO-IMAGENS-REDESIGN.md");
   const contrato = fs.readFileSync(contratoPath, "utf8");
   assert(contrato.includes("--hero-h"), "CONTRATO-IMAGENS-REDESIGN.md (§5/§6.1, cross-front com ciência do dono) documenta a caixa proporcional ao viewport (--hero-h), substitui a calibração 16/9 fixa");
+
+  console.log("");
+  console.log("==================================================");
+  console.log("14. HEADER DE INGREDIENTES — contador sai do estado expandido (desalinhava \"INGREDIENTES\" com porções+chevron), passa a existir só no colapsado (\"Ver ingredientes (N)\", aria do chevron). Leva final de sobras, 2026-07-26.");
+  console.log("==================================================");
+  assert(
+    receitaFnBody.includes("<h4>Ingredientes</h4>"),
+    "header expandido: <h4>Ingredientes</h4> sem contador — alinha limpo com porções+chevron na mesma linha"
+  );
+  assert(
+    !/<h4>Ingredientes\s*<span class=\\?"filter-section__count\\?">/.test(receitaFnBody),
+    "TESTE NEGATIVO: o span .filter-section__count não sobra colado no <h4> — a contagem saiu de vez do estado expandido"
+  );
+  assert(
+    /collapseBtn\.setAttribute\("aria-label", isOpen \? "Ocultar ingredientes" : "Ver ingredientes \(" \+ ingredientsList\.length \+ "\)"\);/.test(receitaFnBody),
+    "estado colapsado: aria-label do chevron vira \"Ver ingredientes (N)\" — só aqui a contagem sobrevive"
+  );
+  assert(
+    /collapseBtn\.setAttribute\("aria-label", "Ocultar ingredientes"\);/.test(receitaFnBody),
+    "estado expandido inicial (is-open por padrão): aria-label continua só \"Ocultar ingredientes\", sem contador (contador é exclusivo do colapsado)"
+  );
 
   console.log("");
   console.log("==================================================");

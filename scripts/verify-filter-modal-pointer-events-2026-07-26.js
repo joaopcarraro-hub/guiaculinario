@@ -96,7 +96,32 @@ function main() {
   console.log("==================================================");
   console.log("4. SERVICE WORKER — CACHE_NAME bump (hotfix mexe em css/style.css, faz parte do APP_SHELL)");
   console.log("==================================================");
-  assert(/const CACHE_NAME = "cardapio-v30";/.test(swJs), "CACHE_NAME v29 -> v30 nesta correção");
+  // v30 -> v31: stale por causa da leva final de sobras (header de ingredientes, js/app.js),
+  // não desta suíte — mesmo padrão de literal-encadeado das outras suítes do projeto.
+  assert(/const CACHE_NAME = "cardapio-v31";/.test(swJs), "CACHE_NAME v29 -> v30 -> v31 (v31 é stale por commit externo a este hotfix, ver comentário acima)");
+
+  console.log("");
+  console.log("==================================================");
+  console.log("5. HANDLER DO TOAST DE UPDATE — prova ao vivo feita na tarefa (relatório); aqui só o guard-rail estático contra regressão da fiação");
+  console.log("==================================================");
+  // Prova ao vivo (fora desta suíte, resultado no relatório da tarefa): bump temporário local
+  // de CACHE_NAME + registration.update() real numa aba já controlada reproduziu a cadeia
+  // inteira sem intervenção manual — updatefound -> installing -> installed -> activating (sem
+  // ficar preso em "waiting", confirma self.skipWaiting() em sw.js) -> .update-toast APARECEU
+  // sozinho no DOM (prova que controllerchange + hadControllerBefore + showUpdateToast()
+  // disparam de verdade, não só existem no código) -> clique real via elementFromPoint no botão
+  // -> location.reload() confirmado (sessionStorage sobreviveu ao reload, estado em memória foi
+  // limpo) -> cache antigo removido, só o novo sobrou (confirma o cleanup de self.clients.claim()
+  // no activate). Nenhum elo quebrado — nada corrigido aqui, só travado contra regressão futura.
+  assert(/const hadControllerBefore = !!navigator\.serviceWorker\.controller;/.test(appJs), "hadControllerBefore capturado SINCRONAMENTE (antes do register) — se isso regredir pra depois do register(), o gate perde sentido (controller já teria mudado antes da captura)");
+  const hadControllerIdx = appJs.indexOf("const hadControllerBefore");
+  const registerIdx = appJs.indexOf('.register("sw.js")');
+  assert(hadControllerIdx > 0 && registerIdx > hadControllerIdx, "hadControllerBefore capturado ANTES de .register(\"sw.js\") no código-fonte (ordem importa pra correção do gate)");
+  assert(/addEventListener\("controllerchange", \(\) => \{\s*if \(!hadControllerBefore\) return;\s*showUpdateToast\(\);\s*\}\);/.test(appJs), "listener de controllerchange gateado por hadControllerBefore antes de chamar showUpdateToast() — sem isso o toast apareceria já na 1ª instalação (nunca deveria)");
+  assert(/addEventListener\("click", \(\) => location\.reload\(\)\);/.test(appJs), "botão Atualizar do toast chama location.reload() — fecha o último elo da cadeia (sem isso o clique funcionaria mas nunca aplicaria a versão nova)");
+  assert(/self\.skipWaiting\(\)/.test(swJs), "sw.js: self.skipWaiting() no install — sem isso o SW novo ficaria preso em 'waiting', controllerchange nunca dispararia numa aba já aberta");
+  assert(/self\.clients\.claim\(\)/.test(swJs), "sw.js: self.clients.claim() no activate — sem isso o SW novo ativaria em segundo plano mas NUNCA assumiria uma aba já aberta, controllerchange nunca dispararia nela");
+  assert(/keys\.filter\(\(k\) => k !== CACHE_NAME\)\.map\(\(k\) => caches\.delete\(k\)\)/.test(swJs), "sw.js: activate limpa caches antigos (chave != CACHE_NAME atual) — confirmado ao vivo: só a cache nova sobrou depois do update real");
 
   console.log("");
   console.log("==================================================");

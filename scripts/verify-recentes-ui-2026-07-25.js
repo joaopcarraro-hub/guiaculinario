@@ -157,7 +157,9 @@ function main() {
   // de receita mudou css/style.css e js/app.js mais uma vez.
   // v29 -> v30: hotfix 2026-07-26 (pointer-events da whitelist de body), não uma rodada desta
   // feature — ver scripts/verify-filter-modal-pointer-events-2026-07-26.js.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v30";'), "CACHE_NAME v30 — sucessor de v29 via hotfix de pointer-events (fora desta feature, css/style.css mudou de novo)");
+  // v30 -> v31: leva final de sobras (2026-07-26) — header de ingredientes, js/app.js mudou de
+  // novo, também fora desta feature.
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v31";'), "CACHE_NAME v31 — sucessor de v30 via leva final de sobras (fora desta feature, js/app.js mudou de novo)");
   assert(!swJs.includes('const CACHE_NAME = "cardapio-v25";'), "v25 não sobrevive — teste negativo (a versão desta tarefa foi sucedida, não deixada presa)");
   assert(swJs.includes('"css/style.css"') && swJs.includes('"js/app.js"'), "css/style.css e js/app.js seguem no APP_SHELL precache");
 

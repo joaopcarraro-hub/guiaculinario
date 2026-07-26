@@ -210,7 +210,9 @@ function main() {
   // acompanha o bump MAIS RECENTE, nunca uma versão presa no passado.
   // v29 -> v30: hotfix 2026-07-26 (pointer-events da whitelist de body, ver
   // scripts/verify-filter-modal-pointer-events-2026-07-26.js), não uma rodada desta feature.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v30";'), "CACHE_NAME v30 — 6º bump desde esta suíte (v24->v25 carrossel, v25->v26 redesenho do card, v26->v27/v27->v28/v28->v29 redesenho da página de receita em 3 rodadas, v29->v30 hotfix de pointer-events), mesma regra do CLAUDE.md");
+  // v30 -> v31: leva final de sobras (2026-07-26) — header de ingredientes perdeu o contador
+  // expandido, js/app.js mudou de novo, também fora desta feature.
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v31";'), "CACHE_NAME v31 — 7º bump desde esta suíte (v24->v25 carrossel, v25->v26 redesenho do card, v26->v27/v27->v28/v28->v29 redesenho da página de receita em 3 rodadas, v29->v30 hotfix de pointer-events, v30->v31 header de ingredientes), mesma regra do CLAUDE.md");
 
   console.log("");
   console.log("==================================================");

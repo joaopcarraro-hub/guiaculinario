@@ -3015,10 +3015,10 @@
 
     const ingHeader = document.createElement("div");
     ingHeader.className = "ingredients-header";
-    ingHeader.innerHTML =
-      "<h4>Ingredientes <span class=\"filter-section__count\">(" +
-      ingredientsList.length +
-      ')</span></h4><div class="ingredients-header__controls"></div>';
+    // Leva final de sobras (2026-07-26): contador saiu daqui — "(N)" ao lado de "Ingredientes"
+    // desalinhava o header expandido com a linha de porções+chevron (achado do dono). A
+    // contagem sobrevive só no aria-label do estado colapsado, abaixo ("Ver ingredientes (N)").
+    ingHeader.innerHTML = '<h4>Ingredientes</h4><div class="ingredients-header__controls"></div>';
     const ingControls = ingHeader.querySelector(".ingredients-header__controls");
 
     if (yieldInfo) {
@@ -3066,7 +3066,7 @@
     collapseBtn.innerHTML = iconSvg("chevronDown", "filter-section__chevron");
     collapseBtn.addEventListener("click", () => {
       const isOpen = ingSection.classList.toggle("is-open");
-      collapseBtn.setAttribute("aria-label", isOpen ? "Ocultar ingredientes" : "Ver ingredientes");
+      collapseBtn.setAttribute("aria-label", isOpen ? "Ocultar ingredientes" : "Ver ingredientes (" + ingredientsList.length + ")");
     });
     ingControls.appendChild(collapseBtn);
     ingSection.appendChild(ingHeader);
