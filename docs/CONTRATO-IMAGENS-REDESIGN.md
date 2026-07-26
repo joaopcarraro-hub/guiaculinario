@@ -172,29 +172,56 @@ Valores já calculados nas proporções mais prováveis:
 |---|---|---|---|
 | 4:3 | 1,333 | 100% × 100% | sem corte, a foto inteira |
 | 3:2 | 1,500 | 89% da altura | corte suave |
-| **16:9** | **1,778** | **75% da altura** | **o hero de hoje** |
-| 2:1 | 2,000 | 67% da altura | limite do aceitável |
+| **16:9** | **1,778** | **75% da altura** | **era o hero (redesign, 1ª rodada — aspect-ratio fixo)** |
+| **2:1** | **2,000** | **67% da altura** | **limite LARGO do hero atual (--hero-h, viewport baixo/largo)** |
 | 21:9 | 2,333 | 57% da altura | começa a cortar prato |
 | 3,27:1 | 3,270 | 41% da altura | **era o hero antigo no desktop. Quebrado.** |
 | **1:1** | **1,000** | **75% da largura** | **os thumbs de hoje** |
-| 4:5 (vertical) | 0,800 | 60% da largura | prato pode ficar apertado |
+| **4:5 (vertical)** | **0,800** | **60% da largura** | **limite ALTO do hero atual (--hero-h, viewport alto/estreito) — ver nota abaixo** |
 
 **Onde o prato está na foto:** medido nas 7 fotos geradas, o prato ocupa a faixa vertical
 **y ∈ [25%, 80%]** e é centralizado horizontalmente com leve deslocamento à esquerda. É por isso que:
 
-- no hero 16:9 com `object-position: center bottom`, a faixa visível é **y ∈ [25%, 100%]** — pega o
-  prato inteiro e joga fora os 25% de cima, que é justamente onde vem lixo (ver §6);
+- no hero 16:9 com `object-position: center bottom`, a faixa visível era **y ∈ [25%, 100%]** — pega
+  o prato inteiro e joga fora os 25% de cima, que é justamente onde vem lixo (ver §6);
 - nos thumbs 1:1, o corte é lateral e a altura inteira aparece — o prato cabe naturalmente, sem
   precisar de `object-position`.
 
-> **Regra prática para o redesign:** qualquer caixa entre **1:1 e 2:1** funciona sem ajuste fino.
-> Fora dessa janela, gere o recorte e olhe antes de fechar o layout.
+**Hero atual (rodada 2 do redesign, revisão do dono, "foto maximizada"): caixa proporcional ao
+viewport, não mais 16:9 fixo.** `height: var(--hero-h)` com `--hero-h: clamp(50vw, 52vh, 125vw)` —
+a caixa mira ~52% da altura da tela, mas a proporção resultante (`largura/altura`, sempre
+`100vw/altura`) fica travada entre os dois limites já calculados na tabela: **2:1** (quando 52vh
+encolhe até o piso, telas baixas/largas) e **4:5** (quando 52vh estica até o teto, telas
+altas/estreitas). Isso É a janela segura pra este hero especificamente — mais larga do que a regra
+geral abaixo, porque o véu degradê no topo (§6.2) passou a mitigar o risco da ponta 4:5 (a caixa
+alta reexpõe o topo do master, onde mora o risco de parede/janela — antes escondido por completo
+pelo recorte 16:9 mais raso). object-position:center bottom continua a âncora certa em qualquer
+ponto dessa faixa.
+
+> **Regra prática GERAL para o resto do redesign (cards, thumbs, superfícies novas):** qualquer
+> caixa entre **1:1 e 2:1** funciona sem ajuste fino. Fora dessa janela, gere o recorte e olhe antes
+> de fechar o layout. **Exceção documentada:** o hero da página de receita (acima), que estica até
+> 4:5 com o véu de topo como mitigação — não generalize essa exceção pra outras superfícies sem o
+> mesmo tipo de mitigação.
 
 ### O hero tem uma sutileza a mais
 
-O conteúdo da página desliza por cima da metade de baixo do hero, então **antes da rolagem só a
-metade SUPERIOR da caixa aparece**. Faixa efetivamente visível de largada: **y ∈ [25%, 62,5%]** do
-master. Se o redesign mudar essa sobreposição, esse número muda junto — recalcule.
+**Atualizado na rodada 2 (revisão do dono, pós-ver-no-ar) — a calibração original abaixo (50% do
+hero coberto, y ∈ [25%, 62,5%]) foi substituída.** O conteúdo da página agora desliza por cima de
+só os últimos 24px do hero antes de rolar — **quase a caixa inteira fica visível de largada**, não
+mais a metade. Como `--hero-h` varia com o viewport, a fração exata também varia (não é mais um
+número fixo como 62,5%): fração visível ≈ `(--hero-h - 24px) / --hero-h`, que fica bem perto de
+100% pra qualquer altura de hero razoável (ex.: ~94,5% num hero de 438,88px, o caso de referência
+390×844). Se o redesign mudar essa sobreposição nos 24px de novo, recalcule.
+
+<details>
+<summary>Histórico: calibração original (rodada 1, hero 16:9, 50% coberto)</summary>
+
+O conteúdo da página deslizava por cima da metade de baixo do hero, então antes da rolagem só a
+metade SUPERIOR da caixa aparecia. Faixa efetivamente visível de largada: y ∈ [25%, 62,5%] do
+master. Válido só enquanto o hero era 16:9 fixo — substituído na rodada 2 (ver acima).
+
+</details>
 
 ---
 
@@ -202,19 +229,22 @@ master. Se o redesign mudar essa sobreposição, esse número muda junto — rec
 
 Cada uma custou uma rodada de geração ou dinheiro.
 
-### 6.1 `aspect-ratio: 16/9` no hero, nunca altura fixa
+### 6.1 Caixa do hero SEMPRE proporcional ao viewport, nunca altura fixa em pixel
 
-O hero tinha `height: 220px`. Altura fixa faz o **enquadramento depender da largura da tela**, porque
-muda a proporção da caixa. Medido no master da Paella:
+**Atualizado na rodada 2 do redesign (revisão do dono, "foto maximizada") — o mecanismo mudou de
+`aspect-ratio` fixo pra `height: var(--hero-h)` (clamp), mas a REGRA (nunca pixel fixo) é a mesma
+desde o início, só reforçada.** Histórico: o hero tinha `height: 220px` (altura fixa fazia o
+enquadramento depender da LARGURA da tela, porque mudava a proporção da caixa — medido no master
+da Paella, 390px de largura dava y 24,8%→62,4% (prato inteiro, certo), 720px dava y 59,3%→79,6%
+(só a borda da panela, errado)). A 1ª rodada do redesign trocou pixel fixo por `aspect-ratio: 16/9`
+— resolvia a dependência da largura (a faixa virava 25%→62,5% em qualquer tela), mas a caixa
+resultante era pequena demais pra intenção real de foto maximizada.
 
-| Largura da tela | Caixa | Faixa visível | Resultado |
-|---|---|---|---|
-| 390px (celular) | 390×220 = 1,77:1 | y 24,8% → 62,4% | prato inteiro ✔ |
-| 720px (desktop) | 720×220 = 3,27:1 | y 59,3% → 79,6% | só a borda de baixo da panela ✘ |
-
-Com `aspect-ratio`, a caixa acompanha a largura e a faixa vira **25% → 62,5% em qualquer tela**,
-inclusive 219px de altura num celular de 390px — ou seja, **no celular nada mudou**.
-Se o redesign quiser outra altura de hero, use **proporção**, não pixel.
+**Hero atual:** `height: var(--hero-h)`, com `--hero-h: clamp(50vw, 52vh, 125vw)` declarado em
+`css/style.css` — mira ~52% da altura da tela, travado numa proporção entre 2:1 e 4:5 (ver §5,
+tabela e nota atualizadas). Continua **proporcional ao viewport, nunca pixel fixo** — o mesmo
+princípio de sempre, agora reagindo também à ALTURA da tela (52vh), não só à largura. Se o
+redesign quiser outra altura de hero de novo, ajuste os 3 valores do clamp (nunca um pixel solto).
 
 ### 6.2 `object-position: center bottom` no hero — é isto que esconde o lixo
 

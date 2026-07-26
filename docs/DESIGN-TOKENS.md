@@ -360,6 +360,174 @@ diretamente. Remoção dos alias fica pra uma rodada futura.
     e em uso — servem também a `.recipe-page-tags` (até 8 tags na página da receita), não
     tocada por este redesenho.
 
+- **Página de receita — redesenho completo (item 1 de "Deixar pro Fable, depois",
+  CHECKLIST-GERAL.md) — foto fixa + folha que desliza por cima, funil de informação
+  reordenado, coração novo, metadados em blocos, ingredientes com porções realocadas.**
+  - **Efeito de foto fixa.** `.recipe-hero` vira `position: fixed; top: 0; left: 0;` — largura
+    total do viewport, `object-position: center bottom` PRESERVADO intocado (contrato funcional,
+    `docs/CONTRATO-IMAGENS-REDESIGN.md` §6.2, protegido por `scripts/test-foto-local.js`).
+    **Altura — atualizada na rodada 2 (revisão do dono, "foto maximizada"):** era
+    `aspect-ratio: 16 / 9` fixo (1ª rodada — resultado pequeno demais pra intenção real); agora é
+    `height: var(--hero-h)`, com o token novo `--hero-h: clamp(50vw, 52vh, 125vw)` — mira ~52% da
+    altura da tela, travado numa proporção entre 2:1 (viewport baixo/largo) e 4:5 (viewport
+    alto/estreito), a janela segura atualizada em `CONTRATO-IMAGENS-REDESIGN.md` §5/§6.1 (mesmo
+    commit, cross-front com ciência do dono). **Véu degradê no topo**
+    (`.recipe-hero::before`, `linear-gradient(to bottom, rgba(15, 15, 14, 0.55), transparent 30%)`,
+    `pointer-events: none`) — papel duplo: mitiga o topo do master reexposto pela caixa mais alta
+    (o risco de parede/janela do §6.2, que o recorte 16:9 anterior escondia por completo) e dá
+    contraste consistente pro back-float/coração, que sentam nessa faixa. `.recipe-page` vira a
+    FOLHA que desliza por cima: fundo `var(--color-bg)` (mesmo tom do body — só o raio+a foto por
+    trás denunciam a borda), cantos SUPERIORES arredondados com o token novo `--radius-sheet: 20px`
+    (maior que o `--radius` de 14px de card — é a borda de um elemento de tela cheia), base reta.
+    Bleed total via `width: 100vw; margin-left: calc(50% - 50vw)` — escapa do padding/max-width de
+    `#main` sem depender de rastrear esse padding por breakpoint. **Trade-off assumido** (mobile
+    primeiro, desktop depois): o teto de 720px de largura de leitura em desktop que
+    `.recipe-page` tinha foi removido — a folha ocupa o viewport inteiro em qualquer tela agora;
+    `padding: 0 var(--space-5)` próprio recria a margem lateral de leitura, desacoplado do
+    padding de `#main`. **Padding-top novo (rodada 3, revisão do dono, "moldura consistente"):**
+    era `0` no topo (o título ficava colado na curva do `--radius-sheet`) — virou
+    `var(--space-6)` (24px), mesmo valor do ritmo do funil, criando respiro entre a curva
+    arredondada e o início do conteúdo. Padding final: `var(--space-6) var(--space-5) 0`.
+    **Sobreposição inicial — atualizada na rodada 2:** era `margin-top`
+    derivado de 50% da altura do hero (cobria a metade dele); agora é
+    `calc(var(--hero-h) - 24px - var(--space-10))` (e `- var(--space-5)` no breakpoint ≤700px) —
+    a folha cobre só os últimos 24px do hero, revelando quase a caixa inteira antes de rolar
+    ("foto grande + a beirada arredondada da folha com o começo do título").
+  - **Camadas, sem token novo.** `.recipe-hero` e o coração novo (`.recipe-hero__heart`, ver
+    abaixo) usam `z-index: -1` — bucket de empilhamento NEGATIVO, que sempre pinta ANTES do
+    conteúdo normal não-posicionado (a folha, `.recipe-page` e tudo dentro dela). Por isso a
+    folha não precisa de `position`/`z-index` próprio nenhum: sendo `position: static` (o
+    default), seu conteúdo cai automaticamente por cima de qualquer coisa no bucket negativo,
+    sem contexto de empilhamento novo. Resolvido pela ordem natural do fluxo, exatamente como a
+    escala de z-index (Fase 0a) já previa para este efeito — ver comentário da escala em
+    `css/style.css`.
+  - **Sobreposição inicial calibrada.** `margin-top: calc(100vw * 9 / 32 - var(--space-10))`
+    (e `- var(--space-5)` no breakpoint ≤700px, onde `#main` também troca de padding-top) — o
+    valor `100vw * 9 / 32` é 50% da altura do hero (largura 100vw, aspect-ratio 16/9 ⇒ altura
+    `100vw * 9/16`; metade disso). A subtração cancela o padding-top que `#main` soma ANTES da
+    folha (ela é filha de `#recipes-content`, filha de `#main`), pro afastamento real do topo do
+    viewport bater exatamente com o valor derivado. Resultado: a folha cobre a metade INFERIOR
+    da caixa da foto antes de rolar, mostrando a faixa y ∈ [25%, 62,5%] do master — o número já
+    validado pelas 398 fotos em `CONTRATO-IMAGENS-REDESIGN.md` §5, que assume exatamente essa
+    sobreposição de 50%.
+  - **Coração sobre a foto (`.recipe-hero__heart`)** — substitui Favoritar da linha de botões
+    por completo (não troca mais de estrutura `.action-btn` ↔ ícone sólido; é sempre só o
+    ícone, como o coração do card). Mesmo componente visual do `.recipe-card__heart` (36px,
+    véu `rgba(15, 15, 14, 0.55)`, borda 1px `--color-border`, hit-padding `::after` de -10px,
+    contorno `--color-text-primary` — não `--color-text-disabled` — pelo mesmo motivo de
+    contraste WCAG sobre foto imprevisível, seletor combinado com o do card, sem recalcular).
+    Diferença: `position: fixed` (não `absolute`) e topo-DIREITA (`right`, espelha o
+    `.back-float` que é topo-esquerda), mesmo respeito a `env(safe-area-inset-*)`. **Elemento
+    IRMÃO do hero, nunca filho** — `applyImage()`/`loadRecipeImage()` fazem `hero.innerHTML = ""`
+    de forma ASSÍNCRONA assim que a foto local/Wikipedia resolve; um coração aninhado dentro do
+    hero seria apagado nesse momento pra praticamente toda receita. `z-index: -1` igual ao hero
+    — mesmo bucket negativo, a ordem no DOM (depois do hero) resolve "acima da foto"; sendo
+    negativo, o par inteiro fica sempre abaixo do conteúdo normal da folha, coberto conforme o
+    usuário rola (comportamento esperado, não um bug de z-index). `.recipe-page-heart` (a antiga
+    troca de estrutura ao favoritar, usada só dentro de `.recipe-page-actions`) foi REMOVIDO por
+    completo — classe, estados compartilhados (:active/:focus-visible) e a regra própria.
+  - **Funil de informação, ordem exata:** título (`.recipe-page-title h2`, inalterado) →
+    descrição completa (`.page-desc`, inalterada) → tags (`.recipe-page-tags`, MOVIDAS pra
+    antes dos metadados — eram depois) → metadados em blocos → CTA primário → 2 secundários →
+    Ingredientes (porções + colapso) → Lista de ingredientes + Modo de preparo.
+  - **Metadados em blocos rotulados** (`.recipe-page-meta`, um `.recipe-meta-block` por dado
+    presente — Total/Preparo/Cozimento/Dificuldade, cada bloco com `.recipe-meta-block__label`
+    uppercase `--text-xs`/`--color-text-disabled` e `.recipe-meta-block__value` `--text-sm`/
+    `--color-text-primary`, fundo `--color-surface`, raio `var(--radius)` — o token de CARD, não
+    o `--radius-sheet` novo, que é só da folha). Substitui a linha de texto solto com
+    `border-top`/`border-bottom`. **Porções SAIU daqui** — foi pro cabeçalho de Ingredientes (ver
+    abaixo). **Grade — atualizada na rodada 2 (revisão do dono):** a 1ª tentativa era um flex
+    tentando caber os 4 numa linha só a 390px; o rótulo DIFICULDADE (palavra única, sem espaço
+    pra quebrar) truncava fora da tela nesse layout. Virou `display: grid;
+    grid-template-columns: 1fr 1fr;` — grade 2x2 FIXA, sem tentativa condicional de 1 linha —
+    dobrando a largura disponível por bloco. `overflow-wrap: break-word` no rótulo e no valor
+    como rede de segurança estrutural adicional (independe da largura real do bloco).
+  - **CTA e secundários trocaram de ordem** — "Começar preparo" (`.primary-cta`, inalterado)
+    agora vem ANTES dos 2 botões secundários (`.recipe-page-actions`: "Já fiz" +
+    "Adicionar à lista de compras", ambos inalterados) — era o inverso.
+  - **Cabeçalho de Ingredientes redesenhado** (`.ingredients-header`) — substitui o antigo
+    botão-pílula grande "Ocultar ingredientes (N)" (`.ingredients-toggle`, borda 2px accent,
+    REMOVIDO por completo) por uma linha discreta: `<h4>Ingredientes (N)</h4>` (padrão sans
+    uppercase já existente de `.recipe-page-section h4`) + `.ingredients-header__controls`
+    (porções — stepper OU `.ingredients-yield-text` pro yield não-numérico, mutuamente
+    exclusivos, mesma condição de sempre — REALOCADAS pra cá, decisão antiga, perto da lista
+    que afetam) + `.ingredients-collapse-btn`, um chevron pequeno (24px visual + hit-padding
+    `::after` de -10px = 44px efetivo) que é agora o ÚNICO gatilho de colapso. Precisa ser
+    só o chevron (não a linha inteira, como era antes) porque o stepper mora no mesmo
+    cabeçalho e seus próprios cliques (+/-, digitar) não podem borbulhar pro toggle do
+    acordeão. Mecânica do acordeão (`.filter-section.is-open`, corpo escondido/mostrado,
+    chevron gira 180deg via `.filter-section__chevron`) INTACTA — só a apresentação do
+    gatilho mudou.
+  - **Tags da página fecham a exceção de hit-area da Fase 0a.** `.recipe-page-tags .tag-chip-
+    link` era 30px de altura com gap de 8px (`--space-2`) nos dois eixos — o inset do
+    hit-padding só alcançava com segurança metade do gap (4px), dando ~38px efetivos, 6px
+    abaixo do alvo de 44px (limitação documentada, não corrigível sem mudar o visual).
+    **Histórico de calibração (3 rodadas):** rodada 1 tentou chip menor (28px) + gap maior
+    (`--space-4`, 16px); rodada 2 esticou o gap ainda mais (`--space-6`, 24px, "ritmo") pra
+    abrir espaço de inset. **Rodada 3 (revisão do dono) REVERTEU as duas** — gap de 24px foi
+    "correção errada", o bloco de tags virou itens espalhados em vez de ler como um GRUPO.
+    **Estado final:** chip 36px (MAIOR que o original de 30px, não menor — a direção "menor"
+    das rodadas 1/2 foi abandonada) + gap pequeno `calc(--space-2 + 2px)` = 10px (sem degrau de
+    10px na escala, por isso o calc em vez de token puro) + padding `--space-2` (8px) vertical/
+    14px horizontal (também fora da escala, calibrado pro chip de 36px especificamente) + inset
+    do `::after` em **-6px** (não -5px — achado ao vivo via `elementFromPoint`: `.tag-chip-link`
+    base tem `border: 1px`, e o inset de um `::after absolute` resolve contra o PADDING-BOX do
+    ancestral posicionado, não a borda visível — a mesma causa raiz já documentada na Fase 0a
+    pro `.portion-stepper__btn`; sem compensar, o alcance efetivo media só ~4-4,5px por lado, não
+    os 5px pretendidos. -6px = 5px pretendido + 1px de compensação de borda) — 36 + 5 + 5 = 46px
+    efetivos pretendidos, confirmado ao vivo depois do ajuste, acima do mínimo de 44px.
+    `margin-bottom: var(--space-6)` do container
+    NÃO reverteu — o ritmo ENTRE seções (ver bullet abaixo) é independente do espaçamento
+    INTERNO das tags, só este último oscilou entre rodadas. Medido ao vivo via
+    `elementFromPoint` em cada rodada — números no relatório da tarefa.
+  - **Chip de país sai da fileira de tags da página — decisão REVERSÍVEL (rodada 3, revisão do
+    dono).** `renderReceita` (`js/app.js`) filtra tags `country:*` do array ANTES de chamar
+    `priorityTagIds()` (`nonCountryTags = item.tags.filter(t => t.indexOf("country:") !== 0)`) —
+    a linha de origem (`recipe.origin`, já exibida em `.recipe-page-title .origin` logo abaixo
+    do título) já dá essa informação; um chip de país na fileira seria a mesma redundância já
+    eliminada no redesenho do card. **Escopo do filtro: só a página de receita.**
+    `TAG_CHIP_PRIORITY`/`priorityTagIds()` (compartilhados com o card e outras telas) NÃO foram
+    alterados — busca, filtros e qualquer outra tela continuam vendo/usando `country:`
+    normalmente. Reversível: se o dono decidir trazer o chip de volta, é só remover o
+    `.filter(...)` — nenhuma outra parte do sistema depende dessa exclusão.
+  - **Ritmo vertical do funil — `--space-6` (24px) consistente (rodada 2, revisão do dono).**
+    Antes do "Começar preparo" só o CTA tinha margem própria (`--space-5`) e as tags usavam uma
+    margem negativa pra se aproximar do que vinha antes; o resultado não tinha uma cadência
+    única. Agora `--space-6` é o espaçamento por seção em toda a extensão título→tags→
+    metadados→CTA→secundários (`.recipe-page-title` ganhou `margin-bottom` próprio — cobre o
+    caso sem descrição/origem também; `.recipe-page-tags` trocou a margem negativa por
+    `margin: 0 0 var(--space-6)`; `.recipe-page-meta` e `.primary-cta` viraram `margin-bottom:
+    var(--space-6)`; `.recipe-page-actions` já usava `--space-6`, sem mudança). Convenção: cada
+    elemento controla o espaço DEPOIS de si via `margin-bottom` — nenhum `margin-top`
+    concorrente, evita depender de colapso de margem pra prever o resultado.
+  - **2 bugs reais achados só ao vivo (elementFromPoint/getComputedStyle em 390px — a suíte
+    estática não pega nenhum dos dois):**
+    1. *Cascata de `@media`.* O override de `margin-top` de `.recipe-page` para o breakpoint
+       ≤700px foi colocado, na 1ª versão, dentro do `@media (max-width: 700px)` já existente —
+       que fica MAIS CEDO no arquivo que a regra base de `.recipe-page`. Mesma especificidade
+       (`.recipe-page` simples nos dois) ⇒ a cascata desempata por ordem no arquivo, e a regra
+       BASE (mais tarde) vencia sempre, em qualquer largura — o override "para mobile" nunca
+       aplicava de verdade. Corrigido movendo o override pra um novo bloco `@media` logo APÓS a
+       regra base. Lição: um override responsivo para um seletor só vale a pena checar a ORDEM
+       no arquivo, não só a condição do media query.
+    2. *Clique morto no coração.* `.recipe-hero__heart` (fixed, `z-index: -1`) nunca resolvia
+       via `elementFromPoint` — `<body>` (não-posicionado, bucket de empilhamento "normal")
+       sempre pinta NA FRENTE de qualquer descendente com z-index NEGATIVO, mesmo sem
+       background/conteúdo visível naquele ponto exato; a área de padding vazia de `#main` (por
+       cima do coração antes da folha cobrir) interceptava o clique silenciosamente. Corrigido
+       com `pointer-events: none` em `body` + `auto` nos filhos reais (`#bottom-nav`,
+       `#category-header`, `#recipes-content`) — libera a fresta vazia sem afetar nenhum clique
+       que já funcionava (confirmado via elementFromPoint em back-float, abas da bottom nav, CTA,
+       ações, chevron de colapso, todos intactos).
+  - **Carona: tap-highlight nativo morto globalmente.** `-webkit-tap-highlight-color:
+    transparent` no seletor universal (`*`) — o retângulo azul de toque em qualquer engine que
+    o aplique por padrão (o `:active` da Fase 0a já cobre o feedback de pressão visual).
+    `user-select: none` escopado a `button` (controles) — nunca em texto de conteúdo (`.page-
+    desc`, `.ingredients-list`, etc., confirmado sem a regra). `prefers-reduced-motion`: o
+    efeito de foto fixa é scroll nativo puro, sem JS/CSS animado nenhum atrelado a ele — nada a
+    reduzir, confirmado nesta rodada, nenhuma regra nova precisou entrar no bloco
+    `@media (prefers-reduced-motion: reduce)` existente por causa deste efeito especificamente.
+
 ## Iconografia
 
 Outline, espessura consistente, monocromático. Ativos `--color-accent`, inativos

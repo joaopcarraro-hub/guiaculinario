@@ -118,10 +118,16 @@ ok(
   /\.recipe-hero img\s*\{[^}]*object-position:\s*center/.test(cssTxt),
   "sem isso o prato encosta na borda de cima"
 );
+// Atualizado no redesenho da página de receita, rodada 2 (revisão do dono, "foto maximizada",
+// item 1 de "Deixar pro Fable, depois"): a caixa do hero deixou de usar aspect-ratio:16/9 fixo
+// — agora é height:var(--hero-h), um clamp(50vw, 52vh, 125vw) que trava a proporção resultante
+// entre 2:1 e 4:5 (a janela segura documentada em docs/CONTRATO-IMAGENS-REDESIGN.md §5/§6.1,
+// atualizado na mesma rodada). O espírito do teste continua o mesmo — nunca altura fixa em
+// px, sempre proporcional ao viewport — só o mecanismo mudou de aspect-ratio pra height+clamp.
 ok(
-  "CSS: .recipe-hero usa aspect-ratio, não altura fixa",
-  /\.recipe-hero\s*\{[^}]*aspect-ratio:\s*16\s*\/\s*9/.test(cssTxt),
-  "altura fixa fazia o enquadramento mudar com a largura da tela"
+  "CSS: .recipe-hero usa height:var(--hero-h) (clamp proporcional ao viewport), não altura fixa",
+  /\.recipe-hero\s*\{[^}]*height:\s*var\(--hero-h\)/.test(cssTxt) && /--hero-h:\s*clamp\(/.test(cssTxt),
+  "altura fixa fazia o enquadramento mudar com a largura da tela; --hero-h continua proporcional (agora também à ALTURA da tela, não só à largura)"
 );
 
 // =======================================================================================

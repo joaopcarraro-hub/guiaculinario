@@ -152,8 +152,10 @@ function main() {
   // Atualizado 2026-07-25 (redesenho completo do card, item 2 do roadmap-mestre, leva aprovada
   // em separado): mais uma mudança em css/style.css e js/app.js bumpou v25 -> v26. O que esta
   // suíte protege (v25 sucedendo v24 corretamente NAQUELE commit) já é fato consumado — a
-  // checagem agora confirma que a cadeia continuou (v26 presente) sem "prender" a versão no v25.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v26";'), "CACHE_NAME v26 — sucessor de v25 (desta tarefa), css/style.css e js/app.js mudaram de novo no redesenho do card");
+  // checagem agora confirma que a cadeia continuou (v27 presente) sem "prender" a versão no v25.
+  // Atualizado de novo (item 1 de "Deixar pro Fable, depois"): v26 -> v27, redesenho da página
+  // de receita mudou css/style.css e js/app.js mais uma vez.
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v29";'), "CACHE_NAME v29 — sucessor de v28 (redesenho da página de receita, rodada 2), css/style.css e js/app.js mudaram de novo na rodada 3 (revisão do dono)");
   assert(!swJs.includes('const CACHE_NAME = "cardapio-v25";'), "v25 não sobrevive — teste negativo (a versão desta tarefa foi sucedida, não deixada presa)");
   assert(swJs.includes('"css/style.css"') && swJs.includes('"js/app.js"'), "css/style.css e js/app.js seguem no APP_SHELL precache");
 

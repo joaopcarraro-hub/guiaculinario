@@ -374,31 +374,79 @@ uso na página da própria receita, só saíram do card. Imagem, título e chips
 continuam como antes — ver a seção "Redesenho completo do card" acima pro estado atual (foto
 16:9, nome, no máximo 1 chip com a regra de país).
 
-### Ingredientes: EXPANDIDA por padrão (revertido de novo — acordeão reaproveitado do modal de filtro)
+### Redesenho completo da página de receita (item 1 de "Deixar pro Fable, depois", CHECKLIST-GERAL.md)
+
+**Efeito de foto fixa + folha que desliza por cima.** `.recipe-hero` vira `position: fixed` no
+topo do viewport, largura total — `aspect-ratio: 16/9` e `object-position: center bottom`
+continuam INTOCADOS (contrato funcional protegido por `scripts/test-foto-local.js`, ver
+`docs/CONTRATO-IMAGENS-REDESIGN.md` §6.1/§6.2). `.recipe-page` vira a folha: bleed total
+(`width: 100vw` + `margin-left: calc(50% - 50vw)`, escapando do padding de `#main`), fundo
+`var(--color-bg)`, cantos superiores arredondados com o token novo `--radius-sheet` (20px).
+Camadas resolvidas SEM token novo de z-index: hero e o coração novo (abaixo) usam
+`z-index: -1` (bucket negativo, sempre atrás do fluxo normal) — a folha não precisa de
+`position`/`z-index` próprio nenhum pra ficar por cima. `margin-top` da folha é DERIVADO (50%
+da altura do hero, calculado em `vw`) pra mostrar a metade SUPERIOR da caixa da foto antes de
+rolar — o número y∈[25%,62,5%] do `CONTRATO-IMAGENS-REDESIGN.md` §5 já assumia essa
+sobreposição de 50%. Sem JS de parallax, sem `backdrop-filter` — só `position: fixed` e fluxo
+normal, exatamente como o roadmap pedia. `prefers-reduced-motion` não precisou de regra nova: o
+efeito é scroll nativo puro, nada animado pra reduzir. Ver `docs/DESIGN-TOKENS.md`
+("Componentes") pra todos os números/fórmulas exatos.
+
+**Coração sobre a foto (`.recipe-hero__heart`)** substitui Favoritar da linha de botões por
+completo — mesmo componente visual do coração do card (36px, véu, borda, hit-padding), mas
+`position: fixed` + topo-DIREITA (espelha o `.back-float`) em vez de `absolute` sobre um card.
+Construído como elemento IRMÃO do hero em `renderReceita` (app.js), nunca filho —
+`applyImage()`/`loadRecipeImage()` fazem `hero.innerHTML = ""` de forma assíncrona assim que a
+foto resolve, o que apagaria um coração aninhado. Coberto pela folha conforme o usuário rola —
+comportamento esperado (mesmo bucket de z-index negativo do hero). `.recipe-page-heart` (a
+antiga troca de estrutura `.action-btn` ↔ ícone sólido ao favoritar, vivia dentro de
+`.recipe-page-actions`) foi REMOVIDA por completo — Favoritar não é mais uma das ações da linha.
+
+**Funil reordenado:** título → descrição → tags (`.recipe-page-tags`, MOVIDAS pra antes dos
+metadados — eram depois) → metadados em blocos → CTA "Começar preparo" (agora ANTES dos 2
+secundários — era o inverso) → "Já fiz" + "Adicionar à lista de compras" lado a lado →
+Ingredientes (porções + colapso, ver abaixo) → Modo de preparo. Metadados
+(`.recipe-page-meta`) viraram blocos rotulados (`.recipe-meta-block`: rótulo uppercase
+disabled + valor primary, fundo surface, raio de card) em vez de texto solto com bordas
+divisórias — Total/Preparo/Cozimento/Dificuldade, um bloco por dado presente. Porções SAIU
+daqui, ver próxima seção.
+
+**Tags da página fecham a exceção de hit-area da Fase 0a** (`.recipe-page-tags .tag-chip-link`
+media ~38px efetivos antes, 6px abaixo do alvo de 44px — limitação documentada na época como
+"não corrigível sem mudar o visual"). Nesta rodada o layout NASCEU com o alvo resolvido: chip
+mais baixo (28px, menor que os 30px de antes) + gap dobrado (16px, era 8px) — o gap maior abre
+espaço de sobra pro hit-padding (`::after`, -8px uniforme, ainda a metade do gap — o mesmo
+limite seguro de antes) chegar a 44px efetivos sem colidir com o chip da linha quebrada
+seguinte. Medido ao vivo via `elementFromPoint`, números no relatório da tarefa.
+
+**Carona:** `-webkit-tap-highlight-color: transparent` (seletor universal `*`) mata o realce
+azul nativo de toque em qualquer controle — o `:active` da Fase 0a já cobre o feedback visual
+de pressão. `user-select: none` escopado a `button` (controles), nunca em texto de conteúdo.
+
+### Ingredientes: cabeçalho redesenhado, colapso agora é só do chevron
 
 A seção de ingredientes na tela de receita abre EXPANDIDA por padrão (sempre — não lembra
-estado entre visitas; `ingSection.className` já inclui `is-open` desde a criação do elemento).
-Já foi FECHADA por padrão numa rodada anterior — revertido de volta porque o botão de
-mostrar/ocultar ficava discreto demais (fácil de não notar que existia). Dessa vez o botão
-ganhou uma classe própria, `.ingredients-toggle`, sobreposta ao header genérico do acordeão só
-nesta instância (borda grossa em `--color-accent` + fundo `--color-surface-elevated`, texto
-continua em `--ink`/negrito — nunca `--color-accent` no texto, 14.7px fica abaixo do limiar de
-18px+ pra ghost-text, mesma regra de sempre; o acento fica só na borda/chevron) — bem mais
-visível que o header padrão do modal (`border:none; background:none`), que é discreto DE
-PROPÓSITO lá (é repetido várias vezes na mesma tela) mas não deveria ser aqui (aparece 1 vez só,
-precisa ser notado). O rótulo também é dinâmico agora: "Ocultar ingredientes (N)" quando aberto,
-"Ver ingredientes (N)" quando fechado — antes era sempre o mesmo texto.
+estado entre visitas; `ingSection.className` já inclui `is-open` desde a criação do elemento) —
+isso NÃO mudou nesta rodada. O que mudou foi o CABEÇALHO: o antigo botão-pílula grande
+"Ocultar ingredientes (N)" (`.ingredients-toggle`, borda 2px `--color-accent`, cobria a linha
+inteira como um único botão clicável) foi REMOVIDO por completo. No lugar,
+`.ingredients-header` é uma linha discreta — `<h4>Ingredientes (N)</h4>` no mesmo padrão sans
+uppercase já usado por `.recipe-page-section h4` (ex. "Modo de preparo") +
+`.ingredients-header__controls` (porções, ver seção seguinte) + `.ingredients-collapse-btn`, um
+chevron pequeno (24px visual, hit-padding até 44px) que é agora o ÚNICO gatilho de
+colapso/expansão (`ingSection.classList.toggle("is-open")`, mesmo mecanismo de sempre, só o
+elemento que escuta o clique mudou). Precisa ser só o chevron — não a linha inteira como antes
+— porque o stepper de porções mora no mesmo cabeçalho agora, e seus próprios cliques (+/-,
+digitar no input) não podem borbulhar pro toggle do acordeão.
 
 Continua reaproveitando literalmente as MESMAS classes CSS do acordeão do modal de filtro
-(`.filter-section`/`.filter-section__header`/`.filter-section__label`/`.filter-section__count`/
-`.filter-section__chevron`/`.filter-section__body`, ver "Modal de filtros em acordeão" abaixo) —
-chevron que gira 180° quando `.is-open`, corpo escondido via `display:none`/mostrado via
-`display:flex`. A diferença é que aqui o toggle é local e simples
-(`ingSection.classList.toggle("is-open")` num único listener de clique no header, que também
-atualiza o texto do rótulo), sem o draft-state/re-render completo que o modal usa — não se
-aplica aqui porque é uma lista estática por receita, não múltiplas facetas recalculáveis. `<h4>
-Ingredientes</h4>` (heading estático) continua substituído pelo próprio botão-cabeçalho do
-acordeão.
+(`.filter-section`/`.filter-section__count`/`.filter-section__chevron`/`.filter-section__body`,
+ver "Modal de filtros em acordeão" abaixo) — chevron que gira 180° quando `.is-open`, corpo
+escondido via `display:none`/mostrado via `display:flex`. `.filter-section__header` (a classe
+do gatilho-botão do modal) deixou de ser reaproveitada aqui de propósito — ela entra na lista
+compartilhada de `:active`/cursor:pointer de componentes CLICÁVEIS por inteiro, o que não é
+mais o caso deste cabeçalho (só o chevron é clicável agora); `.ingredients-header` é uma classe
+própria, só com o layout (flex, espaçamento), sem nenhum dos estados de botão.
 
 MUDANÇA (Lista de Compras, Fase 1): a lista de ingredientes na tela de receita virou SÓ LEITURA
 — não tem mais `<input type="checkbox">` nenhum (nem a classe `checklist` no `<ul>`, volta ao
@@ -410,15 +458,19 @@ agora, chaveado por ingrediente (item+unit normalizado), não por receita.
 
 ### Multiplicador de porções (usa ingredientsStructured)
 
-Na tela de receita, o texto estático "N porções" de `.recipe-page-meta` (Fase 0c: sem emoji, ver
-extermínio de emoji abaixo) vira um controle interativo
+**Realocado (item 1 de "Deixar pro Fable, depois") pro cabeçalho de Ingredientes
+(`.ingredients-header__controls`) — decisão antiga, perto da lista que ele afeta. Morava em
+`.recipe-page-meta`, que agora é só os 4 blocos de tempo/dificuldade (ver seção acima); o
+mecanismo abaixo não mudou NADA, só o elemento-pai que o contém.** O texto estático "N porções"
+(Fase 0c: sem emoji) vira um controle interativo
 (`.portion-stepper`: botões −/+ redondos de 30px + `<input type="number">` central + sufixo de
 texto) sempre que `parseYieldBase` (app.js) consegue extrair uma base numérica segura do começo
 do texto de `recipe.yield` — ex. "4 porções" -> base 4, sufixo "porções"; "4-6 porções" -> base 4
 (primeiro número do intervalo), sufixo "porções", o "-6" nunca fica solto no sufixo. Formatos como
 "≈ 500 ml", "Para 1 prato", "Conforme a peça" (o número não começa o texto, ou não existe) ficam
-de fora de propósito — mostram o yield como sempre, sem controle, em vez de arriscar uma base
-errada. Isso é uma decisão de escopo explícita, não uma limitação a corrigir depois.
+de fora de propósito — mostram o yield como texto simples (`.ingredients-yield-text`, mesmo slot
+mutuamente exclusivo do stepper), sem controle, em vez de arriscar uma base errada. Isso é uma
+decisão de escopo explícita, não uma limitação a corrigir depois.
 
 Mudar o valor recalcula a lista de ingredientes ao vivo (`refreshIngredients()`, re-renderiza só o
 `<ul class="ingredients-list">`, sem afetar o estado aberto/fechado do acordeão nem os checkboxes

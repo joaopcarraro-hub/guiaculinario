@@ -208,7 +208,7 @@ function main() {
   // (verify-card-contract-2026-07-25.js, redesenho completo do card) — mesma regra do CLAUDE.md,
   // cada leva que muda css/style.css ou js/app.js sobe a versão, e esta asserção sempre
   // acompanha o bump MAIS RECENTE, nunca uma versão presa no passado.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v26";'), "CACHE_NAME v26 — 2º bump desde esta suíte (v24->v25 carrossel, v25->v26 redesenho do card), mesma regra do CLAUDE.md");
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v29";'), "CACHE_NAME v29 — 5º bump desde esta suíte (v24->v25 carrossel, v25->v26 redesenho do card, v26->v27/v27->v28/v28->v29 redesenho da página de receita, 3 rodadas), mesma regra do CLAUDE.md");
 
   console.log("");
   console.log("==================================================");

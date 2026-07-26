@@ -227,9 +227,15 @@ function main() {
   assert(/\.recipe-card__heart\s*\{[^}]*border:\s*1px solid var\(--color-border\);/.test(styleCss), "coração usa a mesma borda 1px do chrome-float");
   assert(/\.recipe-card__heart\s*\{[^}]*width:\s*36px;/.test(styleCss) && /\.recipe-card__heart\s*\{[^}]*height:\s*36px;/.test(styleCss), "coração ~36px visual, conforme spec");
   assert(/\.recipe-card__heart\s*\{[^}]*position:\s*absolute;/.test(styleCss), "coração flutua sobre a foto (position: absolute)");
+  // Atualizado (item 1 de "Deixar pro Fable, depois", redesenho da página de receita): o
+  // seletor virou uma lista combinada — .recipe-hero__heart (coração novo sobre a foto fixa da
+  // receita) entrou no MESMO caso de contraste (sobre foto, fundo imprevisível) e foi
+  // adicionado ao seletor em vez de duplicar a regra. O comportamento do coração do CARD
+  // (--color-text-primary sobre o véu) é idêntico ao de antes — só o texto exato do seletor
+  // mudou de single pra combinado.
   assert(
-    styleCss.includes(".recipe-card__heart .recipe-heart-icon path {") && /\.recipe-card__heart \.recipe-heart-icon path\s*\{[^}]*stroke:\s*var\(--color-text-primary\);/.test(styleCss),
-    "contorno parado do coração usa --color-text-primary (não --color-text-disabled) SÓ no card — sobre foto, --color-text-disabled falha 3:1 WCAG (~1.2:1 a 1.6:1 calculado); .recipe-page-heart (sobre superfície sólida) fica com a regra base, não tocada"
+    styleCss.includes(".recipe-card__heart .recipe-heart-icon path,") && /\.recipe-card__heart \.recipe-heart-icon path,[\s\S]{0,80}\.recipe-hero__heart \.recipe-heart-icon path\s*\{[^}]*stroke:\s*var\(--color-text-primary\);/.test(styleCss),
+    "contorno parado do coração usa --color-text-primary (não --color-text-disabled) SÓ no card — sobre foto, --color-text-disabled falha 3:1 WCAG (~1.2:1 a 1.6:1 calculado); .recipe-page-heart (sobre superfície sólida) fica com a regra base, não tocada — seletor agora combinado com .recipe-hero__heart (mesmo caso), ver mobile-recipe-ui/SKILL.md"
   );
   // Negativo: componente antigo inteiro removido do CSS.
   assert(!styleCss.includes(".recipe-header {"), "teste NEGATIVO: .recipe-header (grid antigo) removido");
@@ -245,7 +251,10 @@ function main() {
   console.log("==================================================");
   console.log("8. Service worker — CACHE_NAME v25 -> v26 no mesmo commit");
   console.log("==================================================");
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v26";'), "CACHE_NAME v26 (css/style.css e js/app.js mudaram)");
+  // Atualizado (item 1 de "Deixar pro Fable, depois"): css/style.css e js/app.js mudaram de
+  // novo no redesenho da página de receita, v26 -> v27 — esta asserção acompanha o bump MAIS
+  // RECENTE, mesma regra das outras suítes desta família (nunca prender a versão no passado).
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v29";'), "CACHE_NAME v29 (css/style.css e js/app.js mudaram de novo — rodada 3 do redesenho da página de receita, revisão do dono de proporção)");
   assert(!swJs.includes('const CACHE_NAME = "cardapio-v25";'), "v25 não sobrevive — teste negativo");
 
   console.log("");

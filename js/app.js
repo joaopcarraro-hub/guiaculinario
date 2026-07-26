@@ -2845,6 +2845,27 @@
     }
     page.appendChild(hero);
 
+    // Coração sobre a foto (item 1 de "Deixar pro Fable, depois") — substitui Favoritar da
+    // linha de botões (docs/DESIGN-TOKENS.md). Elemento IRMÃO de hero, NUNCA filho: hero pode
+    // ter innerHTML substituído de forma ASSÍNCRONA por applyImage()/loadRecipeImage() assim
+    // que a foto resolve — um coração aninhado dentro do hero seria apagado nesse momento.
+    // .recipe-hero__heart (CSS) cuida da camada/posição fixa; aqui só ícone + estado + clique,
+    // mesmo padrão de renderFavBtn de antes, sem a troca de estrutura (agora é sempre só ícone).
+    const isFav = Storage.isFavorite(item.id);
+    const heart = document.createElement("button");
+    heart.type = "button";
+    function renderHeart(fav) {
+      heart.className = "recipe-hero__heart" + (fav ? " is-favorite" : "");
+      heart.innerHTML = HEART_ICON_SVG;
+      heart.setAttribute("aria-label", fav ? "Favoritado" : "Favoritar");
+    }
+    renderHeart(isFav);
+    heart.addEventListener("click", () => {
+      const now = Storage.toggleFavorite(item.id);
+      renderHeart(now);
+    });
+    page.appendChild(heart);
+
     const titleBlock = document.createElement("div");
     titleBlock.className = "recipe-page-title";
     titleBlock.innerHTML =
@@ -2853,65 +2874,53 @@
       (recipe.desc ? '<p class="page-desc">' + recipe.desc + "</p>" : "");
     page.appendChild(titleBlock);
 
-    const metaRow = document.createElement("div");
-    metaRow.className = "recipe-page-meta";
-    let metaHtml = "";
-    if (recipe.time && recipe.time.total) metaHtml += "<span>Total: " + recipe.time.total + "</span>";
-    if (recipe.time && recipe.time.prep) metaHtml += "<span>Preparo: " + recipe.time.prep + "</span>";
-    if (recipe.time && recipe.time.cook) metaHtml += "<span>Cozimento: " + recipe.time.cook + "</span>";
-    // Multiplicador de porções (usa ingredientsStructured, ver funções acima) só entra quando o
-    // yield COMEÇA com um número seguro de extrair (parseYieldBase) — senão mostra o texto de
-    // sempre, sem controle, pra não arriscar uma base errada.
-    const yieldInfo = parseYieldBase(recipe.yield);
-    if (recipe.yield && !yieldInfo) metaHtml += "<span>" + recipe.yield + "</span>";
-    if (recipe.difficulty) metaHtml += "<span>" + recipe.difficulty + "</span>";
-    metaRow.innerHTML = metaHtml;
-    page.appendChild(metaRow);
-
-    let stepperInput = null;
-    if (yieldInfo) {
-      const stepperWrap = document.createElement("div");
-      stepperWrap.className = "portion-stepper";
-      stepperWrap.innerHTML =
-        '<button type="button" class="portion-stepper__btn" data-dir="-1" aria-label="Diminuir porções">−</button>' +
-        '<input type="number" class="portion-stepper__input" min="1" max="999" step="1" inputmode="numeric" ' +
-        'aria-label="Número de porções" value="' +
-        yieldInfo.base +
-        '">' +
-        '<button type="button" class="portion-stepper__btn" data-dir="1" aria-label="Aumentar porções">+</button>' +
-        (yieldInfo.suffix ? '<span class="portion-stepper__suffix">' + yieldInfo.suffix + "</span>" : "");
-      metaRow.appendChild(stepperWrap);
-      stepperInput = stepperWrap.querySelector(".portion-stepper__input");
-      stepperWrap.querySelectorAll(".portion-stepper__btn").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const dir = parseInt(btn.dataset.dir, 10);
-          const v = Math.max(1, (parseInt(stepperInput.value, 10) || yieldInfo.base) + dir);
-          stepperInput.value = v;
-          refreshIngredients();
-        });
-      });
-      stepperInput.addEventListener("input", () => {
-        if (stepperInput.value !== "") refreshIngredients();
-      });
-      stepperInput.addEventListener("change", () => {
-        let v = parseInt(stepperInput.value, 10);
-        if (!v || v < 1) v = 1;
-        if (v > 999) v = 999;
-        stepperInput.value = v;
-        refreshIngredients();
-      });
-    }
-    function currentRatio() {
-      if (!yieldInfo) return 1;
-      const v = parseInt(stepperInput.value, 10);
-      return (v && v > 0 ? v : yieldInfo.base) / yieldInfo.base;
-    }
-
-    const pageTagIds = priorityTagIds(item.tags || [], 8);
+    // Tags (spec funil 3c) — DEPOIS do título/descrição, ANTES dos metadados (era o inverso).
+    // País SAI da fileira aqui (rodada 3, revisão do dono) — decisão REVERSÍVEL, só nesta
+    // tela: a linha de origem (recipe.origin, já mostrada em titleBlock acima) já dá essa
+    // informação, chip duplicaria a mesma redundância eliminada no card. TAG_CHIP_PRIORITY/
+    // priorityTagIds continuam intocados — busca e filtros em outras telas seguem vendo
+    // country: normalmente, o filtro é só no INPUT desta função.
+    const nonCountryTags = (item.tags || []).filter((t) => t.indexOf("country:") !== 0);
+    const pageTagIds = priorityTagIds(nonCountryTags, 8);
     if (pageTagIds.length) {
       page.appendChild(buildTagChipsEl(pageTagIds, "recipe-page-tags"));
     }
 
+    // Metadados em BLOCOS ROTULADOS (spec funil 3d, docs/DESIGN-TOKENS.md) — Total/Preparo/
+    // Cozimento/Dificuldade, cada um só quando o dado existe. Porções SAIU daqui — foi pro
+    // cabeçalho de Ingredientes, mais abaixo (decisão antiga, perto da lista que ela afeta).
+    const metaRow = document.createElement("div");
+    metaRow.className = "recipe-page-meta";
+    function metaBlock(label, value) {
+      const block = document.createElement("div");
+      block.className = "recipe-meta-block";
+      block.innerHTML =
+        '<span class="recipe-meta-block__label">' + label + "</span>" +
+        '<span class="recipe-meta-block__value">' + value + "</span>";
+      return block;
+    }
+    if (recipe.time && recipe.time.total) metaRow.appendChild(metaBlock("Total", recipe.time.total));
+    if (recipe.time && recipe.time.prep) metaRow.appendChild(metaBlock("Preparo", recipe.time.prep));
+    if (recipe.time && recipe.time.cook) metaRow.appendChild(metaBlock("Cozimento", recipe.time.cook));
+    if (recipe.difficulty) metaRow.appendChild(metaBlock("Dificuldade", recipe.difficulty));
+    if (metaRow.children.length) page.appendChild(metaRow);
+
+    // CTA primário (spec funil 3e) — ANTES dos 2 secundários agora (era o inverso).
+    if (recipe.steps && recipe.steps.length) {
+      const cookBtn = document.createElement("button");
+      cookBtn.className = "primary-cta";
+      cookBtn.textContent = "Começar preparo";
+      // Captura o multiplicador ATUAL do stepper (currentRatio(), definido mais abaixo perto de
+      // Ingredientes — function declaration é hoisted, e o clique só executa depois do render
+      // inteiro terminar, então a ordem textual aqui não importa) e leva pro modo de preparo via
+      // URL — só é usado se for criar uma sessão nova (Fase 2); retomar uma sessão em andamento
+      // ignora isso e usa o portionMultiplier já salvo nela.
+      cookBtn.addEventListener("click", () => Router.toCozinhar(item.id, fromHash, currentRatio()));
+      page.appendChild(cookBtn);
+    }
+
+    // Secundários lado a lado (spec funil 3f) — Favoritar SAIU (virou o coração sobre a foto,
+    // acima). Só 2 agora: Já fiz + Adicionar à lista de compras.
     const actions = document.createElement("div");
     actions.className = "recipe-page-actions";
 
@@ -2924,33 +2933,11 @@
       madeBtn.classList.toggle("active", now);
       madeBtn.textContent = now ? "Já fiz" : "Marcar como feita";
     });
-
-    // Favoritar troca de ESTRUTURA inteira ao alternar (docs/DESIGN-TOKENS.md), não só de cor:
-    // não favoritado = pill igual a "Marcar como feita" (classe .action-btn reaproveitada,
-    // mesma borda/padding/formato), com o coração em contorno + texto "Favoritar". Favoritado =
-    // pill some por completo, sobra só o ícone preenchido --color-accent, sem borda/fundo
-    // (.recipe-page-heart, mesmo tratamento do coração do card). aria-label mantém
-    // acessibilidade pra leitor de tela nos dois estados.
-    const isFav = Storage.isFavorite(item.id);
-    const favBtn = document.createElement("button");
-    favBtn.type = "button";
-    function renderFavBtn(fav) {
-      favBtn.className = fav ? "recipe-page-heart is-favorite" : "action-btn";
-      favBtn.innerHTML = fav ? HEART_ICON_SVG : HEART_ICON_SVG + "<span>Favoritar</span>";
-      favBtn.setAttribute("aria-label", fav ? "Favoritado" : "Favoritar");
-    }
-    renderFavBtn(isFav);
-    favBtn.addEventListener("click", () => {
-      const now = Storage.toggleFavorite(item.id);
-      renderFavBtn(now);
-    });
-
-    actions.appendChild(favBtn);
     actions.appendChild(madeBtn);
 
     // Adicionar à lista de compras: toggle de verdade — adiciona TODAS as entries de
     // ingredientsStructured de uma vez (sem UI de selecionar item por item), capturando o
-    // portionMultiplier ATUAL do stepper (currentRatio(), mesmo padrão do cookBtn abaixo).
+    // portionMultiplier ATUAL do stepper (currentRatio(), mesmo padrão do cookBtn acima).
     // Clicar de novo com a receita já na lista REMOVE (Storage.removeRecipeFromShoppingList) —
     // desfaz a ação, volta pro estado "Adicionar". Mesmo caminho de remoção do "x" na visão Por
     // receita da própria Lista de Compras.
@@ -2976,28 +2963,28 @@
 
     page.appendChild(actions);
 
-    if (recipe.steps && recipe.steps.length) {
-      const cookBtn = document.createElement("button");
-      cookBtn.className = "primary-cta";
-      cookBtn.textContent = "Começar preparo";
-      // Captura o multiplicador ATUAL do stepper (currentRatio(), já existe acima) e leva pro
-      // modo de preparo via URL — só é usado se for criar uma sessão nova (Fase 2); retomar
-      // uma sessão em andamento ignora isso e usa o portionMultiplier já salvo nela.
-      cookBtn.addEventListener("click", () => Router.toCozinhar(item.id, fromHash, currentRatio()));
-      page.appendChild(cookBtn);
+    // Multiplicador de porções (usa ingredientsStructured) — REALOCADO (spec funil 3g) pro
+    // cabeçalho de Ingredientes, perto da lista que ele afeta (decisão antiga). Só entra quando
+    // o yield COMEÇA com um número seguro de extrair (parseYieldBase) — senão mostra o texto de
+    // sempre, sem controle, pra não arriscar uma base errada. Mesmo mecanismo de antes, só
+    // mudou de LOCAL (ia direto em .recipe-page-meta).
+    const yieldInfo = parseYieldBase(recipe.yield);
+    let stepperInput = null;
+    function currentRatio() {
+      if (!yieldInfo) return 1;
+      const v = parseInt(stepperInput.value, 10);
+      return (v && v > 0 ? v : yieldInfo.base) / yieldInfo.base;
     }
 
     // Ingredientes vem minimizado por padrão (docs/DESIGN-TOKENS.md) — reaproveita o mesmo
-    // mecanismo de acordeão do modal de filtro (.filter-section/.filter-section__header com
-    // chevron que gira 180deg via .is-open, .filter-section__body escondido/mostrado via
-    // display:none/flex), em vez de criar um padrão novo. Aqui é só um toggle local de classe
-    // (sem draft-state/re-render do modal, que não se aplica — a lista é estática e os
-    // checkboxes já aplicam direto no Storage).
-    // Reversão: volta a vir EXPANDIDA por padrão ao carregar (is-open já no className inicial)
-    // — o colapso continua existindo (mesmo acordeão do modal de filtro), só não é mais o
-    // estado padrão. O botão de ocultar/mostrar ganha estilo próprio (.ingredients-toggle,
-    // ver CSS) bem mais visível que o header de acordeão genérico — discreto demais foi o
-    // problema que motivou reverter pra sempre-expandida da primeira vez.
+    // mecanismo de acordeão do modal de filtro (.filter-section/.is-open, .filter-section__body
+    // escondido/mostrado via display:none/flex, .filter-section__chevron gira 180deg), em vez
+    // de criar um padrão novo. Diferença desta rodada: o CABEÇALHO deixou de ser um único botão
+    // grande (.ingredients-toggle) — agora é uma linha (.ingredients-header) com o título, as
+    // porções (stepper OU texto de yield não-numérico) e um chevron DISCRETO
+    // (.ingredients-collapse-btn) que é o único gatilho de colapso. Precisa ser assim porque o
+    // stepper mora no mesmo cabeçalho e seus próprios cliques (+/-, digitar) não podem
+    // borbulhar pro toggle do acordeão.
     const ingSection = document.createElement("div");
     ingSection.className = "recipe-page-section filter-section is-open";
     const ingredientsList = recipe.ingredients || [];
@@ -3026,21 +3013,68 @@
       ul.innerHTML = ingredientItemsHtml(currentRatio());
     }
 
-    ingSection.innerHTML =
-      '<button type="button" class="filter-section__header ingredients-toggle">' +
-      '<span class="filter-section__label">Ocultar ingredientes<span class="filter-section__count">(' +
+    const ingHeader = document.createElement("div");
+    ingHeader.className = "ingredients-header";
+    ingHeader.innerHTML =
+      "<h4>Ingredientes <span class=\"filter-section__count\">(" +
       ingredientsList.length +
-      ")</span></span>" +
-      iconSvg("chevronDown", "filter-section__chevron") +
-      "</button>" +
-      '<div class="filter-section__body"><ul class="ingredients-list">' +
-      ingredientItemsHtml(1) +
-      "</ul></div>";
-    const ingToggleLabel = ingSection.querySelector(".filter-section__label");
-    ingSection.querySelector(".filter-section__header").addEventListener("click", () => {
+      ')</span></h4><div class="ingredients-header__controls"></div>';
+    const ingControls = ingHeader.querySelector(".ingredients-header__controls");
+
+    if (yieldInfo) {
+      const stepperWrap = document.createElement("div");
+      stepperWrap.className = "portion-stepper";
+      stepperWrap.innerHTML =
+        '<button type="button" class="portion-stepper__btn" data-dir="-1" aria-label="Diminuir porções">−</button>' +
+        '<input type="number" class="portion-stepper__input" min="1" max="999" step="1" inputmode="numeric" ' +
+        'aria-label="Número de porções" value="' +
+        yieldInfo.base +
+        '">' +
+        '<button type="button" class="portion-stepper__btn" data-dir="1" aria-label="Aumentar porções">+</button>' +
+        (yieldInfo.suffix ? '<span class="portion-stepper__suffix">' + yieldInfo.suffix + "</span>" : "");
+      ingControls.appendChild(stepperWrap);
+      stepperInput = stepperWrap.querySelector(".portion-stepper__input");
+      stepperWrap.querySelectorAll(".portion-stepper__btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const dir = parseInt(btn.dataset.dir, 10);
+          const v = Math.max(1, (parseInt(stepperInput.value, 10) || yieldInfo.base) + dir);
+          stepperInput.value = v;
+          refreshIngredients();
+        });
+      });
+      stepperInput.addEventListener("input", () => {
+        if (stepperInput.value !== "") refreshIngredients();
+      });
+      stepperInput.addEventListener("change", () => {
+        let v = parseInt(stepperInput.value, 10);
+        if (!v || v < 1) v = 1;
+        if (v > 999) v = 999;
+        stepperInput.value = v;
+        refreshIngredients();
+      });
+    } else if (recipe.yield) {
+      const yieldSpan = document.createElement("span");
+      yieldSpan.className = "ingredients-yield-text";
+      yieldSpan.textContent = recipe.yield;
+      ingControls.appendChild(yieldSpan);
+    }
+
+    const collapseBtn = document.createElement("button");
+    collapseBtn.type = "button";
+    collapseBtn.className = "ingredients-collapse-btn";
+    collapseBtn.setAttribute("aria-label", "Ocultar ingredientes");
+    collapseBtn.innerHTML = iconSvg("chevronDown", "filter-section__chevron");
+    collapseBtn.addEventListener("click", () => {
       const isOpen = ingSection.classList.toggle("is-open");
-      ingToggleLabel.childNodes[0].textContent = isOpen ? "Ocultar ingredientes" : "Ver ingredientes";
+      collapseBtn.setAttribute("aria-label", isOpen ? "Ocultar ingredientes" : "Ver ingredientes");
     });
+    ingControls.appendChild(collapseBtn);
+    ingSection.appendChild(ingHeader);
+
+    const ingBody = document.createElement("div");
+    ingBody.className = "filter-section__body";
+    ingBody.innerHTML = '<ul class="ingredients-list">' + ingredientItemsHtml(1) + "</ul>";
+    ingSection.appendChild(ingBody);
     page.appendChild(ingSection);
 
     const stepsSection = document.createElement("div");

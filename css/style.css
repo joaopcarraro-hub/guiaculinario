@@ -15,6 +15,18 @@
   --green: var(--color-success);
   --red: var(--color-error);
   --radius: 14px;
+  /* Item 1 de "Deixar pro Fable, depois" (CHECKLIST-GERAL.md): raio só da FOLHA que desliza
+     sobre a foto fixa da página de receita — maior que o --radius de card (14px) de propósito,
+     é a borda de um elemento de tela cheia, não de um componente pequeno. */
+  --radius-sheet: 20px;
+  /* Rodada 2 (revisão do dono, "FOTO MAXIMIZADA" — a 1ª entrega usava um aspect-ratio 16:9 fixo,
+     bem menor que a intenção real): altura do hero da página de receita, expressa como token
+     porque a folha (.recipe-page) deriva o próprio margin-top dela. clamp(min, preferido, max):
+     preferido 52vh (~52% da altura da tela no celular); os limites travam a proporção
+     resultante entre 2:1 (min 50vw — largura/altura=100vw/50vw=2, caixa mais larga) e 4:5
+     (max 125vw — 100vw/125vw=0.8, caixa mais alta) — a janela seguro documentada no §5 do
+     CONTRATO-IMAGENS-REDESIGN.md (atualizado na mesma rodada). */
+  --hero-h: clamp(50vw, 52vh, 125vw);
   font-size: 16px;
 
   /* ---- Design tokens v3 (docs/DESIGN-TOKENS.md) ----
@@ -87,12 +99,14 @@
   --motion-easing: ease-out;
 
   /* Fase 0a: escala de z-index — substitui os 4 valores literais que existiam soltos
-     (1 / 1100 / 1300 / 1400, sem relação documentada entre si). --z-float é reservado pro
-     botão de voltar flutuante do redesenho da página de receita (ainda não implementado) —
-     fica ABAIXO da barra de navegação inferior e do modal, acima do conteúdo normal. A foto de
-     topo fixa (position:fixed) do mesmo redesenho não entra nesta escala: por design ela fica
-     ABAIXO do conteúdo que desliza por cima (z-index nativo da ordem no fluxo basta, sem
-     token). */
+     (1 / 1100 / 1300 / 1400, sem relação documentada entre si). --z-float cobre o botão de
+     voltar flutuante (a subclasse back-float do .chrome-float, item 1 original do roadmap) — fica ABAIXO
+     da barra de navegação inferior e do modal, acima do conteúdo normal. A foto de topo fixa
+     e o coração sobre ela (item 1 de "Deixar pro Fable, depois", redesenho da página de
+     receita — .recipe-hero/.recipe-hero__heart) NÃO entram nesta escala: por design ficam
+     ABAIXO do conteúdo que desliza por cima só com z-index:-1 local (bucket de empilhamento
+     negativo sempre pinta antes do fluxo normal não-posicionado — não precisa de token
+     compartilhado, é resolvido pela ordem natural do fluxo). */
   --z-raised: 1;
   --z-float: 1000;
   --z-nav: 1100;
@@ -137,7 +151,13 @@
   --space-12: 48px;
 }
 
-* { box-sizing: border-box; }
+/* Carona (polimento de baixa prioridade, CHECKLIST-GERAL.md): mata o realce azul nativo de
+   toque em qualquer engine que o aplique por padrão (o :active da Fase 0a já cobre o feedback
+   de pressão) — global de propósito, mais barato e mais completo que listar seletor por
+   seletor. user-select:none fica separado, escopado só a button (controles) — ver regra
+   própria abaixo, nunca em texto de conteúdo. */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+button { user-select: none; }
 
 body {
   margin: 0;
@@ -182,7 +202,6 @@ body {
 .filter-option,
 .filter-section__header,
 .home-more-categories,
-.recipe-page-heart,
 .shopping-list__clear,
 .shopping-list__recipe-chevron,
 .shopping-list__recipe-row,
@@ -215,7 +234,6 @@ body {
 .filter-option:active,
 .filter-section__header:active,
 .home-more-categories:active,
-.recipe-page-heart:active,
 .shopping-list__clear:active,
 .shopping-list__recipe-chevron:active,
 .shopping-list__recipe-row:active,
@@ -287,6 +305,19 @@ body {
   max-width: 980px;
   margin: 0 auto;
 }
+/* Achado ao vivo (item 1 de "Deixar pro Fable, depois", medido via elementFromPoint em 390px):
+   body (e #main dentro dele) é position:static (bucket de empilhamento "não-posicionado") —
+   mesmo sem background/conteúdo visível naquele ponto exato, a ÁREA DE PADDING vazia no topo
+   de #main ainda intercepta clique/hit-test, porque esse bucket sempre pinta NA FRENTE de
+   qualquer descendente fixed com z-index NEGATIVO (.recipe-hero__heart), não atrás — não
+   importa a ordem no DOM, só a regra de buckets de empilhamento. Resultado: o coração ficava
+   geometricamente no lugar certo, mas elementFromPoint resolvia pro <body> vazio por trás
+   dele — clique morto, silencioso (sem erro nenhum, só não fazia nada). pointer-events:none em
+   body (que não tem NENHUM conteúdo clicável próprio) + auto nos filhos reais (#bottom-nav,
+   #category-header, #recipes-content) restaura o clique de tudo que já funcionava — a fresta
+   vazia do padding-top de #main fica sem nada pra interceptar, liberando o coração por trás. */
+body { pointer-events: none; }
+#bottom-nav, #category-header, #recipes-content { pointer-events: auto; }
 
 #category-header h2 {
   font-family: var(--font-display);
@@ -608,12 +639,14 @@ body {
    (fórmula de luminância WCAG, mesmo método de docs/DESIGN-TOKENS.md), bem abaixo do 3:1
    mínimo pra ícone (1.4.11). --color-text-primary contra o MESMO véu já está calculado ali pro
    chrome-float (17.03:1 / 4.83:1 / 3.76:1 nos 3 casos de referência) — reaproveitado aqui, não
-   recalculado. .recipe-page-heart (sobre --color-surface sólido, nunca foto) fica com a regra
-   base, não precisa do ajuste. */
+   recalculado. .recipe-hero__heart (item 1 de "Deixar pro Fable, depois") está no MESMO caso —
+   sobre foto, fundo imprevisível — e entra no mesmo seletor combinado abaixo, sem recalcular
+   de novo. */
 .recipe-heart-icon { width: 22px; height: 22px; flex-shrink: 0; display: block; }
 .recipe-heart-icon path { fill: none; stroke: var(--color-text-disabled); stroke-width: 1.6; }
 .is-favorite .recipe-heart-icon path { fill: var(--color-accent); stroke: var(--color-accent); }
-.recipe-card__heart .recipe-heart-icon path { stroke: var(--color-text-primary); }
+.recipe-card__heart .recipe-heart-icon path,
+.recipe-hero__heart .recipe-heart-icon path { stroke: var(--color-text-primary); }
 
 /* Faixa de conteúdo: nome + 1 chip na mesma linha (align-items:flex-start alinha o chip com a
    1ª linha do nome; o nome quebra por baixo até 2 linhas, o chip nunca encolhe/quebra). */
@@ -979,23 +1012,58 @@ body.filter-modal-open { overflow: hidden; }
 .filter-section__label { display: flex; align-items: baseline; gap: var(--space-2); flex: 1; min-width: 0; }
 .filter-section__count { color: var(--color-text-disabled); font-size: var(--text-xs); }
 
-/* Botão de ocultar/mostrar ingredientes (tela de receita) — precisa ser bem mais visível que
-   o header de acordeão genérico do modal de filtro (herda .filter-section__header, mas com
-   isto por cima). Discreto demais foi o problema real que motivou reverter pra
-   sempre-expandida da primeira vez — por isso borda grossa + fundo com um degrau de destaque,
-   não só texto. Texto continua em --ink (nunca --color-accent aqui: 14.7px fica abaixo do
-   limiar de 18px+ pra ghost-text, mesma regra já aplicada em todo o resto do app) — o acento
-   fica só na borda e no chevron, que não têm essa restrição de contraste de texto. */
-.ingredients-toggle {
-  background: var(--color-surface-elevated);
-  border: 2px solid var(--color-accent);
-  border-radius: 999px;
-  padding: 0 var(--space-4);
-  font-weight: 600;
-  color: var(--color-text-primary);
+/* Cabeçalho de Ingredientes (item 1 de "Deixar pro Fable, depois") — substitui o antigo botão-
+   pílula grande (.ingredients-toggle, borda 2px accent) por um cabeçalho discreto: <h4> no
+   padrão já existente de .recipe-page-section (sans uppercase) + porções REALOCADAS pra cá
+   (perto dos ingredientes, decisão antiga) + um chevron pequeno e próprio pra colapsar. O
+   header em si NÃO é mais clicável por inteiro — só o chevron (.ingredients-collapse-btn) —
+   porque o stepper mora no mesmo cabeçalho e seus próprios cliques (+/-, digitar) não podem
+   borbulhar pro toggle do acordeão. Mecânica de acordeão (is-open, .filter-section__body,
+   rotação do .filter-section__chevron) INTACTA — só a apresentação do gatilho muda. */
+/* Container do cabeçalho, NÃO reaproveita .filter-section__header — essa classe já é
+   compartilhada com os gatilhos DE VERDADE do acordeão do modal (cursor:pointer, entra na
+   lista de :active/press-feedback); aqui o clique real é só do chevron, o resto do header
+   (h4 + porções) não deve parecer nem se comportar como botão. */
+.ingredients-header {
+  width: 100%;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-05);
 }
-.ingredients-toggle .filter-section__count { color: var(--color-text-secondary); }
-.ingredients-toggle .filter-section__chevron { color: var(--color-accent); }
+.ingredients-header h4 { margin: 0; }
+.ingredients-header__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.ingredients-yield-text {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+.ingredients-collapse-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--color-text-disabled);
+  cursor: pointer;
+}
+/* Hit-padding invisível (apple-design skill, mesma técnica de .recipe-card__heart): 24px visual
+   + 10px de cada lado = 44px efetivo. */
+.ingredients-collapse-btn::after {
+  content: "";
+  position: absolute;
+  inset: -10px;
+}
 .filter-section__summary {
   color: var(--color-accent);
   font-size: var(--text-sm);
@@ -1260,14 +1328,34 @@ body.filter-modal-open { overflow: hidden; }
    pro fundo claro) — fica ilegível aqui, sobe pra --ink (=--color-text-primary). */
 .tag-chip-link:hover { background: var(--color-accent-soft); color: var(--color-text-primary); }
 
+/* item 1 de "Deixar pro Fable, depois": fecha a exceção de hit-area da Fase 0a (chip de 30px,
+   gap de 8px, ~38px efetivos — 6px abaixo do alvo de 44px). Histórico: rodada 1 tentou chip
+   MENOR (28px) + gap maior (16px); rodada 2 esticou o gap ainda mais (24px, "ritmo") pra abrir
+   espaço de inset. Rodada 3 (revisão do dono): REVERTE as duas — o gap de 24px "foi correção
+   errada", o bloco de tags virou itens espalhados em vez de ler como um GRUPO. Chip agora
+   MAIOR (36px, mais próximo dos 30px originais que menor) + gap pequeno (calc(--space-2 + 2px)
+   = 10px — não há degrau de 10px na escala, por isso o calc em vez de um token puro) — chips
+   próximos, alvo de 44px fechado pelo TAMANHO do chip, não pelo gap (ver seção de matemática
+   no ::after abaixo). margin-bottom continua --space-6 (ritmo ENTRE seções, não mudou — só o
+   espaçamento INTERNO das tags reverteu). */
 .recipe-page-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
-  margin: calc(var(--space-2) * -1) 0 var(--space-5);
+  gap: calc(var(--space-2) + 2px);
+  margin: 0 0 var(--space-6);
 }
-.recipe-page-tags .tag-chip-link { position: relative; min-height: 30px; font-size: var(--text-xs); padding: 0 var(--space-4); }
-.recipe-page-tags .tag-chip-link::after { content: ""; position: absolute; inset: -5px -4px; } /* Fase 0a: LIMITAÇÃO CONHECIDA, não corrigível sem mudança visual — ver relatório. .recipe-page-tags é flex-wrap com gap:8px em AMBOS os eixos (linhas quebradas usam o mesmo gap na vertical); o lado de baixo colide com o chip da próxima linha quebrada quase imediatamente (confirmado ao vivo: elementFromPoint acima de +1px já resolve pro chip vizinho, não o mesmo elemento, não importa o quanto o inset aumente). Efetivo alcançado ~38px (30 + ~4px cada lado, limite seguro = metade do gap), 6px abaixo do alvo de 44px. Alcançar 44px exigiria aumentar o próprio chip ou o gap — mudança visual real, fora do escopo "sem alterar o visual" deste bloco. */
+/* 36 (chip) + 5 + 5 (inset, metade do gap de 10px) = 46px efetivo, acima do mínimo de 44px.
+   padding: --space-2 (8px) vertical, 14px horizontal (fora da escala de propósito — mais
+   estreito que --space-3/12px pareceria apertado num chip de 36px, mais largo que --space-4/
+   16px sobraria demais num --text-xs). */
+.recipe-page-tags .tag-chip-link { position: relative; min-height: 36px; font-size: var(--text-xs); padding: var(--space-2) 14px; }
+/* -6px, não -5px: `.tag-chip-link` (base, compartilhada) tem border:1px — o inset de um ::after
+   absolute resolve contra o PADDING-BOX do ancestral posicionado, não a borda visível (mesma
+   causa raiz já documentada na Fase 0a pro .portion-stepper__btn). Sem compensar, o alcance
+   efetivo media ~4-4,5px por lado ao vivo (elementFromPoint), não os 5px pretendidos — os 1px
+   de borda "comiam" parte do inset silenciosamente. +1px de compensação aqui cobre a borda,
+   voltando ao alcance efetivo pretendido (~5px, confirmado ao vivo depois do ajuste). */
+.recipe-page-tags .tag-chip-link::after { content: ""; position: absolute; inset: -6px; }
 
 /* ---------- Home: tiles principais + "Mais categorias" (Bloco 2 — design tokens v3) ---------- */
 /* Mais evidente que clicável (era só texto solto, sem nenhum sinal visual) — reaproveita os
@@ -1424,7 +1512,44 @@ body.filter-modal-open { overflow: hidden; }
 .grupo-view .desc { margin-bottom: var(--space-5); }
 
 /* ---------- Página de receita ---------- */
-.recipe-page { max-width: 720px; }
+/* A FOLHA (item 1 de "Deixar pro Fable, depois"): .recipe-page vira o container que desliza
+   por cima da foto fixa. width:100vw + margin-left:calc(50% - 50vw) faz bleed total até a
+   borda do viewport (escapa do padding/max-width de #main) sem depender de rastrear o valor
+   do padding de #main por breakpoint — mais robusto que espelhar --space-12/--space-5 aqui.
+   Trade-off assumido (mobile primeiro, desktop depois, CHECKLIST-GERAL.md): o teto de 720px
+   de largura de leitura em desktop foi removido nesta rodada — a folha ocupa o viewport
+   inteiro em qualquer tela agora. padding próprio (não mais o de #main, que não alcança um
+   elemento em bleed) recria a margem lateral de leitura. */
+.recipe-page {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  background: var(--color-bg);
+  border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+  /* Rodada 3 (revisão do dono, "moldura consistente"): padding-top novo — o título estava
+     colado na curva do raio (era só padding lateral, 0 no topo). --space-6 (24px) no topo,
+     --space-5 (20px) nas laterais (inalterado), 0 embaixo (o resto do funil já controla seu
+     próprio espaçamento via margin-bottom, ver ritmo abaixo). */
+  padding: var(--space-6) var(--space-5) 0;
+  /* margin-top: rodada 2 (revisão do dono, pós-ver-no-ar) — a folha deixou de cobrir 50% do
+     hero antes de rolar; agora começa quase no FIM dele, só os últimos 24px cobertos ("foto
+     grande + a beirada arredondada da folha com o começo do título", ver §5 atualizado do
+     CONTRATO-IMAGENS-REDESIGN.md). var(--hero-h) é a altura real do hero (token em :root).
+     Subtrai --space-10 porque #main ainda soma esse padding-top ANTES da folha (ela é filha de
+     #recipes-content, filha de #main, e o margin-top de .recipe-page COLAPSA através de
+     #recipes-content — que não tem padding/border própria — até esbarrar no padding-top de
+     #main, que É o que finalmente bloqueia o colapso; sem a subtração o afastamento real do
+     topo do viewport seria --space-10 A MAIS que o valor derivado). Ver override pra --space-5
+     logo ABAIXO desta regra — tem que vir DEPOIS no arquivo: mesma especificidade (.recipe-page
+     simples nos dois), cascata desempata por ordem no arquivo, e uma media query mais cedo no
+     arquivo perderia pra esta regra base mais tarde (bug real, achado ao vivo em 390px na
+     rodada anterior — o override tinha sido colocado ANTES por engano). */
+  margin-top: calc(var(--hero-h) - 24px - var(--space-10));
+}
+@media (max-width: 700px) {
+  /* #main usa --space-5 de padding-top nesta faixa (ver @media (max-width: 700px) mais acima,
+     que troca o padding de #main) — a folha cancela ESSE valor aqui, não --space-10. */
+  .recipe-page { margin-top: calc(var(--hero-h) - 24px - var(--space-5)); }
+}
 /* Controles flutuantes de topo (item 1 do roadmap, expandido pra todas as telas com
    página-mãe + "Sair" do modo cozinhar) — véu escuro FIXO (não só hover/tema): funciona tanto
    sobre o tema escuro quanto sobre o hero de foto clara (regra §8.1,
@@ -1466,19 +1591,29 @@ body.filter-modal-open { overflow: hidden; }
   font-weight: 600;
 }
 .exit-cook-float__icon { width: 18px; height: 18px; flex-shrink: 0; }
+/* Item 1 de "Deixar pro Fable, depois" (CHECKLIST-GERAL.md): foto de topo FIXA — o conteúdo
+   (.recipe-page, ver mais abaixo) desliza por cima como uma folha. position:fixed com
+   top/left:0 ancora no viewport inteiro (ignora padding/max-width de #main, mesmo aninhado
+   dentro de .recipe-page no DOM — fixed sempre posiciona contra o viewport, confirmado: nenhum
+   ancestral tem transform/filter/perspective/contain). z-index:-1 (bucket de empilhamento
+   NEGATIVO) garante que qualquer conteúdo normal não-posicionado da folha pinta por cima dele
+   sempre, sem precisar que a folha declare position/z-index próprio — ver comentário da escala
+   de z-index acima. Raio de card removido (era var(--radius)): bleed total agora, o raio
+   visível passa a ser só o da folha por cima (--radius-sheet). */
 .recipe-hero {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
   width: 100%;
-  /* era `height: 220px` FIXO, e altura fixa fazia o enquadramento depender da largura da tela.
-     Medido no master 1184x888 da Paella, com object-position: center bottom, a faixa da foto
-     visível antes da rolagem era:
-         390px de largura (celular):  y de 24.8% a 62.4%  -> o prato inteiro. certo.
-         720px de largura (desktop):  y de 59.3% a 79.6%  -> só a borda de baixo da panela. errado.
-     Não é ajuste de gosto: a caixa 720x220 é 3,27:1, e enfiar um 4:3 nela por `cover` corta
-     75% da altura. Com aspect-ratio a caixa acompanha a largura, o fator de `cover` passa a ser
-     o mesmo em qualquer tela e a faixa visível vira y de 25% a 62.5% SEMPRE — inclusive 219px
-     de altura num celular de 390px, que é o mesmo 220px de antes. Mobile não muda nada. */
-  aspect-ratio: 16 / 9;
-  border-radius: var(--radius);
+  /* Histórico: era `height: 220px` FIXO (enquadramento dependia da largura da tela), depois
+     virou um aspect-ratio 16:9 fixo (Fase 1 do redesenho — resolvia a dependência da largura, mas
+     o resultado era pequeno demais pra intenção real de "foto maximizada"). Rodada 2 (revisão
+     do dono, pós-ver-no-ar): height: var(--hero-h) — clamp proporcional ao viewport (ver :root),
+     preferindo ~52% da altura da tela, travado entre 2:1 (caixa larga) e 4:5 (caixa alta). Ainda
+     NUNCA px fixo — o objetivo de "não depender da largura da tela" continua cumprido, só que
+     agora também reage à ALTURA da tela (52vh), não só à largura. */
+  height: var(--hero-h);
   overflow: hidden;
   background: var(--color-surface-elevated); /* era #f1e8d3, mesmo papel do .recipe-thumb */
   display: flex; align-items: center; justify-content: center;
@@ -1486,18 +1621,69 @@ body.filter-modal-open { overflow: hidden; }
      não texto; mapear pro degrau xl (30px) encolheria o ícone quase pela metade. Tamanho de
      componente, não tipografia. */
   color: var(--color-text-disabled); /* era --gold-soft, ícone de placeholder/vazio */
-  margin-bottom: var(--space-5);
 }
 /* object-position é a decisão de enquadramento da rodada 3 (ver cabeçalho de
    scripts/gerar-imagens.js): posição vertical do prato NÃO se controla por prompt — duas
    rodadas tentaram e a 2ª encheu 45% do quadro de parede. Controla-se aqui, de graça.
-   O hero tem 220px e o conteúdo desliza por cima da metade de baixo, então só a metade
-   SUPERIOR da caixa aparece antes da rolagem. Master 4:3 em caixa 16:9 perde ~25% da altura;
-   com âncora no rodapé a faixa visível vira y ∈ [25%, 62%], que é onde o prato está.
+   Rodada 2 do redesenho (revisão do dono): a caixa do hero deixou de ser 16:9 fixo (--hero-h
+   agora varia entre 2:1 e 4:5, ver :root) — em qualquer ponto dessa faixa a caixa continua
+   MAIS LARGA ou igual a 1:1, dentro da janela seguro do §5 do CONTRATO-IMAGENS-REDESIGN.md
+   (atualizado na mesma rodada), então object-position:center bottom continua a âncora certa.
    Calibrar OLHANDO A TELA: se o prato ficar baixo demais, `center 70%`, depois `center 60%`. */
 .recipe-hero img { width: 100%; height: 100%; object-fit: cover; object-position: center bottom; display: block; }
 .recipe-hero.placeholder svg { width: 56px; height: 56px; } /* Fase 0c: substituiu o emoji 🍽 em 3.5rem, mesmo tamanho visual */
 
+/* Véu degradê no topo do hero (rodada 2, revisão do dono, "FOTO MAXIMIZADA") — a caixa mais
+   alta (até 4:5) re-expõe o topo do master (parede/janela, o problema original do §6.2 do
+   contrato de imagens) numa faixa que o recorte 16:9 anterior escondia por completo. Papel
+   duplo: (1) mitiga esse topo exposto sem precisar regerar nenhuma foto — pura camada visual;
+   (2) dá contraste consistente pro back-float/coração, que sentam nessa faixa. pointer-events:
+   none — é só um overlay visual, os controles continuam clicáveis através dele (mesmo raciocínio
+   de pointer-events já usado em body/#main pro coração). inset:0 cobre a caixa inteira do hero
+   (containing block é o próprio .recipe-hero, position:fixed). */
+.recipe-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(15, 15, 14, 0.55), transparent 30%);
+  pointer-events: none;
+}
+
+/* Coração sobre a foto (item 1 de "Deixar pro Fable, depois") — substitui Favoritar da linha de
+   botões. Elemento IRMÃO de .recipe-hero (nunca filho): applyImage()/loadRecipeImage() fazem
+   hero.innerHTML = "" de forma assíncrona assim que a foto resolve — um coração aninhado
+   dentro do hero seria apagado nesse momento. Mesmo componente visual do .recipe-card__heart
+   (véu, borda, 36px), mas position:fixed (não absolute) e z-index:-1 igual ao hero — mesmo
+   bucket de empilhamento negativo, ordem no DOM (depois do hero) resolve "acima da foto";
+   sendo negativo, fica sempre abaixo do conteúdo normal da folha por cima (ver comentário da
+   escala de z-index). Topo-DIREITA (espelha o back-float, que é topo-esquerda), mesmo respeito
+   a safe-area-inset. */
+.recipe-hero__heart {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + var(--space-3));
+  right: calc(env(safe-area-inset-right) + var(--space-3));
+  z-index: -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: rgba(15, 15, 14, 0.55);
+  padding: 0;
+  cursor: pointer;
+}
+.recipe-hero__heart::after {
+  content: "";
+  position: absolute;
+  inset: -10px;
+}
+
+/* Rodada 2 (revisão do dono, "passada de ritmo"): espaço até as tags — --space-6, mesmo ritmo
+   consistente do resto do funil. Cobre o caso de receita sem origin/desc também (o bloco do
+   título é sempre o mesmo elemento, título sozinho ou não). */
+.recipe-page-title { margin-bottom: var(--space-6); }
 .recipe-page-title h2 {
   font-family: var(--font-display);
   font-weight: 400;
@@ -1510,16 +1696,40 @@ body.filter-modal-open { overflow: hidden; }
 .recipe-page-title .origin { font-size: var(--text-sm); color: var(--color-text-secondary); font-style: italic; }
 .recipe-page-title .page-desc { font-size: var(--text-base); margin: var(--space-3) 0 0; line-height: var(--leading-base); }
 
+/* Metadados em blocos rotulados (variante A aprovada, item 1 de "Deixar pro Fable, depois") —
+   substitui a linha de texto solto com bordas divisórias. Total/Preparo/Cozimento/Dificuldade —
+   cada bloco só existe quando o dado existe (mesmo guard condicional de antes). Porções SAIU
+   daqui (foi pro cabeçalho de Ingredientes, ver .ingredients-header). Rodada 2 (revisão do
+   dono): grade 2x2 FIXA (era flex tentando 4 numa linha só) — a 1ª tentativa truncava o rótulo
+   DIFICULDADE (palavra única, sem espaço pra quebrar) a 390px; a grade dá o DOBRO de largura
+   por bloco, resolvendo isso na prática (ver overflow-wrap abaixo pra rede de segurança
+   estrutural, não só a correção de layout). margin-bottom --space-6 pro CTA, mesmo ritmo. */
 .recipe-page-meta {
-  display: flex;
-  gap: var(--space-4);
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+}
+.recipe-meta-block {
+  min-width: 0;
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-3);
+}
+.recipe-meta-block__label {
+  display: block;
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-disabled);
+  overflow-wrap: break-word;
+}
+.recipe-meta-block__value {
+  display: block;
   font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-  margin: var(--space-4) 0;
-  padding: var(--space-3) 0;
-  border-top: 1px solid var(--color-border);
-  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  font-weight: 600;
+  overflow-wrap: break-word;
 }
 
 /* Multiplicador de porções — substitui o texto estático de porções quando o yield tem uma base
@@ -1586,6 +1796,12 @@ body.filter-modal-open { overflow: hidden; }
 .portion-stepper__suffix { white-space: nowrap; }
 
 .recipe-page-actions { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-6); flex-wrap: wrap; }
+/* spec funil 3f: "lado a lado" — achado ao vivo em 390px: com só os 2 secundários que sobraram
+   (Favoritar saiu), o texto de "Adicionar à lista de compras" sozinho já não cabia ao lado de
+   "Marcar como feita" com largura por conteúdo, then quebrava pra 2 linhas (flex-wrap do pai).
+   flex:1 força os 2 a dividir a linha meio a meio (texto quebra DENTRO do botão se precisar,
+   min-height ainda garante o mínimo de 44px, cresce se quebrar) — fica lado a lado sempre. */
+.recipe-page-actions .action-btn { flex: 1; justify-content: center; }
 .action-btn {
   display: inline-flex;
   align-items: center;
@@ -1602,23 +1818,10 @@ body.filter-modal-open { overflow: hidden; }
 }
 .action-btn.active { background: var(--color-accent-deep); border-color: var(--color-accent-deep); color: var(--color-text-primary); } /* era #fff, depois --color-accent (Fase 0a: falhava AA 4,14:1) */
 
-/* Favoritar na tela de receita troca de ESTRUTURA ao alternar, não só de cor: não favoritado
-   usa .action-btn (mesma pill de "Marcar como feita", com o coração em contorno + texto
-   "Favoritar" dentro, layout inline-flex acima cuida do alinhamento ícone+texto); favoritado
-   troca pra esta classe — pill some por completo, sobra só o ícone preenchido --color-accent,
-   sem borda/fundo, mesmo tratamento visual do coração do card (.is-favorite +
-   .recipe-heart-icon, ver regra acima). */
-.recipe-page-heart {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border: none;
-  background: none;
-  padding: 0;
-  cursor: pointer;
-}
+/* .recipe-page-heart (troca de estrutura .action-btn <-> ícone sólido ao favoritar) foi
+   REMOVIDO nesta rodada — Favoritar saiu da linha de botões por completo, ver
+   .recipe-hero__heart acima (coração único, sempre sobre a foto, nunca mais dentro de
+   .recipe-page-actions). */
 
 .recipe-page-section { margin-bottom: var(--space-8); }
 .recipe-page-section h4 {
@@ -1659,7 +1862,7 @@ body.filter-modal-open { overflow: hidden; }
   font-size: var(--text-base);
   font-weight: 600;
   cursor: pointer;
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-6); /* rodada 2 (revisão do dono, ritmo consistente): era --space-5 */
   font-family: var(--font-ui);
 }
 .primary-cta:hover { background: var(--color-accent-hover); } /* era #8f6624 hardcoded */
@@ -2058,7 +2261,6 @@ body.filter-modal-open { overflow: hidden; }
   .filter-option:active,
   .filter-section__header:active,
   .home-more-categories:active,
-  .recipe-page-heart:active,
   .shopping-list__clear:active,
   .shopping-list__recipe-chevron:active,
   .shopping-list__recipe-row:active,
@@ -2134,7 +2336,7 @@ body.filter-modal-open { overflow: hidden; }
 .chrome-float:focus-visible,
 .portion-stepper__btn:focus-visible,
 .action-btn:focus-visible,
-.recipe-page-heart:focus-visible,
+.recipe-hero__heart:focus-visible,
 .checklist label:focus-visible,
 .primary-cta:focus-visible,
 .text-link:focus-visible,
