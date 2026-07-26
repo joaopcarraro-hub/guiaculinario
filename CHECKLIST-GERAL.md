@@ -173,29 +173,38 @@ busca. A tela própria (picked-for-you, atalhos, grid de categorias) é bem mais
 que os outros itens deste bloco. Fica aqui (funcional, agora) ou vai pra remodelagem visual
 (depois)? Destrava o sequenciamento do resto.
 
-## 🎨 DEIXAR PRO FABLE, DEPOIS — remodelagem visual (só quando o João abrir essa frente)
+## 🎨 REDESENHO VISUAL — CONCLUÍDO (era "Deixar pro Fable, depois")
 
-1. Redesenho completo da página de receita — funil de informação (tags menores após a
-   descrição; tempo/complexidade/porções em segmentos rotulados; os 3 botões de ação
-   redistribuídos, Favoritar sai da linha; porções perto dos ingredientes; "ocultar
-   ingredientes" vira seta discreta). Efeito de scroll: foto de topo maximizada e FIXA, o
-   conteúdo desliza por cima (CSS `position: fixed` + fluxo normal, sem lib/parallax JS).
-2. Redesenho do card de receita — foto maior (~60%, centralizada), REMOVE
-   tempo/complexidade/porções e país do card. País só reaparece se o usuário estiver filtrando
-   por 2+ países. Tag do card só macro-relevante (proteína/tipo de prato, nunca país).
-   Padronizar a divergência card normal vs card em Minhas Receitas.
-3. Botão de voltar flutuante — troca o contextual-fixo por flutuante que acompanha o scroll.
-   Regra na skill `product-navigation-ux`: sempre histórico real, nunca destino hardcoded,
-   EXCETO no modo de preparo (só "Sair do modo cozinhar").
-4. "Últimas receitas visitadas" — UI do carrossel (dado já rastreado). Carrossel horizontal na
-   home, blocos menores que os 4 tiles grandes, ~3 visíveis, últimas 10. Decidir info (nome +
-   origem ou nome + foto). "Não pode ficar apertado nem vazio."
-5. Bloco de geração de imagem por IA — PAUSADO, o João vai fazer numa conversa separada com a
-   namorada (design visual). Skill `ai-image-generator` instalada e testada (Gemini 2.5 Flash
-   Image, gratuito). 3 tipos: foto de receita, ícone de ingrediente, foto de categoria/hub
-   (tile + banner de fundo desfocado). Diretriz: "espectro com âncoras" (luz/profundidade
-   sempre iguais; bancada/louça num leque pequeno curado; comida/ângulo livres) — nunca tingir
-   fundo com cor de marca. Bandeira de país (fundo borrado) é CSS, não IA.
+Os 6 itens abaixo — roadmap de remodelagem visual fechado nesta rodada (2026-07-26, item 6).
+Detalhe granular de cada um em `docs/DESIGN-TOKENS.md` e nas skills `mobile-recipe-ui`/
+`product-navigation-ux`; números exatos no relatório de cada tarefa.
+
+1. ~~Redesenho completo da página de receita~~ — ✅ FEITO. Foto fixa + folha que desliza por
+   cima, funil reordenado (tags antes dos metadados, CTA antes dos secundários), metadados em
+   blocos, coração sobre a foto, porções realocadas pro cabeçalho de Ingredientes.
+2. ~~Redesenho do card de receita~~ — ✅ FEITO. Foto 2:1 sangrando + coração flutuante + faixa
+   nome/1 chip/descrição (teto de 2 linhas). País só reaparece com 2+ países filtrados.
+3. ~~Botão de voltar flutuante~~ — ✅ FEITO. `.back-float`/`.exit-cook-float` (`.chrome-float`)
+   em toda tela com página-mãe, sempre histórico real. `--chrome-clearance` reserva espaço pro
+   conteúdo não ficar por baixo do float — EXCETO página de receita e, desde o item 6 abaixo,
+   hubs com banner (nos dois o float senta de propósito sobre uma imagem, não texto).
+4. ~~"Últimas receitas visitadas"~~ — ✅ FEITO. Carrossel horizontal na home, DEPOIS do bloco de
+   categorias, mini-card foto 16:9 + nome (até 2 linhas).
+5. Bloco de geração de imagem por IA — dividido em 2 frentes, as duas concluídas:
+   - Foto de receita (398/398) — ✅ FEITO via `scripts/gerar-imagens.js`, ver
+     `docs/CONTRATO-IMAGENS-REDESIGN.md`.
+   - Foto de categoria/hub (tile + banner) e bandeira de país — ✅ FEITO, ver item 6 abaixo.
+6. ~~Tile de categoria/home, banner de hub, tile de país + extermínio final de emoji~~ —
+   ✅ FEITO (2026-07-26). Acervo de 19 imagens (`scripts/gerar-categorias.js`) + 20 bandeiras
+   webp (raster 1:1). Regra-mãe adotada: texto nunca senta em imagem — tile de categoria/home
+   (foto + faixa sólida com nome, `.category-card`/`.home-tile`), banner borrado nos 3 hubs
+   alcançáveis (folha sobrepõe com `--radius-sheet`; descrição textual do hub morreu), tile de
+   país via `iso2` (hub Países + modal de Filtros). Zero tile órfão nas 36 coleções com imagem
+   mapeada (16 categoria + 20 país, confirmado executando a função real contra o acervo); os 7
+   restantes (Por tempo/Por dificuldade, rotas órfãs sem link no app) usam fallback tipográfico
+   limpo. Emoji funcional zerado em `categories.js`/`collections.js`/`app.js`. Suíte nova
+   `scripts/verify-categoria-tiles-2026-07-26.js`; `verify-back-float`/`verify-emoji-fase0c`
+   atualizadas. `CACHE_NAME` v32→v33.
 
 ## 🧊 POLIMENTO DE BAIXA PRIORIDADE
 

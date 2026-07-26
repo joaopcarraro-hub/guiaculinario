@@ -25,7 +25,13 @@
 // v32: fix pontual (2026-07-26) — h4 "Ingredientes" do mesmo header ainda renderizava mais alto
 // que porções+chevron; causa raiz era um empate de especificidade CSS resolvido por ordem no
 // arquivo, deixando 12px de margin-bottom residual só no h4. css/style.css mudou.
-const CACHE_NAME = "cardapio-v32";
+// v33: item final do redesenho visual (2026-07-26) — tile de categoria/home e banner de hub
+// (item 6 do roadmap-mestre) trocam ícone/emoji por foto real (acervo de
+// scripts/gerar-categorias.js + bandeiras de país), banner borrado nos 3 hubs alcançáveis, e
+// extermínio final de emoji funcional em categories.js/collections.js/app.js. Os 4 arquivos
+// mudaram e os 4 estão no APP_SHELL abaixo (css/style.css, js/app.js, js/categories.js,
+// js/collections.js).
+const CACHE_NAME = "cardapio-v33";
 
 const APP_SHELL = [
   "./",

@@ -835,6 +835,10 @@ os outros dois (47 de ícone de categoria/hub em `categories.js`/`collections.js
 RENDERIZAÇÃO das 60 bandeiras via `COUNTRY_FLAG_EMOJI`/`countryTileIconHtml`) ficam de propósito
 pro item 6 do roadmap, junto com as fotos — nenhum dos dois foi tocado aqui.
 
+**Os 2 grupos deixados de propósito acima foram RESOLVIDOS pelo item 6 do roadmap-mestre
+(2026-07-26)** — ver seção própria "Item 6 — tile de categoria/home, banner de hub, tile de
+país" mais abaixo. `categories.js`/`collections.js`/`app.js` chegam a zero emoji funcional.
+
 - **Ingrediente (43)**: `INGREDIENT_EMOJI` e `ingredientTileIconHtml` removidos por completo —
   ver seção "Ingrediente" acima.
 - **Botão (8)**: 6 casos (✓ Já fiz, toggle de lista de compras, "Começar preparo", "Sair do modo
@@ -862,7 +866,113 @@ pro item 6 do roadmap, junto com as fotos — nenhum dos dois foi tocado aqui.
   vem do CSS igual a todo o resto. Tamanho calibrado em CSS pra bater com o que o glifo/emoji
   antigo ocupava em cada contêiner (`.preparo-card__delete svg` 16px, `.recipe-thumb`/
   `.preparo-card__thumb.placeholder svg` 24px, `.recipe-hero.placeholder svg` 56px,
-  `.category-card__icon svg` 24px).
+  `.category-card__icon svg` 24px — este último REMOVIDO por completo pelo item 6 do
+  roadmap-mestre, 2026-07-26: o tile sem imagem mapeada não leva mais nenhum ícone de fallback,
+  só a faixa+nome sobre fundo neutro, ver seção "Item 6" mais abaixo).
+
+## Item 6 — tile de categoria/home, banner de hub, tile de país (2026-07-26)
+
+Item final do redesenho visual (CHECKLIST-GERAL.md) — fecha a pendência de layout que
+`CONTRATO-IMAGENS-REDESIGN.md` §4 tinha deixado explicitamente "da frente de design" e o bucket
+de emoji que a Fase 0c (acima) tinha deixado de propósito. Números exatos, contraste medido e o
+CSS completo ficam em `docs/DESIGN-TOKENS.md` ("Componentes"); aqui fica o resumo de decisão e
+comportamento.
+
+**Regra-mãe adotada:** texto nunca senta em imagem — mesma gramática que o card de receita (nome
+na faixa sob a foto) e a página de receita (título na folha sobre a foto) já usavam, agora
+estendida a categoria/home/hub/país. Alternativa avaliada e arquivada, não usada: blur 6px + véu
+branco 25% + texto escuro (medido 5,10–5,65:1) — preterida por consistência com o resto do app,
+não por falha técnica (ver `docs/CONTRATO-IMAGENS-REDESIGN.md` §8.1.1).
+
+**Investigação de mapeamento (feita ANTES de qualquer CSS/JS, como sempre neste projeto):** slug
+de cada imagem de `scripts/gerar-categorias.js` (19 itens: 8 Fundamentos + 8 Proteínas + 3 hubs)
+cruzado com `id` de `window.COLLECTIONS` — **zero tile órfão** nas 16 coleções de
+Fundamentos/Proteínas e nas 20 de País (via `iso2`, não este acervo). Os únicos 7 sem imagem são
+Por tempo (4) e Por dificuldade (3) — coleções de rotas ÓRFÃS (`#/grupo/tempo`,
+`#/grupo/dificuldade`, sem link nenhum hoje no app, só URL direta) — recebem fallback tipográfico
+limpo (faixa + nome sobre fundo neutro, sem ícone, sem buraco). Verificado por
+`scripts/verify-categoria-tiles-2026-07-26.js`, que EXTRAI e EXECUTA `collectionTileImageSrc`/
+`GRUPO_BANNER_IMAGE` de verdade contra os dados reais (não só grep do literal), inclusive
+confirmando que cada caminho resolvido existe de fato em disco.
+
+**O que mudou, por superfície:**
+- **Tile de categoria (`.category-card`, grade "Mais Categorias" + grade de qualquer hub,
+  INCLUSIVE Países)** — `renderCollectionCard` (função única, compartilhada por todo hub) passou
+  a montar foto (cobre o bloco, `object-fit: cover`, sem blur) + faixa sólida com nome+contagem.
+  Emoji de ícone (`collection.icon`) morreu — campo removido de `collections.js` inteiro.
+- **Tile grande da Home (`.home-tile`, os 4 tiles de `HOME_MAIN_TILES`)** — mesma estrutura,
+  proporção mais alta (4:3) e nome maior (hierarquia "tile grande" vs. "tile de grade"). Ícone
+  outline (`bowl`/`flame`/`globe`/`cupcake`) morreu, substituído por foto — as 4 entradas sempre
+  têm imagem (2 de categoria, 2 de banner de hub), zero fallback aqui.
+- **Banner de hub (`.grupo-banner`/`.grupo-sheet`, `renderGrupo`) — só nos 3 hubs alcançáveis por
+  link real da Home (Mais Categorias/Proteínas/Países).** Imagem borrada (`filter: blur(6px)`)
+  em faixa no topo (~25-30vh) + folha (`--radius-sheet`) que sobrepõe a base do banner, MESMA
+  gramática de `.recipe-hero`/`.recipe-page` (foto fixa + folha por cima), simplificada (sem
+  parallax de scroll — o hub é uma lista de tiles, não um funil de leitura longo). Título (agora
+  SERIF de verdade — achado desta rodada: `.grupo-view h2` nunca tinha sido serif apesar do que
+  `docs/DESIGN-TOKENS.md` já registrava, corrigido no mesmo commit) e a busca do hub vivem sempre
+  na folha. **Descrição textual do hub morreu** (decisão antiga do roadmap, fechada aqui) —
+  `grupo.desc`/`GRUPOS[].desc` não existem mais, em nenhum grupo. Tempo/dificuldade (rotas
+  órfãs, sem imagem) mantêm o título simples de sempre, sem banner.
+  - **chrome-clearance ampliado:** hubs COM banner entram na mesma exceção "float sobre mídia"
+    que a página de receita já tinha (`.grupo-view.has-banner { padding-top: 0; }` — o back-float
+    senta sobre o banner de propósito). Hubs SEM banner continuam reservando
+    `--chrome-clearance` normalmente (nenhuma regressão). Ver
+    `scripts/verify-back-float-2026-07-25.js` seção 15d.
+- **Tile de país no modal de Filtros (`.filter-tile--photo`, faceta País)** — mesma regra-mãe em
+  miniatura (bandeira cobrindo o bloco + faixa sólida com o nome). `countryTileIconHtml` (emoji
+  de bandeira Unicode) morreu — layout próprio (`"photo-tiles"`), não reaproveita
+  `renderTileSectionBody` (ainda usado por Equipamento). `window.COUNTRIES.<id>.iso2` continua a
+  fonte única (`js/countries.js`), só o consumo mudou de emoji pra arquivo
+  (`imagens/bandeiras/<iso2>.webp`).
+- **Extermínio final de emoji:** `categories.js`/`collections.js`/`app.js` chegam a ZERO emoji
+  funcional (campo `icon` removido inteiro dos dois primeiros; `GRUPOS.icon`/`.desc` removidos do
+  terceiro). `js/countries.js` continua com `.emoji` como dado inerte (não lido por nenhuma tela
+  mais) — fora do escopo "zero", decisão explícita, não uma exceção nova. Suíte
+  `scripts/verify-emoji-fase0c-2026-07-25.js` atualizada pros novos esperados.
+
+**Correção pós-revisão do dono, rodada 2 (mesmo dia, mesmo commit) — 4 ajustes, ver
+`docs/DESIGN-TOKENS.md` pros números/CSS exatos:**
+1. Bandeira do tile de país voltou a ser BORRADA + véu (nunca nítida — nítida quebrava a
+   identidade, veredito do dono ao ver no ar). `--flag-blur`/`--flag-veil` calibráveis.
+2. Ritmo da folha do hub ganhou tokens explícitos (título→busca `--space-4`, busca→conteúdo
+   `--space-6` na própria margem do search-wrap).
+3. **Bug real de julgamento na rodada 1**: a faixa em `position: absolute` cobria a base de uma
+   imagem 1:1, fatiando o prato visualmente. Corrigido — mídia (com `aspect-ratio`) e faixa
+   viraram blocos empilhados, nunca sobrepostos (grade 1:1 zero corte, Home 4:3 mínimo,
+   `object-position: center`). Achado extra ao vivo: `.category-card__media`/`.home-tile__media`
+   são `<span>` (inline por padrão) — `aspect-ratio` não pegava sem `display: block` explícito.
+4. Mosaico de bandeiras (CSS, `.flag-mosaic`) substitui a foto de temperos no tile "Países" da
+   Home e no banner do hub Países — o dono achou a composição sem identidade nessas 2
+   superfícies. `hub-cozinhas.webp` arquivado (mantido em disco, sem consumidor).
+
+**Calibração final, rodada 3 (mesmo dia) — 3 ajustes pós-revisão ao vivo, ver
+`docs/DESIGN-TOKENS.md` pros números exatos:** blur do tile de país individual 6px→2,5px
+(reconhecível, não mancha); mosaico virou grid 3x3 (9 bandeiras, era 2x2/4) com blur 10px→4px,
+ordem escolhida por contraste de cor entre vizinhos; label do tile "Navegar por Países"→"Países"
+(cabe em 1 linha, resolve o tile mais alto que os vizinhos) + `min-height` derivado na faixa dos
+4 tiles da Home como rede de segurança. Medido ao vivo: os 4 tiles com altura idêntica.
+
+**Calibração final de bandeiras, rodada 4 (mesmo dia) — correção de causa raiz (proporção), ver
+`docs/DESIGN-TOKENS.md` pros números exatos:** o acervo `imagens/bandeiras/*.webp` foi REGERADO
+3:2 (600×400, era 1:1 600×600) direto dos SVGs (`scripts/exportar-bandeiras.py`/`.js` — o `.js`
+rodou de fato nesta máquina, Node+sharp, por bloqueio real de libcairo/GTK3 no Windows pro `.py`).
+Com o asset já 3:2, o SLOT de mídia dos tiles individuais (`.category-card--flag`/
+`.filter-tile--photo`) também virou `aspect-ratio: 3 / 2` — corte medido ~zero (era 1:1,
+forçando corte em toda bandeira) — e o zoom caiu de `scale(1.15)` pra `scale(1,02)` (**regra
+geral nova, vale pra qualquer imagem de tile futura:** a mídia do tile casa a proporção do
+próprio asset; zoom é só o mínimo que cobre, nunca o disfarce de uma proporção errada). Blur
+individual `--flag-blur` 2,5px→1px (quase imperceptível — o véu, não o blur, preserva
+identidade). Mosaico recortado 3x3 da rodada 3 morreu — virou MURAL de bandeiras INTEIRAS, grid
+2x2 (4, não 9: BR/FR/JP/ES, mesma lógica de contraste de vizinhos), `--flag-mosaic-blur`
+4px→1,5px; corte agora é só a diferença de proporção entre o host (grid N×N herda a proporção do
+CONTAINER, não uma célula "ideal" isolada) e o asset — pequeno e medido (~10,6% de largura na
+Home, ~5,9% de altura no banner do hub), não mais um recorte de composição. Achado ao vivo na
+verificação final (bug pré-existente, não desta rodada): `.filter-tile--photo .filter-tile__band`
+não tinha gap entre nome e contagem (2 `<span>` colados, "Itália12" na tela) — o tile-ícone base
+ganha esse espaçamento do `.filter-tile` pai (flex+gap), mas a faixa de país nunca tinha o mesmo
+tratamento; corrigido com flex column + `gap: 2px` na própria faixa, mesmo valor de
+`.category-card__band`.
 
 ## Critérios de aceite
 

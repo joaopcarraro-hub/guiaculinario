@@ -332,6 +332,27 @@ A frente de design pode estilizar esse estado como quiser, contando que o sinal 
 Enquanto as 391 não forem geradas, esse estado é o da **maioria** das receitas, então não é um caso
 de borda: é o caso comum hoje.
 
+### 8.1.1 Resolução — regra-mãe adotada (item 6 do roadmap-mestre, 2026-07-26)
+
+A pendência acima ("nenhum texto sobre foto sem scrim escuro") foi resolvida pela frente de
+design como uma regra-mãe formal, não caso a caso: **texto nunca senta em imagem.** Já valia pro
+card de receita (nome numa faixa sólida sob a foto) e pra página de receita (título na folha
+que desliza sobre o hero, nunca sobre o pixel da foto); esta rodada estendeu a mesma gramática
+pro tile de categoria/home, pro banner dos 3 hubs e pro tile de país — sempre uma FAIXA/FOLHA
+sólida (`var(--color-bg)`) carregando o texto, nunca o texto direto sobre a foto ou sobre o
+blur. Ver `docs/DESIGN-TOKENS.md` ("Componentes" → tile de categoria/home + banner de hub + tile
+de país) para a spec completa (estrutura, tamanhos, contraste medido).
+
+**Alternativa avaliada e ARQUIVADA (não usada):** um par "blur 6px + véu branco a 25% de
+opacidade + texto escuro por cima", medido entre **5,10:1 e 5,65:1** de contraste conforme a
+região da foto por trás — passaria AA com folga em qualquer ponto da faixa. Ficou registrada
+aqui como alternativa VÁLIDA, não como erro: a regra-mãe (faixa/folha sólida) foi preferida por
+CONSISTÊNCIA com o que o app já fazia no card/página de receita (um único vocabulário visual de
+"superfície que carrega texto sobre mídia" em vez de dois), não porque o véu branco falhasse
+contraste ou tivesse algum problema técnico. Se uma superfície futura precisar de texto
+sobreposto direto à foto (sem faixa/folha reservável), este par fica disponível como opção já
+medida, sem precisar remedir do zero.
+
 ---
 
 ## 9. Estado — ENTREGUE
@@ -469,14 +490,16 @@ Todos verificados por pathspec antes do commit: nenhum arquivo da frente de rede
 
 ### 9.4 O que ficou aberto
 
-**Nada bloqueia mais o pipeline de imagens.** As duas pendências abaixo são de outras frentes:
+**Nada bloqueia mais o pipeline de imagens.** A pendência abaixo é de outra frente:
 
 - **`CACHE_NAME` do `sw.js`.** O commit `54c612b` (redesign) alterou `css/style.css` e `js/app.js`,
   ambos no `APP_SHELL`, sem bumpar a versão — o `CLAUDE.md` exige o bump no mesmo push. Impacto
   reduzido porque o shell virou network-first: quem está online já recebe o arquivo novo. O buraco
   é o **fallback offline**, que fica preso na cópia antiga.
-- **Tile de categoria.** Imagem dedicada 1:1 600×600, decidida pela frente de design (§4). Não sai
-  deste pipeline e ainda não existe.
+- ~~**Tile de categoria.** Imagem dedicada 1:1 600×600, decidida pela frente de design (§4). Não
+  sai deste pipeline e ainda não existe.~~ — **RESOLVIDO (item 6 do roadmap-mestre, 2026-07-26):**
+  acervo de 19 imagens gerado (`scripts/gerar-categorias.js`) e consumido pelo tile de
+  categoria/home e banner de hub — ver §8.1.1 e `docs/DESIGN-TOKENS.md`.
 
 **Ponto de atenção permanente:** o `object-position: center bottom` do hero (§6.2) já sobreviveu a
 três commits de CSS de outras frentes. A suíte `scripts/test-foto-local.js` é o que detecta se ele

@@ -46,8 +46,9 @@ como referência histórica de tamanho/peso, substituída pela escala de 6 degra
 
 **Famílias:**
 - `--font-ui`: `-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif` — `body` e todo o app, exceto os 3 seletores de NOME/título abaixo.
-- `--font-display`: `ui-serif, Georgia, 'Iowan Old Style', 'Palatino Linotype', serif` — SOMENTE título da receita (`.recipe-page-title h2`), título no card de receita (`.recipe-title h3`) e título de categoria/hub (`#category-header h2`). Peso sempre 400 nesses 3 (o peso serif vem do desenho da própria fonte, não de font-weight).
-  - **Home:** não existe hoje um título de página na home — `renderHome` só monta os tiles principais e "Mais categorias", ambos `<button>` (excluídos por regra: botões nunca levam serif). Se um título de página entrar na home no futuro, ele se junta a esta lista.
+- `--font-display`: `ui-serif, Georgia, 'Iowan Old Style', 'Palatino Linotype', serif` — título da receita (`.recipe-page-title h2`), título no card de receita (`.recipe-title h3`), título de categoria (`#category-header h2`), título de grupo/hub (`.grupo-view h2`) e, desde o item 6 do roadmap-mestre (2026-07-26), o NOME dentro dos 2 tipos de tile de imagem: `.category-card__title` (tile da grade) e `.home-tile__label` (tile grande da Home). Peso sempre 400 nesses 6 (o peso serif vem do desenho da própria fonte, não de font-weight).
+  - **Correção nesta rodada:** esta lista dizia "título de categoria/hub (`#category-header h2`)", mas isso sempre foi impreciso — `#category-header h2` é só a página de CATEGORIA (`renderCategory`); a página de GRUPO/HUB (`renderGrupo`) sempre usou um elemento diferente (`.grupo-view h2`) que nunca tinha sido serif de verdade, apesar do que este documento já registrava. Achado e corrigido no mesmo commit que tornou o título do hub serif de fato (item 6, banner de hub).
+  - **Home:** não existe hoje um título de página na home — `renderHome` só monta os tiles principais e "Mais categorias", ambos `<button>` (excluídos por regra: botões nunca levam serif — os NOMES dentro dos tiles de imagem são a exceção documentada acima, são `<span>` dentro do botão, não o botão em si). Se outro título de página entrar na home no futuro, ele se junta a esta lista.
   - Botões, chips, nav, metadados, labels de seção uppercase (ex. "INGREDIENTES"), inputs e copy funcional ficam sempre em `--font-ui`, mesmo quando visualmente grandes.
 
 **Escala de tamanho (raiz 16px, piso 12px — nada abaixo de `--text-xs`):**
@@ -547,6 +548,226 @@ diretamente. Remoção dos alias fica pra uma rodada futura.
     reduzir, confirmado nesta rodada, nenhuma regra nova precisou entrar no bloco
     `@media (prefers-reduced-motion: reduce)` existente por causa deste efeito especificamente.
 
+- **Tile de categoria/home + banner de hub + tile de país — item 6 do roadmap-mestre
+  (2026-07-26), item final do redesenho visual.** Fecha a pendência do §4/§8.1 do
+  `CONTRATO-IMAGENS-REDESIGN.md` (layout do tile de categoria era "da frente de design") e o
+  bucket de emoji que a Fase 0c deixou de propósito (categoria/hub em `categories.js`/
+  `collections.js`/`app.js`, bandeira de país). **Regra-mãe, adotada como decisão de design
+  formal:** TEXTO NUNCA SENTA EM IMAGEM. Já valia pro card de receita (nome numa faixa sob a
+  foto) e pra página de receita (título na folha sobre a foto, nunca no hero); esta rodada
+  estende a mesma gramática a categoria, hub e país. Investigação prévia (slug de
+  `scripts/gerar-categorias.js` ↔ `id` de `window.COLLECTIONS`): **zero tile órfão** nas 16
+  coleções de Fundamentos+Proteínas (paridade 1:1 confirmada, executando a função real contra o
+  acervo, não só lendo o literal) e nas 20 de País (via `iso2`). Os únicos 7 sem imagem são
+  Por tempo (4) e Por dificuldade (3) — rotas órfãs, sem link nenhum no app hoje — que recebem o
+  fallback tipográfico limpo (faixa + nome, sem buraco, sem ícone).
+  - **Tile de categoria (`.category-card`, grade "Mais Categorias" + grade de qualquer hub,
+    inclusive Países)** — `renderCollectionCard` (app.js) constrói SEMPRE a mesma estrutura de 2
+    partes: `.category-card__media` (a foto, `object-fit: cover`, SEM blur — blur é só do banner
+    de hub, ver abaixo) + `.category-card__band`, uma faixa SÓLIDA `background: var(--color-bg)`
+    grudada no rodapé (`position: absolute; inset auto 0 0 0` efetivo), contendo
+    `.category-card__title` (o NOME, agora `--font-display` peso 400, `--text-sm`/14px, tier
+    `<20px` da escala de tracking — sem letter-spacing negativo) e `.category-card__count` (a
+    contagem "N receitas", que já existia e sobreviveu ao redesenho, `--text-xs`/
+    `--color-text-secondary`). `aspect-ratio: 1` casa com a proporção nativa da imagem gerada
+    (1:1, 600×600) — sem crop na largura/altura, só o que `object-fit: cover` já cobre. Contraste
+    medido (fórmula de luminância WCAG, mesmo método já usado nesta tabela):
+    `--color-text-primary` sobre `--color-bg` = **17,03:1** (título) e `--color-text-secondary`
+    sobre `--color-bg` = **10,50:1** (contagem) — os dois muito acima do mínimo 4,5:1 AA.
+    `--color-bg` escolhido em vez de `--color-surface` (que também passaria, 13,98:1/8,62:1) por
+    CONSISTÊNCIA: é a mesma cor da folha (`.recipe-page`/`.grupo-sheet`) que já carrega texto
+    sobre mídia em outro lugar do app — um só tom de "superfície que carrega texto sobre imagem"
+    em vez de dois. Sem imagem mapeada (as 7 órfãs): `.category-card__media` fica vazio, cor de
+    fundo do PRÓPRIO `.category-card` (`--color-surface-elevated`, mesmo tom do placeholder
+    "sem foto" já usado em outras superfícies) aparece atrás — faixa + nome, sem buraco, sem
+    ícone. Emoji de ícone (`collection.icon`) morreu — campo removido de `collections.js`
+    inteiro (nenhuma coleção usa mais ícone próprio, dado morto depois do redesenho).
+  - **Tile grande da Home (`.home-tile`, os 4 tiles de `HOME_MAIN_TILES`)** — MESMA estrutura de
+    2 partes (`.home-tile__media`/`.home-tile__band`/`.home-tile__label`), `aspect-ratio: 4/3`
+    (mais alto que o 1:1 da grade — "tile grande" também na proporção). Nome MAIOR que
+    `.category-card__title` de propósito (tamanho por classe de tile, hierarquia grande vs.
+    grade): `--text-md` (19px) em vez de `--text-sm` (14px), mesmo tier `<20px` de tracking. As 4
+    entradas (Massas, Proteínas, Navegar por Países, Sobremesas) SEMPRE têm imagem — 2 apontam
+    pra uma categoria (`massas.webp`/`sobremesas-classicas.webp`) e 2 pro banner do próprio hub
+    (`hub-proteinas.webp`/`hub-cozinhas.webp`) — zero caso de fallback aqui. Ícone outline
+    (`bowl`/`flame`/`globe`/`cupcake`, `iconSvg()`) morreu — substituído pela foto.
+  - **Banner de hub (`.grupo-banner`/`.grupo-sheet`, `renderGrupo`) — só nos 3 hubs alcançáveis
+    por link real da Home (Mais Categorias/Proteínas/Países; tempo/dificuldade são rotas órfãs,
+    sem imagem, sem banner, título simples de sempre).** Mesma gramática de `.recipe-hero`/
+    `.recipe-page` (foto fixa + folha que sobrepõe), simplificada: `.grupo-banner`
+    (`position: fixed; top/left: 0; z-index: -1`, MESMO mecanismo do hero — escapa do
+    padding-top de `#main` pra alcançar o topo real do viewport, onde o `.chrome-float` também
+    senta) tem `height: var(--hub-banner-h)` (`clamp(180px, 28vh, 280px)` — ~25-30vh, referência
+    390×844 dá 236,32px). A imagem (`.grupo-banner__img`) leva `filter: blur(6px)` +
+    `transform: scale(1.1)` (esconde a borda mais clara que o blur cria nas quinas do próprio
+    container) — aqui SIM tem blur, ao contrário dos tiles, porque é fundo decorativo, não
+    identificação. `.grupo-sheet` é a FOLHA: `width: 100vw` + `margin-left: calc(50% - 50vw)`
+    (bleed total, mesma técnica de `.recipe-page`), `background: var(--color-bg)`, cantos
+    superiores `--radius-sheet`, sobrepõe só os últimos 24px do banner
+    (`margin-top: calc(var(--hub-banner-h) - 24px - var(--space-10))`, subtraindo o padding-top
+    de `#main` pra cancelar o dele antes da folha — MESMA matemática de `.recipe-page` sobre
+    `--hero-h`, só com o banner do hub no lugar do hero da receita; breakpoint `<=700px` subtrai
+    `--space-5` em vez de `--space-10`, espelhando a troca de padding de `#main` nesse ponto).
+    Título (`.grupo-view h2`, agora `--font-display` peso 400, `--text-xl`/30px, tier `>=28px`
+    → `-0.015em`) e a busca do hub (`.home-search-wrap`) vivem SEMPRE dentro de `.grupo-sheet` —
+    nunca sobre o blur. **Descrição textual do hub morreu** (decisão antiga do roadmap, fechada
+    nesta rodada) — `grupo.desc` não existe mais em nenhum grupo, bannerizado ou não.
+    **chrome-clearance:** hubs COM banner entram na MESMA exceção "float sobre mídia" da página
+    de receita — `.grupo-view.has-banner { padding-top: 0; }` (o back-float senta sobre o
+    banner de propósito, não sobre texto) — ver `--chrome-clearance` acima. `.grupo-view` sem
+    banner (tempo/dificuldade) CONTINUA reservando `--chrome-clearance` normalmente, sem
+    regressão. Ver `scripts/verify-back-float-2026-07-25.js` (seção 15d) e
+    `scripts/verify-categoria-tiles-2026-07-26.js`.
+  - **Tile de país no modal de Filtros (`.filter-tile--photo`, faceta País,
+    `renderCountryTileSectionBody`)** — mesma regra-mãe em miniatura: bandeira
+    (`imagens/bandeiras/<iso2>.webp`, sem blur) cobrindo o bloco inteiro do `.filter-tile`
+    (min-height 76px, herdado sem mudança) + `.filter-tile__band` sólida (`var(--color-bg)`) com
+    o nome do país por baixo. `countryTileIconHtml` (emoji de bandeira Unicode) morreu — layout
+    próprio (`"photo-tiles"`, `def.layout` na faceta País), não reaproveita
+    `renderTileSectionBody` (ícone+label+contagem empilhados, ainda usado por Equipamento) porque
+    a estrutura muda de verdade. `window.COUNTRIES.<id>.iso2` (`js/countries.js`) continua a
+    fonte única — só o consumo mudou de `.emoji` (Unicode) pra arquivo.
+  - **Peso em disco da grade "Mais Categorias"** (6 imagens visíveis — molhos/sopas/entradas/
+    risotos-arroz/padaria/tecnicas; massas/sobremesas-classicas só aparecem nos tiles grandes da
+    Home): **398,5 KB** somados (números exatos no relatório da tarefa).
+
+  **Correção pós-revisão do dono, rodada 2 (2026-07-26, mesmo commit) — 4 ajustes:**
+  1. **Bandeira NÍTIDA quebrava a identidade do tile (veredito do dono).** Voltou a ser fundo
+     BORRADO + véu — `filter: blur(var(--flag-blur))` (6px) + `transform: scale(1.15)` na foto,
+     `::after` com `background: var(--flag-veil)` (`rgba(15, 15, 14, 0.35)`) por cima, sempre na
+     MÍDIA — o nome continua na faixa sólida, regra-mãe intacta. 2 tokens calibráveis em `:root`.
+     Aplicado em `.category-card--flag` (tile de país no hub Países) e `.filter-tile--photo`
+     (mesma faceta no modal de Filtros) — mesmos 2 tokens nos dois lugares.
+  2. **Ritmo da folha do hub, tokens explícitos** (era `--space-05`/2px entre título e busca,
+     solto demais): `.grupo-view h2` margin-bottom `--space-4` (16px, medido: 16px exato);
+     `.home-search-wrap` margin-bottom `--space-6` (24px). Medido ao vivo em 390px (hub
+     Fundamentos): título→busca 16px exato. Busca→conteúdo mediu 57px, não 24px — o elemento
+     seguinte (`.subgroup-title`, compartilhado com outras telas, `margin: var(--space-8) 0
+     var(--space-4)` + `padding-bottom: var(--space-2)`) já existia ANTES desta rodada e
+     contribui espaçamento próprio mesmo vazio (sem texto); não foi tocado nesta correção — só
+     os tokens explicitamente pedidos (`.grupo-view h2`/`.home-search-wrap`) mudaram, e os dois
+     medem exatamente o valor pedido isoladamente.
+  3. **Corte fatiava o prato — achado real da rodada 1**: `.category-card`/`.home-tile` usavam a
+     faixa em `position: absolute` SOBRE a base de uma imagem 1:1, cobrindo/cortando visualmente
+     parte da composição centrada. Corrigido: `.category-card__media`/`.home-tile__media` viraram
+     blocos PRÓPRIOS (`aspect-ratio: 1` e `4 / 3` respectivamente, `display: block` explícito —
+     achado ao vivo: são `<span>`, inline por padrão, `aspect-ratio` não se aplica de verdade sem
+     isso) e a faixa (`.category-card__band`/`.home-tile__band`) passou a vir DEPOIS, em fluxo
+     normal, empilhada por baixo — nunca mais sobrepondo a imagem. Grade: 1:1 = o asset inteiro,
+     zero corte. Home: 4:3 mínimo — a composição é overhead centrada, então 4:3 só corta as
+     laterais, simetricamente, nunca o topo/base onde mora o prato. `object-position: center`
+     explícito nas duas. `align-items: start` acrescentado em `.home-tiles`/`.category-grid`
+     (achado ao vivo: sem isso, o Grid stretava a altura de um tile mais curto pra igualar o
+     vizinho de 2 linhas de nome na mesma fileira, expondo uma tira vazia de
+     `--color-surface-elevated` embaixo da faixa mais curta).
+  4. **Mosaico de bandeiras substitui a foto de temperos (`hub-cozinhas.webp`) no tile "Países"
+     da Home e no banner do hub Países** — o dono achou a composição sem identidade nessas 2
+     superfícies especificamente (o resto do acervo de categoria continua igual).
+     `hub-cozinhas.webp` fica ARQUIVADO em disco, sem consumidor. `.flag-mosaic`: 9 bandeiras
+     fixas (`FLAG_MOSAIC_ISO2` em app.js), cada uma com `blur(var(--flag-mosaic-blur))` +
+     `scale(1.15)`, mais 1 véu ÚNICO (`--flag-mosaic-veil`, `rgba(15, 15, 14, 0.45)`) sobre o
+     conjunto inteiro (não por bandeira) — blur/véu mais fortes que o tile de país individual
+     porque aqui é fundo decorativo, não identificação. MESMO componente
+     (`buildFlagMosaicHtml()`) nas 2 superfícies, garantindo consistência sem duplicar HTML.
+
+  **Calibração final, rodada 3 (mesmo dia, mesmo commit) — 3 ajustes, pós-revisão do dono vendo
+  a rodada 2 no ar:**
+  1. `--flag-blur` (tile de país individual, hub Países + modal de Filtros): **6px → 2,5px** —
+     6px "virava mancha"; a bandeira precisa ficar RECONHECÍVEL, só com borda suavizada, nunca
+     uma cor sem forma. Confirmado ao vivo: Brasil legível como Brasil nas 2 superfícies. Véu
+     inalterado (`rgba(15, 15, 14, 0.35)`).
+  2. `.flag-mosaic`: grid 2x2 (4 células grandes) → **grid 3x3 (9 células)** — célula grande
+     demais lia como blob de cor, não como bandeira; 3x3 lê como textura de "vitral"/muitas
+     bandeiras. `--flag-mosaic-blur` **10px → 4px** (célula menor precisa de menos blur pra
+     ainda ler como bandeira). As 9 (`FLAG_MOSAIC_ISO2`, preenchimento em ordem de leitura do
+     grid) escolhidas maximizando contraste de cor dominante entre vizinhos ortogonais:
+     BR verde / FR azul / IT verde-branco / KR branco / IN laranja / GR azul / MX verde /
+     JP branco-vermelho / ES vermelho-amarelo. Os 3 verdes (BR/IT/MX) ficam em cantos
+     não-adjacentes entre si; os 2 azuis (FR/GR) também não se tocam. Par mais fraco do
+     conjunto: JP-ES (os dois têm vermelho), aceito porque cada um lê dominante diferente
+     (branco vs. amarelo) à distância de blur.
+  3. Label do tile da Home "Navegar por Países" → **"Países"** (mesmo texto do título do
+     próprio hub) — o label longo quebrava em 2 linhas e deixava esse tile mais alto que os
+     outros 3 na mesma fileira do grid CSS (`align-items: start` evita o STRETCH, mas não evita
+     a DIFERENÇA de altura natural entre um label de 1 linha e um de 2). `.home-tile__band`
+     ganhou `min-height` derivado (`calc(var(--text-md) * var(--leading-tight) + var(--space-3)
+     * 2)`) como rede de segurança pra qualquer label futuro. Medido ao vivo: os 4 tiles da
+     Home com altura TOTAL idêntica, 174,05px, e faixa idêntica, 46,8px.
+
+  **Calibração final de bandeiras, rodada 4 (2026-07-26, mesmo commit) — correção de causa raiz
+  (proporção do acervo, não só blur/zoom disfarçando um corte), decisão do dono + estrategista:**
+  1. **Acervo de bandeira REGERADO 3:2 (600×400), não mais 1:1 (600×600)**
+     (`scripts/exportar-bandeiras.py`/`.js`, das 20 `imagens/bandeiras/<ISO2>.svg`) — o quadrado
+     forçava corte em TODA bandeira, inclusive nas 14 (de 20) cuja proporção nativa já É
+     exatamente 3:2 (medida direto do SVG, não assumida de tabela): AT, CN, ES, FR, GR, IN, IT,
+     JP, KR, LB, MA, PE, PT, TH (corte zero). As 6 restantes: mais largas que 3:2 (cortam
+     largura) — DE 1,6667 / MX 1,75 / US 1,9 / HU 2,0 (a mais larga do acervo); mais estreitas
+     (cortam altura) — BR 1,4286 / DK 1,3214. EUA: o cantão (as 50 estrelas) fica no canto
+     superior esquerdo, não centralizado — corte central da largura o cortaria ao meio; âncora
+     especial (`ANCORA_X['US']=0.0` no `.py`, `ANCORA={US:'left'}` no `.js`) prende o corte na
+     borda esquerda, preservando o cantão inteiro (confirmado por inspeção visual do arquivo
+     gerado). BR/MX (os outros 2 casos com emblema) têm emblema centralizado — corte simétrico
+     seguro, confirmado visualmente. O `.py` (rewrite completo, é a versão canônica/legível da
+     decisão) não RODOU nesta máquina — falta libcairo/GTK3 runtime no Windows, que um
+     `pip install` sozinho não resolve; quem rodou de fato foi `scripts/exportar-bandeiras.js`
+     (Node+sharp, mesmo cálculo de corte/âncora, libvips já embutido no pacote, sem instalador de
+     sistema separado) — os dois devem ficar sincronizados se o alvo mudar nesta decisão de novo.
+  2. **Slot de mídia dos tiles de bandeira INDIVIDUAL (`.category-card--flag`/`.filter-tile--photo`)
+     casa 3:2, a mesma proporção do asset** — `aspect-ratio: 3 / 2` no lugar do `1:1`
+     herdado de categoria; `object-fit: cover` agora É o corte mínimo possível, medido ao vivo
+     praticamente zero (`.category-card--flag .category-card__media` 167×111,328 = razão 1,5001;
+     `.filter-tile--photo .filter-tile__media` 107,313×71,547 = razão 1,4999 — os 2 batem 3:2 na
+     margem de arredondamento de subpixel). `scale(1.15)` → **`scale(1,02)`** nos dois — zoom é
+     só o suficiente pra esconder a borda clara de um blur agora bem mais leve (item 3), não
+     precisa mais disfarçar corte de proporção que não existe. **REGRA GERAL, nova nesta
+     rodada, vale pra qualquer imagem de tile daqui pra frente (inclusive filtro futuro que não
+     seja bandeira):** a área de mídia de um tile deve casar a proporção do PRÓPRIO asset; o
+     zoom aplicado é o mínimo que cobre a caixa, nunca um valor solto escolhido pra esconder
+     desalinhamento de proporção — se o zoom precisa ser grande, o sintoma real é proporção
+     errada entre mídia e asset, não falta de zoom.
+  3. **Blur quase imperceptível** — `--flag-blur` **2,5px → 1px** nas 2 superfícies de bandeira
+     individual (hub Países + modal de Filtros): com o corte de proporção zerado (item 2), 2,5px
+     já era mais forte do que o necessário só pra suavizar a borda de amostragem; o véu
+     (inalterado, `rgba(15, 15, 14, 0.35)`) é quem preserva a identidade escura da faixa por
+     cima — não o blur, que agora só tira o serrilhado. Confirmado ao vivo: Brasil legível como
+     Brasil no hub Países e no modal de Filtros, borda só de leve suavizada, bandeira quase nítida.
+  4. **Mural de bandeiras INTEIRAS substitui o mosaico recortado 3×3 da rodada 3** (tile "Países"
+     da Home + banner do hub Países, mesmo componente `.flag-mosaic`/`buildFlagMosaicHtml()`/
+     `FLAG_MOSAIC_ISO2` nas 2 superfícies) — grid **2×2** (4 bandeiras: BR/FR/JP/ES, ordem de
+     leitura do grid, escolhidas maximizando contraste de cor dominante entre vizinhas ortogonais:
+     BR verde / FR azul / JP branco-vermelho / ES vermelho-amarelo, nenhum par do mesmo domínio de
+     cor é vizinho). Geometria de grid N×N (linhas=colunas): cada célula herda a MESMA proporção
+     do container hospedeiro — dividir W e H pelo mesmo N preserva a razão W/H — não uma "célula
+     3:2 ideal" isolada; corte por `object-fit: cover` vira só a diferença entre a proporção do
+     host e a do asset (3:2), medida ao vivo em 390×844 (`getComputedStyle` real, não estimativa):
+     tile da Home (host 4:3=1,3333, célula medida 82×61,125=1,3415) corta **10,57%** da LARGURA
+     da bandeira (5,28% de cada lado); banner do hub (host medido 375×236,3125=1,5869, célula
+     186×116,656=1,5944) corta **5,92%** da ALTURA (2,96% de cada lado). 3×3 daria o MESMO
+     percentual (é geometria de N×N, não do número de células) — 2×2 escolhido por dar bandeiras
+     maiores/mais reconhecíveis com o mesmo corte, e por serem INTEIRAS reconhecíveis, não uma
+     textura de fragmentos como a rodada 3. `--flag-mosaic-blur` **4px → 1,5px** (célula agora é
+     bandeira quase completa, não precisa disfarçar fragmento) + véu **`0.45` inalterado** (véu,
+     não blur, preserva identidade — mesmo raciocínio do item 3); `scale(1.15)` →
+     **`scale(1,03)`**. Achado ao vivo durante a calibração desta rodada: sem `min-width: 0;
+     min-height: 0;` em `.flag-mosaic img`, o mínimo automático de item de grid (que considera o
+     aspect-ratio intrínseco 3:2 da imagem quando a coluna já tem largura definida) virava o PISO
+     da linha — no banner do hub esse piso (124px) excedia a altura real do container (116,656px),
+     e o grid estourava por baixo do `overflow: hidden` do host, cortando parte da bandeira de
+     baixo silenciosamente (0 erro no console). `min-width/height: 0` remove o piso e deixa `1fr`
+     dividir o espaço real disponível — confirmado via `getComputedStyle` mostrando
+     `gridTemplateRows` correto (`116,656px 116,656px`) só depois do fix.
+  5. **Achado ao vivo na verificação final desta rodada (bug pré-existente, não introduzido
+     agora, só descoberto ao testar de novo):** `.filter-tile--photo .filter-tile__band` tinha só
+     `display: block` — sem gap nenhum entre `.filter-tile__label` e `.filter-tile__count` (2
+     `<span>` irmãos colados no HTML, sem espaço), o nome e a contagem colidiam na tela
+     ("Itália12", sem separação). No tile-ícone base o espaçamento vem do `.filter-tile` PAI
+     (flex column + gap, label/contagem são filhos diretos dele junto do ícone) — o tile de país
+     nunca teve esse mesmo tratamento na própria faixa. Corrigido com `display: flex;
+     flex-direction: column; align-items: center; gap: 2px;` (mesmo `gap: 2px` de
+     `.category-card__band`, consistência entre os 2 componentes; `align-items: center` — não
+     `stretch` — pra manter o mesmo centro visual dos outros tiles do grid de Filtros,
+     Equipamento/Proteína incluídos).
+
 ## Iconografia
 
 Outline, espessura consistente, monocromático. Ativos `--color-accent`, inativos
@@ -564,10 +785,17 @@ fetch terminar).
 
 **Regra (Fase 0c): emoji nunca é ícone.** Ícone de produto (ação, estado, categoria de dado) usa
 sempre `iconSvg()`. Emoji cru só é aceitável em copy decorativa opcional — e mesmo aí, a Fase 0c
-tirou todos os casos que existiam (ver skill `mobile-recipe-ui`, seção "Fase 0c"). As duas
-exceções que restam hoje (emoji de categoria/hub em `categories.js`/`collections.js`, e as
-bandeiras de país) não são exceções À REGRA — são migração pendente, adiada de propósito pro
-item 6 do roadmap (junto com as fotos), não um caso de uso aprovado pra emoji novo.
+tirou todos os casos que existiam (ver skill `mobile-recipe-ui`, seção "Fase 0c"). **As 2
+exceções que a Fase 0c tinha deixado de propósito (emoji de categoria/hub em `categories.js`/
+`collections.js`/`app.js`, e as bandeiras de país) foram RESOLVIDAS pelo item 6 do roadmap-mestre
+(2026-07-26)** — ver bullet "Tile de categoria/home + banner de hub + tile de país" em
+"Componentes" acima. `categories.js`/`collections.js`/`app.js` chegam a **zero emoji funcional**
+(confirmado por `scripts/verify-emoji-fase0c-2026-07-25.js`, atualizado nesta rodada); a bandeira
+de país virou imagem (`imagens/bandeiras/<iso2>.webp`) em todo lugar que antes usava
+`COUNTRY_FLAG_EMOJI`/`countryTileIconHtml`/`collection.icon`. `js/countries.js` continua com o
+campo `.emoji` (40 code points) como dado histórico/fonte — não é mais lido por nenhuma tela do
+app, fora do escopo "zero" por decisão explícita (não é uma exceção nova, é um dado inerte que
+sobrou de propósito).
 
 **Tamanhos em uso, por contexto (`css/style.css`, sempre `width`/`height` explícitos — um SVG
 sem essas duas propriedades cai no tamanho intrínseco do navegador, não no `font-size` que um
@@ -577,7 +805,6 @@ emoji herdava de graça):**
 |---|---|---|---|
 | Botão de remover (`.preparo-card__delete`, Preparos e Lista de Compras) | `close` | 16px | `.preparo-card__delete svg` |
 | Thumb de card sem foto (`.recipe-thumb`, `.preparo-card__thumb`) | `photoOff` | 24px | `.recipe-thumb.placeholder svg`, `.preparo-card__thumb.placeholder svg` |
-| Ícone de categoria sem `icon` definido (raríssimo — os 49 hoje têm todos) | `photoOff` | 24px | `.category-card__icon svg` |
 | Hero da página de receita sem foto (`.recipe-hero`) | `photoOff` | 56px | `.recipe-hero.placeholder svg` |
 
 Calibrado pra bater com o que o emoji/glifo antigo ocupava em cada contêiner (16px ≈

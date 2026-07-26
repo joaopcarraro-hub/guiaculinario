@@ -12,6 +12,13 @@
 // propósito, nunca HEAD (ver scripts/../cardapio-verify-script-base-commit): HEAD drifta pra
 // frente a cada commit novo e faria esta suíte comparar o estado errado.
 //
+// ATUALIZADA em 2026-07-26 pro item 6 do roadmap-mestre (CHECKLIST-GERAL.md): o bucket que
+// tinha ficado pendente desta Fase 0c (emoji de categoria/hub em app.js/categories.js/
+// collections.js) foi fechado — as 3 expectativas correspondentes viraram 0. js/countries.js
+// continua com os 40 code points de sempre (fora do escopo "zero" do item 6, ver
+// justificativa inline). CHECKLIST-GERAL.md também foi editado nesta leva (marcações "FEITO");
+// a expectativa dele deixou de ser igualdade estrita — ver justificativa inline.
+//
 // Cada bandeira conta 2 code points (par de regional indicator), não 1 — mesma ressalva já
 // registrada no inventário original ("bandeiras contam 2 code points cada").
 //
@@ -93,26 +100,27 @@ console.log("EXPECTATIVAS — código de produto (js/*.js, css/style.css)");
 console.log("==================================================");
 
 assert(
-  byFile["js/app.js"].after === 6,
-  "js/app.js: sobram exatamente 6 code points — as 5 linhas do grid 'Mais Categorias' " +
-    "(fundamentos/proteínas/países/tempo/dificuldade, L161-165; 'tempo' usa ⏱️ = 2 code points), " +
-    "único resquício de categoria/hub (bucket que fica pro item 6 do roadmap). Zero bandeira " +
-    "(saiu inteira pra js/countries.js) e zero do que morreu nesta leva."
+  byFile["js/app.js"].after === 0,
+  "js/app.js: ZERO code points — item 6 do roadmap-mestre (2026-07-26) fechou o bucket que " +
+    "tinha ficado (GRUPOS.icon/desc removidos, título do hub vira foto+faixa). " +
+    "scripts/verify-categoria-tiles-2026-07-26.js verifica a estrutura nova."
 );
 assert(
   byFile["js/countries.js"].after === 40,
-  "js/countries.js: 40 code points = 20 bandeiras x 2 code points cada — fonte única nova, " +
-    "não existia no BASE_COMMIT"
+  "js/countries.js: 40 code points = 20 bandeiras x 2 code points cada — fonte única, " +
+    "inalterada por esta leva (item 6 consome window.COUNTRIES.iso2, não .emoji; o campo " +
+    ".emoji continua existindo como dado inerte, fora do escopo 'zero' desta suíte)"
 );
 assert(
-  byFile["js/categories.js"].after === byFile["js/categories.js"].before - 40,
-  "js/categories.js: caiu exatamente 40 code points (20 bandeiras x 2, viraram " +
-    "window.COUNTRIES.X.emoji) — sobra só o emoji de categoria/hub (bucket que fica)"
+  byFile["js/categories.js"].after === 0,
+  "js/categories.js: ZERO code points — item 6 do roadmap-mestre fechou o bucket que tinha " +
+    "ficado (campo icon inteiro removido, dado morto: nenhum consumidor no app lia " +
+    "CATEGORIES[].icon antes desta leva, confirmado por grep)"
 );
 assert(
-  byFile["js/collections.js"].after === byFile["js/collections.js"].before - 40,
-  "js/collections.js: caiu exatamente 40 code points (mesma migração de bandeira) — sobra só " +
-    "categoria/hub"
+  byFile["js/collections.js"].after === 0,
+  "js/collections.js: ZERO code points — mesmo fechamento do item 6 (campo icon removido; " +
+    "renderCollectionCard passou a usar imagem/bandeira em vez do emoji)"
 );
 assert(
   byFile["css/style.css"].after === byFile["css/style.css"].before + 1,
@@ -125,7 +133,14 @@ assert(
     "não tocada por este redesenho) e `.preparo-card__delete svg` (\"✕\", Preparos, não " +
     "relacionado a card de receita)."
 );
-assert(byFile["CHECKLIST-GERAL.md"].after === byFile["CHECKLIST-GERAL.md"].before, "CHECKLIST-GERAL.md: inalterado (não é escopo desta leva, teste negativo de que não foi tocado)");
+assert(
+  byFile["CHECKLIST-GERAL.md"].after === byFile["CHECKLIST-GERAL.md"].before + 7,
+  "CHECKLIST-GERAL.md: +7 sobre o BASE_COMMIT (não regressão) — item 6 do roadmap-mestre " +
+    "(esta leva) formalizou a numeração pendente e marcou os itens 1-6 de \"Deixar pro Fable, " +
+    "depois\" como FEITO, reaproveitando o mesmo marcador \"✅ FEITO\" já usado em \"FAZER " +
+    "AGORA\" (7 ocorrências novas: itens 1/2/3/4/6 + as 2 sub-linhas do item 5) — decoração de " +
+    "seção estrutural existente (✅/🔵/🎨/etc.), não emoji novo em código de produto"
+);
 
 console.log("");
 console.log("==================================================");

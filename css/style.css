@@ -27,6 +27,35 @@
      (max 125vw — 100vw/125vw=0.8, caixa mais alta) — a janela seguro documentada no §5 do
      CONTRATO-IMAGENS-REDESIGN.md (atualizado na mesma rodada). */
   --hero-h: clamp(50vw, 52vh, 125vw);
+  /* Banner do hub (item 6 do roadmap-mestre) — imagem de categoria/hub borrada, faixa no topo
+     das páginas de grupo/hub (Mais Categorias, Proteínas, Países). ~25-30vh de altura; ao
+     contrário do --hero-h, aqui não há matemática de recorte de prato a proteger (a imagem é
+     sempre vista BORRADA), então um clamp simples basta. Referência 390x844: 28vh = 236,32px,
+     dentro da faixa. */
+  --hub-banner-h: clamp(180px, 28vh, 280px);
+  /* Correção pós-revisão do dono (item 6, rodada 2, 2026-07-26): bandeira NÍTIDA no tile de país
+     quebrava a identidade visual — voltou a ser fundo borrado com véu, como o roadmap original
+     já prescrevia. 2 números calibráveis, ver .category-card--flag/.filter-tile--photo.
+     Rodada 3: 6px "virava mancha" -> 2,5px (bandeira reconhecível, só borda suavizada).
+     Rodada 4 (causa raiz — a área de mídia agora casa a proporção 3:2 do asset, ver
+     scripts/exportar-bandeiras.js/.py; cover já é o corte mínimo, não sobra distorção pro blur
+     disfarçar): 2,5px ainda era mais que o necessário — quase imperceptível a 1px, véu (não o
+     blur) é quem preserva a identidade escura da faixa por cima. Confirmado ao vivo: Brasil
+     legível como Brasil no hub Países e no modal de Filtros, borda so de leve suavizada. */
+  --flag-blur: 1px;
+  --flag-veil: rgba(15, 15, 14, 0.35);
+  /* Mural de bandeiras (item 6, rodada 2 "mosaico" -> rodada 4 "mural de bandeiras INTEIRAS") —
+     substitui a foto de temperos no tile "Países" da Home e no banner do hub Países (as duas
+     viviam de hub-cozinhas.webp, agora arquivado). Ver .flag-mosaic/.flag-mosaic__grid.
+     Rodada 3 tinha virado grid 3x3 recortado (9 bandeiras CORTADAS, textura de vitral). Rodada 4
+     troca por bandeiras COMPLETAS: célula 3:2 = a proporção do próprio asset, zero corte por
+     célula (ver relatório da tarefa pras medidas de grid por superfície). Blur consideravelmente
+     mais leve que a rodada 3 (célula maior e SEM corte não precisa de tanto blur pra não competir
+     com o texto por cima) — véu mais forte que o do tile individual porque aqui o objetivo
+     continua "fundo decorativo com textura de vários países", não identificação de UMA bandeira
+     específica. */
+  --flag-mosaic-blur: 1.5px;
+  --flag-mosaic-veil: rgba(15, 15, 14, 0.45);
   font-size: 16px;
 
   /* ---- Design tokens v3 (docs/DESIGN-TOKENS.md) ----
@@ -130,10 +159,12 @@
      --chrome-clearance = a MESMA fórmula do top do float (safe-area + --space-3) + a altura do
      float (44px) + mais um --space-3 de respiro — resultado: o conteúdo começa exatamente
      --space-3 abaixo da borda inferior do float, nunca por baixo dele. Usado como padding-top
-     em .cook-page, .grupo-view e #category-header:has(.chrome-float) (só quando populado —
-     ver comentário perto dessas regras). EXCEÇÃO deliberada e documentada: a página de receita
-     (.recipe-page) NÃO usa este token — lá o float sobrepor a foto é o efeito desejado (ver
-     docs/DESIGN-TOKENS.md). */
+     em .cook-page, .grupo-view (só SEM banner — ver abaixo) e #category-header:has(.chrome-float)
+     (só quando populado — ver comentário perto dessas regras). EXCEÇÃO "float sobre mídia" (item
+     6 do roadmap-mestre ampliou esta exceção nesta rodada): a página de receita (.recipe-page) E
+     as telas de grupo/hub COM banner (.grupo-view.has-banner — Mais Categorias/Proteínas/Países)
+     NÃO usam este token — nos dois casos o float sobrepõe uma imagem de propósito (foto/banner),
+     nunca texto, mesmo efeito desejado (ver docs/DESIGN-TOKENS.md). */
   --chrome-clearance: calc(env(safe-area-inset-top, 0px) + var(--space-3) + 44px + var(--space-3));
 
   /* ---- Fase 0b (tipografia): direção serif-título/sans-UI definida na Fase 0a
@@ -818,7 +849,10 @@ body { pointer-events: none; }
 .used-for strong { color: var(--color-text-primary); }
 
 /* ---------- Home ---------- */
-.home-search-wrap { margin-bottom: var(--space-5); }
+/* margin-bottom: --space-6 (rodada 2, pós-revisão do dono, item 6) — era --space-5; ritmo da
+   folha do hub explícito (título->busca --space-4, busca->conteúdo --space-6), única classe
+   consumidora desta regra (renderGrupo em app.js), sem efeito colateral em outra tela. */
+.home-search-wrap { margin-bottom: var(--space-6); }
 .home-search {
   width: 100%;
   min-height: 50px;
@@ -1146,6 +1180,7 @@ body.filter-modal-open { overflow: hidden; }
 .filter-tile-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  align-items: start;
   gap: var(--space-2);
   padding: var(--space-1) var(--space-05) var(--space-4);
 }
@@ -1171,11 +1206,10 @@ body.filter-modal-open { overflow: hidden; }
 .filter-tile__icon--svg { color: var(--color-text-disabled); }
 .filter-tile.is-selected .filter-tile__icon--svg { color: var(--color-accent); }
 .filter-tile__icon--svg svg { width: 100%; height: 100%; display: block; }
-/* Emoji (bandeira de País, ingrediente) — caractere Unicode, não recolore por estado (emoji não
-   herda currentColor); a borda do tile já indica seleção sozinha. .filter-tile__icon--png
-   (PNG Icons8, filter:invert(1)) foi removida — os 3 últimos ícones raster de Equipamento
-   viraram SVG real, nenhum PNG resta no app. */
-.filter-tile__icon--emoji { font-size: var(--text-lg); line-height: var(--leading-tight); }
+/* .filter-tile__icon--emoji (bandeira de País) e .filter-tile__icon--png (PNG Icons8,
+   filter:invert(1)) foram removidas — País virou foto (item 6 do roadmap-mestre, ver
+   .filter-tile--photo) e os 3 últimos ícones raster de Equipamento viraram SVG real; nenhum
+   ícone-emoji nem PNG resta no app. */
 
 /* Piloto de redesenho — Ingrediente (def.layout "ingredient-tiles"). Grade mais densa que
    País/Equipamento (mais colunas, tiles menores) pra caber ~30-40 valores confortavelmente em
@@ -1191,7 +1225,6 @@ body.filter-modal-open { overflow: hidden; }
   border-radius: 10px;
   gap: var(--space-05);
 }
-.filter-tile--dense .filter-tile__icon--emoji { font-size: var(--text-md); }
 .filter-tile--dense .filter-tile__label { font-size: var(--text-xs); }
 .filter-tile--dense .filter-tile__count { font-size: var(--text-xs); }
 @media (max-width: 380px) {
@@ -1207,6 +1240,44 @@ body.filter-modal-open { overflow: hidden; }
   line-height: var(--leading-tight);
 }
 .filter-tile__count { font-size: var(--text-xs); color: var(--color-text-disabled); }
+
+/* Tile de País (item 6 do roadmap-mestre) — bandeira imagens/bandeiras/<iso2>.webp cobrindo o
+   bloco + faixa sólida com o nome por baixo, mesma regra-mãe dos tiles de categoria/home, em
+   miniatura (min-height:76px herdado de .filter-tile, sem mudança de tamanho). .filter-tile__icon
+   /--emoji (bandeira Unicode) morreram — ver renderCountryTileSectionBody em js/app.js. Border
+   de seleção (.is-selected) continua vindo da regra genérica .filter-tile.is-selected acima,
+   sem duplicar aqui. Bandeira BORRADA + véu (rodada 2, pós-revisão do dono — mesmos
+   --flag-blur/--flag-veil do .category-card--flag, mesmo motivo: nítida quebrava a
+   identidade). */
+/* Rodada 4 (causa raiz — proporção do asset): media e faixa viraram blocos EMPILHADOS em fluxo
+   normal (mesma correção já aplicada em .category-card/.home-tile na rodada de crop) — min-
+   height:76px (herdado de .filter-tile) deixa de ser a altura total do tile, que agora cresce
+   com media(3:2)+faixa; min-height sozinho não bloqueia esse crescimento, só garante o piso
+   nos OUTROS tipos de tile (ícone) que continuam usando só min-height. */
+.filter-tile--photo { overflow: hidden; padding: 0; gap: 0; }
+.filter-tile--photo .filter-tile__media { display: block; position: relative; aspect-ratio: 3 / 2; overflow: hidden; }
+.filter-tile--photo .filter-tile__img { width: 100%; height: 100%; object-fit: cover; display: block; filter: blur(var(--flag-blur)); transform: scale(1.02); }
+.filter-tile--photo .filter-tile__media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--flag-veil);
+}
+/* achado ao vivo (rodada 4): label+contagem são 2 <span> irmãos dentro da faixa (js/app.js,
+   renderCountryTileSectionBody) — no tile-ícone base, o gap vem do .filter-tile pai (flex
+   column, os 2 são filhos diretos dele junto do ícone). Aqui os 2 viraram filhos de __band,
+   que só tinha display:block (sem gap) — colidiam sem espaço nenhum ("Itália12"). flex column +
+   align-items:center (não stretch, pra manter o mesmo centro dos outros tiles do grid — Equipamento/
+   Proteína são ícone+label+contagem todos centralizados) resolve, mesmo gap:2px de
+   .category-card__band pra double-check visual consistente entre os 2 componentes. */
+.filter-tile--photo .filter-tile__band {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-1) var(--space-05);
+  background: var(--color-bg);
+}
 
 @media (max-width: 380px) {
   .filter-tile-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1430,27 +1501,105 @@ body.filter-modal-open { overflow: hidden; }
 .home-tiles {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
+  align-items: start;
   gap: var(--space-3);
   margin-bottom: var(--space-2);
 }
+/* Tile grande da Home (item 6 do roadmap-mestre, corrigido na rodada 2 pós-revisão do dono) —
+   regra-mãe: texto nunca senta em imagem. .home-tile__media é um bloco PRÓPRIO com
+   aspect-ratio 4/3 MÍNIMO (a composição é overhead centrada — 4:3 corta só as laterais,
+   simetricamente, nunca o topo/base onde mora o prato) — mais largo que o 1:1 de
+   .category-card, "tile grande" também na proporção. .home-tile__band vem DEPOIS, em fluxo
+   normal, empilhada por baixo — nunca sobrepondo a imagem (mesma correção do .category-card,
+   ver comentário lá: a faixa absoluta fatiava o prato). Ícone outline (bowl/flame/globe/
+   cupcake) morreu — 3 das 4 entradas têm foto (ver HOME_MAIN_TILES em app.js); a 4ª
+   ("Navegar por Países") usa o mosaico de bandeiras (.flag-mosaic) em vez de foto — ver
+   comentário próprio abaixo. Fundo neutro (--color-surface-elevated) é só o estado antes da
+   imagem carregar. */
 .home-tile {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: var(--space-3);
-  min-height: 120px;
+  overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: 20px;
-  background: var(--color-surface);
-  padding: var(--space-5);
+  background: var(--color-surface-elevated);
+  padding: 0;
   text-align: left;
   cursor: pointer;
+  display: block;
   font-family: inherit;
 }
 .home-tile:hover { border-color: var(--color-accent); }
-.home-tile__icon { width: 30px; height: 30px; color: var(--color-text-primary); }
-.home-tile__label { font-weight: 600; font-size: var(--text-base); color: var(--color-text-primary); }
+.home-tile__media { display: block; position: relative; aspect-ratio: 4 / 3; overflow: hidden; }
+.home-tile__img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+/* min-height (rodada 3, pós-revisão do dono): garante a MESMA altura de faixa nos 4 tiles,
+   mesmo que um label futuro volte a quebrar linha — geometria derivada (1 linha de
+   .home-tile__label no tamanho/leading reais + o padding vertical da própria faixa dos 2
+   lados), não um valor solto. Hoje os 4 labels cabem em 1 linha (ver correção do label
+   "Países" acima), então isto é rede de segurança, não o que resolve o caso atual sozinho. */
+.home-tile__band {
+  display: block;
+  min-height: calc(var(--text-md) * var(--leading-tight) + var(--space-3) * 2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg);
+}
+/* Nome de categoria é NOME (docs/DESIGN-TOKENS.md, Tipografia) — serif, peso 400. MAIOR que
+   .category-card__title de propósito (tile grande da Home vs. tile da grade — tamanho por
+   classe de tile, ver relatório da tarefa). Tier <20px da escala de tracking (sem letter-
+   spacing negativo). */
+.home-tile__label { font-family: var(--font-display); font-weight: 400; font-size: var(--text-md); line-height: var(--leading-tight); color: var(--color-text-primary); }
+
+/* Mural de bandeiras (item 6, rodada 2 "mosaico" -> rodada 4 "mural de bandeiras INTEIRAS") —
+   substitui a foto de categoria/hub em 2 superfícies que perderam identidade com a imagem de
+   temperos (hub-cozinhas.webp, arquivado em disco mas sem consumidor: tile "Países" da Home,
+   .home-tile__media, e banner do hub Países, .grupo-banner). MESMO componente/MESMAS 4
+   bandeiras nas 2 (buildFlagMosaicHtml()/FLAG_MOSAIC_ISO2 em app.js). Container hospedeiro
+   (.home-tile__media ou .grupo-banner) precisa ser position:relative ou fixed (já são) pro
+   inset:0 resolver contra ele, não contra um ancestral mais distante.
+   Rodada 3 tinha virado grid 3x3 recortado (9 bandeiras cortadas, "textura de vitral"). Rodada 4
+   troca por bandeiras COMPLETAS: grid 2x2 (4 células) — numa grade N×N (linhas=colunas), cada
+   célula herda a MESMA proporção do container hospedeiro (geometria: dividir W e H pelo mesmo N
+   preserva a razão W/H) — não da célula "3:2 ideal" isolada. Corte por object-fit:cover vira só
+   a diferença entre a proporção do host e a do asset (3:2), pequena nos 2 hosts reais, medido ao
+   vivo em 390x844 (getComputedStyle real, não estimativa de token): tile da Home (host 4:3=
+   1,3333, célula medida 82x61,125=1,3415) corta 10,57% da LARGURA da bandeira (5,28% de cada
+   lado); banner do hub (host medido 375x236,3125=1,5869, célula 186x116,656=1,5944) corta 5,92%
+   da ALTURA (2,96% de cada lado). 3x3 daria o MESMO percentual de corte (é geometria de N×N, não
+   do número de células) — 2x2 escolhido por dar bandeiras maiores/mais reconhecíveis com o mesmo corte.
+   As 4 (FLAG_MOSAIC_ISO2, preenchimento em ordem de leitura do grid) escolhidas maximizando
+   contraste de cor dominante entre vizinhas: BR verde / FR azul / JP branco-vermelho / ES
+   vermelho-amarelo — nenhum par de mesma cor dominante é vizinho. gap (2-3px) e o fundo por
+   trás dele usam --color-surface-elevated, mesmo tom neutro já usado como placeholder "sem
+   foto" — lê como moldura fina entre bandeiras, não como buraco. */
+.flag-mosaic {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 3px;
+  background: var(--color-surface-elevated);
+}
+.flag-mosaic img {
+  /* min-width/min-height:0 — achado ao vivo: sem isso, o mínimo automático de item de grid
+     (que considera o aspect-ratio intrínseco da imagem, 3:2, quando um eixo já é definido pela
+     coluna) vira o PISO da linha, e se esse piso exceder a altura real do container (caso do
+     banner do hub, medido em 390px), o grid ESTOURA por baixo do overflow:hidden do host em vez
+     de encolher via 1fr — bandeira de baixo cortada por engano, silenciosamente (0 erro no
+     console). min:0 remove o piso e deixa 1fr dividir o espaço real disponível. */
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: blur(var(--flag-mosaic-blur));
+  transform: scale(1.03);
+}
+.flag-mosaic::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--flag-mosaic-veil);
+}
 
 /* Carrossel "Vistas recentemente" (DEPOIS do bloco de categorias — tiles + Mais categorias —,
    item 4 do roadmap-mestre CHECKLIST-GERAL.md; posição corrigida 2026-07-26, julgamento visual
@@ -1524,41 +1673,144 @@ body.filter-modal-open { overflow: hidden; }
 .category-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  align-items: start;
   gap: var(--space-3);
   margin-bottom: var(--space-2);
 }
+/* Tile de categoria (item 6 do roadmap-mestre, corrigido na rodada 2 pós-revisão do dono) —
+   regra-mãe: texto nunca senta em imagem. .category-card__media é um bloco PRÓPRIO (não mais
+   position:absolute cobrindo o card inteiro) com aspect-ratio:1 — a ÁREA DE IMAGEM é o quadrado
+   INTEIRO do asset gerado (600x600), zero corte, SEM blur (blur é só do banner de hub e do
+   próprio tile de país, ver .grupo-banner/.category-card--flag). .category-card__band vem
+   DEPOIS, em fluxo normal, empilhada por baixo — nunca sobrepondo a imagem (achado da rodada 1:
+   a faixa absoluta cobria a base do quadrado 1:1 e fatiava o prato; corrigido virando bloco
+   separado, mesma gramática do .recipe-card__photo + .recipe-card__body, que nunca se sobrepõem).
+   Sem imagem mapeada (7 coleções órfãs de Por tempo/Por dificuldade, collectionTileImageSrc em
+   app.js devolve null): __media fica vazio, cor de fundo neutra (--color-surface-elevated) —
+   fallback tipográfico limpo, faixa + nome, sem buraco. */
 .category-card {
-  min-height: 100px;
+  overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  background: var(--color-surface);
-  padding: var(--space-4);
+  background: var(--color-surface-elevated);
+  padding: 0;
   text-align: left;
   cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+  display: block;
   font-family: inherit;
 }
 /* era --gold-soft: hover vira --color-accent-hover. box-shadow removido (sem precedente de
    elevação em dark mode; --line/--color-border já separa o card do fundo). */
 .category-card:hover { border-color: var(--color-accent-hover); }
-.category-card__icon { font-size: var(--text-xl); }
-.category-card__icon svg { width: 24px; height: 24px; } /* só quando collection.icon falta e cai no fallback SVG */
-.category-card__title { font-weight: 600; color: var(--color-text-primary); font-size: var(--text-base); line-height: var(--leading-tight); }
-.category-card__count {
-  font-size: var(--text-xs);
-  color: var(--color-text-secondary);
-  margin-top: auto;
+.category-card__media { display: block; position: relative; aspect-ratio: 1; overflow: hidden; }
+.category-card__img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+/* Tile de país (rodada 2) — bandeira BORRADA + véu, nunca nítida (achado do dono: nítida quebra
+   a identidade do tile). --flag-blur/--flag-veil calibráveis em :root.
+   Rodada 4 (causa raiz — proporção do asset, não só blur/zoom): o acervo de bandeira agora É
+   3:2 (scripts/exportar-bandeiras.js/.py, 600x400) — a área de mídia casa essa proporção em vez
+   de herdar o aspect-ratio:1 de categoria, então object-fit:cover já é o corte MÍNIMO possível
+   (~zero, ver relatório da tarefa pros números por bandeira). scale(1.02) substitui o 1.15
+   antigo — só o suficiente pra esconder a borda clara de um blur agora bem mais leve (ver
+   --flag-blur em :root), não pra compensar um corte de proporção que não existe mais. REGRA
+   GERAL (docs/DESIGN-TOKENS.md): área de mídia de tile de bandeira casa a proporção do asset;
+   zoom é o mínimo que cobre. */
+.category-card--flag .category-card__media { aspect-ratio: 3 / 2; }
+.category-card--flag .category-card__img { filter: blur(var(--flag-blur)); transform: scale(1.02); }
+.category-card--flag .category-card__media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--flag-veil);
 }
+.category-card__band {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg);
+}
+/* Nome de categoria é NOME (docs/DESIGN-TOKENS.md, Tipografia) — serif, peso 400, tier <20px da
+   escala de tracking (sem letter-spacing negativo). Menor que .home-tile__label de propósito
+   (tile da grade vs. tile grande da Home). */
+.category-card__title { font-family: var(--font-display); font-weight: 400; color: var(--color-text-primary); font-size: var(--text-sm); line-height: var(--leading-tight); }
+.category-card__count { font-size: var(--text-xs); color: var(--color-text-secondary); }
 
 /* ---------- Página de grupo ---------- */
 /* padding-top: var(--chrome-clearance) (hotfix 2026-07-26) — o back-float (Home) é
    position:fixed, primeiro filho do DOM mas fora do fluxo; sem este padding o título (h2,
-   primeiro filho em fluxo) começava colado no topo, por baixo do float. */
+   primeiro filho em fluxo) começava colado no topo, por baixo do float. Só se aplica aos hubs
+   SEM banner (tempo/dificuldade, rotas órfãs sem imagem) — ver exceção abaixo. */
 .grupo-view { padding-top: var(--chrome-clearance); }
-.grupo-view h2 { margin: 0 0 var(--space-05); }
-.grupo-view .desc { margin-bottom: var(--space-5); }
+/* Exceção "float sobre mídia" (item 6 do roadmap-mestre): hubs com banner (Mais Categorias/
+   Proteínas/Países) não reservam clearance — o back-float senta sobre o banner de propósito,
+   mesma lógica de .recipe-page sobre .recipe-hero (ver comentário de --chrome-clearance em
+   :root). */
+.grupo-view.has-banner { padding-top: 0; }
+/* Título do hub — serif (item 6): mesmo tratamento de #category-header h2 (título de
+   categoria), agora também aplicado ao título de grupo/hub, que nunca tinha sido serif de
+   verdade apesar do que a Fase 0b já registrava em docs/DESIGN-TOKENS.md (achado desta rodada,
+   corrigido no mesmo commit). Descrição textual do hub morreu (decisão antiga do roadmap) —
+   .desc não existe mais nesta tela. margin-bottom: --space-4 (rodada 2, pós-revisão do dono —
+   era --space-05/2px, ritmo solto demais entre título e busca; ritmo da folha do hub agora
+   segue token explícito, mesma disciplina da página de receita). */
+.grupo-view h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--text-xl);
+  line-height: var(--leading-tight);
+  letter-spacing: -0.015em; /* tier >=28px da escala de tracking, docs/DESIGN-TOKENS.md */
+  margin: 0 0 var(--space-4);
+  color: var(--color-text-primary);
+}
+
+/* Banner do hub (item 6) — imagem de categoria/hub borrada em faixa no topo, só nos 3 hubs
+   alcançáveis (GRUPO_BANNER_IMAGE em app.js: fundamentos/proteinas/cozinhas). position:fixed +
+   z-index:-1, MESMO mecanismo de .recipe-hero: escapa do padding-top de #main pra alcançar o
+   topo real do viewport (onde o chrome-float também senta, ver exceção de --chrome-clearance
+   acima) e some atrás da folha (.grupo-sheet) sem precisar de contexto de empilhamento próprio
+   (bucket negativo sempre pinta antes do fluxo normal não-posicionado). scale(1.1) esconde a
+   borda mais clara que o blur cria nas quinas do próprio container. */
+.grupo-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: 100%;
+  height: var(--hub-banner-h);
+  overflow: hidden;
+  background: var(--color-surface-elevated);
+}
+.grupo-banner__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: blur(6px);
+  transform: scale(1.1);
+}
+/* A FOLHA do hub (item 6) — mesma gramática de .recipe-page sobre .recipe-hero: bleed total
+   (escapa do padding/max-width de #main), fundo sólido, cantos superiores arredondados com
+   --radius-sheet, sobrepõe só os últimos 24px do banner (mesmo valor de overlap da página de
+   receita). margin-top deriva de --hub-banner-h como .recipe-page deriva de --hero-h — subtrai
+   o padding-top de #main (--space-10 aqui, --space-5 no breakpoint <=700px) pra cancelar esse
+   valor ANTES da folha, senão o afastamento real do topo do viewport ficaria --space-10 A MAIS
+   que o pretendido (mesma matemática do comentário de .recipe-page, só com o banner do hub no
+   lugar do hero da receita). Título e busca do hub vivem SEMPRE aqui dentro — nunca sobre o
+   banner borrado. */
+.grupo-sheet {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  background: var(--color-bg);
+  border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+  padding: var(--space-6) var(--space-5) 0;
+  margin-top: calc(var(--hub-banner-h) - 24px - var(--space-10));
+}
+@media (max-width: 700px) {
+  /* #main usa --space-5 de padding-top nesta faixa (ver @media (max-width: 700px) que troca o
+     padding de #main) — a folha cancela ESSE valor aqui, não --space-10 (mesmo padrão de
+     .recipe-page). */
+  .grupo-sheet { margin-top: calc(var(--hub-banner-h) - 24px - var(--space-5)); }
+}
 
 /* ---------- Página de receita ---------- */
 /* A FOLHA (item 1 de "Deixar pro Fable, depois"): .recipe-page vira o container que desliza

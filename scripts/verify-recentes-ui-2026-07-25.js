@@ -161,7 +161,7 @@ function main() {
   // novo, também fora desta feature.
   // v31 -> v32: fix pontual (2026-07-26) — centralização vertical do mesmo header de
   // ingredientes, css/style.css mudou de novo, também fora desta feature.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v32";'), "CACHE_NAME v32 — sucessor de v31 via fix pontual (fora desta feature, css/style.css mudou de novo)");
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v33";'), "CACHE_NAME v33 — sucessor de v32 via item final do redesenho visual, item 6 do roadmap-mestre (fora desta feature, css/style.css e js/app.js mudaram de novo)");
   assert(!swJs.includes('const CACHE_NAME = "cardapio-v25";'), "v25 não sobrevive — teste negativo (a versão desta tarefa foi sucedida, não deixada presa)");
   assert(swJs.includes('"css/style.css"') && swJs.includes('"js/app.js"'), "css/style.css e js/app.js seguem no APP_SHELL precache");
 

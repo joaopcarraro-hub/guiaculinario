@@ -214,7 +214,9 @@ function main() {
   // expandido, js/app.js mudou de novo, também fora desta feature.
   // v31 -> v32: fix pontual (2026-07-26) — mesmo header de ingredientes, agora centralização
   // vertical do h4 (css/style.css mudou), também fora desta feature.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v32";'), "CACHE_NAME v32 — 8º bump desde esta suíte (v24->v25 carrossel, v25->v26 redesenho do card, v26->v27/v27->v28/v28->v29 redesenho da página de receita em 3 rodadas, v29->v30 hotfix de pointer-events, v30->v31 header de ingredientes, v31->v32 fix de centralização do mesmo header), mesma regra do CLAUDE.md");
+  // v32 -> v33: item final do redesenho visual (item 6 do roadmap-mestre) — tile de
+  // categoria/home e banner de hub, ver scripts/verify-categoria-tiles-2026-07-26.js.
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v33";'), "CACHE_NAME v33 — 9º bump desde esta suíte (v24->v25 carrossel, v25->v26 redesenho do card, v26->v27/v27->v28/v28->v29 redesenho da página de receita em 3 rodadas, v29->v30 hotfix de pointer-events, v30->v31 header de ingredientes, v31->v32 fix de centralização do mesmo header, v32->v33 item final do redesenho visual), mesma regra do CLAUDE.md");
 
   console.log("");
   console.log("==================================================");
@@ -265,6 +267,19 @@ function main() {
   const tokensDoc = fs.readFileSync(tokensDocPath, "utf8");
   assert(tokensDoc.includes("--chrome-clearance"), "DESIGN-TOKENS.md documenta o token --chrome-clearance");
   assert(/exce[cç][aã]o/i.test(tokensDoc.slice(tokensDoc.indexOf("--chrome-clearance"), tokensDoc.indexOf("--chrome-clearance") + 1500)), "DESIGN-TOKENS.md documenta a exceção da página de receita perto do token (não só o token solto)");
+
+  console.log("");
+  console.log("==================================================");
+  console.log("15d. CHROME-CLEARANCE — exceção 'float sobre mídia' AMPLIADA (item 6 do roadmap-mestre): hubs COM banner (Mais Categorias/Proteínas/Países) entram na mesma exceção da página de receita.");
+  console.log("==================================================");
+  const hasBannerRuleStart = css.indexOf(".grupo-view.has-banner {");
+  assert(hasBannerRuleStart > grupoViewStart, ".grupo-view.has-banner { declarado DEPOIS da regra base .grupo-view (override, não substituição)");
+  const hasBannerRule = css.slice(hasBannerRuleStart, css.indexOf("}", hasBannerRuleStart));
+  assert(/padding-top:\s*0;/.test(hasBannerRule), "TESTE POSITIVO: .grupo-view.has-banner zera o padding-top — back-float senta no banner, igual .recipe-page sobre o hero");
+  assert(/padding-top:\s*var\(--chrome-clearance\);/.test(grupoViewRule), "TESTE NEGATIVO (regressão): .grupo-view base CONTINUA reservando --chrome-clearance — tempo/dificuldade (hubs sem banner) intactos");
+  const grupoFnBody2 = sliceFn(appJs, "function renderGrupo(grupoId) {", "renderGrupo (15d)");
+  assert(grupoFnBody2.includes('"grupo-view" + (hasBanner ? " has-banner" : "")'), "renderGrupo aplica has-banner condicionalmente (foto OU mosaico, ver GRUPO_BANNER_IMAGE/GRUPO_BANNER_MOSAIC) — nunca fixo");
+  assert(/float sobre m[ií]dia/i.test(css), "comentário de :root (--chrome-clearance) nomeia a exceção 'float sobre mídia' ampliada nesta rodada");
 
   console.log("");
   console.log("==================================================");

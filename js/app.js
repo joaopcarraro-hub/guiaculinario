@@ -204,13 +204,50 @@
   }
 
   // ---------- Grupos macro (home -> página de grupo -> coleção -> receita) ----------
+  // icon/desc removidos (item 6 do roadmap-mestre): título do hub deixou de levar emoji e a
+  // descrição textual morreu de vez (decisão antiga do roadmap) — ver renderGrupo/.grupo-sheet.
   const GRUPOS = [
-    { id: "fundamentos", label: "Mais Categorias", icon: "🥣", desc: "Aprenda as bases, técnicas e preparos essenciais da culinária.", collectionGroup: "Fundamentos" },
-    { id: "proteinas", label: "Proteínas", icon: "🍗", desc: "Encontre receitas pelo tipo de proteína principal ou ingrediente usado.", collectionGroup: "Proteínas" },
-    { id: "cozinhas", label: "Países", icon: "🌍", desc: "Navegue por receitas do Brasil e de diferentes países.", collectionGroup: "Países" },
-    { id: "tempo", label: "Por tempo", icon: "⏱️", desc: "Escolha receitas de acordo com o tempo que você tem para cozinhar.", collectionGroup: "Por tempo" },
-    { id: "dificuldade", label: "Por dificuldade", icon: "🎯", desc: "Encontre receitas fáceis, intermediárias ou mais técnicas.", collectionGroup: "Por dificuldade" },
+    { id: "fundamentos", label: "Mais Categorias", collectionGroup: "Fundamentos" },
+    { id: "proteinas", label: "Proteínas", collectionGroup: "Proteínas" },
+    { id: "cozinhas", label: "Países", collectionGroup: "Países" },
+    { id: "tempo", label: "Por tempo", collectionGroup: "Por tempo" },
+    { id: "dificuldade", label: "Por dificuldade", collectionGroup: "Por dificuldade" },
   ];
+
+  // Banner do hub (item 6 do roadmap-mestre, imagem gerada por scripts/gerar-categorias.js) — só
+  // os 3 hubs alcançáveis por link real da Home têm banner (fundamentos/proteinas/cozinhas).
+  // tempo/dificuldade são rotas órfãs (nenhum link no app, só URL direta) e continuam sem banner,
+  // tratamento tipográfico simples de sempre — ver renderGrupo.
+  // cozinhas NÃO usa imagem própria (rodada 2, pós-revisão do dono): hub-cozinhas.webp (temperos)
+  // ARQUIVADO — fica em disco, mas nenhum código lê mais esse caminho — porque a composição
+  // "perdia identidade" nesta superfície e no tile "Países" da Home. As duas usam o mosaico de
+  // bandeiras (buildFlagMosaicHtml abaixo) em vez de foto.
+  const GRUPO_BANNER_IMAGE = {
+    fundamentos: "imagens/categorias/hub-fundamentos.webp",
+    proteinas: "imagens/categorias/hub-proteinas.webp",
+  };
+  const GRUPO_BANNER_MOSAIC = new Set(["cozinhas"]);
+
+  // Mural de bandeiras INTEIRAS (item 6, rodada 2 "mosaico" -> rodada 3 "grid 3x3 recortado" ->
+  // rodada 4 "mural de bandeiras completas") — MESMO componente usado no tile "Países" da Home
+  // (HOME_MAIN_TILES/renderHome) e no banner do hub Países (GRUPO_BANNER_MOSAIC/renderGrupo): 4
+  // bandeiras, sempre as mesmas 4 na mesma ordem, pra consistência entre as duas superfícies.
+  // Blur/véu ficam inteiramente no CSS (.flag-mosaic) — grid 2x2, corte por célula é só a
+  // diferença de proporção entre o host (4:3 na Home, ~1,65:1 no banner) e o asset (3:2), bem
+  // menor que o corte da rodada 3 (ver comentário de .flag-mosaic em css/style.css pras contas).
+  // Ordem (preenchimento em ordem de leitura do grid 2x2, esquerda->direita, cima->baixo)
+  // escolhida maximizando contraste de cor dominante entre vizinhas ortogonais:
+  //   BR verde        | FR azul
+  //   JP branco-vermelho | ES vermelho-amarelo
+  // Nenhum par de mesma cor dominante é vizinho (BR-FR, FR-ES, ES-JP, JP-BR todos distintos).
+  const FLAG_MOSAIC_ISO2 = ["BR", "FR", "JP", "ES"];
+  function buildFlagMosaicHtml() {
+    return (
+      '<div class="flag-mosaic">' +
+      FLAG_MOSAIC_ISO2.map((iso2) => '<img src="imagens/bandeiras/' + iso2 + '.webp" alt="" loading="lazy">').join("") +
+      "</div>"
+    );
+  }
 
   function normText(s) {
     return (s || "").toString().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
@@ -276,18 +313,53 @@
     return map;
   }
 
+  // Acervo de imagem de categoria (item 6 do roadmap-mestre, scripts/gerar-categorias.js) — 16
+  // ids (8 Fundamentos + 8 Proteínas), paridade 1:1 confirmada por investigação contra
+  // window.COLLECTIONS (ver relatório da tarefa: zero tile órfão nesses 2 grupos). País usa
+  // bandeira (iso2), não este acervo — ver collectionTileImageSrc logo abaixo. Por tempo/Por
+  // dificuldade (7 coleções, rotas órfãs sem link nenhum no app) não têm imagem — fallback
+  // tipográfico limpo (faixa + nome, sem buraco).
+  const CATEGORY_TILE_IMAGE_IDS = new Set([
+    "molhos", "sopas", "entradas", "massas", "risotos-arroz", "padaria", "sobremesas-classicas", "tecnicas",
+    "aves", "carnes-bovinas", "suinos", "peixes", "frutos-do-mar", "col-ovo", "cordeiro", "col-vegetariana",
+  ]);
+
+  // Caminho da imagem de um tile de coleção — categoria (imagens/categorias/<id>.webp) ou
+  // bandeira de país (imagens/bandeiras/<iso2>.webp; window.COUNTRIES é a fonte única do iso2,
+  // js/countries.js). null = sem imagem mapeada, tile cai no fallback tipográfico.
+  function collectionTileImageSrc(collection) {
+    if (collection.collectionType === "country") {
+      const country = window.COUNTRIES[collection.id];
+      return country ? "imagens/bandeiras/" + country.iso2 + ".webp" : null;
+    }
+    return CATEGORY_TILE_IMAGE_IDS.has(collection.id) ? "imagens/categorias/" + collection.id + ".webp" : null;
+  }
+
   // Card compartilhado por TODOS os hubs (Fundamentos/Proteínas/Países/Tempo/
   // Dificuldade) via renderGrupo — sem split "X de foco · Y no total" (resíduo do antigo
   // sistema de Foco/Também leva, redundante com o dropdown "Papel da proteína" já disponível
   // um clique depois, dentro da própria categoria) e sem "X/Y feitas" (Bloco 2, item 1+5).
+  // Regra-mãe (item 6 do roadmap-mestre): texto nunca senta em imagem — a foto cobre
+  // .category-card__media (object-fit: cover) e o nome/contagem ficam numa faixa sólida
+  // (.category-card__band) por baixo, nunca sobre o pixel da foto. Emoji de ícone morreu (era
+  // collection.icon) — sem imagem mapeada, __media fica vazio (cor de fundo neutra via CSS, sem
+  // ícone nenhum: "faixa + nome, sem buraco"). Tile de país (collectionType "country") ganha
+  // .category-card--flag (rodada 2, pós-revisão do dono): bandeira BORRADA + véu, nunca nítida
+  // — nítida quebrava a identidade do tile. Categoria continua sem blur (foto normal).
   function renderCollectionCard(collection) {
     const { allRecipes } = TagModel.getRecipesByCollection(collection.id);
+    const imgSrc = collectionTileImageSrc(collection);
+    const isFlag = collection.collectionType === "country";
     const card = document.createElement("button");
-    card.className = "category-card";
+    card.className = "category-card" + (isFlag ? " category-card--flag" : "");
     card.innerHTML =
-      '<span class="category-card__icon">' + (collection.icon || iconSvg("photoOff", "category-card__icon-fallback")) + "</span>" +
+      '<span class="category-card__media">' +
+      (imgSrc ? '<img class="category-card__img" src="' + imgSrc + '" alt="" loading="lazy">' : "") +
+      "</span>" +
+      '<span class="category-card__band">' +
       '<span class="category-card__title">' + collection.label + "</span>" +
-      '<span class="category-card__count">' + allRecipes.length + " receitas</span>";
+      '<span class="category-card__count">' + allRecipes.length + " receitas</span>" +
+      "</span>";
     card.addEventListener("click", () => Router.toCategoria(collection.id));
     return card;
   }
@@ -316,21 +388,39 @@
     progressEl.textContent = "";
 
     const wrap = document.createElement("div");
-    wrap.className = "grupo-view";
+    const bannerImg = GRUPO_BANNER_IMAGE[grupoId] || null;
+    const bannerMosaic = GRUPO_BANNER_MOSAIC.has(grupoId);
+    const hasBanner = !!bannerImg || bannerMosaic;
+    wrap.className = "grupo-view" + (hasBanner ? " has-banner" : "");
 
     // Home é o único pai real: proteinas/cozinhas vêm de tile da Home, fundamentos vem do link
     // "Mais categorias" da Home, tempo/dificuldade não têm link nenhum hoje (só URL direta) —
     // nenhum grupo tem mais de 1 entry point, então não há ambiguidade aqui (ver relatório).
     wrap.appendChild(createBackFloat("Home", () => Router.toHome()));
 
-    const titleEl = document.createElement("h2");
-    titleEl.textContent = grupo.icon + " " + grupo.label;
-    wrap.appendChild(titleEl);
+    // Banner do hub (item 6 do roadmap-mestre): imagem borrada (ou mosaico de bandeiras, só
+    // cozinhas — rodada 2) em faixa no topo, só nos 3 hubs com banner (fundamentos/proteinas/
+    // cozinhas) — tempo/dificuldade ficam com o título simples de sempre, sem banner.
+    // .grupo-sheet é a FOLHA que sobrepõe a base do banner (mesma gramática de .recipe-page
+    // sobre .recipe-hero, CONTRATO-IMAGENS-REDESIGN.md §8.1): o título (serif) e a busca do hub
+    // vivem SEMPRE na folha, nunca sobre o blur. Descrição textual do hub morreu (decisão antiga
+    // do roadmap) — grupo.desc não existe mais.
+    let sheetParent = wrap;
+    if (hasBanner) {
+      const banner = document.createElement("div");
+      banner.className = "grupo-banner";
+      banner.innerHTML = bannerMosaic ? buildFlagMosaicHtml() : '<img class="grupo-banner__img" src="' + bannerImg + '" alt="" loading="lazy">';
+      wrap.appendChild(banner);
 
-    const descEl = document.createElement("div");
-    descEl.className = "desc";
-    descEl.textContent = grupo.desc;
-    wrap.appendChild(descEl);
+      const sheet = document.createElement("div");
+      sheet.className = "grupo-sheet";
+      wrap.appendChild(sheet);
+      sheetParent = sheet;
+    }
+
+    const titleEl = document.createElement("h2");
+    titleEl.textContent = grupo.label;
+    sheetParent.appendChild(titleEl);
 
     // fromHash: hash INTEIRO do grupo no momento deste render — mesmo padrão de Coleção/Busca/
     // Minhas Receitas (currentHashPath), pra "Voltar" de uma receita achada pela busca inline
@@ -345,19 +435,19 @@
     search.placeholder = "Buscar em " + grupo.label.toLowerCase() + "...";
     search.value = grupoSearchQuery[grupoId] || "";
     searchWrap.appendChild(search);
-    wrap.appendChild(searchWrap);
+    sheetParent.appendChild(searchWrap);
 
     const categoriesLabel = document.createElement("div");
     categoriesLabel.className = "subgroup-title";
-    wrap.appendChild(categoriesLabel);
+    sheetParent.appendChild(categoriesLabel);
 
     const grid = document.createElement("div");
     grid.className = "category-grid";
-    wrap.appendChild(grid);
+    sheetParent.appendChild(grid);
 
     const recipeResultsEl = document.createElement("div");
     recipeResultsEl.className = "grupo-recipe-results";
-    wrap.appendChild(recipeResultsEl);
+    sheetParent.appendChild(recipeResultsEl);
 
     // hideFromGrupoGrid (Bloco 2): massas/sobremesas-classicas saem do grid de Fundamentos —
     // ficam só acessíveis via tile grande da home — sem afetar .group (busca escopada intacta).
@@ -437,11 +527,19 @@
   // Tiles grandes da home (Bloco 2, Fase 2.2) — cada um leva direto pra sua categoria/hub já
   // existente. Busca livre e atalhos de favoritos/histórico saem daqui e migram pra
   // dentro de "Minhas Receitas" num bloco futuro (conteúdo ainda não implementado).
+  // img: item 6 do roadmap-mestre — substitui o ícone outline (bowl/flame/globe/cupcake) por
+  // foto de categoria/hub (mesmo acervo de renderCollectionCard); 2 apontam pra categoria
+  // (massas/sobremesas-classicas), 2 pro banner do próprio hub (proteinas/cozinhas).
+  // cozinhas usa mosaic (rodada 2, pós-revisão do dono) em vez de img — hub-cozinhas.webp
+  // (temperos) arquivado, ver comentário de GRUPO_BANNER_MOSAIC acima. label "Navegar por
+  // Países" -> "Países" (rodada 3): o label longo quebrava em 2 linhas e deixava esse tile
+  // mais alto que os outros 3 na mesma fileira do grid — "Países" cabe em 1 linha, igual aos
+  // outros, e já é o mesmo label usado no título do próprio hub (GRUPOS acima).
   const HOME_MAIN_TILES = [
-    { id: "massas", label: "Massas", icon: "bowl", go: () => Router.toCategoria("massas") },
-    { id: "proteinas", label: "Proteínas", icon: "flame", go: () => Router.toGrupo("proteinas") },
-    { id: "cozinhas", label: "Navegar por Países", icon: "globe", go: () => Router.toGrupo("cozinhas") },
-    { id: "sobremesas", label: "Sobremesas", icon: "cupcake", go: () => Router.toCategoria("sobremesas-classicas") },
+    { id: "massas", label: "Massas", img: "imagens/categorias/massas.webp", go: () => Router.toCategoria("massas") },
+    { id: "proteinas", label: "Proteínas", img: "imagens/categorias/hub-proteinas.webp", go: () => Router.toGrupo("proteinas") },
+    { id: "cozinhas", label: "Países", mosaic: true, go: () => Router.toGrupo("cozinhas") },
+    { id: "sobremesas", label: "Sobremesas", img: "imagens/categorias/sobremesas-classicas.webp", go: () => Router.toCategoria("sobremesas-classicas") },
   ];
 
   // Carrossel "Vistas recentemente" (item 4 do roadmap-mestre, CHECKLIST-GERAL.md — dado já
@@ -528,7 +626,11 @@
       const card = document.createElement("button");
       card.type = "button";
       card.className = "home-tile";
-      card.innerHTML = iconSvg(tile.icon, "home-tile__icon") + '<span class="home-tile__label">' + tile.label + "</span>";
+      card.innerHTML =
+        '<span class="home-tile__media">' +
+        (tile.mosaic ? buildFlagMosaicHtml() : '<img class="home-tile__img" src="' + tile.img + '" alt="" loading="lazy">') +
+        "</span>" +
+        '<span class="home-tile__band"><span class="home-tile__label">' + tile.label + "</span></span>";
       card.addEventListener("click", tile.go);
       tilesGrid.appendChild(card);
     });
@@ -559,14 +661,16 @@
   // renderIngredientTileSectionBody/ingredientMode). def.combineMode aqui é só rótulo — a
   // combinação real vem do estado ingredientMode (opts.ingredientMode em renderFacetModal),
   // não deste campo.
-  // layout: "tiles" (piloto de redesenho visual, País e Equipamento por ora) — muda SÓ a
-  // apresentação (grade de tiles com ícone/contagem em vez de lista de checkbox); a lógica
-  // de estado/combinação continua a mesma de qualquer combineMode "or" (ver
-  // renderTileSectionBody, que reaproveita computeFacetOptions sem recalcular nada).
-  // tileIcon: função tagId -> HTML do ícone, plugada por faceta (emoji de bandeira em País,
-  // SVG/PNG reais em Equipamento) — únicas partes que diferem entre as duas.
+  // layout: "tiles" (piloto de redesenho visual, Equipamento) — muda SÓ a apresentação (grade de
+  // tiles com ícone/contagem em vez de lista de checkbox); a lógica de estado/combinação continua
+  // a mesma de qualquer combineMode "or" (ver renderTileSectionBody, que reaproveita
+  // computeFacetOptions sem recalcular nada). País usa "photo-tiles" (ver mais abaixo).
+  // tileIcon: função tagId -> HTML do ícone, plugada por faceta (SVG reais em Equipamento) —
+  // única parte que difere entre as facetas de layout "tiles". País usa layout "photo-tiles"
+  // (bandeira cobrindo o bloco + faixa sólida com o nome, item 6 do roadmap-mestre) — estrutura
+  // própria, não um tileIcon plugável, ver renderCountryTileSectionBody.
   const GENERIC_FACET_DEFS = [
-    { key: "country", label: "País", prefix: "country:", multi: true, combineMode: "or", layout: "tiles", tileIcon: countryTileIconHtml },
+    { key: "country", label: "País", prefix: "country:", multi: true, combineMode: "or", layout: "photo-tiles" },
     { key: "difficulty", label: "Complexidade", prefix: "difficulty:", multi: true, combineMode: "or" },
     { key: "time", label: "Tempo", prefix: "time:", multi: true, combineMode: "or" },
     { key: "equipment", label: "Equipamento", prefix: "equipment:", multi: true, combineMode: "or", layout: "tiles", tileIcon: equipmentTileIconHtml },
@@ -600,17 +704,15 @@
     return "";
   }
 
-  // Emoji de bandeira pro piloto de tiles de País — caractere Unicode padrão (sem arquivo, sem
-  // licença). Não recolore por estado: emoji não herda currentColor, e a borda do tile já
-  // indica seleção sozinha (mesmo tratamento dos 3 ícones PNG de Equipamento). Fase 0c: os 20
-  // países vêm de window.COUNTRIES (js/countries.js) — fonte única compartilhada com
-  // categories.js/collections.js, sem dicionário próprio duplicado aqui.
-  function countryTileIconHtml(tagId) {
-    const country = window.COUNTRIES[tagId.replace("country:", "")];
-    const flag = country && country.emoji;
-    if (!flag) return "";
-    return '<span class="filter-tile__icon filter-tile__icon--emoji" aria-hidden="true">' + flag + "</span>";
-  }
+  // Tile de País (item 6 do roadmap-mestre) — bandeira imagens/bandeiras/<iso2>.webp cobrindo o
+  // bloco + faixa sólida com o nome por baixo (mesma regra-mãe do tile de categoria: texto nunca
+  // senta em imagem). countryTileIconHtml e o emoji de bandeira morreram — window.COUNTRIES
+  // (js/countries.js) continua a fonte única do iso2, só o consumo mudou de emoji pra arquivo.
+  // Layout próprio ("photo-tiles"), não reaproveita renderTileSectionBody: a estrutura muda de
+  // verdade (mídia+faixa, não ícone empilhado com label/contagem). Implementação vive dentro de
+  // openModal() — ver renderTileSectionBody logo abaixo — porque precisa de draftFacetState/
+  // renderBody, que só existem naquele escopo (achado ao vivo: ReferenceError na 1ª rodada por
+  // ter ficado aqui fora, escopo de módulo).
 
   // Ícones reais pro piloto de tiles de Equipamento — substituem os emoji provisórios. Arquivos
   // originais ficam em icons/equipment/ (fonte/atribuição), mas o SVG é EMBUTIDO aqui como
@@ -1149,13 +1251,60 @@
         });
       }
 
-      // Piloto de redesenho visual (País e Equipamento, def.layout === "tiles") — grade de
+      // Tile de País (item 6 do roadmap-mestre) — bandeira imagens/bandeiras/<iso2>.webp
+      // cobrindo o bloco + faixa sólida com o nome por baixo (mesma regra-mãe do tile de
+      // categoria: texto nunca senta em imagem). countryTileIconHtml e o emoji de bandeira
+      // morreram — window.COUNTRIES (js/countries.js) continua a fonte única do iso2, só o
+      // consumo mudou de emoji pra arquivo. Layout próprio ("photo-tiles"), não reaproveita
+      // renderTileSectionBody logo abaixo (ícone+label+contagem empilhados, ainda usado por
+      // Equipamento): a estrutura muda de verdade. Precisa viver AQUI DENTRO de openModal()
+      // (não no escopo de módulo, onde countryTileIconHtml vivia) porque usa
+      // draftFacetState/renderBody, que só existem neste closure.
+      function renderCountryTileSectionBody(sectionBody, def, options) {
+        const selectedIds = draftFacetState[def.key] || [];
+        sectionBody.innerHTML =
+          '<div class="filter-tile-grid">' +
+          options
+            .map((o) => {
+              const country = window.COUNTRIES[o.tagId.replace("country:", "")];
+              const flagSrc = country ? "imagens/bandeiras/" + country.iso2 + ".webp" : null;
+              return (
+                '<button type="button" class="filter-tile filter-tile--photo' +
+                (selectedIds.indexOf(o.tagId) !== -1 ? " is-selected" : "") +
+                '" data-value="' +
+                o.tagId +
+                '">' +
+                '<span class="filter-tile__media">' +
+                (flagSrc ? '<img class="filter-tile__img" src="' + flagSrc + '" alt="" loading="lazy">' : "") +
+                "</span>" +
+                '<span class="filter-tile__band">' +
+                '<span class="filter-tile__label">' +
+                o.tag.label +
+                '</span><span class="filter-tile__count">' +
+                o.count +
+                "</span></span></button>"
+              );
+            })
+            .join("") +
+          "</div>";
+        sectionBody.querySelectorAll(".filter-tile").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const val = btn.dataset.value;
+            const current = draftFacetState[def.key] || [];
+            draftFacetState[def.key] = current.indexOf(val) !== -1 ? current.filter((id) => id !== val) : current.concat([val]);
+            renderBody();
+          });
+        });
+      }
+
+      // Piloto de redesenho visual (Equipamento, def.layout === "tiles") — grade de
       // tiles com ícone/label/contagem em vez de checkbox em lista. Mesma lógica de estado de
       // qualquer faceta combineMode "or": sem item "Todos" (nenhum tile marcado = nenhum
       // filtro ativo, igual a "Todos" marcado na versão em lista); marcar/desmarcar um tile
       // só alterna draftFacetState[def.key], reaproveitando computeFacetOptions pra contagem —
       // não recalcula nada que já não existisse. O ícone em si vem de def.tileIcon(tagId),
-      // plugável por faceta (SVG/PNG reais em Equipamento, emoji de bandeira em País).
+      // plugável por faceta (SVG real em Equipamento). País usa layout "photo-tiles" (ver
+      // renderCountryTileSectionBody acima), não este.
       function renderTileSectionBody(sectionBody, def, options) {
         const selectedIds = draftFacetState[def.key] || [];
         sectionBody.innerHTML =
@@ -1205,7 +1354,8 @@
           '<div class="filter-section__body"></div>';
         section.querySelector(".filter-section__header").addEventListener("click", () => toggleSection(def.key));
         const sectionBody = section.querySelector(".filter-section__body");
-        if (def.multi && def.combineMode === "or" && def.layout === "tiles") renderTileSectionBody(sectionBody, def, options);
+        if (def.layout === "photo-tiles") renderCountryTileSectionBody(sectionBody, def, options);
+        else if (def.multi && def.combineMode === "or" && def.layout === "tiles") renderTileSectionBody(sectionBody, def, options);
         else if (def.layout === "ingredient-tiles") renderIngredientTileSectionBody(sectionBody, def, options);
         else if (def.multi && def.combineMode === "or") renderCheckboxSectionBody(sectionBody, def, options);
         else if (def.multi) renderMultiSectionBody(sectionBody, def, options);

@@ -153,6 +153,18 @@ A página de grupo deve ter busca contextual escopada àquele grupo — "opçõe
 categorias/coleções do grupo (por nome) quanto receitas do grupo que batem em tag de
 ingrediente, mostradas numa seção separada. Nunca traz opção nem receita de outro grupo.
 
+**Banner de hub (item 6 do roadmap-mestre, 2026-07-26) — só nos 3 hubs alcançáveis por link real
+da Home (Mais Categorias/Proteínas/Países; tempo/dificuldade continuam com o título simples de
+sempre, sem imagem, sem link nenhum no app hoje).** Imagem de categoria/hub borrada em faixa no
+topo (`.grupo-banner`) + folha (`.grupo-sheet`) que sobrepõe a base do banner — título (agora
+serif) e a busca do hub vivem sempre na folha, nunca sobre o blur (mesma gramática de
+`.recipe-hero`/`.recipe-page`, ver skill `mobile-recipe-ui`, seção "Item 6"). **Descrição
+textual do hub morreu** de vez nesta rodada (decisão antiga do roadmap, fechada aqui) — nenhum
+grupo mostra mais `grupo.desc`, bannerizado ou não. O back-float (botão voltar, ver seção
+própria abaixo) passa a sentar sobre o banner nos 3 hubs com imagem — mesma exceção
+"float sobre mídia" que a página de receita já tinha, hubs sem banner continuam com o respiro
+`--chrome-clearance` de sempre.
+
 ## Ordem de decisão
 
 A navegação deve seguir:

@@ -100,7 +100,7 @@ function main() {
   // não desta suíte — mesmo padrão de literal-encadeado das outras suítes do projeto.
   // v31 -> v32: stale de novo, desta vez por um fix pontual (centralização vertical do mesmo
   // header, css/style.css) — mesmo padrão, também externo a este hotfix.
-  assert(/const CACHE_NAME = "cardapio-v32";/.test(swJs), "CACHE_NAME v29 -> v30 -> v31 -> v32 (v32 é stale por commit externo a este hotfix, ver comentário acima)");
+  assert(/const CACHE_NAME = "cardapio-v33";/.test(swJs), "CACHE_NAME v29 -> v30 -> v31 -> v32 -> v33 (v33 é o item final do redesenho visual, item 6 do roadmap-mestre, externo a este hotfix, ver comentário acima)");
 
   console.log("");
   console.log("==================================================");
