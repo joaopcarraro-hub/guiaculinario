@@ -70,6 +70,12 @@ const ANCORA_NEGATIVA =
   " of ingredients, no dense garnish, nothing arranged in a grid or symmetrically.";
 
 function montarPrompt(item) {
+  // Alguns itens não cabem no template. O template inteiro é construído em cima de "duas ou três
+  // formas grandes" e de negativos anti-aglomeração (`nothing crowded`, `no scattered small
+  // items`) — que é o que protege a legibilidade borrada. Uma imagem-conceito de PAÍSES precisa,
+  // por definição do briefing, de CINCO pratos distintos: aplicar o template nela seria pedir e
+  // proibir a mesma coisa no mesmo prompt. Nesses casos o item traz o prompt pronto.
+  if (item.promptManual) return item.promptManual;
   return (
     `A photorealistic overhead food photograph, seen straight down from directly above, of ${item.assunto},` +
     ` on a pale warm ${item.superficie}.` +
@@ -97,7 +103,13 @@ function montarPrompt(item) {
     ` picture is also shown blurred with text on top, so it must read as a few big appetising` +
     ` shapes and colour, never as a busy scene.` +
     ` Even, medium contrast across the whole frame — no bright hotspot, no deep shadow pocket.` +
-    ` Bright diffused natural daylight from the left, casting soft light-toned shadows.` +
+    // A instrução de luz estava INVOCANDO a janela: "daylight from the left" faz o modelo desenhar
+    // a FONTE da luz na esquerda, e foi assim que uma janela apareceu na primeira massas e na
+    // primeira paises, mesmo com "no window" no negativo. Negativo genérico não vence uma deixa
+    // positiva; a deixa tinha que sair. Agora a direção da luz vem junto da proibição da fonte.
+    ` Bright diffused natural daylight coming from the left, casting soft light-toned shadows to the` +
+    ` right — but THE LIGHT SOURCE ITSELF IS NEVER VISIBLE: no window, no window frame, no sill, no` +
+    ` bright doorway, nothing outside. Only the light it casts on the surface.` +
     ` The surface is warm white, honey and cream, never cool grey or bluish; the food may be` +
     ` deeper and richer in colour than the surface, and should be the most saturated thing in the` +
     ` frame. Natural colour, appetising, not artificially oversaturated. Shot with a 50mm lens,` +
@@ -160,7 +172,75 @@ const ACERVO = [
   // não pode virar sem graça — vale a mesma regra de prato no auge.
   { id: "hub-fundamentos", label: "Mais Categorias (hub)", assunto: "a stone mortar with fresh green pesto just ground in it, the pestle resting inside, and a whisk with glossy sauce clinging to the wires", superficie: "wooden worktop" },
   { id: "hub-proteinas", label: "Proteínas (hub)", assunto: "a board with three cooked proteins side by side and well spaced — sliced pink beef, a golden-skinned fish fillet and a glossy roast chicken thigh", superficie: "wooden worktop" },
-  { id: "hub-cozinhas", label: "Países (hub)", assunto: "three small bowls of vivid whole spices — deep red paprika, golden saffron threads and green cardamom — well spaced apart", superficie: "limestone worktop" },
+  // ARQUIVADA (26/07/2026): a versão de temperos foi substituída pela imagem-conceito abaixo.
+  // Mantida no acervo porque o arquivo `hub-cozinhas.webp` é o que js/app.js (221, 533) e
+  // css/style.css (49) referenciam hoje — apagar a entrada aqui não apagaria a referência lá.
+  { id: "hub-cozinhas", label: "Países (hub) — ARQUIVADA", assunto: "three small bowls of vivid whole spices — deep red paprika, golden saffron threads and green cardamom — well spaced apart", superficie: "limestone worktop" },
+
+  // IMAGEM-CONCEITO "PAÍSES" — curadoria fechada pela frente de design, 26/07/2026.
+  // Único item com promptManual. Cinco pratos de reconhecimento instantâneo, cada um na sua louça.
+  // O template padrão foi contornado porque ele pede duas ou três formas e proíbe aglomeração;
+  // aqui são cinco por briefing. O que substitui a proteção do template é o ESPAÇO entre os pratos
+  // e o anel solto: cinco formas grandes e separadas continuam legíveis borradas, cinco formas
+  // encostadas viram papa (foi o que reprovou frutos-do-mar na rodada 4).
+  // O RISCO CONHECIDO é a feijoada: sem a laranja ela vira "ensopado escuro genérico" e o país
+  // some. Por isso a laranja está no prompt como item obrigatório e nomeado, não como enfeite.
+  //
+  // RODADA 1 REPROVADA — e a causa era o próprio briefing, não o modelo. Ele pedia "anel solto com
+  // o centro relativamente calmo", e o modelo entregou exatamente isso: cinco pratos no perímetro
+  // e um buraco de madeira no meio. Dois problemas, um deles fatal:
+  //   1. o miolo vazio não comunica nada — é 25% do quadro sem informação;
+  //   2. num corte 3:2 o croissant perdia metade do prato, e num 2:1 sumia quase inteiro. Corte
+  //      central de composição em anel decepa justamente o que está na borda.
+  // O "centro calmo" existia por UM motivo: reservar o miolo pro texto passar por cima com scrim.
+  // A §8.1.1 matou esse cenário — texto nunca senta em imagem. Era restrição herdada de uma spec
+  // abandonada, e ninguém tinha percebido que ela ficou órfã.
+  // Sem texto por cima, o ótimo é o inverso: agrupamento COMPACTO preenchendo o quadro, com prato
+  // no centro. Aí qualquer corte central preserva os cinco. O respiro entre pratos continua (é o
+  // que evita virar papa, lição do frutos-do-mar), mas vira folga de dedo, não de palmo.
+  {
+    id: "paises", label: "Países (conceito)", superficie: "wooden worktop",
+    promptManual:
+      "A photorealistic overhead food photograph, seen straight down from directly above at 90 degrees," +
+      " of five different dishes from around the world, each one served in its own separate dish," +
+      " grouped CLOSE TOGETHER in a compact cluster that FILLS THE FRAME, on a pale warm light wooden" +
+      " worktop with a rumpled natural linen cloth. The five dishes together occupy about 80% of the" +
+      " picture, with only a NARROW margin of bare surface at the very edges, and one of them sits in" +
+      " the middle of the frame — the centre of the picture is NOT empty." +
+      // NUNCA ENUMERE OS PRATOS COM (1) (2) (3) AQUI. A rodada 3 saiu com os algarismos 1 a 5
+      // desenhados por cima dos pratos: a lista numerada do prompt virou numeração na imagem, mesmo
+      // com "no numbers" no negativo. É o mesmo padrão da janela (luz "from the left" desenhava a
+      // janela) — deixa positiva vence negativo genérico, sempre. Descrição corrida, sem marcador.
+      " The five dishes, each still clearly separate, with a small gap between them, are:" +
+      " an assortment of sushi rolls on a small rectangular plate;" +
+      " two fully assembled tacos on a small plate, folded, filling visible;" +
+      " a small paella in its own shallow two-handled pan, saffron rice with prawns and mussels;" +
+      " one golden flaky croissant on a small plate;" +
+      " and a small deep bowl of dark Brazilian black bean stew with sausage and pork, WITH TWO" +
+      " BRIGHT ORANGE SLICES resting beside it — the orange slices are essential and must be clearly" +
+      " visible, they are what identifies the dish." +
+      " Each dish is completely visible, none is cut off by any edge of the picture, and none touches" +
+      " another — there is a small clear gap between every pair, enough to read them apart, but not" +
+      " wide empty space." +
+      " The camera is perpendicular to the surface, so the surface is the ONLY thing in the picture:" +
+      " it fills the entire square frame from edge to edge, and EVERY PART OF THE PICTURE is either" +
+      " that surface or something resting on it. There is no horizon line and nothing beyond the" +
+      " surface — no room, no wall, no window, no floor." +
+      " Each dish looks genuinely delicious and freshly served, rich and textured — glaze, char," +
+      " flaky layers, glossy sauce." +
+      " Bright diffused natural daylight coming from the left, casting soft light-toned shadows to the" +
+      " right — but THE LIGHT SOURCE ITSELF IS NEVER VISIBLE: no window, no window frame, no sill, no" +
+      " bright doorway, nothing outside. Only the light it casts on the surface." +
+      " The surface is warm white, honey and cream; the food is the most saturated thing in the frame." +
+      " Natural colour, appetising, not artificially oversaturated. Shot with a 50mm lens, everything" +
+      " in focus." +
+      " No flags, no text, no letters, NO NUMBERS OR DIGITS ANYWHERE IN THE PICTURE, no captions, no" +
+      " numbered labels beside the dishes, no watermarks, no logos, no frame or border, no" +
+      " hands, no people, no dinner cutlery as a main element, no floor, no wall, no window, no room," +
+      " no plain or gradient background, no studio backdrop, not dark or moody, not cold or clinical," +
+      " nothing crowded, no scattered small items, no busy pattern, nothing arranged symmetrically" +
+      " or in a grid.",
+  },
 ];
 
 // -------------------------------------------------------------------------------------------------

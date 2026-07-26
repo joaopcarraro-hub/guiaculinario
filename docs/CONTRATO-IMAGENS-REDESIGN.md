@@ -154,6 +154,25 @@ O layout final do tile é da frente de design (item 6 do roadmap dela). Este doc
 apenas que a superfície **não é cliente deste pipeline**, para que ninguém tente ligar as duas coisas
 mais adiante.
 
+### Proporção por acervo — deliberada, não inconsistência
+
+São três acervos com três proporções, e isso é decisão, não descuido:
+
+| Acervo | Proporção | Por quê |
+|---|---|---|
+| Receita | **4:3** (1184×888) | hero de página, ver §5 e §6.1 |
+| Categoria | **1:1** (600×600) | tile quadrado, spec original do §4 |
+| Bandeira | **3:2** (600×400) | 14 das 20 já são 3:2 nativas — corte quadrado era desperdício |
+
+A regra que unifica é **"mídia casa com asset"**: a área de mídia do componente adota a proporção do
+próprio arquivo, então `cover` vira o corte MÍNIMO que cobre a caixa, em vez de um corte imposto de
+fora. Foi isso que dispensou o `scale(1.15)` que o CSS usava para esconder borda de blur.
+
+> **Opção registrada, sem prazo:** migrar o acervo de categoria de 1:1 para 3:2, pela mesma lógica de
+> corte mínimo, uniformizando com as bandeiras. Custo de regerar as 19 (+1 conceito): **R$ 6,46**.
+> Fica para a **fase de Filtros** — o acervo 1:1 atual está commitado e funcional, então não há nada
+> quebrado esperando conserto.
+
 ---
 
 ## 5. A matemática do recorte — como prever qualquer caixa
@@ -320,9 +339,12 @@ Registrado em 25/07/2026, quando o redesign definiu tema escuro. As 7 fotos gera
 quentes por construção** — o prompt pede mesa clara, luz difusa e tons de mel, e a comida é a coisa
 mais escura do quadro. Isso é bom para apetite e péssimo para texto branco por cima. Regras:
 
-- **Nenhum texto sobre foto sem scrim escuro.** Não existe foto neste acervo em que texto claro leia
-  direto. Não é caso a caso: é regra, porque a paleta clara é uma decisão do prompt, não acaso.
-- **O banner borrado de categoria leva scrim com contraste calculado** — não um `opacity` chutado.
+- **Texto NUNCA senta em imagem — em nenhuma superfície.** Título vai na folha, nome vai na faixa
+  sólida (`var(--color-bg)`). Não é caso a caso: é regra-mãe, formalizada na §8.1.1. A paleta clara
+  é decisão do prompt (§6.2), não acaso, e por isso o problema não tem solução por ajuste fino.
+- **Scrim não existe em nenhuma superfície do app.** Nem no tile, nem no banner de hub, nem no tile
+  de país. Se você está calculando opacidade de scrim, está implementando algo que foi descartado —
+  leia a §8.1.1 antes de continuar.
 - **O estado "sem foto" é decisão da frente de DESIGN.** Hoje é o placeholder 🍽 sobre
   `--color-surface-elevated`, herdado, não desenhado. Esta frente **não** decide como ele fica.
 
@@ -334,8 +356,8 @@ de borda: é o caso comum hoje.
 
 ### 8.1.1 Resolução — regra-mãe adotada (item 6 do roadmap-mestre, 2026-07-26)
 
-A pendência acima ("nenhum texto sobre foto sem scrim escuro") foi resolvida pela frente de
-design como uma regra-mãe formal, não caso a caso: **texto nunca senta em imagem.** Já valia pro
+A pendência que a §8.1 registrava — como fazer texto claro ler sobre um acervo claro — foi resolvida
+pela frente de design como regra-mãe formal, não caso a caso: **texto nunca senta em imagem.** Já valia pro
 card de receita (nome numa faixa sólida sob a foto) e pra página de receita (título na folha
 que desliza sobre o hero, nunca sobre o pixel da foto); esta rodada estendeu a mesma gramática
 pro tile de categoria/home, pro banner dos 3 hubs e pro tile de país — sempre uma FAIXA/FOLHA
@@ -352,6 +374,25 @@ CONSISTÊNCIA com o que o app já fazia no card/página de receita (um único vo
 contraste ou tivesse algum problema técnico. Se uma superfície futura precisar de texto
 sobreposto direto à foto (sem faixa/folha reservável), este par fica disponível como opção já
 medida, sem precisar remedir do zero.
+
+**Medição que REFORÇA a regra-mãe** (frente de imagens, 26/07/2026 — registrada aqui a pedido da
+frente de design). O que torna este acervo hostil a texto sobreposto é ele ser claro e quente **por
+construção**, não por acaso: o prompt pede superfície clara e tons de mel, e a §6.2 mostra que isso
+é decisão travada. Medindo o ponto mais claro da faixa de texto em cada imagem, **texto branco
+exigiria de 73% a 79% de scrim preto** para bater 4,5:1 — massas 73,3%, sobremesas 78,3%,
+carnes-bovinas 75,4%, técnicas 79,0%. A 79% de preto a foto deixa de existir: os banners ficam
+visualmente idênticos entre si e não resta imagem nenhuma para justificar ter gerado uma.
+
+Ou seja, a regra-mãe não é só coerência de vocabulário visual — neste acervo específico, texto
+claro sobreposto **não tem faixa de operação viável**. Os números acima existem para que ninguém
+proponha "só põe um scrim" mais adiante e gaste uma rodada redescobrindo isso.
+
+Valores finais medidos no acervo completo (19 imagens), caso o par arquivado seja retomado:
+blur 6px + véu branco 25% + texto `#1a1a1a` → **pior caso 5,04:1** (`hub-fundamentos`),
+**melhor caso 8,43:1** (`risotos-arroz`), todas acima de AA, nenhuma exceção.
+
+Os bullets da §8.1 foram reescritos em 26/07/2026 para refletir esta regra — antes prescreviam
+scrim e contradiziam o que está aqui.
 
 ---
 
