@@ -679,14 +679,18 @@
   // renderIngredientTileSectionBody/ingredientMode). def.combineMode aqui é só rótulo — a
   // combinação real vem do estado ingredientMode (opts.ingredientMode em renderFacetModal),
   // não deste campo.
-  // layout: "tiles" (piloto de redesenho visual, Equipamento) — muda SÓ a apresentação (grade de
-  // tiles com ícone/contagem em vez de lista de checkbox); a lógica de estado/combinação continua
-  // a mesma de qualquer combineMode "or" (ver renderTileSectionBody, que reaproveita
-  // computeFacetOptions sem recalcular nada). País usa "photo-tiles" (ver mais abaixo).
-  // tileIcon: função tagId -> HTML do ícone, plugada por faceta (SVG reais em Equipamento) —
-  // única parte que difere entre as facetas de layout "tiles". País usa layout "photo-tiles"
-  // (bandeira cobrindo o bloco + faixa sólida com o nome, item 6 do roadmap-mestre) — estrutura
-  // própria, não um tileIcon plugável, ver renderCountryTileSectionBody.
+  // layout: "tiles" (Equipamento) — a ÚNICA faceta que ainda usa grade de ícone+label+contagem;
+  // reservado pra facetas com ícone de verdade (SVG real) plugado via tileIcon. País usa
+  // "photo-tiles" (foto cobrindo o bloco + faixa, ver mais abaixo). Ingrediente usa
+  // "ingredient-tiles" (grade densa própria + chips removíveis, ver renderIngredientTileSectionBody).
+  // Toda faceta multi/combineMode "or" SEM layout plugado (Complexidade/Tempo/Tipo de
+  // prato/Proteína/Refeição) cai no renderChipSectionBody genérico — grade de CHIPS (pill,
+  // wrap), substituindo tanto a antiga lista de checkbox quanto o antigo tile-sem-ícone (Fase
+  // F1a, 2026-07-27: investigação achou que Proteína/Refeição já viviam num "tile" só de nome —
+  // tileIcon sempre devolvia "", sem imagem/ícone de verdade — então não eram classe 1 (tile
+  // funcionando) de fato; harmonizados pra chip junto de Complexidade/Tempo/Tipo de prato, que
+  // já eram classe 2 real, lista de checkbox nativa). tileIcon: função tagId -> HTML do ícone,
+  // só plugada onde o ícone existe de verdade (Equipamento).
   const GENERIC_FACET_DEFS = [
     { key: "country", label: "País", prefix: "country:", multi: true, combineMode: "or", layout: "photo-tiles" },
     { key: "difficulty", label: "Complexidade", prefix: "difficulty:", multi: true, combineMode: "or" },
@@ -695,17 +699,17 @@
     // "Proteína" (protein:) — NÃO confundir com "Papel da proteína" (renderProteinRoleSection,
     // seleção única Principal/Secundário/Tanto faz, só em coleções de proteína). Esta é NOVA:
     // pergunta QUAL proteína (Frango, Boi, Peixe...), disponível em QUALQUER coleção/busca, OR
-    // puro entre valores — mesma família de País/Equipamento. 8 valores, grade de tiles, mas
-    // SEM ícone nesta rodada (noIconTileIcon sempre devolve "" — só label+contagem, mesmo
-    // tratamento que Processador/Sous Vide tinham antes de ganhar ícone real).
-    { key: "protein", label: "Proteína", prefix: "protein:", multi: true, combineMode: "or", layout: "tiles", tileIcon: noIconTileIcon },
+    // puro entre valores — mesma família de País/Equipamento. 10 valores na taxonomia (tags.js),
+    // 7-8 com cobertura de imagem em imagens/categorias/ (frango não tem imagem própria — só
+    // aves.webp, já reivindicado por protein:ave; leguminosa/laticinio sem nenhuma candidata) —
+    // abaixo do limiar pra virar photo-tile como País; chip de texto nesta rodada (Fase F1a),
+    // photo-tile fica pro mini-lote de imagem futuro (ver relatório da tarefa).
+    { key: "protein", label: "Proteína", prefix: "protein:", multi: true, combineMode: "or" },
     // Fase B: "Refeição" (course:, 5 valores) e "Tipo de prato" (dish_type:, 12 valores) —
-    // mesma família (OR puro, sem fallback). course: vira grade (poucos valores, mesma regra
-    // de sempre), dish_type: fica em lista (muitos valores/textuais) — nenhum ícone novo nesta
-    // rodada em nenhuma das duas. "Restrições" (diet:) NÃO entra: cobertura de 24,9% (99/398)
-    // e um único valor (diet:vegetariana) — abaixo do limiar combinado com o usuário, fica pro
-    // backlog de expansão de dados.
-    { key: "course", label: "Refeição", prefix: "course:", multi: true, combineMode: "or", layout: "tiles", tileIcon: noIconTileIcon },
+    // mesma família (OR puro, sem fallback, sem ícone). "Restrições" (diet:) NÃO entra:
+    // cobertura de 24,9% (99/398) e um único valor (diet:vegetariana) — abaixo do limiar
+    // combinado com o usuário, fica pro backlog de expansão de dados.
+    { key: "course", label: "Refeição", prefix: "course:", multi: true, combineMode: "or" },
     { key: "dishType", label: "Tipo de prato", prefix: "dish_type:", multi: true, combineMode: "or" },
     // layout: "ingredient-tiles" — piloto próprio (não reaproveita renderTileSectionBody): grade
     // MAIS DENSA que País/Equipamento (mais colunas, tiles menores) pra caber ~30-40 valores em
@@ -715,12 +719,6 @@
     // facetas.
     { key: "ingredient", label: "Ingrediente", prefix: "ingredient:", multi: true, combineMode: "toggle", layout: "ingredient-tiles" },
   ];
-
-  // Proteína: sem ícone nesta rodada (rodada futura, mesmo tratamento que Processador/Sous
-  // Vide tiveram antes de ganhar ícone real) — só label+contagem no tile.
-  function noIconTileIcon() {
-    return "";
-  }
 
   // Tile de País (item 6 do roadmap-mestre) — bandeira imagens/bandeiras/<iso2>.webp cobrindo o
   // bloco + faixa sólida com o nome por baixo (mesma regra-mãe do tile de categoria: texto nunca
@@ -959,9 +957,8 @@
         "<h3>Filtros</h3>" +
         '<span class="filter-modal__header-spacer" aria-hidden="true"></span>' +
         "</div>" +
-        '<div class="filter-modal__clear-row"></div>' +
         '<div class="filter-modal__body"></div>' +
-        '<div class="filter-modal__footer"><button type="button" class="filter-modal__apply"></button></div>' +
+        '<div class="filter-modal__footer"><div class="filter-modal__clear-row"></div><button type="button" class="filter-modal__apply"></button></div>' +
         "</div>";
       document.body.appendChild(overlay);
       document.body.classList.add("filter-modal-open");
@@ -1226,44 +1223,52 @@
         });
       }
 
-      // País/Complexidade/Tempo/Equipamento (combineMode "or"): checkboxes, valores da MESMA
-      // faceta se somam em união — nunca zera ao adicionar mais um, então não precisa de
-      // nenhum fallback (diferente de Ingrediente). "Todos" é um item especial que limpa a
-      // seleção — não é um valor que combina com os demais, sempre reflete
-      // draftFacetState[def.key].length === 0 no re-render (nunca guarda estado próprio).
-      // A contagem de cada opção reaproveita computeFacetOptions/facetOptionsFromPrefix
-      // exatamente como Ingrediente já fazia (universo restrito pelas OUTRAS facetas, nunca
-      // pela própria) — por isso já é "quantos eu teria se também adicionasse este", sem
-      // precisar de nenhum cálculo novo.
-      function renderCheckboxSectionBody(sectionBody, def, options) {
+      // Complexidade/Tempo/Tipo de prato/Proteína/Refeição (combineMode "or", sem layout
+      // plugado): grade de CHIPS — pill com borda --color-border quando livre, preenchida
+      // --color-accent-deep/texto --color-text-primary quando marcada (par já calibrado a
+      // 4,52:1 na Fase 0a, reaproveitado sem recalcular). Fase F1a (2026-07-27): substitui
+      // tanto a antiga lista de checkbox (Complexidade/Tempo/Tipo de prato) quanto o antigo
+      // tile-sem-ícone (Proteína/Refeição — ver comentário de GENERIC_FACET_DEFS sobre por que
+      // essas duas não eram classe 1 de verdade). Valores da MESMA faceta se somam em união —
+      // nunca zera ao adicionar mais um, então não precisa de nenhum fallback (diferente de
+      // Ingrediente). SEM item "Todos": nenhum chip marcado = nenhum filtro ativo, mesma
+      // convenção que os tiles de País/Equipamento/Ingrediente já usavam — harmoniza as duas
+      // famílias em vez de manter uma regra "Todos" só pras facetas ex-checkbox. A contagem de
+      // cada opção reaproveita computeFacetOptions/facetOptionsFromPrefix sem mudança nenhuma.
+      // <button type="button"> nativo (não <div>/<label>) — foco e Enter/Espaço funcionam sem
+      // handler de teclado próprio, mesmo princípio de todo controle tocável deste app.
+      // role="checkbox" + aria-checked preservam a semântica de multi-seleção que os antigos
+      // checkboxes nativos davam de graça ao leitor de tela.
+      function renderChipSectionBody(sectionBody, def, options) {
         const selectedIds = draftFacetState[def.key] || [];
-        let html =
-          '<label class="filter-option"><input type="checkbox" data-todos' +
-          (!selectedIds.length ? " checked" : "") +
-          "><span>" +
-          (def.allLabel || "Todos") +
-          "</span></label>";
-        options.forEach((o) => {
-          html +=
-            '<label class="filter-option"><input type="checkbox" value="' +
-            o.tagId +
-            '"' +
-            (selectedIds.indexOf(o.tagId) !== -1 ? " checked" : "") +
-            "><span>" +
-            o.tag.label +
-            " (" +
-            o.count +
-            ")</span></label>";
-        });
-        sectionBody.innerHTML = html;
-        sectionBody.querySelector("[data-todos]").addEventListener("change", () => {
-          draftFacetState[def.key] = [];
-          renderBody();
-        });
-        sectionBody.querySelectorAll('input[type="checkbox"]:not([data-todos])').forEach((input) => {
-          input.addEventListener("change", () => {
+        sectionBody.innerHTML =
+          '<div class="filter-chip-row" role="group" aria-label="' +
+          def.label +
+          '">' +
+          options
+            .map((o) => {
+              const selected = selectedIds.indexOf(o.tagId) !== -1;
+              return (
+                '<button type="button" class="filter-chip' +
+                (selected ? " is-selected" : "") +
+                '" role="checkbox" aria-checked="' +
+                (selected ? "true" : "false") +
+                '" data-value="' +
+                o.tagId +
+                '">' +
+                o.tag.label +
+                " (" +
+                o.count +
+                ")</button>"
+              );
+            })
+            .join("") +
+          "</div>";
+        sectionBody.querySelectorAll(".filter-chip").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const val = btn.dataset.value;
             const current = draftFacetState[def.key] || [];
-            draftFacetState[def.key] = input.checked ? current.concat([input.value]) : current.filter((id) => id !== input.value);
+            draftFacetState[def.key] = current.indexOf(val) !== -1 ? current.filter((id) => id !== val) : current.concat([val]);
             renderBody();
           });
         });
@@ -1375,42 +1380,60 @@
         if (def.layout === "photo-tiles") renderCountryTileSectionBody(sectionBody, def, options);
         else if (def.multi && def.combineMode === "or" && def.layout === "tiles") renderTileSectionBody(sectionBody, def, options);
         else if (def.layout === "ingredient-tiles") renderIngredientTileSectionBody(sectionBody, def, options);
-        else if (def.multi && def.combineMode === "or") renderCheckboxSectionBody(sectionBody, def, options);
+        else if (def.multi && def.combineMode === "or") renderChipSectionBody(sectionBody, def, options);
         else if (def.multi) renderMultiSectionBody(sectionBody, def, options);
         else renderSingleSectionBody(sectionBody, def, options);
         return section;
       }
 
+      // Papel da proteína — controle segmentado de 3 pílulas (Fase F1a, 2026-07-27; era lista
+      // de rádio nativa). Mesmo componente visual .filter-chip do resto do modal (não um
+      // sliding-thumb como o toggle de Ingrediente — 3 paradas discretas, flex:1 cada, sem
+      // trava animada) — role="radiogroup" no container + role="radio"/aria-checked em cada
+      // pílula preservam a semântica de seleção única que os antigos rádios nativos davam de
+      // graça. Header ganhou contagem "(3)" — harmoniza com o padrão único das outras 8 seções
+      // (label + contagem + chevron), única que não tinha.
       function renderProteinRoleSection() {
         const counts = opts.proteinRole.computeCounts(draftFacetState, draftIngredientMode);
         const section = document.createElement("div");
         section.className = "filter-section" + (openSectionKey === "protein-role" ? " is-open" : "");
         const summary = draftProteinRole === "focus" ? "Principal" : draftProteinRole === "secondary" ? "Secundário" : "";
+        const segments = [
+          { value: "", label: "Tanto faz" },
+          { value: "focus", label: "Principal (" + counts.focus + ")" },
+          { value: "secondary", label: "Secundário (" + counts.secondary + ")" },
+        ];
         section.innerHTML =
           '<button type="button" class="filter-section__header">' +
-          '<span class="filter-section__label">Papel da proteína</span>' +
+          '<span class="filter-section__label">Papel da proteína<span class="filter-section__count">(' +
+          segments.length +
+          ")</span></span>" +
           (summary ? '<span class="filter-section__summary">' + summary + "</span>" : "") +
           iconSvg("chevronDown", "filter-section__chevron") +
           "</button>" +
           '<div class="filter-section__body">' +
-          '<label class="filter-option"><input type="radio" name="filter-protein-role"' +
-          (!draftProteinRole ? " checked" : "") +
-          "><span>Tanto faz</span></label>" +
-          '<label class="filter-option"><input type="radio" name="filter-protein-role" value="focus"' +
-          (draftProteinRole === "focus" ? " checked" : "") +
-          "><span>Principal (" +
-          counts.focus +
-          ")</span></label>" +
-          '<label class="filter-option"><input type="radio" name="filter-protein-role" value="secondary"' +
-          (draftProteinRole === "secondary" ? " checked" : "") +
-          "><span>Secundário (" +
-          counts.secondary +
-          ")</span></label>" +
-          "</div>";
+          '<div class="filter-segmented" role="radiogroup" aria-label="Papel da proteína">' +
+          segments
+            .map((s) => {
+              const selected = (draftProteinRole || "") === s.value;
+              return (
+                '<button type="button" class="filter-chip filter-chip--segment' +
+                (selected ? " is-selected" : "") +
+                '" role="radio" aria-checked="' +
+                (selected ? "true" : "false") +
+                '" data-value="' +
+                s.value +
+                '">' +
+                s.label +
+                "</button>"
+              );
+            })
+            .join("") +
+          "</div></div>";
         section.querySelector(".filter-section__header").addEventListener("click", () => toggleSection("protein-role"));
-        section.querySelectorAll('input[type="radio"]').forEach((input) => {
-          input.addEventListener("change", () => {
-            draftProteinRole = input.value || null;
+        section.querySelectorAll(".filter-segmented .filter-chip").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            draftProteinRole = btn.dataset.value || null;
             renderBody();
           });
         });

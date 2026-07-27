@@ -570,59 +570,89 @@ Evitar poluir a UI com:
 - categoria original
 - filtros redundantes com a página atual
 
-## Modal de filtros em acordeão (Bloco 3 — design tokens v3)
+## Modal de filtros em acordeão (Bloco 3 — design tokens v3; redesenho de chips — Fase F1a, 2026-07-27)
 
 Coleções (país, proteína, tempo, dificuldade, fundamentos) usam um botão "Filtros" (pill,
-`--color-surface`/`--color-border`, ícone outline + badge `--color-accent` com a contagem de
-filtros ativos) no lugar de onde a antiga barra de dropdowns sempre-visível ficava. Toca no
+`--color-surface`/`--color-border`, ícone outline + badge `--color-accent-deep` com a contagem
+de filtros ativos) no lugar de onde a antiga barra de dropdowns sempre-visível ficava. Toca no
 botão, abre um modal cheio de tela (`--color-bg`) com "Cancelar" / título "Filtros" à esquerda/
-centro, e "Ver resultados (N)" fixo no rodapé (pill `--color-accent`, N = contagem ao vivo).
+centro. O RODAPÉ (Fase F1a) agora empilha as 2 ações do modal juntas — hierarquia única, em vez
+de "Limpar filtros" solto no topo: `.filter-modal__clear-row` ("Limpar filtros", ghost) fica
+DENTRO de `.filter-modal__footer`, acima de `.filter-modal__apply` ("Ver resultados (N)", pill
+cheia `--color-accent-deep`, largura total, N = contagem ao vivo do rascunho). Já era sticky de
+fato antes disso (flex child fora do único elemento com `flex:1`/`overflow-y` do overlay,
+`.filter-modal__body`) — a mudança foi só de composição, não de mecânica de scroll.
 
 Dentro, 9 seções em acordeão — País, Complexidade, Tempo, Equipamento, Proteína, Refeição,
 Tipo de prato, Ingrediente, Papel da proteína (só em coleções de proteína) — cada uma com
-contagem de opções no cabeçalho e um resumo do valor já selecionado, se houver. Três UIs de
-multi-seleção coexistem:
-- Complexidade, Tempo, Tipo de prato: lista de CHECKBOX (`accent-color: --color-accent`), com
-  "Todos" como item especial no topo que, ao marcar, limpa a seleção daquela faceta — não soma
-  com os demais valores. Os outros valores combinam em OR puro entre si (união). Tipo de prato
-  (`dish_type:`, 12 valores) foi pra lista por ter muitos valores textuais — mesma regra que já
-  orientou Equipamento (poucos/iconáveis) virar grade vs. Ingrediente (muitos) ficar em lista.
-- País, Equipamento, Proteína, Refeição: grade de tiles (3 colunas, 2 em telas ≤380px) em
-  vez de lista de checkbox (`renderTileSectionBody` em app.js, `def.layout === "tiles"`,
-  reaproveitado pelas quatro facetas — só o ícone difere via `def.tileIcon(tagId)`, plugável
-  por faceta). Cada tile: ícone em cima (se houver), label no meio, contagem embaixo em
-  `--color-text-disabled` (mesmo token que as outras seções já usavam pra contagem —
-  `--color-text-muted` não existe em DESIGN-TOKENS.md). Tile marcado ganha borda 2px
-  `--color-accent`. Sem tile "Todos" — nenhum tile marcado = nenhum filtro ativo (equivalente
-  ao "Todos" marcado da versão em lista). Mesma lógica de OR-união dos demais checkbox — só
-  muda a apresentação.
-  - Proteína (protein:, não confundir com "Papel da proteína" abaixo, que já existia e
-    continua igual): 8 valores (Frango, Carne Bovina, Suíno, Aves, Cordeiro, Peixe, Frutos do
-    Mar, Ovo), disponível em QUALQUER coleção/busca (renderCategory e renderBusca), não só
-    dentro de um hub de proteína. MUDANÇA: "protein:X" agora significa "essa proteína está
-    presente" (protagonista OU não), não só protagonista — passou a casar também com
-    `contains:X` (`matchesTagId` em app.js: cai pro `contains:` correspondente se `protein:X`
-    não bater direto; `facetOptionsFromPrefix` conta os dois lados, deduplicado por receita).
-    Exemplo real verificado: dentro de Massas, Proteína=Suíno mostra Carbonara/Amatriciana/
-    Tortellini/Agnolotti (guanciale/presunto/lombo presentes, mas nenhuma tem `protein:suino`
-    — o protagonista ali é sempre "massa"). "Papel da proteína" (Principal/Secundário/Tanto
-    faz, abaixo) é OUTRO mecanismo, via `getRecipesByCollection`/`matchesAnyTag` em
-    tagmodel.js — não foi tocado; os números de lá (Principal 27, Secundário 43 no hub Suínos)
-    continuam batendo exatamente como antes. `tileIcon:
-    noIconTileIcon` — sempre devolve `""`, sem ícone nesta rodada (label+contagem só, mesmo
-    tratamento que Processador/Sous Vide tiveram antes do ícone real; ícone fica pra rodada
-    futura).
+cabeçalho no MESMO padrão único (Fase F1a: label uppercase + tracking + contagem entre
+parênteses + chevron do acordeão; "Papel da proteína" ganhou a contagem "(3)" que não tinha,
+única divergência encontrada). Quatro UIs de seleção coexistem, escolhidas por CLASSIFICAÇÃO do
+que cada seção já era antes de qualquer mudança (investigação da Fase F1a, ver
+docs/DESIGN-TOKENS.md "Sistema de chip de seleção" pro detalhe de cores/estados): tile com
+imagem/ícone que já funcionava → só normalizado; lista-formulário nativa (checkbox/rádio,
+incluindo um "tile" sem ícone algum, que na prática também era só formulário disfarçado) →
+convertida pra chip; grade densa própria do Ingrediente → mantida, só rescolorida pro sistema
+novo.
+
+- **Chip de seleção** (`renderChipSectionBody` em app.js, `.filter-chip`/`.filter-chip-row`) —
+  Complexidade, Tempo, Tipo de prato, Proteína e Refeição. Pill `<button role="checkbox"
+  aria-checked>`: borda `--color-border`/texto `--color-text-secondary` livre, preenchida
+  `--color-accent-deep`/texto `--color-text-primary` (peso 600) selecionada — mesmo par já
+  calibrado a 4,52:1 na Fase 0a, reaproveitado sem recalcular. Substitui DUAS coisas antigas:
+  (1) a lista de `<input type="checkbox">` real que Complexidade/Tempo/Tipo de prato já tinham
+  (`renderCheckboxSectionBody`, removida — incluía um item especial "Todos" que limpava a
+  seleção; MORREU sem substituto, harmonizado com a convenção que os tiles já usavam: nenhum
+  chip marcado = nenhum filtro ativo, sem precisar de um item "Todos" à parte); (2) o "tile" de
+  Proteína/Refeição que, investigado a fundo nesta rodada, nunca teve ícone de verdade
+  (`tileIcon: noIconTileIcon` sempre devolvia `""` — label+contagem só, com o espaço reservado
+  do ícone vazio) — não se qualificava como "tile funcionando" pelo próprio critério usado pra
+  decidir o que preservar, então converteu junto. Combinam em OR puro entre si (união), mesma
+  lógica de sempre — só a apresentação mudou. `<button>` nativo: foco/Enter/Espaço funcionam
+  sem handler de teclado próprio.
+  - Proteína (`protein:`, não confundir com "Papel da proteína" abaixo): 10 valores na
+    taxonomia (`js/tags.js` — cresceu de 8 pra 10 desde a última vez que este documento foi
+    atualizado: `leguminosa`/`laticinio` são novos). Cobertura de imagem investigada contra
+    `imagens/categorias/`: só 7 dos 10 têm uma imagem candidata óbvia (reaproveitando fotos de
+    categoria já existentes — `ave`→`aves.webp`, `boi`→`carnes-bovinas.webp`,
+    `suino`→`suinos.webp`, `cordeiro`→`cordeiro.webp`, `peixe`→`peixes.webp`,
+    `frutos-do-mar`→`frutos-do-mar.webp`, `ovo`→`col-ovo.webp`), e mesmo essa candidata pra
+    `frango` seria emprestada de `aves.webp` — já reivindicada pela tag irmã `protein:ave`, não
+    uma foto própria; `leguminosa`/`laticinio` não têm candidata nenhuma. Abaixo do limiar de
+    10/10 travado no spec — chip de texto nesta rodada, photo-tile (mesma regra-mãe de
+    `.filter-tile--photo`) fica pro mini-lote de imagem futuro. "protein:X" continua casando
+    com `contains:X` (`matchesTagId`) — protagonista OU não — mecanismo intocado por esta
+    rodada, só a apresentação mudou. "Papel da proteína" (Principal/Secundário/Tanto faz,
+    abaixo) continua OUTRO mecanismo via `getRecipesByCollection`/`matchesAnyTag` em
+    tagmodel.js, não tocado.
   - Refeição (`course:`, 5 valores: Prato Principal, Entrada, Acompanhamento, Sobremesa, Café
-    da Manhã): cobertura de 161/398 receitas (40,5%). Mesmo `tileIcon: noIconTileIcon` (sem
-    ícone nesta rodada) e mesma lógica OR/grade de Proteína.
-  - "Tipo de prato" (`dish_type:`, 12 valores em uso) e "Restrições" (`diet:`) foram medidos
-    juntos antes de implementar: `dish_type:` tinha cobertura de 166/398 (41,7%) e entrou nesta
-    rodada; `diet:` tinha só 99/398 (24,9%) e um ÚNICO valor (`diet:vegetariana`) — abaixo do
-    limiar combinado com o usuário (30%), NÃO entrou, fica pro backlog de expansão de dados.
-  - País: ícone = EMOJI DE BANDEIRA (`COUNTRY_FLAG_EMOJI` em app.js, `country:*` -> caractere
-    Unicode padrão, sem arquivo, sem licença). NÃO recolore por estado (emoji não herda
-    `currentColor`) — a borda do tile já indica seleção sozinha, mesmo tratamento dos PNG de
-    Equipamento (`.filter-tile__icon--emoji`, só `font-size`, sem regra de cor).
+    da Manhã): cobertura de 161/398 receitas (40,5%). Mesma situação de Proteína — nunca teve
+    ícone de verdade — e mesma conversão pra chip nesta rodada, por consistência (nenhum pedido
+    explícito do dono citava esta seção por nome; extrapolação da mesma regra aplicada a
+    Proteína, documentada no relatório da tarefa).
+  - "Tipo de prato" (`dish_type:`, ~12-13 valores em uso) e "Restrições" (`diet:`) foram
+    medidos juntos antes de `dish_type:` entrar no modal (rodada anterior): `dish_type:` tinha
+    cobertura de 166/398 (41,7%); `diet:` tinha só 99/398 (24,9%) e um ÚNICO valor
+    (`diet:vegetariana`) — abaixo do limiar combinado com o usuário, `diet:` NÃO entrou, seguE
+    fora do modal, fica pro backlog de expansão de dados (não confundir com "Dieta" citado em
+    specs antigas — não existe seção com esse nome no modal hoje).
+- **Tile com imagem/ícone** (classe 1 da classificação Fase F1a — já funcionava, só
+  normalizado/corrigido nesta rodada, NUNCA convertido pra chip):
+  - País: bandeira real (`imagens/bandeiras/<iso2>.webp`, `renderCountryTileSectionBody`,
+    layout `"photo-tiles"`) cobrindo o bloco + faixa sólida com nome/contagem por baixo — ver
+    "Componentes" no DESIGN-TOKENS.md pro histórico completo (rumo novo de Países, calibração
+    de blur). **Bug da caixinha cinza corrigido (Fase F1a)**: `.filter-tile` base é flex column
+    com `align-items: center` (certo pro tile-ícone, que hug-content no próprio conteúdo) — a
+    variante `--photo` nunca sobrescrevia isso, então `.filter-tile__band` (que deveria ocupar
+    a largura CHEIA do tile, como `.category-card__band`) ficava sujeita ao mesmo cross-axis
+    "center", encolhendo pro tamanho do próprio texto (medido ao vivo ANTES do fix: banda
+    38,58px contra 111,33px do tile — um retângulo escuro pequeno flutuando centralizado, a
+    "caixinha cinza destoante" do print do dono). `.filter-tile--photo { align-items: stretch;
+    }` resolve — banda e mídia passam a ocupar 100% da largura (medido depois: 107,33px, igual
+    à mídia). `.category-card`/`.home-tile` nunca tiveram esse bug por não serem flex (são
+    `display: block` puro, filhos em fluxo normal já ocupam 100% de largura sem precisar de
+    `align-items` nenhum) — a causa raiz era específica de `.filter-tile` reusar um container
+    flex desenhado pro tile-ícone.
   - Equipamento: ícones reais em `icons/equipment/` (9 de 9 valores — todo tile tem ícone,
     TODOS SVG, nenhum PNG restante). 4 SVG de SVGRepo (forno, liquidificador, batedeira,
     micro-ondas) + 5 autorais (processador, sous vide, air-fryer, panela-de-pressao,
@@ -648,44 +678,70 @@ multi-seleção coexistem:
     usuário) — sem fonte externa a creditar. Numa rodada posterior, com a ausência de qualquer
     atribuição OBRIGATÓRIA reconfirmada, o bloco de créditos inteiro foi removido (função,
     chamada e CSS) — não existe mais crédito de ícone em nenhuma tela do app.
-- Ingrediente: chips removíveis (`--color-surface-elevated`, × em `--color-accent`) continuam
-  iguais acima da grade; o antigo `<select>` de "+ adicionar" virou PILOTO DE REDESENHO — grade
-  de tiles MAIS DENSA que País/Equipamento (`renderIngredientTileSectionBody` em app.js,
-  `def.layout === "ingredient-tiles"`, função própria — não reaproveita `renderTileSectionBody`
-  porque coexiste com os chips e não tem estado "selecionado" no próprio tile: um valor
-  escolhido sai da grade e vira chip, nunca aparece nos dois lugares). Classes
-  `.filter-tile-grid--dense`/`.filter-tile--dense` (4 colunas ≥380px, 3 em ≤380px — especificidade
-  dobrada de propósito, ver comentário no CSS, senão a regra ≤380px de 2 colunas do
-  `.filter-tile-grid` base vencia por ordem de declaração). Sem ícone — só label+contagem pra
-  TODOS os valores, mesmo fallback seguro do Processador/Sous Vide em Equipamento. **Fase 0c
-  (2026-07-25)**: `INGREDIENT_EMOJI` e `ingredientTileIconHtml` (app.js) foram removidos por
-  completo — a versão anterior mostrava emoji por ingrediente (peixes sem emoji Unicode próprio
-  usavam 🐟 genérico; 26 de 69 valores já ficavam sem ícone algum antes disso). Decisão fechada
-  do dono: elimina a inconsistência visual tile-com-emoji vs. tile-só-texto e não depende de
-  achar emoji Unicode pra cada ingrediente novo que a taxonomia ganhar. Combina em AND ou OR entre si por escolha do usuário —
-  único toggle desse tipo entre as facetas: trilho único em pílula com trava deslizante
-  ("Qualquer um destes"/"Todos estes", NÃO 2 botões separados), numa linha própria ANTES dos
-  chips selecionados (logo abaixo do cabeçalho do acordeão), só visível com 2+ selecionados;
-  "or" é o default. Gengibre e curry NÃO aparecem nesta seção: existem só como `seasoning:*`
-  (ver js/tags.js), não `ingredient:*` — a faceta só lê o prefixo `ingredient:`, então essas
-  duas tags nunca foram opções aqui, com ou sem emoji (e, por não passarem pelo toggle, não têm
-  como combinar em OR entre si caso 2+ apareçam selecionadas por outra via, ex. chip manual —
-  caso raro, sem UI própria pra isso).
+- **Grade densa própria** (classe própria, mantida — item 3 do spec F1a travou "só-texto",
+  restilizada pro sistema novo sem mudar de mecanismo): Ingrediente. Chips removíveis
+  (`--color-surface-elevated`, × em `--color-accent`) continuam iguais acima da grade; o antigo
+  `<select>` de "+ adicionar" é uma grade MAIS DENSA que País/Equipamento
+  (`renderIngredientTileSectionBody` em app.js, `def.layout === "ingredient-tiles"`, função
+  própria — não reaproveita `renderChipSectionBody`/`renderTileSectionBody` porque coexiste com
+  os chips e não tem estado "selecionado" no próprio tile: um valor escolhido sai da grade e
+  vira chip, nunca aparece nos dois lugares). Classes `.filter-tile-grid--dense`/
+  `.filter-tile--dense` (4 colunas ≥380px, 3 em ≤380px). Sem ícone — só label+contagem pra
+  TODOS os valores. Combina em AND ou OR entre si por escolha do usuário — único toggle desse
+  tipo entre as facetas: trilho único em pílula com trava deslizante ("Qualquer um destes"/
+  "Todos estes"), numa linha própria ANTES dos chips selecionados, só visível com 2+
+  selecionados; "or" é o default. **Achado de contraste na Fase F1a**: a trava
+  (`.ingredient-mode-toggle__thumb`) usava `--color-accent` puro de fundo — o texto ativo
+  (`--color-text-primary`, `--text-sm`) sentado em cima mede 4,11:1 nesse par (DESIGN-TOKENS.md),
+  abaixo do 4,5:1 AA. Corrigido pra `--color-accent-deep` (medido ao vivo depois do fix,
+  fórmula de luminância WCAG: 4,52:1) — o mesmo par já usado no sistema de chip novo. Migração
+  DELIBERADAMENTE contida a só este token — a animação de mola (`260ms cubic-bezier(0.34, 1.56,
+  0.64, 1)`, elogiada no roadmap-mestre como "animação de mola") e toda a estrutura/JS do
+  toggle continuam intocadas; migrar o mecanismo inteiro pro componente segmentado de pílulas
+  discretas (como Papel da proteína, abaixo) foi avaliado como invasivo demais pra esta rodada
+  — perderia a transição suave — e fica pro backlog caso o dono peça consistência total.
+  Gengibre e curry NÃO aparecem nesta seção: existem só como `seasoning:*` (ver js/tags.js),
+  não `ingredient:*`.
+- **Segmentado de pílulas** (seleção única — Fase F1a): Papel da proteína. Era lista de rádio
+  nativa (`<input type="radio">`); virou 3 pílulas (Tanto faz / Principal / Secundário) lado a
+  lado, `flex: 1` cada (largura igual, não um trilho com trava deslizante como o toggle de
+  Ingrediente acima — 3 paradas discretas dispensam a mecânica de posição/largura calculada em
+  JS que só valeria a pena pra 2). Mesmo componente visual `.filter-chip` do resto do modal
+  (`.filter-chip--segment`), com `role="radiogroup"` no container e `role="radio"`/
+  `aria-checked` em cada pílula — preserva a semântica de seleção única que o rádio nativo dava
+  de graça. Mecanismo/contagens (`getRecipesByCollection`/`matchesAnyTag` em tagmodel.js) NÃO
+  tocados, só a apresentação. Cabeçalho ganhou a contagem "(3)" que não tinha — harmoniza com o
+  padrão único das outras 8 seções.
 
 A contagem de cada opção não-selecionada é sempre "quantos eu teria se também adicionasse
 este" — universo restrito pelas OUTRAS facetas, nunca pela própria (mesma lógica que já existia
-pro dropdown de Ingrediente, só reaproveitada).
-
-Papel da proteína continua sendo a única seção de seleção única (lista de rádio).
+pro dropdown de Ingrediente, só reaproveitada) — intocado pela Fase F1a.
 
 Mudanças dentro do modal ficam em rascunho — só valem de fato ao tocar "Ver resultados";
 "Cancelar" descarta tudo. "Papel da proteína" (Principal / Secundário / Tanto faz) substitui
 as antigas abas "Foco da receita / Também leva / Todas".
 
 "Limpar filtros" (texto sublinhado, `--color-text-secondary` — nunca `--color-accent` em texto
-pequeno, falha WCAG AA) aparece dentro do modal só quando pelo menos 1 filtro está ativo. NÃO
-aplica nem fecha o modal — zera só o rascunho (seções voltam a "Todos", rodapé recalcula) e
-mantém o modal aberto; ainda precisa de "Ver resultados" (ou "Cancelar" pra desistir).
+pequeno, falha WCAG AA) aparece só quando pelo menos 1 filtro está ativo, agora DENTRO do
+rodapé (Fase F1a, ver acima — antes vivia solto logo abaixo do header). NÃO aplica nem fecha o
+modal — zera só o rascunho (seções voltam ao estado sem seleção, rodapé recalcula) e mantém o
+modal aberto; ainda precisa de "Ver resultados" (ou "Cancelar" pra desistir).
+
+### Sistema de chip de seleção (Fase F1a, 2026-07-27)
+
+Componente `.filter-chip` (docs/DESIGN-TOKENS.md "Componentes" tem os números completos):
+pill `<button>`, 36px de altura visual, `border-radius: 999px`. Livre: `border: 1px solid
+var(--color-border)`, fundo transparente, texto `--color-text-secondary`. Selecionada:
+`background`/`border-color: var(--color-accent-deep)`, texto `--color-text-primary` peso 600 —
+o par já calibrado a 4,52:1 na Fase 0a, reaproveitado sem recalcular em NENHUM dos 3 lugares
+que passaram a usá-lo (chip multi-seleção, segmentado de Papel da proteína, trava do toggle de
+Ingrediente). Alvo de toque: 36px visual + `::after` com `inset: -6px` (mesma fórmula da Fase
+0a já usada em `.recipe-page-tags .tag-chip-link` — border:1px "come" 1px do inset, que resolve
+contra o padding-box do ancestral posicionado, não a borda visível) = 48px efetivos, acima do
+mínimo de 44px. `.filter-chip-row` (wrap, `gap: var(--space-2)`) pras 5 facetas multi-seleção;
+`.filter-segmented` (`display: flex`, sem wrap, filhos `flex: 1`) só pro Papel da proteína.
+Estados `:active`/`:focus-visible` entram nas listas compartilhadas de componentes tocáveis do
+app (mesmos tokens de movimento/foco de sempre, nenhum CSS de estado duplicado).
 
 O resto da tela de categoria/busca (cards, dropdown de ordenação, toolbar) também é tema
 escuro desde o Bloco 4 (via os tokens antigos redefinidos, ver seção abaixo) — o botão

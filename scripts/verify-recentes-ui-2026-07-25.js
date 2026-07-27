@@ -163,7 +163,7 @@ function main() {
   // ingredientes, css/style.css mudou de novo, também fora desta feature.
   // v32 -> v33: item final do redesenho visual. v33 -> v34: rumo novo de Países. v34 -> v35:
   // calibração final do banner de hub (blur/scale removidos) — todos fora desta feature.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v35";'), "CACHE_NAME v35 — sucessor de v34 via calibração final do banner de hub (fora desta feature, só css/style.css mudou)");
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v36";'), "CACHE_NAME v35 -> v36 — Fase F1a, redesenho do modal de Filtros (fora desta feature, css/style.css e js/app.js mudaram)");
   assert(!swJs.includes('const CACHE_NAME = "cardapio-v25";'), "v25 não sobrevive — teste negativo (a versão desta tarefa foi sucedida, não deixada presa)");
   assert(swJs.includes('"css/style.css"') && swJs.includes('"js/app.js"'), "css/style.css e js/app.js seguem no APP_SHELL precache");
 

@@ -777,6 +777,64 @@ diretamente. Remoção dos alias fica pra uma rodada futura.
      `stretch` — pra manter o mesmo centro visual dos outros tiles do grid de Filtros,
      Equipamento/Proteína incluídos).
 
+- **Redesenho do modal de Filtros — sistema de chip de seleção, bug do tile de país, tiles de
+  Equipamento normalizados (Fase F1a, 2026-07-27).** Investigação prévia (como sempre neste
+  projeto) classificou cada uma das 9 seções pelo que ela já era de fato — tile com
+  imagem/ícone funcionando (só normalizar), lista-formulário nativa incl. um "tile" que nunca
+  teve ícone de verdade (converter pra chip), ou grade densa própria (manter, só rescolorir) —
+  antes de tocar qualquer CSS/JS. Ver `.claude/skills/mobile-recipe-ui/SKILL.md` ("Modal de
+  filtros em acordeão") pro resumo de comportamento por seção; aqui ficam os números.
+  - **`.filter-chip`** (pill, `renderChipSectionBody`/`.filter-chip--segment` em js/app.js) —
+    substitui a lista de `<input type="checkbox">` de Complexidade/Tempo/Tipo de prato e o
+    "tile" sem ícone de Proteína/Refeição (`tileIcon` desses dois sempre devolvia `""` — não se
+    qualificava como "tile funcionando" pelo próprio critério usado nesta classificação), e o
+    segmentado de Papel da proteína (era lista de rádio). Livre: `border: 1px solid
+    var(--color-border)`, fundo transparente, `color: var(--color-text-secondary)`. Selecionada:
+    `background`/`border-color: var(--color-accent-deep)`, `color: var(--color-text-primary)`,
+    `font-weight: 600` — o par já calibrado 4,52:1 na Fase 0a (ver tabela de paleta no topo
+    deste documento), reaproveitado sem recalcular. Altura visual **36px** — não 44px cheios —
+    com hit-padding invisível via `::after { inset: -6px }`, MESMA fórmula já calibrada pra
+    `.recipe-page-tags .tag-chip-link` (border 1px "come" 1px do inset absolute, que resolve
+    contra o padding-box do ancestral posicionado, não a borda visível: -6px = 5px pretendido +
+    1px de compensação de borda). 36 + 6 + 6 = **48px efetivos**, acima do mínimo de 44px.
+    `role="checkbox"`/`aria-checked` (multi-seleção) ou `role="radio"`/`aria-checked` dentro de
+    um `role="radiogroup"` (Papel da proteína, seleção única) — `<button>` nativo, foco/Enter/
+    Espaço funcionam sem handler de teclado próprio. Mesmo par de cor também aplicado à trava
+    do toggle Qualquer um/Todos estes do Ingrediente (`.ingredient-mode-toggle__thumb`), que
+    usava `--color-accent` puro — medido em 4,11:1 com o texto ativo em cima (abaixo do 4,5:1
+    AA); migração deliberadamente contida a só esse token, animação de mola (260ms,
+    `cubic-bezier(0.34, 1.56, 0.64, 1)`) preservada.
+  - **Bug da caixinha cinza do tile de país, causa raiz e fix.** `.filter-tile` (base
+    compartilhada por todos os tiles do modal) é `display: flex; flex-direction: column;
+    align-items: center` — certo pro tile-ícone (ícone/label/contagem hugam o próprio
+    conteúdo), mas a variante `.filter-tile--photo` nunca sobrescrevia esse `align-items`, então
+    seus 2 blocos filhos (`.filter-tile__media`, `.filter-tile__band` — que deveriam ocupar
+    100% da largura do tile, como faixas de verdade) ficavam sujeitos ao mesmo cross-axis
+    "center" do tile-ícone. `__media` "escapava" do bug por acidente (a imagem interna força uma
+    largura intrínseca grande o bastante pra dominar o cálculo do flex); `__band` (só texto
+    curto) não tinha nada forçando sua largura, então encolhia pro tamanho do próprio conteúdo.
+    Medido ao vivo ANTES do fix (grade País, tile 111,33px de largura): `__band` só 38,58px —
+    um retângulo escuro pequeno flutuando centralizado, a "caixinha cinza destoante" do print
+    do dono. Fix: `.filter-tile--photo { align-items: stretch; }` (sobrescreve o `center`
+    herdado) — medido depois: `__band` 107,33px, igual à `__media`. Não é o mesmo `align-items`
+    documentado no item 5 da rodada 4 acima (aquele é do `.filter-tile__band` PRA DENTRO, entre
+    label e contagem; este é do `.filter-tile--photo` PRA FORA, entre o tile e seus 2 blocos
+    filhos — dois containers flex distintos, sem conflito). `.category-card`/`.home-tile` nunca
+    tiveram esse bug por não serem flex (`display: block` puro — filhos em fluxo normal já
+    ocupam 100% de largura, sem `align-items` nenhum envolvido).
+  - **Tiles de Equipamento normalizados.** Medido ao vivo ANTES do fix (grade a 390px): 8 dos 9
+    tiles (label de 1 linha) mediam 111,33×92,39px; só "Processador de Alimentos" (label de 2
+    linhas) media 111,34×106,78px — 14,39px mais alto, visivelmente desigual na mesma fileira
+    (`.filter-tile-grid` usa `align-items: start`, então a diferença não estica os vizinhos,
+    fica exposta). Causa raiz: `.filter-tile__label` não reservava altura nenhuma pro texto —
+    só crescia o tile inteiro quando o label quebrava linha. Fix (mesmo padrão já usado em
+    `.home-tile__band` pro mesmo tipo de problema): `min-height: calc(var(--text-xs) *
+    var(--leading-tight) * 2)` (reserva SEMPRE o espaço de 2 linhas) + `display: flex;
+    align-items: center` (centraliza verticalmente um label de 1 linha só dentro do espaço de
+    2). Medido depois: os 9 tiles de Equipamento medem 111,33×106,8px, idênticos. Regra
+    compartilhada (`.filter-tile__label` é a classe base, sem escopo por seção) — o mesmo fix
+    também uniformiza a grade densa do Ingrediente de graça, sem nenhum código extra.
+
 ## Iconografia
 
 Outline, espessura consistente, monocromático. Ativos `--color-accent`, inativos

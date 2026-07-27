@@ -102,7 +102,7 @@ function main() {
   // header, css/style.css) — mesmo padrão, também externo a este hotfix.
   // v32 -> v33 -> v34 -> v35: item final do redesenho visual, rumo novo de Países, calibração
   // final do banner de hub — todos externos a este hotfix, mesmo padrão de sempre.
-  assert(/const CACHE_NAME = "cardapio-v35";/.test(swJs), "CACHE_NAME v29 -> v30 -> v31 -> v32 -> v33 -> v34 -> v35 (v35 é a calibração final do banner de hub, externa a este hotfix, ver comentário acima)");
+  assert(/const CACHE_NAME = "cardapio-v36";/.test(swJs), "CACHE_NAME v29 -> v30 -> v31 -> v32 -> v33 -> v34 -> v35 -> v36 (v36 é a Fase F1a, redesenho do modal de Filtros — externa a este hotfix, ver comentário acima)");
 
   console.log("");
   console.log("==================================================");

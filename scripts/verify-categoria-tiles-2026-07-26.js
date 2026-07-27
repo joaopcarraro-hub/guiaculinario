@@ -528,7 +528,7 @@ function main() {
   console.log("9. SERVICE WORKER — v35 (calibração final do banner de hub, sem blur) + APP_SHELL completo");
   console.log("==================================================");
   const swJs = fs.readFileSync(path.join(ROOT, "sw.js"), "utf8");
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v35";'), "CACHE_NAME v35 — css/style.css mudou (banner de hub sem blur), está no APP_SHELL");
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v36";'), "CACHE_NAME v35 -> v36 — Fase F1a (modal de Filtros) mudou css/style.css e js/app.js de novo, ambos no APP_SHELL");
   // Regressão que passou despercebida desde que js/countries.js foi criado: o arquivo é
   // pré-requisito duro de js/categories.js e js/collections.js (os dois leem window.COUNTRIES
   // no topo, fora de função) e não estava no APP_SHELL. Ficava no cache só de carona, pelo

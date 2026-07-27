@@ -236,6 +236,7 @@ body {
 .filter-modal .btn-clear-filters,
 .filter-modal__cancel,
 .filter-option,
+.filter-chip,
 .filter-section__header,
 .home-more-categories,
 .shopping-list__clear,
@@ -268,6 +269,7 @@ body {
 .filter-modal .btn-clear-filters:active,
 .filter-modal__cancel:active,
 .filter-option:active,
+.filter-chip:active,
 .filter-section__header:active,
 .home-more-categories:active,
 .shopping-list__clear:active,
@@ -576,7 +578,15 @@ body { pointer-events: none; }
   left: 0;
   width: 50%;
   height: 100%;
-  background: var(--color-accent);
+  /* era --color-accent puro (Fase F1a, 2026-07-27, achado durante a revisão de contraste dos
+     chips novos): .ingredient-mode-toggle__option.is-active senta --color-text-primary (--text-
+     sm/14px) sobre esta trava quando ela desliza por baixo do texto ativo — --color-accent puro
+     mede 4,11:1 nesse par (DESIGN-TOKENS.md), abaixo do 4,5:1 AA; --color-accent-deep é o mesmo
+     par já calibrado a 4,52:1 que o sistema de chip novo usa. Migração intencionalmente CONTIDA
+     a só este token — a animação de mola (cubic-bezier abaixo) e toda a estrutura/JS do toggle
+     seguem intocadas, ver relatório da tarefa sobre por que migrar pro segmentado de pílulas
+     discretas (como Papel da proteína) foi avaliado como invasivo demais nesta rodada. */
+  background: var(--color-accent-deep);
   border-radius: 999px;
   /* Curva com leve ultrapassagem (~10%) e retorno, aproximando o princípio de mola da skill
      apple-design sem precisar de biblioteca (CSS puro — é um clique/tap discreto, não um
@@ -1015,12 +1025,17 @@ body.filter-modal-open { overflow: hidden; }
   cursor: pointer;
   padding: 0;
 }
+/* Relocado pro rodapé (Fase F1a, 2026-07-27) — vivia solto logo abaixo do header, desconectado
+   do CTA principal ("hierarquia única" pedida: as 2 ações do modal, ghost secundário +
+   primary, juntas no mesmo lugar). display:none quando vazio (não só padding:0) porque agora é
+   filho flex de .filter-modal__footer — um filho vazio com padding:0 ainda reservaria o "gap"
+   do footer entre ele e o botão "Ver resultados", abrindo um vão sem função; display:none
+   remove o elemento do fluxo flex por completo, gap incluso. */
 .filter-modal__clear-row {
   display: flex;
-  justify-content: flex-end;
-  padding: var(--space-3) var(--space-4) 0;
+  justify-content: center;
 }
-.filter-modal__clear-row:empty { padding: 0; }
+.filter-modal__clear-row:empty { display: none; }
 .filter-modal .btn-clear-filters {
   min-height: 44px;
   padding: 0 var(--space-1);
@@ -1037,7 +1052,15 @@ body.filter-modal-open { overflow: hidden; }
   overflow-y: auto;
   padding: var(--space-2) var(--space-4) var(--space-4);
 }
+/* display:flex/column/gap (Fase F1a, 2026-07-27): agora empilha .filter-modal__clear-row (ghost,
+   se houver filtro ativo) sobre .filter-modal__apply (primary, sempre) — hierarquia única no
+   rodapé em vez de "Limpar filtros" solto no topo do modal. Já era sticky de fato (flex child
+   fora do único elemento com flex:1/overflow-y do overlay, .filter-modal__body) — sem mudança
+   nesse comportamento. */
 .filter-modal__footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
   padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom));
   border-top: 1px solid var(--color-border);
 }
@@ -1072,7 +1095,15 @@ body.filter-modal-open { overflow: hidden; }
   padding: var(--space-2) var(--space-05);
   text-align: left;
 }
-.filter-section__label { display: flex; align-items: baseline; gap: var(--space-2); flex: 1; min-width: 0; }
+/* text-transform/letter-spacing (Fase F1a, 2026-07-27) — harmoniza as 9 seções sob um único
+   padrão de header (label uppercase + contagem + chevron), mesma família tipográfica já usada
+   em labels de seção fora do modal (.recent-views__title, .tagsearch-group-label,
+   .recipe-page-section h4 "Ingredientes"): sans pequeno, uppercase, tracking positivo. Só
+   texto/tracking mudou aqui — nenhum redesenho estrutural do acordeão (mecânica is-open/
+   chevron/body intacta). Cor herdada de --color-text-primary (do .filter-section__header pai)
+   preservada — mais proeminente que os labels passivos citados acima é intencional, já que
+   este é o gatilho clicável do acordeão, não uma legenda estática. */
+.filter-section__label { display: flex; align-items: baseline; gap: var(--space-2); flex: 1; min-width: 0; text-transform: uppercase; letter-spacing: 0.04em; }
 .filter-section__count { color: var(--color-text-disabled); font-size: var(--text-xs); }
 
 /* Cabeçalho de Ingredientes (item 1 de "Deixar pro Fable, depois") — substitui o antigo botão-
@@ -1164,6 +1195,56 @@ body.filter-modal-open { overflow: hidden; }
 .filter-option input[type="radio"],
 .filter-option input[type="checkbox"] { accent-color: var(--color-accent); width: 18px; height: 18px; flex-shrink: 0; }
 
+/* Sistema de chip de seleção (Fase F1a, 2026-07-27) — grade de pills usada por Complexidade/
+   Tempo/Tipo de prato/Proteína/Refeição (renderChipSectionBody, js/app.js) e pelo segmentado de
+   Papel da proteína (renderProteinRoleSection, .filter-chip--segment). Substitui a antiga lista
+   de checkbox/rádio (.filter-option) nessas facetas — .filter-option continua existindo no CSS
+   por ainda ser referenciada por caminhos de código não alcançáveis nesta versão
+   (renderSingleSectionBody/renderMultiSectionBody, sem nenhuma faceta que os invoque hoje), não
+   removida por não ser escopo desta rodada. */
+.filter-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-05) var(--space-4);
+}
+.filter-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 var(--space-4);
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: none;
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+/* Alvo de toque efetivo: 36px visual + hit-padding invisível via ::after — mesma fórmula já
+   calibrada na Fase 0a pra .recipe-page-tags .tag-chip-link (border:1px "come" 1px do inset
+   absolute, que resolve contra o padding-box do ancestral posicionado, não a borda visível):
+   -6px de inset = 5px pretendido + 1px de compensação de borda. 36 + 6 + 6 = 48px efetivos,
+   acima do mínimo de 44px. */
+.filter-chip::after { content: ""; position: absolute; inset: -6px; }
+.filter-chip.is-selected {
+  border-color: var(--color-accent-deep);
+  background: var(--color-accent-deep); /* par já calibrado 4,52:1 com --color-text-primary (Fase 0a) — nunca --color-accent puro, que falha AA nesse peso/tamanho */
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+/* Papel da proteína — 3 pílulas de largura igual numa fileira única (não um chip-row que quebra
+   linha) — mesmo componente .filter-chip, só o layout do container muda pra comunicar "escolha
+   1 destas 3" em vez de "marque quantas quiser". Sem trilho/trava deslizante (esse padrão já
+   existe pro toggle Qualquer um/Todos estes, .ingredient-mode-toggle, calibrado pra 2 paradas
+   só — replicar a mesma trava pra 3 paradas exigiria recalcular posição/largura em JS; 3
+   pílulas discretas com o mesmo par de cor selecionado/livre já comunicam o estado com clareza
+   suficiente, avaliado como bastante pra esta rodada). */
+.filter-segmented { display: flex; gap: var(--space-2); padding: var(--space-1) var(--space-05) var(--space-4); }
+.filter-chip--segment { flex: 1; padding: 0 var(--space-2); }
+
 /* Piloto de redesenho visual — só a seção Equipamento (def.layout "tiles"). --color-text-muted
    não existe em docs/DESIGN-TOKENS.md; reaproveita --color-text-disabled (mesmo token já usado
    pra contagem nas outras seções em lista), seguindo a regra "todo componente novo reaproveita
@@ -1224,7 +1305,23 @@ body.filter-modal-open { overflow: hidden; }
      ordem de declaração já que as duas têm a mesma especificidade de outra forma. */
   .filter-tile-grid.filter-tile-grid--dense { grid-template-columns: repeat(3, 1fr); }
 }
+/* min-height derivado (Fase F1a, 2026-07-27 — normaliza o redimensionamento desigual entre
+   tiles de 1 e 2 linhas de label na MESMA grade, pedido do dono/print). Medido ao vivo ANTES
+   desta correção, grade de Equipamento (390px): 8 dos 9 tiles com label de 1 linha mediam
+   111,33x92,39px; só "Processador de Alimentos" (2 linhas) media 111,34x106,78px — 14,39px mais
+   alto que os vizinhos da mesma fileira (.filter-tile-grid usa align-items:start, então a
+   diferença fica visível em vez de esticar os vizinhos). Causa raiz: nenhuma reserva de altura
+   pro label — ele só cresce o tile inteiro quando quebra linha. Fix: reserva SEMPRE o espaço de
+   2 linhas (mesmo padrão já usado em .home-tile__band pro mesmo tipo de problema), com
+   display:flex + align-items:center pra centralizar verticalmente um label de 1 linha só dentro
+   do espaço de 2 — todos os tiles da grade (Equipamento E Ingrediente, que reaproveita esta
+   mesma classe) passam a ter altura total idêntica independente de quantas linhas o label
+   precisar. */
 .filter-tile__label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(var(--text-xs) * var(--leading-tight) * 2);
   font-size: var(--text-xs);
   color: var(--color-text-primary);
   text-align: center;
@@ -1245,7 +1342,21 @@ body.filter-modal-open { overflow: hidden; }
    height:76px (herdado de .filter-tile) deixa de ser a altura total do tile, que agora cresce
    com media(3:2)+faixa; min-height sozinho não bloqueia esse crescimento, só garante o piso
    nos OUTROS tipos de tile (ícone) que continuam usando só min-height. */
-.filter-tile--photo { overflow: hidden; padding: 0; gap: 0; }
+/* align-items:stretch (Fase F1a, 2026-07-27 — corrige o bug da "caixinha cinza destoante" no
+   print do dono): .filter-tile base é flex column com align-items:center (certo pro tile-ícone,
+   onde ícone/label/contagem hugam o próprio conteúdo) — a variante --photo nunca sobrescrevia
+   isso, então .filter-tile__media e .filter-tile__band (2 blocos que deveriam ocupar a largura
+   CHEIA do tile) ficavam sujeitos ao mesmo cross-axis "center" do tile-ícone. Medido ao vivo
+   ANTES desta correção: .filter-tile__band media 38,58px de largura (hug-content, só o texto do
+   nome+contagem) contra 111,33px do tile — um retângulo escuro pequeno flutuando centralizado,
+   em vez de uma faixa cheia como .category-card__band/.home-tile__band (que não têm esse
+   problema por não serem flex — são display:block puro). .filter-tile__media "escapava" do
+   mesmo bug por acidente (a imagem interna força uma largura intrínseca grande o bastante), mas
+   .filter-tile__band (só texto curto) não tinha nada forçando sua largura. align-items:stretch
+   aqui faz os 2 blocos ocuparem 100% da largura do tile (medido depois: band 107,33px, igual à
+   media) — mesmo efeito de .category-card/.home-tile, sem precisar tornar .filter-tile inteiro
+   não-flex (que quebraria o tile-ícone, que precisa do center). */
+.filter-tile--photo { overflow: hidden; padding: 0; gap: 0; align-items: stretch; }
 .filter-tile--photo .filter-tile__media { display: block; position: relative; aspect-ratio: 3 / 2; overflow: hidden; }
 .filter-tile--photo .filter-tile__img { width: 100%; height: 100%; object-fit: cover; display: block; filter: blur(var(--flag-blur)); transform: scale(1.02); }
 .filter-tile--photo .filter-tile__media::after {
@@ -2514,6 +2625,7 @@ body.filter-modal-open { overflow: hidden; }
   .filter-modal .btn-clear-filters:active,
   .filter-modal__cancel:active,
   .filter-option:active,
+  .filter-chip:active,
   .filter-section__header:active,
   .home-more-categories:active,
   .shopping-list__clear:active,
@@ -2579,6 +2691,7 @@ body.filter-modal-open { overflow: hidden; }
 .filter-modal__apply:focus-visible,
 .filter-section__header:focus-visible,
 .filter-option:focus-visible,
+.filter-chip:focus-visible,
 .filter-tile:focus-visible,
 .filter-modal .tag-chip--selected:focus-visible,
 .tag-suggestion:focus-visible,

@@ -42,7 +42,11 @@
 // segunda carga, e evicção do cache. Nos dois, COUNTRIES fica indefinido e o app quebra na
 // hora — não degrada. Agora que countries.js carrega também o signatureRecipe dos 20 tiles do
 // hub Países, ele deixou de ser dado acessório e virou shell de verdade. Precachear é o certo.
-const CACHE_NAME = "cardapio-v35";
+// v36: Fase F1a — redesenho do modal de Filtros (chips de seleção). Complexidade/Tempo/Tipo de
+// prato/Proteína/Refeição viram chips; Papel da proteína vira segmentado de 3 pílulas; bug da
+// caixinha cinza de contagem do tile de país corrigido; tiles de Equipamento normalizados;
+// rodapé com hierarquia única. css/style.css e js/app.js mudaram, os dois no APP_SHELL.
+const CACHE_NAME = "cardapio-v36";
 
 const APP_SHELL = [
   "./",
