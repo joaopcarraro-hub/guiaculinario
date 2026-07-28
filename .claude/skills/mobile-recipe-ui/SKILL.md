@@ -219,6 +219,29 @@ mostra receitas que batem em tags de ingrediente (ingredient:/contains:), escopa
 coleções deste grupo, numa seção separada da lista de opções (ex.: "Categorias" e "Receitas
 com [termo]"). Nunca traz receita de fora do grupo atual.
 
+## Botão de limpar busca (item 2, 2026-07-28)
+
+Inventário confirmou só 2 barras de busca de texto reais no app inteiro (o input numérico do
+timer, `.cook-timer-display__edit-input`, não conta): `.home-search` (busca contextual desta
+página de grupo, acima) e `.tagsearch-input` (busca global, aba Pesquisar). O "modal de países"
+citado num pedido antigo não existe como algo à parte — o hub Países usa exatamente a MESMA
+`.home-search` de qualquer outro grupo, só troca o placeholder.
+
+Helper único (`attachSearchClear(input, wrap, onClear)` em app.js) injeta um botão circular
+`.search-clear-btn` (36px, ícone `iconSvg("close")` já existente da Fase 0c, mesma família visual
+de `.preparo-card__delete`) dentro de um wrapper `position: relative` (`.home-search-wrap` já
+existia; `.tagsearch-input-wrap` é novo — a busca global nunca teve wrapper próprio antes).
+Escondido por padrão (`display: none`), aparece (`.is-visible`) só quando `input.value` não é
+vazio — sincronizado no listener `"input"` do próprio helper, não duplica a lógica de busca de
+cada tela. Clique: zera o valor, refoca o campo, esconde o botão de novo, e dispara
+`input.dispatchEvent(new Event("input"))` — reaproveita o listener de busca QUE JÁ EXISTE em cada
+tela (debounce da busca global incluso) em vez de duplicar a lógica de re-render aqui. Hit-area
+36px + `::after{inset:-5px}` = 46px efetivos (mesma fórmula de `.preparo-card__delete`), acima do
+mínimo de 44px. `aria-label="Limpar busca"` via `setAttribute` (mesmo padrão de
+`createBackFloat`/`createExitCookFloat`, não HTML literal). `padding-right` dos 2 inputs cresceu
+pra 50px fixo — espaço reservado pro botão mesmo escondido, texto digitado nunca reflui de
+largura ao aparecer/sumir o botão.
+
 ## Cards de receita mobile
 
 O card mobile deve ser vertical e escaneável.
@@ -583,11 +606,12 @@ cheia `--color-accent-deep`, largura total, N = contagem ao vivo do rascunho). J
 fato antes disso (flex child fora do único elemento com `flex:1`/`overflow-y` do overlay,
 `.filter-modal__body`) — a mudança foi só de composição, não de mecânica de scroll.
 
-Dentro, 9 seções em acordeão — País, Complexidade, Tempo, Equipamento, Proteína, Refeição,
-Tipo de prato, Ingrediente, Papel da proteína (só em coleções de proteína) — cada uma com
-cabeçalho no MESMO padrão único (Fase F1a: label uppercase + tracking + contagem entre
-parênteses + chevron do acordeão; "Papel da proteína" ganhou a contagem "(3)" que não tinha,
-única divergência encontrada). Quatro UIs de seleção coexistem, escolhidas por CLASSIFICAÇÃO do
+Dentro, 8 seções em acordeão — País, Complexidade, Tempo, Equipamento, Proteína, Refeição,
+Tipo de prato, Ingrediente — cada uma com cabeçalho no MESMO padrão único (Fase F1a: label
+uppercase + tracking + contagem entre parênteses + chevron do acordeão). "Papel da proteína"
+deixou de ser a 9ª seção própria (item 1b, 2026-07-28, ver parágrafo "Segmentado de pílulas"
+abaixo) — virou sub-controle DENTRO do corpo de Proteína, então não conta mais como seção de
+topo nem tem cabeçalho/contagem próprios. Quatro UIs de seleção coexistem, escolhidas por CLASSIFICAÇÃO do
 que cada seção já era antes de qualquer mudança (investigação da Fase F1a, ver
 docs/DESIGN-TOKENS.md "Sistema de chip de seleção" pro detalhe de cores/estados): tile com
 imagem/ícone que já funcionava → só normalizado; lista-formulário nativa (checkbox/rádio,
@@ -694,24 +718,53 @@ novo.
   (`.ingredient-mode-toggle__thumb`) usava `--color-accent` puro de fundo — o texto ativo
   (`--color-text-primary`, `--text-sm`) sentado em cima mede 4,11:1 nesse par (DESIGN-TOKENS.md),
   abaixo do 4,5:1 AA. Corrigido pra `--color-accent-deep` (medido ao vivo depois do fix,
-  fórmula de luminância WCAG: 4,52:1) — o mesmo par já usado no sistema de chip novo. Migração
-  DELIBERADAMENTE contida a só este token — a animação de mola (`260ms cubic-bezier(0.34, 1.56,
-  0.64, 1)`, elogiada no roadmap-mestre como "animação de mola") e toda a estrutura/JS do
-  toggle continuam intocadas; migrar o mecanismo inteiro pro componente segmentado de pílulas
-  discretas (como Papel da proteína, abaixo) foi avaliado como invasivo demais pra esta rodada
-  — perderia a transição suave — e fica pro backlog caso o dono peça consistência total.
-  Gengibre e curry NÃO aparecem nesta seção: existem só como `seasoning:*` (ver js/tags.js),
-  não `ingredient:*`.
-- **Segmentado de pílulas** (seleção única — Fase F1a): Papel da proteína. Era lista de rádio
-  nativa (`<input type="radio">`); virou 3 pílulas (Tanto faz / Principal / Secundário) lado a
-  lado, `flex: 1` cada (largura igual, não um trilho com trava deslizante como o toggle de
-  Ingrediente acima — 3 paradas discretas dispensam a mecânica de posição/largura calculada em
-  JS que só valeria a pena pra 2). Mesmo componente visual `.filter-chip` do resto do modal
-  (`.filter-chip--segment`), com `role="radiogroup"` no container e `role="radio"`/
-  `aria-checked` em cada pílula — preserva a semântica de seleção única que o rádio nativo dava
-  de graça. Mecanismo/contagens (`getRecipesByCollection`/`matchesAnyTag` em tagmodel.js) NÃO
-  tocados, só a apresentação. Cabeçalho ganhou a contagem "(3)" que não tinha — harmoniza com o
-  padrão único das outras 8 seções.
+  fórmula de luminância WCAG: 4,52:1) — o mesmo par já usado no sistema de chip novo (Fase F1a).
+  **Atualização (ajuste visual, 2026-07-28, mesmo dia de F1a + item 1b):** o backlog citado aqui
+  ("migrar o mecanismo inteiro pro componente segmentado... fica pro backlog caso o dono peça
+  consistência total") foi RESOLVIDO — o dono pediu exatamente essa consistência ao ver o
+  segmentado de Papel da proteína saturando junto dos chips. Os 2 toggles (Ingrediente e Papel
+  da proteína) agora COMPARTILHAM um único componente generalizado (`.segmented-toggle`, ver
+  parágrafo "Trilho deslizante — Papel da proteína" abaixo) — a preocupação original de "perder
+  a transição suave" não se confirmou: a mola (`260ms cubic-bezier(0.34, 1.56, 0.64, 1)`)
+  sobrevive byte a byte na generalização, confirmado ao vivo que o toggle de Ingrediente ficou
+  visual/motion idêntico ao anterior. Gengibre e curry NÃO aparecem nesta seção: existem só como
+  `seasoning:*` (ver js/tags.js), não `ingredient:*`.
+- **Trilho deslizante — Papel da proteína** (seleção única; ANINHADO dentro de Proteína desde o
+  item 1b, 2026-07-28; trilho desde o ajuste visual, 2026-07-28 rodada 2 — mesmo dia). Linhagem
+  completa: lista de rádio nativa (`<input type="radio">`) antes da Fase F1a → 3 pílulas soltas
+  lado a lado (`.filter-chip--segment`, Fase F1a) → sub-controle aninhado no topo do corpo de
+  Proteína, ainda como 3 pílulas (item 1b) → **trilho deslizante** (ajuste visual, rodada 2): o
+  dono viu as 3 pílulas ao vivo e achou que saturavam junto dos chips de proteína logo abaixo —
+  nada diferenciava visualmente "isto é um MODO, escolha 1" de "isto são OPÇÕES, marque quantas
+  quiser" quando os dois usam o mesmo componente de pílula solta. Regra nova, formal a partir de
+  agora: **MODO/seleção-única = trilho deslizante; OPÇÕES/multi-seleção = chips soltos** (ver
+  DESIGN-TOKENS.md "Componentes" pro parágrafo completo). Mecanicamente, isso generalizou o
+  toggle Qualquer um/Todos estes de Ingrediente (que já era um trilho, mas calibrado só pra 2
+  paradas) num componente ÚNICO de N segmentos — `segmentedToggleHtml`/`wireSegmentedToggle`
+  (app.js), CSS `.segmented-toggle` (era `.ingredient-mode-toggle`, renomeado/generalizado; as
+  classes antigas `.filter-segmented`/`.filter-chip--segment` morreram, sem consumidor). Posição
+  da trava via 2 custom properties CSS (`--seg-count`/`--seg-index`, setadas por JS), nunca um
+  modificador de classe por quantidade de paradas — a MESMA mola (260ms
+  `cubic-bezier(0.34, 1.56, 0.64, 1)`) e o MESMO cuidado de adiar o `renderBody()` completo até
+  `transitionend` (pra não destruir o nó no meio da transição) sobrevivem intocados da versão
+  original do toggle. Ingrediente migrou pro mesmo componente (N=2) — confirmado ao vivo que
+  ficou visual/motion IDÊNTICO ao anterior. Novidades desta rodada, nos 2 usos: altura do
+  segmento 40px→44px, cor livre `--color-text-disabled`→`--color-text-secondary` (alinha com o
+  "livre" dos chips normais), e teclado — setas ←/→ movem foco+seleção juntos dentro do
+  `role="radiogroup"` (padrão nativo, nenhum dos 2 usos tinha antes). Rótulo visível do
+  sub-controle de Proteína continua `.filter-subcontrol-label` estático, "Papel da proteína"
+  (mantido — o dono optou por não trocar por nenhuma das 2 alternativas de copy da Fase F1a).
+  Mecanismo/contagens por trás (`getRecipesByCollection`/`matchesAnyTag` em tagmodel.js,
+  `opts.proteinRole.computeCounts`) seguem intocados em toda essa linhagem — só a apresentação
+  mudou, 3 vezes. **Achado da investigação de bug que motivou o redesenho original (item 1a)**: a
+  seção NÃO tinha defeito de código — deploy em produção batia byte-a-byte com HEAD, e a seção
+  renderizava corretamente em teste ao vivo fresco; causa mais provável do relato foi staleness
+  local de PWA/SW no dispositivo de teste do dono, não um bug a corrigir em código. **Bug real
+  corrigido no item 1b**, ainda válido: o listener de clique dos chips de VALOR de Proteína
+  (`protein:X`) usava o seletor genérico `.filter-chip` — passou a ficar escopado a
+  `.filter-chip-row .filter-chip` (valores) vs. o trilho (`wireSegmentedToggle`, escopado ao seu
+  próprio container) pra nunca contaminar `draftFacetState.protein` com cliques no papel, e
+  vice-versa — confirmado ao vivo de novo depois da migração pro trilho.
 
 A contagem de cada opção não-selecionada é sempre "quantos eu teria se também adicionasse
 este" — universo restrito pelas OUTRAS facetas, nunca pela própria (mesma lógica que já existia

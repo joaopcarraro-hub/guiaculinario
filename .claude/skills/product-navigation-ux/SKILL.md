@@ -113,6 +113,24 @@ histórico de verdade (grupo/categoria não usam fromHash, usam navegação dire
 estrutural e único, voltar pro pai real conta como cumprir a regra — só vira "hardcoded ruim"
 se o destino for fixo APESAR de existir mais de um caminho real de chegada.
 
+**Colapso de zigue-zague (item 3, 2026-07-28) — regra nova do mecanismo `fromHash`/histórico
+(`js/router.js`):** ao empilhar uma navegação nova, se o destino é o MESMO hash do nível
+PENÚLTIMO (o que "voltar 1 passo" já alcançaria), o router COLAPSA — usa `history.go(-1)` em vez
+de empilhar mais uma entrada duplicada. Sem isso, alternar entre 2 telas via navegação PRÓPRIA do
+app (não um "voltar" de histórico) — o caso real: receita → preparo → nome da receita no
+cabeçalho do modo cozinhar, que é `Router.toReceita` de novo, NÃO um voltar — empilhava
+duplicatas alternadas; o botão/gesto de voltar NATIVO do sistema (único jeito de sair do modo
+cozinhar sem usar "Sair", já que aquela tela nunca tem back-float, ver exceção abaixo) repetia a
+zigue-zague inteira em vez de avançar pro que veio antes. Exemplo (o mesmo do pedido original):
+receita → preparo → receita → preparo → voltar → voltar deve dar receita → origem, SEM repetir
+preparo — confirmado ao vivo (navegação real do navegador, não simulada) e num simulador de
+histórico de navegador em `scripts/verify-protein-search-nav-2026-07-28.js` (teste-tabela de
+sequências, incl. um teste negativo de que os 4 caminhos "voltar preservando contexto" abaixo
+continuam idênticos — o colapso não muda NENHUM resultado observável desses 4, só evita duplicar
+entradas no histórico real quando o destino já é o penúltimo nível). Mecanismo é TRANSPARENTE ao
+resto do app — `fromHash`/`currentHashPath()` continuam exatamente como sempre, nenhum call site
+em app.js precisou mudar.
+
 **Rodada 3 (item 4 do roadmap-mestre, carrossel "Vistas recentemente" da home):** `fromHash =
 "home"` (string literal) é um valor PÚBLICO e documentado do contrato de `fromHash` — origem:
 os mini-cards do carrossel de recentes, único lugar que emite esse valor
@@ -181,8 +199,10 @@ Não mostrar todas as possibilidades ao mesmo tempo.
 Dentro de uma coleção (país, proteína, tempo, dificuldade, fundamentos), o refino é um MODAL
 de filtros em acordeão (Bloco 3) — não mais uma barra sempre-visível. Um botão "Filtros" (com
 badge de contagem de filtros ativos) fica no lugar de onde a barra ficava; abre um modal cheio
-de tela com 9 seções em acordeão: País, Complexidade, Tempo, Equipamento, Proteína, Refeição,
-Tipo de prato, Ingrediente, Papel da proteína (só em coleções de proteína). Cada seção mostra a contagem de opções no cabeçalho
+de tela com 8 seções em acordeão: País, Complexidade, Tempo, Equipamento, Proteína, Refeição,
+Tipo de prato, Ingrediente. "Papel da proteína" (só em coleções de proteína) deixou de ser a 9ª
+seção própria (item 1b, 2026-07-28) — virou sub-controle DENTRO do corpo de Proteína, ver
+parágrafo próprio mais abaixo. Cada seção de topo mostra a contagem de opções no cabeçalho
 e, se já tiver algo selecionado, um resumo (ex.: "Brasil", "2 selecionados"). Mudanças dentro
 do modal ficam em RASCUNHO — só se aplicam de fato ao tocar "Ver resultados (N)" (N = contagem
 ao vivo do resultado combinado); "Cancelar" fecha sem aplicar nada. "Limpar filtros" continua
@@ -197,16 +217,17 @@ nenhuma vaza pra outra:
 - País, Complexidade, Tempo, Equipamento, Proteína, Refeição, Tipo de prato: OR PURO entre os
   valores da MESMA faceta (união — ex.: País = Itália + Alemanha mostra receitas de qualquer
   um dos dois). Nunca zera ao adicionar mais um valor, então não tem fallback nenhum aqui.
-  Complexidade/Tempo/Tipo de prato são checkboxes com "Todos" no topo (item especial que limpa
-  a faceta, não soma com os demais) — Tipo de prato (`dish_type:`, 12 valores) ficou em lista
-  por ter muitos valores textuais, mesma regra que decide grade vs. lista pras outras. País,
-  Equipamento, Proteína, Refeição são grade de tiles (ícone+label+contagem — Proteína e
-  Refeição sem ícone por ora; sem tile "Todos"; nenhum tile marcado = nenhum filtro ativo).
-  Proteína (`protein:`) não deve ser confundida com "Papel da proteína" (existente, seleção
-  única Principal/Secundário/Tanto faz, só dentro de um hub de proteína) — Proteína pergunta
-  QUAL proteína e fica disponível em qualquer coleção/busca; as duas são eixos independentes
-  que se combinam em AND normalmente. Proteína conta só `protein:X` (protagonista), nunca soma
-  com `contains:X` (secundário) — mesma semântica de "Papel da proteína = Principal".
+  Complexidade/Tempo/Tipo de prato/Proteína/Refeição são CHIPS (pill `role="checkbox"`, Fase
+  F1a — substituiu tanto a lista de checkbox nativa quanto o "tile" sem ícone real que
+  Proteína/Refeição tinham antes); só País e Equipamento continuam grade de tiles de verdade
+  (imagem/ícone real). Sem tile/chip "Todos"; nenhum marcado = nenhum filtro ativo.
+  Proteína (`protein:`) não deve ser confundida com "Papel da proteína" (seleção única
+  Principal/Secundário/Tanto faz — desde o item 1b, 2026-07-28, um SUB-CONTROLE no topo do
+  corpo da própria seção Proteína, não mais uma seção à parte, ver parágrafo abaixo) — Proteína
+  pergunta QUAL proteína e fica disponível em qualquer coleção/busca; as duas são eixos
+  independentes que se combinam em AND normalmente. Proteína conta só `protein:X`
+  (protagonista), nunca soma com `contains:X` (secundário) — mesma semântica de "Papel da
+  proteína = Principal".
   "Restrições" (`diet:`) NÃO virou faceta: cobertura de 99/398 (24,9%) e um único valor
   (`diet:vegetariana`), abaixo do limiar combinado com o usuário — fica pro backlog de
   expansão de dados. Ver `.claude/skills/mobile-recipe-ui/SKILL.md` pro detalhe visual.
@@ -223,8 +244,14 @@ ENTRE facetas diferentes (País × Equipamento × Ingrediente etc.) sempre é AN
 cada faceta individualmente é OR por dentro — ex.: País=Itália+Alemanha E Equipamento=Forno
 mostra a interseção do OR de país com o equipamento, nunca OR entre tudo.
 
-Proteínas usam uma seção extra, "Papel da proteína": Principal / Secundário / Tanto faz
-(default). Isso substituiu o antigo conceito de abas "Foco da receita / Também leva / Todas".
+Proteínas ganham um sub-controle a mais dentro da própria seção Proteína, "Papel da proteína":
+Principal / Secundário / Tanto faz (default). Isso substituiu o antigo conceito de abas "Foco
+da receita / Também leva / Todas" (Fase F1a) e, desde o item 1b (2026-07-28), deixou de ser uma
+seção própria do acordeão — vive no topo do corpo de Proteína, mesmo padrão de POSIÇÃO do toggle
+Qualquer um/Todos estes de Ingrediente acima. Desde o ajuste visual do mesmo dia (rodada 2), é
+literalmente o MESMO componente de trilho deslizante que Ingrediente usa (generalizado pra N
+segmentos) — não mais 3 pílulas soltas; ver `.claude/skills/mobile-recipe-ui/SKILL.md` pro
+detalhe visual/mecânico completo.
 
 ## Tema visual (Bloco 4)
 

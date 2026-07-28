@@ -16,8 +16,12 @@
     return (map && map[id]) || id;
   }
 
+  function rawPath() {
+    return location.hash.replace(/^#\/?/, "");
+  }
+
   function parseHash() {
-    const raw = location.hash.replace(/^#\/?/, "");
+    const raw = rawPath();
     // "home" é fromHash PÚBLICO e documentado (contrato do carrossel "Vistas recentemente" da
     // Home — Router.toReceita(id, "home"), ver product-navigation-ux/SKILL.md e
     // scripts/verify-recentes-ui-2026-07-25.js). Checagem EXPLÍCITA aqui, ao lado do "raw" vazio
@@ -131,7 +135,37 @@
     return { name: "home" };
   }
 
+  // Item 3 (2026-07-28): colapso de zigue-zague no histórico. Cada navigate() empilha uma
+  // entrada REAL do navegador (location.hash=) — sem isso, alternar entre 2 telas via navegação
+  // PRÓPRIA do app (ex.: receita -> preparo -> nome da receita no cabeçalho do modo cozinhar,
+  // que é Router.toReceita de novo, não um "voltar" de histórico) empilha duplicatas alternadas;
+  // o botão/gesto de voltar NATIVO do navegador (único jeito de sair do modo cozinhar sem usar
+  // "Sair", já que aquela tela nunca tem back-float) então repete a zigue-zague inteira em vez
+  // de avançar de verdade pro que veio antes. Regra: ao navegar pra um destino que já é o hash
+  // do nível PENÚLTIMO (o que "voltar 1 passo" já alcançaria), colapsa — history.go(-1) em vez
+  // de empilhar duplicata. navHistoryStack é um ESPELHO do que este módulo empilhou (não uma
+  // fonte de verdade paralela — o navegador continua sendo dono do histórico real);
+  // pendingSelfNav distingue uma mudança de hash disparada por NÓS (navigate/o próprio go(-1)
+  // do colapso, já contabilizada de forma síncrona no ponto de chamada) de uma NATIVA de
+  // verdade (botão físico, gesto, dropdown de histórico do navegador — só essa precisa
+  // resincronizar o cursor reagindo ao evento).
+  let navHistoryStack = [rawPath()];
+  let cursor = 0;
+  let pendingSelfNav = false;
+
   function navigate(path) {
+    if (cursor > 0 && navHistoryStack[cursor - 1] === path) {
+      // Mesmo hash do penúltimo nível — colapsa: back nativo de 1 passo em vez de empilhar uma
+      // duplicata (ex.: receita -> preparo -> receita de novo pelo mesmo caminho já visitado).
+      pendingSelfNav = true;
+      cursor -= 1;
+      history.go(-1);
+      return;
+    }
+    pendingSelfNav = true;
+    navHistoryStack = navHistoryStack.slice(0, cursor + 1);
+    navHistoryStack.push(path);
+    cursor = navHistoryStack.length - 1;
     location.hash = "/" + path;
   }
 
@@ -149,6 +183,10 @@
   function replace(path) {
     const url = location.pathname + location.search + "#/" + path;
     history.replaceState(null, "", url);
+    // replaceState não empilha (mesma entrada, conteúdo novo) — navHistoryStack precisa
+    // acompanhar, senão um navigate() futuro comparando contra o penúltimo usaria um valor
+    // stale (de antes do refino de filtro).
+    navHistoryStack[cursor] = path;
     replaceListeners.forEach(function (fn) {
       fn(path);
     });
@@ -171,6 +209,27 @@
   }
 
   window.addEventListener("hashchange", function () {
+    if (pendingSelfNav) {
+      // Mudança disparada por nós (navigate() ou o go(-1) do colapso) — cursor já foi atualizado
+      // de forma síncrona no ponto de chamada, só consome a flag.
+      pendingSelfNav = false;
+    } else {
+      // Navegação NATIVA (botão físico/gesto/dropdown de histórico do navegador) — nunca
+      // passamos por navigate() pra isso, então o cursor precisa se resincronizar sozinho.
+      // Vizinho imediato cobre o caso comum (voltar/avançar 1 passo); um hash que não bate com
+      // nenhum vizinho (ex.: usuário pulou vários passos no histórico do navegador, ou abriu um
+      // link direto) reinicia o rastreamento a partir daqui — degrada com segurança (só perde o
+      // colapso até a pilha se reconstruir via novos navigate()), nunca quebra a navegação em si.
+      const newPath = rawPath();
+      if (cursor > 0 && navHistoryStack[cursor - 1] === newPath) {
+        cursor -= 1;
+      } else if (cursor < navHistoryStack.length - 1 && navHistoryStack[cursor + 1] === newPath) {
+        cursor += 1;
+      } else {
+        navHistoryStack = [newPath];
+        cursor = 0;
+      }
+    }
     const route = parseHash();
     listeners.forEach(function (fn) {
       fn(route);

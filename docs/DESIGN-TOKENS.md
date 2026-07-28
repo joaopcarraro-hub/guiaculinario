@@ -797,13 +797,38 @@ diretamente. Remoção dos alias fica pra uma rodada futura.
     `.recipe-page-tags .tag-chip-link` (border 1px "come" 1px do inset absolute, que resolve
     contra o padding-box do ancestral posicionado, não a borda visível: -6px = 5px pretendido +
     1px de compensação de borda). 36 + 6 + 6 = **48px efetivos**, acima do mínimo de 44px.
-    `role="checkbox"`/`aria-checked` (multi-seleção) ou `role="radio"`/`aria-checked` dentro de
-    um `role="radiogroup"` (Papel da proteína, seleção única) — `<button>` nativo, foco/Enter/
-    Espaço funcionam sem handler de teclado próprio. Mesmo par de cor também aplicado à trava
-    do toggle Qualquer um/Todos estes do Ingrediente (`.ingredient-mode-toggle__thumb`), que
-    usava `--color-accent` puro — medido em 4,11:1 com o texto ativo em cima (abaixo do 4,5:1
-    AA); migração deliberadamente contida a só esse token, animação de mola (260ms,
-    `cubic-bezier(0.34, 1.56, 0.64, 1)`) preservada.
+    `role="checkbox"`/`aria-checked` (multi-seleção). Papel da proteína (seleção única) NÃO usa
+    mais este componente de pílula — ver "Trilho deslizante genérico" abaixo (item 1b, ajuste
+    visual, 2026-07-28). Mesmo par de cor também era aplicado à trava do toggle Qualquer
+    um/Todos estes do Ingrediente (então `.ingredient-mode-toggle__thumb`, hoje generalizado em
+    `.segmented-toggle__thumb`, mesmo parágrafo abaixo), que usava `--color-accent` puro —
+    medido em 4,11:1 com o texto ativo em cima (abaixo do 4,5:1 AA); migração deliberadamente
+    contida a só esse token na época, animação de mola (260ms, `cubic-bezier(0.34, 1.56, 0.64,
+    1)`) preservada, e preservada de novo na generalização de hoje.
+  - **Trilho deslizante genérico N-segmentos (item 1b, ajuste visual, 2026-07-28 — regra de
+    design nova, formal a partir de agora: MODO/seleção-única-excludente = trilho deslizante;
+    OPÇÕES/multi-seleção = chips soltos).** O segmentado de 3 pílulas de Papel da proteína
+    (fechado horas antes no mesmo dia) saturava visualmente junto dos chips de proteína logo
+    abaixo assim que o dono viu ao vivo — motivo declarado: pílulas soltas competem com o
+    mesmo componente visual dos chips normais (`.filter-chip`), sem nada que diferencie "isto é
+    um MODO, escolha 1" de "isto são OPÇÕES, marque quantas quiser". Fix: generalizar o toggle
+    Qualquer um/Todos estes de Ingrediente (só calibrado pra 2 paradas até então) num componente
+    único de N segmentos, `.segmented-toggle` (`segmentedToggleHtml`/`wireSegmentedToggle` em
+    app.js) — MESMA mola (260ms `cubic-bezier(0.34, 1.56, 0.64, 1)`, preservada byte a byte) e
+    MESMO mecanismo de defer-até-`transitionend` (nunca destrói o nó no meio da transição), só
+    generalizados: a trava usa `width: calc(100% / var(--seg-count))` e
+    `transform: translateX(calc(var(--seg-index) * 100%))` — 2 custom properties CSS setadas por
+    JS (1x na criação + a cada seleção), nunca um modificador de classe por quantidade de
+    paradas (`--and` booleano morreu). Ajustes de calibração desta rodada: altura do segmento
+    36px→**44px** (era 40px no toggle original — agora bate o mínimo de alvo de toque sem
+    precisar de hit-padding via `::after`); cor da opção livre `--color-text-disabled`→
+    **`--color-text-secondary`** (alinha com o "livre" do resto do sistema de chip). Teclado:
+    `role="radiogroup"` no trilho + `role="radio"`/`aria-checked` em cada opção (herdados do
+    segmentado antigo) ganharam setas ←/→ movendo FOCO e SELEÇÃO juntos (padrão nativo de
+    radiogroup) — novo nesta rodada, nenhum dos 2 usos tinha antes. Ingrediente migrou pro MESMO
+    componente (N=2) — verificado ao vivo que ficou visual/motion IDÊNTICO ao anterior, zero
+    divergência futura entre os 2 usos. `.ingredient-mode-toggle*`/`.filter-segmented`/
+    `.filter-chip--segment` removidos do CSS, sem consumidor restante.
   - **Bug da caixinha cinza do tile de país, causa raiz e fix.** `.filter-tile` (base
     compartilhada por todos os tiles do modal) é `display: flex; flex-direction: column;
     align-items: center` — certo pro tile-ícone (ícone/label/contagem hugam o próprio

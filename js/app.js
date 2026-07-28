@@ -86,6 +86,125 @@
     });
   }
 
+  // Item 2 (2026-07-28): botão de limpar (glifo X) interno em toda barra de busca do app — só aparece com texto
+  // digitado, limpa e refoca o campo, alvo >=44px (mesma fórmula de hit-area de
+  // .preparo-card__delete), aria-label "Limpar busca", reaproveita iconSvg("close") já existente
+  // (Fase 0c). 1 implementação, 2 usos (home-search do hub, tagsearch-input da busca global) —
+  // inventário desta rodada confirmou que só essas 2 barras de busca existem de fato no app; o
+  // "modal de países" citado no pedido original não existe como algo à parte (Países é só mais
+  // um hub renderGrupo, reaproveita a MESMA barra). wrap precisa de position:relative (CSS) pra
+  // ancorar o botão. onClear: chamado DEPOIS do valor já zerado — cada caller reage do seu jeito
+  // (dispatchEvent("input") reaproveita o listener de busca que já existe em cada tela, nunca
+  // duplica a lógica de re-render aqui).
+  function attachSearchClear(input, wrap, onClear) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "search-clear-btn";
+    btn.setAttribute("aria-label", "Limpar busca");
+    btn.innerHTML = iconSvg("close", "search-clear-btn__icon");
+    wrap.appendChild(btn);
+    function sync() {
+      btn.classList.toggle("is-visible", !!input.value);
+    }
+    btn.addEventListener("click", () => {
+      input.value = "";
+      sync();
+      input.focus();
+      onClear();
+    });
+    input.addEventListener("input", sync);
+    sync();
+  }
+
+  // Trilho deslizante genérico N-segmentos (ajuste visual do item 1b, 2026-07-28 rodada 2) —
+  // generaliza o toggle Qualquer um/Todos estes de Ingrediente (2 paradas) e o antigo segmentado
+  // de 3 pílulas soltas de Papel da proteína (saturava junto dos chips de proteína, achado do
+  // dono ao ver ao vivo) num componente ÚNICO: mesma mola (260ms cubic-bezier, CSS
+  // .segmented-toggle__thumb), mesmo mecanismo de posição via custom properties CSS
+  // (--seg-count/--seg-index, setadas aqui) — nunca um modificador de classe por quantidade de
+  // paradas, então generaliza pra qualquer N sem precisar recalcular posição/largura em JS além
+  // do índice inteiro. options: [{ value, label }]. selectedIndex: paragrafo já selecionado no
+  // momento da criação deste HTML.
+  function segmentedToggleHtml(ariaLabel, options, selectedIndex) {
+    return (
+      '<div class="segmented-toggle" role="radiogroup" aria-label="' +
+      ariaLabel +
+      '" style="--seg-count:' +
+      options.length +
+      ";--seg-index:" +
+      selectedIndex +
+      '">' +
+      '<span class="segmented-toggle__thumb" aria-hidden="true"></span>' +
+      options
+        .map(function (o, i) {
+          const selected = i === selectedIndex;
+          return (
+            '<button type="button" class="segmented-toggle__option' +
+            (selected ? " is-active" : "") +
+            '" role="radio" aria-checked="' +
+            (selected ? "true" : "false") +
+            '" data-value="' +
+            o.value +
+            '">' +
+            o.label +
+            "</button>"
+          );
+        })
+        .join("") +
+      "</div>"
+    );
+  }
+
+  // Fiação compartilhada do trilho: clique OU seta ←→ (padrão de teclado de radiogroup nativo —
+  // mover foco já move a seleção) chamam onSelect(index) IMEDIATO (troca classe/aria/custom-
+  // property na hora, sem esperar a mola) e só depois que a mola realmente termina
+  // (transitionend, com timeout de segurança de 400ms pro caso de prefers-reduced-motion não
+  // disparar o evento) chamam onSettled() — nunca destrói o próprio nó no meio da transição,
+  // senão a mola nunca desliza visualmente (mesmo cuidado que o toggle de Ingrediente original
+  // já tinha, agora compartilhado pelos 2 usos).
+  function wireSegmentedToggle(containerEl, onSelect, onSettled) {
+    function optionButtons() {
+      return Array.from(containerEl.querySelectorAll(".segmented-toggle__option"));
+    }
+    function selectIndex(index) {
+      const buttons = optionButtons();
+      if (buttons[index].classList.contains("is-active")) return;
+      containerEl.style.setProperty("--seg-index", index);
+      buttons.forEach(function (b, i) {
+        b.classList.toggle("is-active", i === index);
+        b.setAttribute("aria-checked", i === index ? "true" : "false");
+      });
+      onSelect(index);
+      const thumb = containerEl.querySelector(".segmented-toggle__thumb");
+      let settled = false;
+      function settle() {
+        if (settled) return;
+        settled = true;
+        thumb.removeEventListener("transitionend", settle);
+        onSettled();
+      }
+      thumb.addEventListener("transitionend", settle);
+      setTimeout(settle, 400);
+    }
+    optionButtons().forEach(function (btn, index) {
+      btn.addEventListener("click", function () {
+        selectIndex(index);
+      });
+    });
+    containerEl.addEventListener("keydown", function (e) {
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      e.preventDefault();
+      const buttons = optionButtons();
+      const current = buttons.findIndex(function (b) {
+        return b.classList.contains("is-active");
+      });
+      const delta = e.key === "ArrowRight" ? 1 : -1;
+      const next = (current + delta + buttons.length) % buttons.length;
+      selectIndex(next);
+      buttons[next].focus();
+    });
+  }
+
   // Ícone de coração pro favoritar (docs/DESIGN-TOKENS.md) — usado tanto no botão da tela de
   // receita quanto no card. Não usa o sistema ICON_SVG_ATTRS/ICONS acima porque precisa de 2
   // estados de PREENCHIMENTO (contorno vazio parado, sólido quando favoritado), não só troca
@@ -452,6 +571,7 @@
     search.placeholder = "Buscar em " + grupo.label.toLowerCase() + "...";
     search.value = grupoSearchQuery[grupoId] || "";
     searchWrap.appendChild(search);
+    attachSearchClear(search, searchWrap, () => search.dispatchEvent(new Event("input")));
     sheetParent.appendChild(searchWrap);
 
     const categoriesLabel = document.createElement("div");
@@ -1121,33 +1241,26 @@
       // seleção (equivalente a escolher no <select> antigo); não existe estado "is-selected"
       // aqui, porque um valor selecionado sai da grade e vira chip — nunca aparece nos dois
       // lugares ao mesmo tempo.
-      // Toggle Qualquer um/Todos estes (novo): trilho único com trava deslizante (não 2
-      // botões separados) — ANTES dos chips selecionados, logo abaixo do cabeçalho do
-      // acordeão. Só existe (nem desabilitado, REMOVIDO do DOM) com 2+ ingredientes
-      // selecionados, já que com 0/1 não há o que combinar. A trava (.ingredient-mode-
-      // toggle__thumb) cobre metade da largura do trilho e desliza via transform:translateX
-      // (CSS, ver .ingredient-mode-toggle--and) — nenhum estado novo de posição em JS, só a
-      // classe modificadora no trilho baseada em draftIngredientMode. Substitui a antiga rede
-      // de segurança reativa (botão só aparecia depois de um AND zerar) — agora a escolha é
-      // proativa e sempre visível quando faz sentido, então esse fallback foi removido de
-      // renderList/renderResults.
+      // Toggle Qualquer um/Todos estes: trilho único com trava deslizante (não 2 botões
+      // separados) — ANTES dos chips selecionados, logo abaixo do cabeçalho do acordeão. Só
+      // existe (nem desabilitado, REMOVIDO do DOM) com 2+ ingredientes selecionados, já que com
+      // 0/1 não há o que combinar. Desde a rodada de 2026-07-28 usa o componente compartilhado
+      // segmentedToggleHtml/wireSegmentedToggle (mesmo trilho do sub-controle de Papel da
+      // proteína, N=2 aqui) — a trava cobre 1/N da largura do trilho e desliza via
+      // transform:translateX (custom properties CSS --seg-count/--seg-index, não mais uma
+      // classe modificadora booleana). Substitui a antiga rede de segurança reativa (botão só
+      // aparecia depois de um AND zerar) — agora a escolha é proativa e sempre visível quando
+      // faz sentido, então esse fallback foi removido de renderList/renderResults.
       function renderIngredientTileSectionBody(sectionBody, def, options) {
         const selectedIds = draftFacetState[def.key] || [];
         const addableOptions = options.filter((o) => selectedIds.indexOf(o.tagId) === -1);
-        const modeToggleHtml =
-          selectedIds.length >= 2
-            ? '<div class="ingredient-mode-toggle' +
-              (draftIngredientMode === "and" ? " ingredient-mode-toggle--and" : "") +
-              '" role="group" aria-label="Como combinar os ingredientes selecionados">' +
-              '<span class="ingredient-mode-toggle__thumb" aria-hidden="true"></span>' +
-              '<button type="button" class="ingredient-mode-toggle__option' +
-              (draftIngredientMode !== "and" ? " is-active" : "") +
-              '" data-mode="or">Qualquer um destes</button>' +
-              '<button type="button" class="ingredient-mode-toggle__option' +
-              (draftIngredientMode === "and" ? " is-active" : "") +
-              '" data-mode="and">Todos estes</button>' +
-              "</div>"
-            : "";
+        // Trilho deslizante (rodada 2026-07-28) — mesmo componente compartilhado do sub-controle
+        // de Papel da proteína (N=3), aqui com N=2. "or" é o default (Qualquer um destes).
+        const modeOptions = [
+          { value: "or", label: "Qualquer um destes" },
+          { value: "and", label: "Todos estes" },
+        ];
+        const modeToggleHtml = selectedIds.length >= 2 ? segmentedToggleHtml("Como combinar os ingredientes selecionados", modeOptions, draftIngredientMode === "and" ? 1 : 0) : "";
         const chipsHtml = selectedIds
           .map((tagId) => {
             const tag = TagModel.getTagById(tagId);
@@ -1186,35 +1299,21 @@
             renderBody();
           });
         });
-        sectionBody.querySelectorAll(".ingredient-mode-toggle__option").forEach((btn) => {
-          btn.addEventListener("click", () => {
-            if (btn.dataset.mode === draftIngredientMode) return; // já está desse lado, nada a fazer
-            draftIngredientMode = btn.dataset.mode;
-            // Chamar renderBody() direto aqui destruiria e recriaria a trava na hora (renderBody
-            // faz bodyEl.innerHTML="" e reconstrói toda seção do zero) — sem o MESMO nó do DOM
-            // antes/depois, a transition CSS não tem o que animar, e a trava só "nasceria" já no
-            // lugar novo, sem deslizar. Por isso aqui só troca a classe no elemento que já existe
-            // (deixa a transition de verdade tocar) e adia o renderBody() completo (que resincroniza
-            // contagem cruzada nas outras seções + rodapé) pra depois que a animação realmente
-            // terminar (transitionend na trava, com um setTimeout de segurança caso não dispare).
-            const toggleEl = sectionBody.querySelector(".ingredient-mode-toggle");
-            const thumbEl = toggleEl.querySelector(".ingredient-mode-toggle__thumb");
-            toggleEl.classList.toggle("ingredient-mode-toggle--and", draftIngredientMode === "and");
-            toggleEl.querySelectorAll(".ingredient-mode-toggle__option").forEach((b) => {
-              b.classList.toggle("is-active", b.dataset.mode === draftIngredientMode);
-            });
-            renderFooter();
-            let resynced = false;
-            function resync() {
-              if (resynced) return;
-              resynced = true;
-              thumbEl.removeEventListener("transitionend", resync);
-              renderBody();
-            }
-            thumbEl.addEventListener("transitionend", resync);
-            setTimeout(resync, 400);
-          });
-        });
+        const modeToggleEl = sectionBody.querySelector(".segmented-toggle");
+        if (modeToggleEl) {
+          // wireSegmentedToggle cuida do resto (mesmo cuidado de sempre: só troca classe/aria na
+          // hora, adia o renderBody() completo pra depois que a mola realmente terminar —
+          // renderBody() destruiria e recriaria o nó no meio da transição, sem o MESMO elemento
+          // antes/depois a transition CSS não tem o que animar).
+          wireSegmentedToggle(
+            modeToggleEl,
+            (index) => {
+              draftIngredientMode = modeOptions[index].value;
+              renderFooter();
+            },
+            () => renderBody()
+          );
+        }
         sectionBody.querySelectorAll(".filter-tile--dense").forEach((btn) => {
           btn.addEventListener("click", () => {
             draftFacetState[def.key] = selectedIds.concat([btn.dataset.value]);
@@ -1239,9 +1338,38 @@
       // handler de teclado próprio, mesmo princípio de todo controle tocável deste app.
       // role="checkbox" + aria-checked preservam a semântica de multi-seleção que os antigos
       // checkboxes nativos davam de graça ao leitor de tela.
+      // Papel da proteína (Fase F1a: segmentado de 3 pílulas) — item 1b desta rodada
+      // (2026-07-28): a seção própria morreu, vira sub-controle no TOPO do corpo de Proteína,
+      // mesmo padrão do toggle Qualquer um/Todos estes de Ingrediente (sub-controle acima do
+      // conteúdo principal da seção) — só que com rótulo visível próprio
+      // (.filter-subcontrol-label "Papel da proteína"), que aquele toggle não tem. Só existe
+      // quando opts.proteinRole existe (mesmo gate de sempre: collection.collectionType ===
+      // "protein" && baseRelated.length > 0, calculado em renderCategory como isProteinRole, não
+      // tocado por esta rodada — só a apresentação mudou). Mecanismo/contagens
+      // (getRecipesByCollection/matchesAnyTag em tagmodel.js, opts.proteinRole.computeCounts)
+      // continuam intocados.
       function renderChipSectionBody(sectionBody, def, options) {
         const selectedIds = draftFacetState[def.key] || [];
+        const showRoleSubcontrol = def.key === "protein" && opts.proteinRole;
+        let roleHtml = "";
+        // roleOptions também é lido pela fiação mais abaixo (wireSegmentedToggle) — precisa
+        // ficar no escopo da função, não só dentro do "if" de construção do HTML.
+        let roleOptions = null;
+        if (showRoleSubcontrol) {
+          const counts = opts.proteinRole.computeCounts(draftFacetState, draftIngredientMode);
+          roleOptions = [
+            { value: "", label: "Tanto faz" },
+            { value: "focus", label: "Principal (" + counts.focus + ")" },
+            { value: "secondary", label: "Secundário (" + counts.secondary + ")" },
+          ];
+          const selectedIndex = draftProteinRole === "focus" ? 1 : draftProteinRole === "secondary" ? 2 : 0;
+          // Trilho deslizante (rodada 2026-07-28) — era 3 pílulas soltas (.filter-segmented),
+          // saturava junto dos chips de proteína logo abaixo (achado do dono ao ver ao vivo);
+          // mesmo componente compartilhado do toggle de Ingrediente, aqui com N=3.
+          roleHtml = '<div class="filter-subcontrol-label">Papel da proteína</div>' + segmentedToggleHtml("Papel da proteína", roleOptions, selectedIndex);
+        }
         sectionBody.innerHTML =
+          roleHtml +
           '<div class="filter-chip-row" role="group" aria-label="' +
           def.label +
           '">' +
@@ -1264,7 +1392,7 @@
             })
             .join("") +
           "</div>";
-        sectionBody.querySelectorAll(".filter-chip").forEach((btn) => {
+        sectionBody.querySelectorAll(".filter-chip-row .filter-chip").forEach((btn) => {
           btn.addEventListener("click", () => {
             const val = btn.dataset.value;
             const current = draftFacetState[def.key] || [];
@@ -1272,6 +1400,17 @@
             renderBody();
           });
         });
+        if (showRoleSubcontrol) {
+          const roleToggleEl = sectionBody.querySelector(".segmented-toggle");
+          wireSegmentedToggle(
+            roleToggleEl,
+            (index) => {
+              draftProteinRole = roleOptions[index].value || null;
+              renderFooter();
+            },
+            () => renderBody()
+          );
+        }
       }
 
       // Tile de País (item 6 do roadmap-mestre) — bandeira imagens/bandeiras/<iso2>.webp
@@ -1386,64 +1525,9 @@
         return section;
       }
 
-      // Papel da proteína — controle segmentado de 3 pílulas (Fase F1a, 2026-07-27; era lista
-      // de rádio nativa). Mesmo componente visual .filter-chip do resto do modal (não um
-      // sliding-thumb como o toggle de Ingrediente — 3 paradas discretas, flex:1 cada, sem
-      // trava animada) — role="radiogroup" no container + role="radio"/aria-checked em cada
-      // pílula preservam a semântica de seleção única que os antigos rádios nativos davam de
-      // graça. Header ganhou contagem "(3)" — harmoniza com o padrão único das outras 8 seções
-      // (label + contagem + chevron), única que não tinha.
-      function renderProteinRoleSection() {
-        const counts = opts.proteinRole.computeCounts(draftFacetState, draftIngredientMode);
-        const section = document.createElement("div");
-        section.className = "filter-section" + (openSectionKey === "protein-role" ? " is-open" : "");
-        const summary = draftProteinRole === "focus" ? "Principal" : draftProteinRole === "secondary" ? "Secundário" : "";
-        const segments = [
-          { value: "", label: "Tanto faz" },
-          { value: "focus", label: "Principal (" + counts.focus + ")" },
-          { value: "secondary", label: "Secundário (" + counts.secondary + ")" },
-        ];
-        section.innerHTML =
-          '<button type="button" class="filter-section__header">' +
-          '<span class="filter-section__label">Papel da proteína<span class="filter-section__count">(' +
-          segments.length +
-          ")</span></span>" +
-          (summary ? '<span class="filter-section__summary">' + summary + "</span>" : "") +
-          iconSvg("chevronDown", "filter-section__chevron") +
-          "</button>" +
-          '<div class="filter-section__body">' +
-          '<div class="filter-segmented" role="radiogroup" aria-label="Papel da proteína">' +
-          segments
-            .map((s) => {
-              const selected = (draftProteinRole || "") === s.value;
-              return (
-                '<button type="button" class="filter-chip filter-chip--segment' +
-                (selected ? " is-selected" : "") +
-                '" role="radio" aria-checked="' +
-                (selected ? "true" : "false") +
-                '" data-value="' +
-                s.value +
-                '">' +
-                s.label +
-                "</button>"
-              );
-            })
-            .join("") +
-          "</div></div>";
-        section.querySelector(".filter-section__header").addEventListener("click", () => toggleSection("protein-role"));
-        section.querySelectorAll(".filter-segmented .filter-chip").forEach((btn) => {
-          btn.addEventListener("click", () => {
-            draftProteinRole = btn.dataset.value || null;
-            renderBody();
-          });
-        });
-        return section;
-      }
-
       function renderBody() {
         bodyEl.innerHTML = "";
         defs.forEach((def) => bodyEl.appendChild(renderGenericSection(def)));
-        if (opts.proteinRole) bodyEl.appendChild(renderProteinRoleSection());
         renderClearRow();
         renderFooter();
       }
@@ -1678,12 +1762,16 @@
     const wrap = document.createElement("div");
     wrap.className = "tagsearch";
 
+    const inputWrap = document.createElement("div");
+    inputWrap.className = "tagsearch-input-wrap";
     const input = document.createElement("input");
     input.type = "text";
     input.className = "tagsearch-input";
     input.placeholder = "Busque por nome do prato, ingrediente, país, tempo...";
     input.value = initialQuery || "";
-    wrap.appendChild(input);
+    inputWrap.appendChild(input);
+    attachSearchClear(input, inputWrap, () => input.dispatchEvent(new Event("input")));
+    wrap.appendChild(inputWrap);
 
     // Preview ao vivo do parser (chips AUTO removíveis + chips OPCIONAIS de termo ambíguo) —
     // reaproveita o visual de sugestão existente (.tagsearch-suggestions/.tag-suggestion).

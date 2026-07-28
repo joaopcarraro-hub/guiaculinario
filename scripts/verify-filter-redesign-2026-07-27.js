@@ -67,7 +67,10 @@ function reachableModalScope() {
     "function renderTileSectionBody(sectionBody, def, options) {",
     "function renderIngredientTileSectionBody(sectionBody, def, options) {",
     "function renderChipSectionBody(sectionBody, def, options) {",
-    "function renderProteinRoleSection() {",
+    // renderProteinRoleSection() foi REMOVIDA (item 1b, 2026-07-28, ver
+    // scripts/verify-protein-search-nav-2026-07-28.js) — a seção própria de "Papel da proteína"
+    // morreu, virou sub-controle DENTRO do corpo de renderChipSectionBody (mesma entrada logo
+    // acima já cobre o código novo, nada fica de fora do escopo alcançável por essa remoção).
   ].map((needle) => sliceNestedFunction(appJs, needle) || "");
   return parts.join("\n\n");
 }
@@ -106,18 +109,31 @@ function main() {
   console.log("==================================================");
   console.log("3. PAPEL DA PROTEÍNA — segmentado de 3 pílulas (role=radiogroup/radio), seleção única preservada");
   console.log("==================================================");
-  const roleFnBody = sliceNestedFunction(appJs, "function renderProteinRoleSection() {");
-  assert(!!roleFnBody, "renderProteinRoleSection isolado com sucesso");
-  assert(!!roleFnBody && /role="radiogroup"/.test(roleFnBody), 'container do segmentado carrega role="radiogroup"');
-  // role="radio" aparece 1x no CÓDIGO-FONTE (dentro do .map() que gera as 3 pílulas em runtime)
-  // — não 3x literalmente, porque é um template avaliado 3 vezes, não 3 templates distintos
-  // escritos por extenso. A prova de que são DE FATO 3 pílulas é o array `segments` ter 3
-  // entradas (checado abaixo por objeto "{ value:") e os 3 rótulos originais sobreviverem.
-  assert(!!roleFnBody && /role="radio"/.test(roleFnBody), 'pílula do segmentado carrega role="radio" (aplicado às 3 via .map(), não 3 literais distintos no source)');
-  assert(!!roleFnBody && (roleFnBody.match(/\{\s*value:/g) || []).length === 3, "array `segments` declara exatamente 3 entradas (Tanto faz/Principal/Secundário) — confirma que o .map() de role=\"radio\" produz 3 pílulas em runtime");
-  assert(!!roleFnBody && /Tanto faz/.test(roleFnBody) && /Principal/.test(roleFnBody) && /Secund[aá]rio/.test(roleFnBody), "os 3 rótulos originais (Tanto faz/Principal/Secundário) continuam presentes — só a apresentação mudou");
+  // ATUALIZADO (item 1b, 2026-07-28): a seção própria "Papel da proteína" morreu por decisão do
+  // dono/estrategista — o segmentado virou sub-controle DENTRO do corpo de renderChipSectionBody
+  // (mesmo padrão do toggle Qualquer um/Todos estes de Ingrediente), gated por
+  // `def.key === "protein" && opts.proteinRole`. roleFnBody agora reaproveita chipFnBody (já
+  // fatiado na seção 2 acima) em vez de isolar uma função própria que não existe mais — ver
+  // scripts/verify-protein-search-nav-2026-07-28.js pra cobertura completa do redesenho
+  // (inclusive o escopo dos 2 listeners de clique separados, .filter-chip-row vs .filter-segmented,
+  // pra não contaminar draftFacetState.protein com cliques no segmentado).
+  // ATUALIZADO OUTRA VEZ (ajuste visual, 2026-07-28 rodada 2): as 3 pílulas soltas saturavam
+  // junto dos chips de proteína (achado do dono ao ver ao vivo) — viraram trilho deslizante
+  // (.segmented-toggle), generalizando o MESMO componente do toggle de Ingrediente. O HTML de
+  // role="radiogroup"/role="radio" agora mora em segmentedToggleHtml (função module-level
+  // separada, fora de chipFnBody) — checado por completo em
+  // scripts/verify-protein-search-nav-2026-07-28.js; aqui só confirma que renderChipSectionBody
+  // CHAMA essa função compartilhada com os dados certos, não reconstrói o segmentado à mão.
+  const roleFnBody = chipFnBody;
+  assert(!!roleFnBody, "renderChipSectionBody (onde o segmentado agora vive) isolado com sucesso");
+  assert(!!roleFnBody && /segmentedToggleHtml\("Papel da proteína"/.test(roleFnBody), 'chama segmentedToggleHtml("Papel da proteína", ...) — role=radiogroup/radio vêm de dentro dessa função compartilhada, não reconstruídos aqui');
+  assert(!!roleFnBody && (roleFnBody.match(/\{\s*value:/g) || []).length === 3, "array `roleOptions` declara exatamente 3 entradas (Tanto faz/Principal/Secundário) — confirma que segmentedToggleHtml recebe 3 paradas");
+  assert(!!roleFnBody && /Tanto faz/.test(roleFnBody) && /Principal/.test(roleFnBody) && /Secund[aá]rio/.test(roleFnBody), "os 3 rótulos originais (Tanto faz/Principal/Secundário) continuam presentes — só a apresentação mudou (agora aninhado, não seção própria)");
   assert(!!roleFnBody && /draftProteinRole = /.test(roleFnBody), "clique num segmento continua escrevendo em draftProteinRole (mesmo estado/rascunho de antes, só a UI muda)");
-  assert(!!roleFnBody && /filter-section__count/.test(roleFnBody), 'header de "Papel da proteína" ganhou contagem — harmoniza com o padrão único das outras 8 seções (label + contagem + chevron)');
+  // O antigo header próprio "Papel da proteína" (com filter-section__count) morreu junto com a
+  // seção — não faz mais sentido pedir uma contagem de header que não existe mais por desenho;
+  // o rótulo visível agora é .filter-subcontrol-label (checado no lugar, ver suíte 2026-07-28).
+  assert(!!roleFnBody && /filter-subcontrol-label/.test(roleFnBody), 'rótulo visível "Papel da proteína" agora é .filter-subcontrol-label dentro do corpo de Proteína (substitui o antigo header próprio com contagem, que não existe mais)');
 
   console.log("");
   console.log("==================================================");
@@ -180,7 +196,10 @@ function main() {
   console.log("8. INGREDIENTE — continua só-texto, grade densa própria, ZERO radio (decisão travada, item 3)");
   console.log("==================================================");
   assert(/function renderIngredientTileSectionBody\(/.test(appJs), "TESTE NEGATIVO: renderIngredientTileSectionBody continua existindo — Ingrediente não virou lista de chip genérica, mantém a grade densa própria");
-  assert(/ingredient-mode-toggle/.test(appJs), "TESTE NEGATIVO: toggle Qualquer um/Todos estes do Ingrediente continua existindo");
+  // ATUALIZADO (ajuste visual, 2026-07-28 rodada 2): .ingredient-mode-toggle (nome antigo, só-
+  // Ingrediente) foi generalizado pra .segmented-toggle (compartilhado com Papel da proteína) —
+  // o toggle Qualquer um/Todos estes continua existindo, só o nome/mecanismo por baixo mudou.
+  assert(/function renderIngredientTileSectionBody\([\s\S]*?segmentedToggleHtml\(/.test(appJs), "TESTE NEGATIVO: toggle Qualquer um/Todos estes do Ingrediente continua existindo (agora via segmentedToggleHtml compartilhado, não mais .ingredient-mode-toggle próprio)");
   assert(!/renderIngredientTileSectionBody[\s\S]{0,600}?type="radio"/.test(appJs.slice(appJs.indexOf("function renderIngredientTileSectionBody("), appJs.indexOf("function renderIngredientTileSectionBody(") + 3000)), "renderIngredientTileSectionBody não introduziu nenhum radio nativo");
 
   console.log("");
@@ -200,15 +219,19 @@ function main() {
   console.log("==================================================");
   console.log("10. TOGGLE QUALQUER UM/TODOS ESTES — token de cor unificado com o sistema novo (achado: contraste falhava com --color-accent puro)");
   console.log("==================================================");
-  const thumbRuleMatch = css.match(/\.ingredient-mode-toggle__thumb\s*\{[^}]*\}/);
-  assert(!!thumbRuleMatch, ".ingredient-mode-toggle__thumb existe no CSS");
-  assert(!!thumbRuleMatch && /background:\s*var\(--color-accent-deep\)/.test(thumbRuleMatch[0]), ".ingredient-mode-toggle__thumb usa --color-accent-deep (era --color-accent puro, que mede 4,11:1 com --text-sm/14px sobre ele — abaixo do 4,5:1 AA; --color-accent-deep já é o par validado 4,52:1 usado no resto do sistema de chip novo). Animação de mola (260ms, cubic-bezier) PRESERVADA — migração contida a só o token de cor, não a estrutura/JS do toggle (avaliado como invasivo demais migrar pro componente segmentado de pílulas discretas, ver relatório)");
+  // ATUALIZADO (ajuste visual, 2026-07-28 rodada 2): .ingredient-mode-toggle__thumb virou
+  // .segmented-toggle__thumb (generalizado pra N segmentos, compartilhado com Papel da
+  // proteína) — o token de cor --color-accent-deep e a mola 260ms cubic-bezier sobrevivem
+  // intocados na nova regra, só o NOME da classe mudou.
+  const thumbRuleMatch = css.match(/\.segmented-toggle__thumb\s*\{[^}]*\}/);
+  assert(!!thumbRuleMatch, ".segmented-toggle__thumb existe no CSS (era .ingredient-mode-toggle__thumb)");
+  assert(!!thumbRuleMatch && /background:\s*var\(--color-accent-deep\)/.test(thumbRuleMatch[0]), ".segmented-toggle__thumb usa --color-accent-deep (era --color-accent puro, que mede 4,11:1 com --text-sm/14px sobre ele — abaixo do 4,5:1 AA; --color-accent-deep já é o par validado 4,52:1 usado no resto do sistema de chip novo). Animação de mola (260ms, cubic-bezier) PRESERVADA byte a byte na generalização desta rodada");
 
   console.log("");
   console.log("==================================================");
   console.log("11. SERVICE WORKER — CACHE_NAME bump (css/style.css e js/app.js mudam)");
   console.log("==================================================");
-  assert(/const CACHE_NAME = "cardapio-v36";/.test(swJs), "CACHE_NAME v35 -> v36");
+  assert(/const CACHE_NAME = "cardapio-v38";/.test(swJs), "CACHE_NAME v35 -> v36 -> v37 -> v38 (2026-07-28, Papel da proteína aninhado + limpar busca + colapso de navegação, depois ajuste visual do trilho deslizante — item 1b desta MESMA suíte é parte das levas v37 E v38, ver seção 3 acima)");
 
   console.log("");
   console.log("==================================================");

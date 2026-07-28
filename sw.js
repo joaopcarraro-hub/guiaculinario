@@ -46,7 +46,22 @@
 // prato/Proteína/Refeição viram chips; Papel da proteína vira segmentado de 3 pílulas; bug da
 // caixinha cinza de contagem do tile de país corrigido; tiles de Equipamento normalizados;
 // rodapé com hierarquia única. css/style.css e js/app.js mudaram, os dois no APP_SHELL.
-const CACHE_NAME = "cardapio-v36";
+// v37 (2026-07-28): 3 itens. (1) Papel da proteína: investigação de produção não achou defeito
+// de código (deploy já batia com HEAD, seção renderizava certo em teste ao vivo fresco) — seção
+// própria mesmo assim morre por decisão de design, vira sub-controle dentro do corpo de
+// Proteína. (2) Botão de limpar (glifo X) interno nas 2 barras de busca reais do app
+// (home-search do hub, tagsearch-input da busca global). (3) js/router.js ganha colapso de
+// zigue-zague no histórico (navigate/replace/hashchange) — voltar nativo repetido entre
+// receita/preparo não repete mais a tela intermediária. css/style.css, js/app.js e js/router.js
+// mudaram, os 3 no APP_SHELL.
+// v38 (2026-07-28, mesmo dia, ajuste visual pedido pelo dono após ver v37 ao vivo): as 3
+// pílulas soltas do segmentado de Papel da proteína saturavam junto dos chips de proteína logo
+// abaixo — viram trilho deslizante (.segmented-toggle), generalizando o MESMO componente do
+// toggle Qualquer um/Todos estes de Ingrediente (antes calibrado só pra 2 paradas) pra N
+// segmentos via custom properties CSS. Ingrediente também migrou pro componente novo (zero
+// divergência futura). Mola (260ms cubic-bezier) e mecanismo de defer-até-transitionend
+// preservados byte a byte. css/style.css e js/app.js mudaram, os dois no APP_SHELL.
+const CACHE_NAME = "cardapio-v38";
 
 const APP_SHELL = [
   "./",
