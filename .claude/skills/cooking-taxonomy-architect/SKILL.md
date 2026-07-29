@@ -176,7 +176,7 @@ Substitui o antigo conceito de abas "Foco da receita / Também leva / Todas". É
 seleção única (lista de rádio, dentro do modal de filtros) com 3 opções:
 - **Principal** — casa `protein:X` (a proteína é o foco real da receita).
 - **Secundário** — casa `contains:X` (a proteína aparece, mas não é o foco).
-- **Tanto faz** — default, mostra todas (principal + secundário juntas).
+- **Ver tudo** — default, mostra todas (principal + secundário juntas).
 
 Aplicar para aves/frango, carnes bovinas, suínos, peixes, frutos do mar, ovos e cordeiro se existir.
 

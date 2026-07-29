@@ -366,17 +366,28 @@ function main() {
 
   console.log("");
   console.log("==================================================");
-  console.log("6a. CSS rodada 2 — ZERO CORTE na grade (1:1, media+faixa EMPILHADOS, não sobrepostos) e 4:3 mínimo na Home");
+  console.log("6a. CSS — media+faixa EMPILHADOS (não sobrepostos); grade migrou de 1:1 pra 4:3 nesta rodada, casando com a Home (mini-rodada visual de fechamento, 2026-07-29)");
   console.log("==================================================");
   const categoryCardRule = ruleBody(css, ".category-card {", "categoria .category-card");
   assert(!categoryCardRule.includes("aspect-ratio"), "TESTE NEGATIVO: .category-card (o botão inteiro) NÃO tem mais aspect-ratio própria — moveu pra .category-card__media");
   const categoryMediaRule = ruleBody(css, ".category-card__media {", ".category-card__media");
-  assert(categoryMediaRule.includes("aspect-ratio: 1;"), ".category-card__media tem aspect-ratio:1 — área de imagem é o QUADRADO INTEIRO do asset, zero corte");
+  // Mini-rodada visual de fechamento (2026-07-29, decisão do dono a partir de prints — iFood
+  // como régua de calha): era "aspect-ratio: 1;" (zero corte, quadrado inteiro do asset) — virou
+  // 4:3 pra casar com .home-tile__media (consistência entre classes de tile pesou mais que
+  // preservar corte zero; exceção nova documentada em docs/DESIGN-TOKENS.md). Corte central
+  // perde ~25% da altura original; confirmado ao vivo tile a tile (6 de Mais Categorias + 8 de
+  // Proteínas + amostra de Países) que nenhum decapita o prato — ver relatório da tarefa.
+  assert(categoryMediaRule.includes("aspect-ratio: 4 / 3;"), ".category-card__media tem aspect-ratio 4/3 — mudou do 1:1 original pra casar com .home-tile__media (exceção documentada, corte central decide)");
+  assert(!/aspect-ratio:\s*1;/.test(categoryMediaRule), "TESTE NEGATIVO: .category-card__media NÃO tem mais aspect-ratio:1 — o 1:1 sem corte morreu nesta rodada");
   assert(!/position:\s*absolute/.test(categoryMediaRule), "TESTE NEGATIVO: .category-card__media NÃO é mais position:absolute (era o que fazia a faixa cobrir/fatiar a imagem)");
   const categoryBandPositionCheck = ruleBody(css, ".category-card__band {", ".category-card__band (posição)");
   assert(!/position:\s*absolute/.test(categoryBandPositionCheck), "TESTE NEGATIVO: .category-card__band NÃO é mais position:absolute — vem DEPOIS da mídia em fluxo normal, nunca sobrepondo");
   const homeMediaRule = ruleBody(css, ".home-tile__media {", ".home-tile__media");
-  assert(homeMediaRule.includes("aspect-ratio: 4 / 3;"), ".home-tile__media tem aspect-ratio 4/3 (mínimo) — mais largo que o 1:1 da grade, tile grande também na proporção");
+  assert(homeMediaRule.includes("aspect-ratio: 4 / 3;"), ".home-tile__media tem aspect-ratio 4/3 (mínimo) — tile grande também na proporção");
+  assert(
+    categoryMediaRule.match(/aspect-ratio:\s*4 \/ 3;/)[0] === homeMediaRule.match(/aspect-ratio:\s*4 \/ 3;/)[0],
+    "regra nova desta rodada: grade (.category-card__media) e Home (.home-tile__media) casam EXATAMENTE a mesma proporção — consistência entre classes de tile, não coincidência"
+  );
   assert(!/position:\s*absolute/.test(homeMediaRule), "TESTE NEGATIVO: .home-tile__media NÃO é mais position:absolute");
   const homeBandPositionCheck = ruleBody(css, ".home-tile__band {", ".home-tile__band (posição)");
   assert(!/position:\s*absolute/.test(homeBandPositionCheck), "TESTE NEGATIVO: .home-tile__band NÃO é mais position:absolute — empilhada abaixo da mídia");
@@ -528,7 +539,7 @@ function main() {
   console.log("9. SERVICE WORKER — v35 (calibração final do banner de hub, sem blur) + APP_SHELL completo");
   console.log("==================================================");
   const swJs = fs.readFileSync(path.join(ROOT, "sw.js"), "utf8");
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v39";'), "CACHE_NAME v36 -> ... -> v38 -> v39 (2026-07-29, correção de semântica de Papel da proteína — app inteiro, não só coleção de proteína) — css/style.css, js/app.js, js/router.js e js/tagmodel.js mudaram, todos no APP_SHELL, fora desta feature");
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v40";'), "CACHE_NAME v36 -> ... -> v39 -> v40 (v39, 2026-07-29, correção de semântica de Papel da proteína, fora desta feature; v40, mesmo dia, mini-rodada visual de fechamento — ESTA é a feature: .category-card__media 1:1 -> 4:3, ver seção 6a)");
   // Regressão que passou despercebida desde que js/countries.js foi criado: o arquivo é
   // pré-requisito duro de js/categories.js e js/collections.js (os dois leem window.COUNTRIES
   // no topo, fora de função) e não estava no APP_SHELL. Ficava no cache só de carona, pelo

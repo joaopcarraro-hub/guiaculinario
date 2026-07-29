@@ -224,7 +224,7 @@ nenhuma vaza pra outra:
   Proteína/Refeição tinham antes); só País e Equipamento continuam grade de tiles de verdade
   (imagem/ícone real). Sem tile/chip "Todos"; nenhum marcado = nenhum filtro ativo.
   Proteína (`protein:`) não deve ser confundida com "Papel da proteína" (seleção única
-  Principal/Secundário/Tanto faz — desde o item 1b, 2026-07-28, um SUB-CONTROLE no topo do
+  Principal/Secundário/Ver tudo (rótulo revisto 2026-07-29, era "Tanto faz") — desde o item 1b, 2026-07-28, um SUB-CONTROLE no topo do
   corpo da própria seção Proteína, não mais uma seção à parte, ver parágrafo abaixo) — Proteína
   pergunta QUAL proteína e fica disponível em qualquer coleção/busca; as duas são eixos
   independentes que se combinam em AND normalmente. Proteína conta só `protein:X`
@@ -251,7 +251,7 @@ cada faceta individualmente é OR por dentro — ex.: País=Itália+Alemanha E E
 mostra a interseção do OR de país com o equipamento, nunca OR entre tudo.
 
 Proteínas ganham um sub-controle a mais dentro da própria seção Proteína, "Papel da proteína":
-Principal / Secundário / Tanto faz (default). Isso substituiu o antigo conceito de abas "Foco
+Principal / Secundário / Ver tudo (default; rótulo revisto 2026-07-29, era "Tanto faz" — mecanismo idêntico, só o texto mudou). Isso substituiu o antigo conceito de abas "Foco
 da receita / Também leva / Todas" (Fase F1a) e, desde o item 1b (2026-07-28), deixou de ser uma
 seção própria do acordeão — vive no topo do corpo de Proteína, mesmo padrão de POSIÇÃO do toggle
 Qualquer um/Todos estes de Ingrediente acima. Desde o ajuste visual do mesmo dia (rodada 2), é
@@ -265,7 +265,7 @@ transição curta, tokens de motion existentes) sempre que há >=1 proteína ATI
 (chip da faceta Proteína marcado, em QUALQUER coleção ou na busca global) OU implícita (dentro
 de uma coleção de proteína sem nenhum chip explicitamente marcado, comportamento de sempre,
 agora um caso particular). Desselecionar a última proteína ativa, quando não há implícito de
-coleção pra cair de volta, esconde o sub-controle E reseta o papel pra Tanto faz — nunca fica
+coleção pra cair de volta, esconde o sub-controle E reseta o papel pra Ver tudo — nunca fica
 "fantasma" (Principal/Secundário ativo sem nenhuma proteína selecionada). Mecanismo:
 `TagModel.splitByProteinRole(items, S)` — Principal = `protein:X` literal presente pra QUALQUER
 X do conjunto S selecionado; Secundário = nenhum `protein:X` de S literal, mas `contains:X`

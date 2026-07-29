@@ -220,7 +220,7 @@ function main() {
   // categoria/home e banner de hub, ver scripts/verify-categoria-tiles-2026-07-26.js.
   // v33 -> v34: rumo novo de Países — mural de bandeiras extinto, tile de país vira foto de
   // receita-assinatura. v34 -> v35: calibração final do banner de hub — blur/scale removidos.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v39";'), "CACHE_NAME v39 — 15º bump desde esta suíte (..., v37->v38 ajuste visual do trilho deslizante, v38->v39 correção de semântica de Papel da proteína, 2026-07-29), mesma regra do CLAUDE.md");
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v40";'), "CACHE_NAME v40 — 16º bump desde esta suíte (..., v37->v38 ajuste visual do trilho deslizante, v38->v39 correção de semântica de Papel da proteína, v39->v40 mini-rodada visual de fechamento — media 4:3 + calha do #main, 2026-07-29), mesma regra do CLAUDE.md");
 
   console.log("");
   console.log("==================================================");

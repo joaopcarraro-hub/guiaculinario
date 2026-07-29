@@ -805,7 +805,7 @@
   // ---------- Facetas — compartilhadas por renderCategory e renderBusca ----------
   // Cada seção lista só os valores presentes no universo ATUAL já filtrado pelas OUTRAS
   // facetas ativas (não pela própria, senão nunca mostraria alternativa à opção já escolhida),
-  // com contagem. Nada vem pré-selecionado (default = Todos/Tanto faz).
+  // com contagem. Nada vem pré-selecionado (default = Todos/Ver tudo).
   // País/Complexidade/Tempo/Equipamento são multi-seleção com combineMode "or" — valores da
   // MESMA faceta se somam (união); entre facetas diferentes continua AND (matchesGroupedTags
   // já faz isso sozinho pra qualquer prefixo que não seja ingredient:/seasoning:, sem precisar
@@ -833,7 +833,7 @@
     { key: "time", label: "Tempo", prefix: "time:", multi: true, combineMode: "or" },
     { key: "equipment", label: "Equipamento", prefix: "equipment:", multi: true, combineMode: "or", layout: "tiles", tileIcon: equipmentTileIconHtml },
     // "Proteína" (protein:) — NÃO confundir com "Papel da proteína" (renderProteinRoleSection,
-    // seleção única Principal/Secundário/Tanto faz, só em coleções de proteína). Esta é NOVA:
+    // seleção única Principal/Secundário/Ver tudo, só em coleções de proteína). Esta é NOVA:
     // pergunta QUAL proteína (Frango, Boi, Peixe...), disponível em QUALQUER coleção/busca, OR
     // puro entre valores — mesma família de País/Equipamento. 10 valores na taxonomia (tags.js),
     // 7-8 com cobertura de imagem em imagens/categorias/ (frango não tem imagem própria — só
@@ -1380,7 +1380,7 @@
           const roleActive = activeProteinTagIds(draftFacetState, opts.collection).length > 0;
           const counts = opts.proteinRole.computeCounts(draftFacetState, draftIngredientMode);
           roleOptions = [
-            { value: "", label: "Tanto faz" },
+            { value: "", label: "Ver tudo" },
             { value: "focus", label: "Principal (" + counts.focus + ")" },
             { value: "secondary", label: "Secundário (" + counts.secondary + ")" },
           ];
@@ -1642,7 +1642,7 @@
     }
     applyFacets();
 
-    // Papel da proteína (Principal/Secundário/Tanto faz) substitui as antigas abas "Foco da
+    // Papel da proteína (Principal/Secundário/Ver tudo) substitui as antigas abas "Foco da
     // receita/Todas". Correção de semântica (2026-07-29): deixou de valer só pra coleções de
     // proteína — vale sempre que houver >=1 proteína ATIVA (explícita ou implícita da coleção,
     // ver activeProteinTagIds). Validado aqui no load inicial também (não só reativamente): um
@@ -1785,7 +1785,7 @@
 
       // "Papel da proteína" (dropdown) já é a única fonte pra distinguir Principal/Secundário —
       // não duplicar essa distinção aqui com cabeçalhos automáticos. sortKey "relevance" já
-      // ordena principal-primeiro via getCollectionRelevanceScore, então "Tanto faz" (default)
+      // ordena principal-primeiro via getCollectionRelevanceScore, então "Ver tudo" (default)
       // renderiza uma lista só, na ordem certa, sem seção "Foco da receita"/"Também leva".
       // fromHash: hash INTEIRO da coleção no momento deste render (inclui tags/role/imode já
       // aplicados) — não só collection.id como antes. renderList() só roda de novo depois de

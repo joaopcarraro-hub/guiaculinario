@@ -127,8 +127,12 @@ function main() {
   const roleFnBody = chipFnBody;
   assert(!!roleFnBody, "renderChipSectionBody (onde o segmentado agora vive) isolado com sucesso");
   assert(!!roleFnBody && /segmentedToggleHtml\("Papel da proteína"/.test(roleFnBody), 'chama segmentedToggleHtml("Papel da proteína", ...) — role=radiogroup/radio vêm de dentro dessa função compartilhada, não reconstruídos aqui');
-  assert(!!roleFnBody && (roleFnBody.match(/\{\s*value:/g) || []).length === 3, "array `roleOptions` declara exatamente 3 entradas (Tanto faz/Principal/Secundário) — confirma que segmentedToggleHtml recebe 3 paradas");
-  assert(!!roleFnBody && /Tanto faz/.test(roleFnBody) && /Principal/.test(roleFnBody) && /Secund[aá]rio/.test(roleFnBody), "os 3 rótulos originais (Tanto faz/Principal/Secundário) continuam presentes — só a apresentação mudou (agora aninhado, não seção própria)");
+  assert(!!roleFnBody && (roleFnBody.match(/\{\s*value:/g) || []).length === 3, "array `roleOptions` declara exatamente 3 entradas (Ver tudo/Principal/Secundário) — confirma que segmentedToggleHtml recebe 3 paradas");
+  // Mini-rodada visual de fechamento (2026-07-29): rótulo "Tanto faz" -> "Ver tudo" (copy do
+  // dono, confirmado ao vivo em 360px que cabe no 1/3 do trilho sem truncar, getBoundingClientRect
+  // scrollWidth === clientWidth) — mecanismo/value ("") intocado, só o texto do botão mudou.
+  assert(!!roleFnBody && /Ver tudo/.test(roleFnBody) && /Principal/.test(roleFnBody) && /Secund[aá]rio/.test(roleFnBody), "os 3 rótulos (Ver tudo/Principal/Secundário) presentes — só a apresentação mudou (agora aninhado, não seção própria)");
+  assert(!!roleFnBody && !/Tanto faz/.test(roleFnBody), "TESTE NEGATIVO: rótulo antigo Tanto faz não sobrevive no código");
   assert(!!roleFnBody && /draftProteinRole = /.test(roleFnBody), "clique num segmento continua escrevendo em draftProteinRole (mesmo estado/rascunho de antes, só a UI muda)");
   // O antigo header próprio "Papel da proteína" (com filter-section__count) morreu junto com a
   // seção — não faz mais sentido pedir uma contagem de header que não existe mais por desenho;
@@ -231,7 +235,7 @@ function main() {
   console.log("==================================================");
   console.log("11. SERVICE WORKER — CACHE_NAME bump (css/style.css e js/app.js mudam)");
   console.log("==================================================");
-  assert(/const CACHE_NAME = "cardapio-v39";/.test(swJs), "CACHE_NAME v35 -> ... -> v38 -> v39 (2026-07-29, correção de semântica de Papel da proteína — item 1b desta MESMA suíte é parte das levas v37/v38/v39, ver seção 3 acima)");
+  assert(/const CACHE_NAME = "cardapio-v40";/.test(swJs), "CACHE_NAME v35 -> ... -> v39 -> v40 (v37/v38/v39 tocam item 1b desta MESMA suíte, ver seção 3 acima; v40 é a mini-rodada visual de fechamento, 2026-07-29 — media 4:3 da grade + calha do #main, fora desta feature)");
 
   console.log("");
   console.log("==================================================");

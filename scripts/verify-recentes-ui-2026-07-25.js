@@ -163,7 +163,7 @@ function main() {
   // ingredientes, css/style.css mudou de novo, também fora desta feature.
   // v32 -> v33: item final do redesenho visual. v33 -> v34: rumo novo de Países. v34 -> v35:
   // calibração final do banner de hub (blur/scale removidos) — todos fora desta feature.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v39";'), "CACHE_NAME v36 -> ... -> v38 -> v39 (2026-07-29) — correção de semântica de Papel da proteína (fora desta feature)");
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v40";'), "CACHE_NAME v36 -> ... -> v39 -> v40 (v39, correção de semântica de Papel da proteína, fora desta feature; v40, mesmo dia, mini-rodada visual de fechamento — ESTA é a feature: calha do #main --space-5 -> --space-4, ver seção 12)");
   assert(!swJs.includes('const CACHE_NAME = "cardapio-v25";'), "v25 não sobrevive — teste negativo (a versão desta tarefa foi sucedida, não deixada presa)");
   assert(swJs.includes('"css/style.css"') && swJs.includes('"js/app.js"'), "css/style.css e js/app.js seguem no APP_SHELL precache");
 
@@ -201,6 +201,73 @@ function main() {
     !!progressBaseMatch && progressBaseMatch[0].includes("border-top: 1px solid var(--color-border);"),
     "regra BASE de #progress (compartilhada por toda tela) continua com a borda — só a home ganhou override, nenhuma outra tela foi tocada"
   );
+
+  console.log("");
+  console.log("==================================================");
+  console.log("12. Calha do #main (--space-5 -> --space-4) e recalibração do carrossel — mini-rodada visual de fechamento, 2026-07-29");
+  console.log("==================================================");
+  assert(
+    styleCss.includes("#main { padding: var(--space-5) var(--space-4) calc(var(--bottom-nav-height) + env(safe-area-inset-bottom)) var(--space-4); }"),
+    "#main (<=700px) tem calha LATERAL --space-4 (16px, era --space-5/20px) — usável em 390px: 358px (medido ao vivo)"
+  );
+  assert(
+    !/#main \{ padding: var\(--space-5\) var\(--space-5\)/.test(styleCss),
+    "TESTE NEGATIVO: #main (<=700px) não usa mais --space-5 nos 2 primeiros valores do shorthand (era de 3 valores top/laterais/baixo, virou de 4 pra decompor top de laterais)"
+  );
+  const mainMobileRuleMatch = styleCss.match(/@media \(max-width: 700px\) \{[\s\S]*?#main \{ padding: ([^}]*); \}/);
+  assert(!!mainMobileRuleMatch, "regra #main dentro do breakpoint <=700px localizada");
+  assert(
+    !!mainMobileRuleMatch && /^var\(--space-5\)/.test(mainMobileRuleMatch[1]),
+    "TOP do #main continua var(--space-5) — preservado DE PROPÓSITO (não é a calha lateral que o dono pediu pra mudar)"
+  );
+  // .grupo-sheet/.recipe-page cancelam o padding-TOP de #main no próprio margin-top (achado da
+  // investigação desta rodada) — como só a calha LATERAL mudou, essa matemática de cancelamento
+  // não podia ter sido tocada. As 4 asserções abaixo são regressão, não comportamento novo.
+  assert(
+    /\.grupo-sheet\s*\{\s*margin-top:\s*calc\(var\(--hub-banner-h\) - 24px - var\(--space-5\)\);\s*\}/.test(styleCss),
+    "regressão: .grupo-sheet (<=700px) continua cancelando --space-5 (TOP de #main) no próprio margin-top — a calha lateral não mexeu nisso"
+  );
+  assert(
+    /\.recipe-page\s*\{\s*margin-top:\s*calc\(var\(--hero-h\) - 24px - var\(--space-5\)\);\s*\}/.test(styleCss),
+    "regressão: .recipe-page (<=700px) continua cancelando --space-5 (TOP de #main) no próprio margin-top — mesma razão"
+  );
+  const sheetPaddingMatches = styleCss.match(/padding: var\(--space-6\) var\(--space-5\) 0;/g) || [];
+  assert(
+    sheetPaddingMatches.length === 2,
+    "regressão: padding PRÓPRIO de .grupo-sheet E .recipe-page continua var(--space-6) var(--space-5) 0 — a calha do #main mudou, o padding interno dessas 2 folhas NÃO (item 2 do briefing pediu só #main; achado: 2 ocorrências, uma por componente)"
+  );
+  assert(
+    /\.recent-card\s*\{\s*flex:\s*0 0 26vw;/.test(styleCss),
+    "regressão: .recent-card continua flex: 0 0 26vw — card/gap não dependem do padding de #main, só a largura útil do container muda com a calha"
+  );
+
+  const recentCardComment = styleCss.match(/\/\* 26vw por card:[\s\S]*?\*\//);
+  assert(!!recentCardComment, "comentário de .recent-card (26vw por card) localizado");
+  assert(!!recentCardComment && recentCardComment[0].includes("17,83px"), "comentário preserva o valor histórico da fatia SEM bleed (17,83px, calha --space-4 sozinha) como referência");
+  assert(!!recentCardComment && recentCardComment[0].includes("33,83px"), "fatia visível do 4º card recalibrada pro valor medido ao vivo COM o trilho full-bleed: 33,83px (getBoundingClientRect, não estimativa)");
+  assert(!!recentCardComment && !recentCardComment[0].includes("350px"), "TESTE NEGATIVO: comentário do carrossel não sobrou com o número antigo (350px) escrito");
+
+  console.log("");
+  console.log("==================================================");
+  console.log("13. Carrossel full-bleed (sangramento até as bordas, padrão iFood) — mini-rodada visual de fechamento, 2026-07-29");
+  console.log("==================================================");
+  const railRuleMatch = styleCss.match(/\.recent-views__rail \{[\s\S]*?\n\}/);
+  const railRuleBody = railRuleMatch ? railRuleMatch[0] : "";
+  assert(railRuleBody.length > 0, "regra .recent-views__rail localizada");
+  assert(/width:\s*100vw;/.test(railRuleBody), "trilho ganha width: 100vw — mesma técnica de bleed de .grupo-sheet/.recipe-page");
+  assert(/margin-left:\s*calc\(50% - 50vw\);/.test(railRuleBody), "trilho ganha margin-left: calc(50% - 50vw) — mesma técnica de bleed de .grupo-sheet/.recipe-page");
+  assert(/padding-left:\s*var\(--space-4\);/.test(railRuleBody), "trilho reconstrói o alinhamento do 1º card com padding-left: var(--space-4) — mesma calha da mudança #2 desta rodada");
+  assert(/scroll-padding-left:\s*var\(--space-4\);/.test(railRuleBody), "scroll-padding-left espelha o padding-left — snap \"start\" respeita o mesmo ponto de alinhamento, não a borda real da tela");
+  // regex exige ":" (declaração CSS de verdade) — o comentário logo acima MENCIONA "padding-right"
+  // em prosa (explicando por que ele NÃO existe aqui), então checar a palavra sozinha daria falso
+  // positivo; só uma declaração real (\bpadding-right\s*:) conta.
+  assert(!/padding-right\s*:/.test(railRuleBody), "TESTE NEGATIVO: sem DECLARAÇÃO padding-right no trilho — \"padding final artificial\" explicitamente rejeitado pelo briefing, respiro do fim vem do último card, não do container");
+  assert(
+    /\.recent-card:last-child \{ margin-right: var\(--space-4\); \}/.test(styleCss),
+    ".recent-card:last-child tem margin-right: var(--space-4) — respiro no fim do scroll (técnica robusta a Safari/WebKit, ao contrário de padding-right no container)"
+  );
+  assert(!/\.recent-views__title[^}]*100vw/.test(styleCss), "TESTE NEGATIVO: .recent-views__title não sangra — só o trilho, o título continua alinhado à calha normal");
+  assert(!/\.recent-views \{[^}]*100vw/.test(styleCss), "TESTE NEGATIVO: .recent-views (a seção inteira, título+trilho) não ganhou bleed próprio — só .recent-views__rail, o filho, sangra");
 
   console.log("");
   console.log("==================================================");

@@ -85,7 +85,8 @@ function main() {
   // aria-label certo pra essa função compartilhada, provando que É o trilho de Papel da
   // proteína sendo montado, não outra instância genérica.
   assert(!!chipBodyScope && /segmentedToggleHtml\("Papel da proteína"/.test(chipBodyScope), 'segmentedToggleHtml chamado com aria-label "Papel da proteína" (role=radiogroup vem de dentro dessa função, checado na seção seguinte)');
-  assert(!!chipBodyScope && /"Tanto faz"/.test(chipBodyScope) && /Principal \(/.test(chipBodyScope) && /Secundário \(/.test(chipBodyScope), "os 3 segmentos (Tanto faz/Principal (N)/Secundário (N)) presentes, com contagem");
+  assert(!!chipBodyScope && /"Ver tudo"/.test(chipBodyScope) && /Principal \(/.test(chipBodyScope) && /Secundário \(/.test(chipBodyScope), "os 3 segmentos (Ver tudo/Principal (N)/Secundário (N)) presentes, com contagem — rótulo revisto 2026-07-29 (era Tanto faz), confirmado ao vivo em 360px que cabe no 1/3 do trilho sem truncar");
+  assert(!!chipBodyScope && !/"Tanto faz"/.test(chipBodyScope), "TESTE NEGATIVO: rótulo antigo \"Tanto faz\" não sobrevive no código");
   assert(
     !!chipBodyScope && /querySelectorAll\(".filter-chip-row .filter-chip"\)/.test(chipBodyScope),
     "listener dos chips de VALOR (protein:X) escopado a .filter-chip-row .filter-chip — NÃO ao seletor genérico .filter-chip, que agora TAMBÉM casaria os botões do trilho (bug de contaminação cruzada: mexer no trilho não pode mexer em draftFacetState.protein)"

@@ -777,6 +777,21 @@ diretamente. Remoção dos alias fica pra uma rodada futura.
      `stretch` — pra manter o mesmo centro visual dos outros tiles do grid de Filtros,
      Equipamento/Proteína incluídos).
 
+- **Exceção à regra "mídia casa a proporção do próprio asset" — mini-rodada visual de
+  fechamento (2026-07-29, decisão do dono a partir de prints de referência, iFood como régua
+  de calha).** A regra geral (item 2 acima, rodada 4) continua valendo como padrão — mas às
+  vezes a consistência ENTRE classes de tile pesa mais que preservar a proporção nativa do
+  asset sem corte nenhum; quando isso acontece, o corte central decide. Primeiro caso real:
+  `.category-card__media` (grade de Mais Categorias + todos os 5 hubs, mesmo
+  `renderCollectionCard` compartilhado) saiu do 1:1 nativo do asset (600×600, zero corte) para
+  4:3 — a MESMA proporção de `.home-tile__media` — perdendo ~25% da altura do quadrado
+  original por corte central (`object-position: center`, herdado, não mudou). Tolerável porque
+  o acervo de categoria é sempre composição overhead centrada (prato no meio, nunca encosta
+  nas bordas); confirmado ao vivo tile a tile (Mais Categorias + os hubs com grid), nenhum
+  decapita o prato — ver relatório da tarefa pros números por tile. `.category-card--country`
+  já vivia em 4:3 desde o rumo novo de Países (rodada anterior) — deixa de ser um caso isolado
+  e vira o primeiro precedente desta exceção.
+
 - **Redesenho do modal de Filtros — sistema de chip de seleção, bug do tile de país, tiles de
   Equipamento normalizados (Fase F1a, 2026-07-27).** Investigação prévia (como sempre neste
   projeto) classificou cada uma das 9 seções pelo que ela já era de fato — tile com
@@ -840,7 +855,8 @@ diretamente. Remoção dos alias fica pra uma rodada futura.
     real: ave isolado 14 + frango isolado 30 = 44, mas o conjunto {ave, frango} dá 40, não 44 —
     a sobreposição real entre as duas tags prova que é OR de verdade, não soma por tag). Reset:
     desselecionar a última proteína ativa (sem implícito de coleção pra cair) esconde o trilho E
-    zera o papel pra Tanto faz — nunca um papel "fantasma". Mudança deliberada de comportamento
+    zera o papel pra Ver tudo (rótulo revisto na mini-rodada de fechamento, 2026-07-29 — era
+    "Tanto faz", mecanismo idêntico, só o texto mudou) — nunca um papel "fantasma". Mudança deliberada de comportamento
     na coleção Ovos: "Secundário" era 104 (somava `ingredient:ovo` solto, ovo como simples
     ingrediente de qualquer receita — bolo, pão, massa) e passa a 17 (só `contains:ovo`,
     consistente com a regra única sem exceção por coleção) — as outras 6 coleções de proteína

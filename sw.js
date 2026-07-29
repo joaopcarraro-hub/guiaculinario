@@ -73,7 +73,26 @@
 // com transição curta) + reset pra Tanto faz ao ficar sem nenhuma proteína ativa (nunca um
 // papel "fantasma"). js/router.js ganha role= na rota de busca (mesmo padrão de categoria).
 // css/style.css, js/app.js, js/router.js e js/tagmodel.js mudaram — os 4 no APP_SHELL.
-const CACHE_NAME = "cardapio-v39";
+//
+// v39 -> v40 (mini-rodada visual de fechamento, 2026-07-29, 2 correções do dono a partir de
+// prints — iFood como régua de calha): .category-card__media sai de 1:1 pra 4:3 (grade de Mais
+// Categorias + todos os hubs casam a mesma proporção de .home-tile__media; corte central,
+// ~25% da altura perdida — confirmado ao vivo tile a tile, nenhum decapita o prato). #main
+// (<=700px) tem a calha LATERAL revista de --space-5 (20px) pra --space-4 (16px) — usável em
+// 390px vira 358px; TOP do #main preservado em --space-5 de propósito, pra não quebrar o
+// cancelamento de padding-top que .grupo-sheet/.recipe-page fazem no próprio margin-top.
+//
+// Mesma rodada, 2 ajustes adicionais do dono incorporados no mesmo commit via amend (ainda
+// local, nunca pushado): (a) rótulo do segmento default de "Papel da proteína" revisto de
+// "Tanto faz" pra "Ver tudo" (js/app.js) — confirmado ao vivo em 360px que cabe no 1/3 do
+// trilho sem truncar, mecanismo/value ("") intocado; (b) trilho "Vistas recentemente" ganha
+// sangramento full-bleed até as 2 bordas da tela (padrão iFood) — width:100vw +
+// margin-left:calc(50% - 50vw) no trilho, padding-left/scroll-padding-left:var(--space-4)
+// reconstroem o alinhamento do 1º card, último card ganha margin-right:var(--space-4) pro
+// respiro no fim do scroll; só o trilho sangra, o título continua na calha normal. Fatia
+// visível do 4º card: 33,83px medido ao vivo (era 17,83px sem bleed, mesma rodada).
+// css/style.css e js/app.js são os arquivos do APP_SHELL que mudaram nesta rodada.
+const CACHE_NAME = "cardapio-v40";
 
 const APP_SHELL = [
   "./",

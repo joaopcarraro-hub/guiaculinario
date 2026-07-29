@@ -646,8 +646,8 @@ novo.
     10/10 travado no spec — chip de texto nesta rodada, photo-tile (mesma regra-mãe de
     `.filter-tile--photo`) fica pro mini-lote de imagem futuro. "protein:X" continua casando
     com `contains:X` (`matchesTagId`) — protagonista OU não — mecanismo intocado por esta
-    rodada, só a apresentação mudou. "Papel da proteína" (Principal/Secundário/Tanto faz,
-    abaixo) continua OUTRO mecanismo via `getRecipesByCollection`/`matchesAnyTag` em
+    rodada, só a apresentação mudou. "Papel da proteína" (Principal/Secundário/Ver tudo,
+    abaixo — rótulo revisto 2026-07-29, era "Tanto faz") continua OUTRO mecanismo via `getRecipesByCollection`/`matchesAnyTag` em
     tagmodel.js, não tocado.
   - Refeição (`course:`, 5 valores: Prato Principal, Entrada, Acompanhamento, Sobremesa, Café
     da Manhã): cobertura de 161/398 receitas (40,5%). Mesma situação de Proteína — nunca teve
@@ -778,7 +778,7 @@ este" — universo restrito pelas OUTRAS facetas, nunca pela própria (mesma ló
 pro dropdown de Ingrediente, só reaproveitada) — intocado pela Fase F1a.
 
 Mudanças dentro do modal ficam em rascunho — só valem de fato ao tocar "Ver resultados";
-"Cancelar" descarta tudo. "Papel da proteína" (Principal / Secundário / Tanto faz) substitui
+"Cancelar" descarta tudo. "Papel da proteína" (Principal / Secundário / Ver tudo) substitui
 as antigas abas "Foco da receita / Também leva / Todas".
 
 "Limpar filtros" (texto sublinhado, `--color-text-secondary` — nunca `--color-accent` em texto
@@ -1059,9 +1059,11 @@ confirmando que cada caminho resolvido existe de fato em disco.
    `--space-6` na própria margem do search-wrap).
 3. **Bug real de julgamento na rodada 1**: a faixa em `position: absolute` cobria a base de uma
    imagem 1:1, fatiando o prato visualmente. Corrigido — mídia (com `aspect-ratio`) e faixa
-   viraram blocos empilhados, nunca sobrepostos (grade 1:1 zero corte, Home 4:3 mínimo,
-   `object-position: center`). Achado extra ao vivo: `.category-card__media`/`.home-tile__media`
-   são `<span>` (inline por padrão) — `aspect-ratio` não pegava sem `display: block` explícito.
+   viraram blocos empilhados, nunca sobrepostos (grade 1:1 zero corte na época, Home 4:3 mínimo,
+   `object-position: center` — ⚠️ a grade deixou de ser 1:1 na mini-rodada visual de fechamento,
+   2026-07-29, ver seção própria mais abaixo). Achado extra ao vivo: `.category-card__media`/
+   `.home-tile__media` são `<span>` (inline por padrão) — `aspect-ratio` não pegava sem
+   `display: block` explícito.
 4. Mosaico de bandeiras (CSS, `.flag-mosaic`) substitui a foto de temperos no tile "Países" da
    Home e no banner do hub Países — o dono achou a composição sem identidade nessas 2
    superfícies. ⚠️ **REVOGADO no rumo novo de Países (26/07/2026)**: as 2 superfícies passaram a
@@ -1097,6 +1099,28 @@ não tinha gap entre nome e contagem (2 `<span>` colados, "Itália12" na tela) �
 ganha esse espaçamento do `.filter-tile` pai (flex+gap), mas a faixa de país nunca tinha o mesmo
 tratamento; corrigido com flex column + `gap: 2px` na própria faixa, mesmo valor de
 `.category-card__band`.
+
+**Mini-rodada visual de fechamento (2026-07-29) — 2 correções do dono a partir de prints de
+referência, iFood como régua de calha, ver `docs/DESIGN-TOKENS.md` pros números exatos:**
+1. **`.category-card__media` (grade "Mais Categorias" + grade de qualquer hub) sai do 1:1
+   nativo do asset pro 4:3 de `.home-tile__media`** — primeira exceção real à regra geral "mídia
+   casa a proporção do próprio asset" (item acima, rodada 4 de bandeiras): consistência ENTRE
+   classes de tile pesou mais que preservar corte zero. Corte central perde ~25% da altura do
+   quadrado original (600×600); confirmado ao vivo tile a tile (6 de Mais Categorias + 8 de
+   Proteínas + amostra de Países) que nenhum decapita o prato — acervo é sempre composição
+   overhead centrada. `.category-card--country .category-card__media` já vivia em 4:3 (rumo
+   novo de Países) — vira o primeiro precedente da exceção, não mais caso isolado.
+2. **Calha lateral do `#main` (`<=700px`) revista de `--space-5` (20px) pra `--space-4`
+   (16px)** — usável em 390px passa de 350px pra 358px (medido ao vivo). TOP do `#main`
+   preservado em `--space-5` de propósito: `.grupo-sheet`/`.recipe-page` cancelam esse valor
+   exato no próprio `margin-top` pra manter a folha encostada no fim do banner/hero — mexer no
+   top quebraria essa matemática sem necessidade (achado da investigação desta rodada, não
+   tocado). Padding PRÓPRIO de `.grupo-sheet`/`.recipe-page` (que recria a margem de leitura nos
+   2 elementos em bleed, `width: 100vw` + `margin-left: calc(50% - 50vw)`) também não muda —
+   só a calha do `#main` em si. Carrossel "Vistas recentemente" (`.recent-card`, `flex: 0 0
+   26vw`) não depende do padding de `#main`, então só a largura útil do container cresce: fatia
+   visível do 4º card passa de 9,83px pra 17,83px (medido, `getBoundingClientRect`) — a "fatia
+   de convite" cresce, não desaparece.
 
 ## Critérios de aceite
 
