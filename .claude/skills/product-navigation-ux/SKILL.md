@@ -200,9 +200,11 @@ Dentro de uma coleção (país, proteína, tempo, dificuldade, fundamentos), o r
 de filtros em acordeão (Bloco 3) — não mais uma barra sempre-visível. Um botão "Filtros" (com
 badge de contagem de filtros ativos) fica no lugar de onde a barra ficava; abre um modal cheio
 de tela com 8 seções em acordeão: País, Complexidade, Tempo, Equipamento, Proteína, Refeição,
-Tipo de prato, Ingrediente. "Papel da proteína" (só em coleções de proteína) deixou de ser a 9ª
-seção própria (item 1b, 2026-07-28) — virou sub-controle DENTRO do corpo de Proteína, ver
-parágrafo próprio mais abaixo. Cada seção de topo mostra a contagem de opções no cabeçalho
+Tipo de prato, Ingrediente. "Papel da proteína" deixou de ser a 9ª seção própria (item 1b,
+2026-07-28) — virou sub-controle DENTRO do corpo de Proteína. Deixou de valer só em coleções
+de proteína (correção de semântica, 2026-07-29) — aparece em QUALQUER contexto (busca global
+incluída) sempre que houver pelo menos 1 proteína ATIVA, ver parágrafo próprio mais abaixo.
+Cada seção de topo mostra a contagem de opções no cabeçalho
 e, se já tiver algo selecionado, um resumo (ex.: "Brasil", "2 selecionados"). Mudanças dentro
 do modal ficam em RASCUNHO — só se aplicam de fato ao tocar "Ver resultados (N)" (N = contagem
 ao vivo do resultado combinado); "Cancelar" fecha sem aplicar nada. "Limpar filtros" continua
@@ -227,7 +229,11 @@ nenhuma vaza pra outra:
   pergunta QUAL proteína e fica disponível em qualquer coleção/busca; as duas são eixos
   independentes que se combinam em AND normalmente. Proteína conta só `protein:X`
   (protagonista), nunca soma com `contains:X` (secundário) — mesma semântica de "Papel da
-  proteína = Principal".
+  proteína = Principal". Correção de semântica (2026-07-29): S (conjunto de proteínas que o
+  papel qualifica) = o que está EXPLICITAMENTE selecionado nesta mesma faceta Proteína; sem
+  nada selecionado, cai pro implícito da coleção quando ela for de proteína (`TagModel.
+  splitByProteinRole` em tagmodel.js, OR entre as proteínas de S — uma receita com 2 delas ao
+  mesmo tempo só conta 1x).
   "Restrições" (`diet:`) NÃO virou faceta: cobertura de 99/398 (24,9%) e um único valor
   (`diet:vegetariana`), abaixo do limiar combinado com o usuário — fica pro backlog de
   expansão de dados. Ver `.claude/skills/mobile-recipe-ui/SKILL.md` pro detalhe visual.
@@ -252,6 +258,23 @@ Qualquer um/Todos estes de Ingrediente acima. Desde o ajuste visual do mesmo dia
 literalmente o MESMO componente de trilho deslizante que Ingrediente usa (generalizado pra N
 segmentos) — não mais 3 pílulas soltas; ver `.claude/skills/mobile-recipe-ui/SKILL.md` pro
 detalhe visual/mecânico completo.
+
+**Correção de semântica (2026-07-29) — vale no APP INTEIRO, não só em coleção de proteína.**
+Visibilidade dinâmica, reavaliada a cada mudança de rascunho: o sub-controle aparece (com
+transição curta, tokens de motion existentes) sempre que há >=1 proteína ATIVA — explícita
+(chip da faceta Proteína marcado, em QUALQUER coleção ou na busca global) OU implícita (dentro
+de uma coleção de proteína sem nenhum chip explicitamente marcado, comportamento de sempre,
+agora um caso particular). Desselecionar a última proteína ativa, quando não há implícito de
+coleção pra cair de volta, esconde o sub-controle E reseta o papel pra Tanto faz — nunca fica
+"fantasma" (Principal/Secundário ativo sem nenhuma proteína selecionada). Mecanismo:
+`TagModel.splitByProteinRole(items, S)` — Principal = `protein:X` literal presente pra QUALQUER
+X do conjunto S selecionado; Secundário = nenhum `protein:X` de S literal, mas `contains:X`
+presente pra qualquer X de S (OR entre as proteínas do conjunto — uma receita com 2 delas ao
+mesmo tempo só conta 1x, nunca soma por tag isolada). Coleção de proteína sem nada
+explicitamente selecionado continua idêntica a antes (S = proteína implícita da coleção) —
+EXCETO Ovos, mudança deliberada: "Secundário" caiu de 104 pra 17 receitas (a regra única não
+soma mais `ingredient:ovo` solto — ovo como simples ingrediente de bolo/pão/massa, um sinal
+bem mais largo que `contains:ovo`, que a coleção usava sozinha antes desta correção).
 
 ## Tema visual (Bloco 4)
 

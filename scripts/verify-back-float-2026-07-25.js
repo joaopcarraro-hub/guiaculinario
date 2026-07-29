@@ -184,7 +184,9 @@ function main() {
   console.log("==================================================");
   console.log("11. TESTE NEGATIVO GLOBAL — telas-raiz da bottom nav NÃO ganharam nenhum controle flutuante novo");
   console.log("==================================================");
-  const buscaFnBody = sliceFn(appJs, "function renderBusca(tagIds, textFilters, initialIngredientMode, initialQuery) {", "renderBusca");
+  // Assinatura ganhou initialRole (correção de semântica, 2026-07-29) — marca de início
+  // atualizada, nada neste teste (controles flutuantes) depende do parâmetro em si.
+  const buscaFnBody = sliceFn(appJs, "function renderBusca(tagIds, textFilters, initialIngredientMode, initialQuery, initialRole) {", "renderBusca");
   assert(!buscaFnBody.includes("chrome-float") && !buscaFnBody.includes("createBackFloat") && !buscaFnBody.includes("createExitCookFloat"), "Busca (aba raiz) sem back-float/exit-cook-float — sem página-mãe, por design (comentário do próprio código)");
   const minhasReceitasFnBody = sliceFn(appJs, "function renderMinhasReceitas() {", "renderMinhasReceitas");
   assert(!minhasReceitasFnBody.includes("chrome-float"), "Minhas Receitas (aba raiz) sem controle flutuante novo");
@@ -218,7 +220,7 @@ function main() {
   // categoria/home e banner de hub, ver scripts/verify-categoria-tiles-2026-07-26.js.
   // v33 -> v34: rumo novo de Países — mural de bandeiras extinto, tile de país vira foto de
   // receita-assinatura. v34 -> v35: calibração final do banner de hub — blur/scale removidos.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v38";'), "CACHE_NAME v38 — 14º bump desde esta suíte (..., v35->v36 Fase F1a redesenho do modal de Filtros, v36->v37 Papel da proteína aninhado + limpar busca + colapso de navegação, v37->v38 ajuste visual do trilho deslizante generalizado, mesmo dia), mesma regra do CLAUDE.md");
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v39";'), "CACHE_NAME v39 — 15º bump desde esta suíte (..., v37->v38 ajuste visual do trilho deslizante, v38->v39 correção de semântica de Papel da proteína, 2026-07-29), mesma regra do CLAUDE.md");
 
   console.log("");
   console.log("==================================================");

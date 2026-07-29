@@ -205,6 +205,22 @@
     });
   }
 
+  // Correção de semântica (2026-07-29): "Papel da proteína" deixa de valer só em coleção de
+  // proteína — vale em QUALQUER contexto (busca global, coleção não-proteica) sempre que houver
+  // >=1 proteína selecionada. S (conjunto ativo de protein:X): o que está EXPLICITAMENTE
+  // selecionado na própria faceta Proteína tem prioridade; sem nada selecionado, cai pro
+  // implícito da coleção (collection.primaryFilterTags) SE for uma coleção de proteína de
+  // verdade — colecão de proteína "sem tocar em nada" continua funcionando exatamente como
+  // antes desta rodada (é o caso particular S = primaryFilterTags, ver TagModel.
+  // splitByProteinRole em tagmodel.js). collection pode ser null (busca global não tem coleção
+  // nenhuma, S depende só do explícito). facetState: tanto o rascunho (draftFacetState, dentro
+  // do modal) quanto o aplicado — mesma função serve os 2 usos.
+  function activeProteinTagIds(facetState, collection) {
+    const explicit = (facetState && facetState.protein) || [];
+    if (explicit.length) return explicit;
+    return collection && collection.collectionType === "protein" ? collection.primaryFilterTags : [];
+  }
+
   // Ícone de coração pro favoritar (docs/DESIGN-TOKENS.md) — usado tanto no botão da tela de
   // receita quanto no card. Não usa o sistema ICON_SVG_ATTRS/ICONS acima porque precisa de 2
   // estados de PREENCHIMENTO (contorno vazio parado, sólido quando favoritado), não só troca
@@ -1350,12 +1366,18 @@
       // continuam intocados.
       function renderChipSectionBody(sectionBody, def, options) {
         const selectedIds = draftFacetState[def.key] || [];
-        const showRoleSubcontrol = def.key === "protein" && opts.proteinRole;
+        const isProteinFacet = def.key === "protein" && opts.proteinRole;
         let roleHtml = "";
         // roleOptions também é lido pela fiação mais abaixo (wireSegmentedToggle) — precisa
         // ficar no escopo da função, não só dentro do "if" de construção do HTML.
         let roleOptions = null;
-        if (showRoleSubcontrol) {
+        if (isProteinFacet) {
+          // Correção de semântica (2026-07-29): visibilidade DINÂMICA, RE-AVALIADA a cada
+          // render (não fixada 1x na abertura do modal, como antes) — activeProteinTagIds dá
+          // prioridade ao que está explicitamente selecionado (draftFacetState.protein, este
+          // mesmo selectedIds) e só cai pro implícito de opts.collection (null em busca) se
+          // nada foi selecionado.
+          const roleActive = activeProteinTagIds(draftFacetState, opts.collection).length > 0;
           const counts = opts.proteinRole.computeCounts(draftFacetState, draftIngredientMode);
           roleOptions = [
             { value: "", label: "Tanto faz" },
@@ -1363,10 +1385,19 @@
             { value: "secondary", label: "Secundário (" + counts.secondary + ")" },
           ];
           const selectedIndex = draftProteinRole === "focus" ? 1 : draftProteinRole === "secondary" ? 2 : 0;
-          // Trilho deslizante (rodada 2026-07-28) — era 3 pílulas soltas (.filter-segmented),
-          // saturava junto dos chips de proteína logo abaixo (achado do dono ao ver ao vivo);
-          // mesmo componente compartilhado do toggle de Ingrediente, aqui com N=3.
-          roleHtml = '<div class="filter-subcontrol-label">Papel da proteína</div>' + segmentedToggleHtml("Papel da proteína", roleOptions, selectedIndex);
+          // .protein-role-wrap SEMPRE presente no DOM quando a faceta é Proteína — .is-visible
+          // (CSS) controla aparecer/sumir com transição curta (max-height/opacity/visibility,
+          // tokens de motion já existentes) em vez de um hard show/hide via inclusão
+          // condicional no innerHTML (que não deixaria nada pra animar).
+          roleHtml =
+            '<div class="protein-role-wrap' +
+            (roleActive ? " is-visible" : "") +
+            '"' +
+            (roleActive ? "" : ' aria-hidden="true"') +
+            ">" +
+            '<div class="filter-subcontrol-label">Papel da proteína</div>' +
+            segmentedToggleHtml("Papel da proteína", roleOptions, selectedIndex) +
+            "</div>";
         }
         sectionBody.innerHTML =
           roleHtml +
@@ -1397,10 +1428,18 @@
             const val = btn.dataset.value;
             const current = draftFacetState[def.key] || [];
             draftFacetState[def.key] = current.indexOf(val) !== -1 ? current.filter((id) => id !== val) : current.concat([val]);
+            // Reset (item 2 da correção de semântica, 2026-07-29): se esta faceta é Proteína e,
+            // depois da mudança, não sobrou NENHUMA proteína ativa (nem explícita nem implícita
+            // da coleção), o papel nunca fica "fantasma" sem proteína nenhuma — zera pra Tanto
+            // faz. Só dispara de verdade fora de coleção de proteína (dentro dela sempre sobra
+            // o implícito, ver activeProteinTagIds).
+            if (def.key === "protein" && activeProteinTagIds(draftFacetState, opts.collection).length === 0) {
+              draftProteinRole = null;
+            }
             renderBody();
           });
         });
-        if (showRoleSubcontrol) {
+        if (isProteinFacet) {
           const roleToggleEl = sectionBody.querySelector(".segmented-toggle");
           wireSegmentedToggle(
             roleToggleEl,
@@ -1499,7 +1538,11 @@
       }
 
       function renderGenericSection(def) {
-        const options = computeFacetOptions(opts.getUniverse(draftProteinRole), draftFacetState, defs, def, draftIngredientMode);
+        // getUniverse recebe draftFacetState (2026-07-29) — precisa saber QUAIS proteínas estão
+        // ativas no rascunho pra calcular o universo certo quando draftProteinRole != null (a
+        // faceta Proteína pode ter mudado sem a coleção ter uma proteína implícita fixa, ver
+        // activeProteinTagIds).
+        const options = computeFacetOptions(opts.getUniverse(draftProteinRole, draftFacetState), draftFacetState, defs, def, draftIngredientMode);
         const section = document.createElement("div");
         section.className = "filter-section" + (openSectionKey === def.key ? " is-open" : "");
         const summary = sectionSummary(def);
@@ -1599,11 +1642,19 @@
     }
     applyFacets();
 
-    // Papel da proteína (Principal/Secundário/Tanto faz) substitui as antigas abas
-    // "Foco da receita/Todas" — só existe pra coleções de proteína que realmente têm
-    // receitas "também leva" (senão não há o que escolher).
-    const isProteinRole = collection.collectionType === "protein" && baseRelated.length > 0;
-    let proteinRole = isProteinRole && (initialRole === "focus" || initialRole === "secondary") ? initialRole : null;
+    // Papel da proteína (Principal/Secundário/Tanto faz) substitui as antigas abas "Foco da
+    // receita/Todas". Correção de semântica (2026-07-29): deixou de valer só pra coleções de
+    // proteína — vale sempre que houver >=1 proteína ATIVA (explícita ou implícita da coleção,
+    // ver activeProteinTagIds). Validado aqui no load inicial também (não só reativamente): um
+    // link/bookmark com "?role=focus" mas sem NENHUM contexto de proteína ativo nunca aplica —
+    // nunca um papel "fantasma" sem proteína, mesma regra que vale pra interação do usuário.
+    let proteinRole = null;
+    {
+      const initialFacetState = readFacetStateFromTags(selectedFacetTags, GENERIC_FACET_DEFS);
+      if (activeProteinTagIds(initialFacetState, collection).length > 0 && (initialRole === "focus" || initialRole === "secondary")) {
+        proteinRole = initialRole;
+      }
+    }
 
     function syncUrl() {
       Router.replaceCategoriaFacets(collection.id, selectedFacetTags, proteinRole, ingredientMode);
@@ -1637,8 +1688,17 @@
     content.appendChild(listEl);
 
     function currentItems() {
-      if (proteinRole === "focus") return primaryRecipes;
-      if (proteinRole === "secondary") return relatedRecipes;
+      if (proteinRole === "focus" || proteinRole === "secondary") {
+        // Correção de semântica (2026-07-29): Principal/Secundário não são mais fixos por
+        // coleção (basePrimary/baseRelated) — dependem de S = activeProteinTagIds (explícito da
+        // faceta Proteína, ou o implícito da própria coleção quando nada foi selecionado).
+        // Universo: allRecipes (já filtrado pelas OUTRAS facetas + a própria Proteína, se
+        // selecionada) — sempre soma exatamente allRecipes.length entre os 2 grupos, nunca
+        // sobra nem falta receita (S sempre é o que já filtrou allRecipes pra começo de conversa).
+        const facetState = readFacetStateFromTags(selectedFacetTags, GENERIC_FACET_DEFS);
+        const split = TagModel.splitByProteinRole(allRecipes, activeProteinTagIds(facetState, collection));
+        return proteinRole === "focus" ? split.primary : split.secondary;
+      }
       return allRecipes;
     }
 
@@ -1656,19 +1716,31 @@
       const facetState = readFacetStateFromTags(selectedFacetTags, GENERIC_FACET_DEFS);
       renderFacetModal(facetBarEl, GENERIC_FACET_DEFS, {
         facetState: facetState,
-        getUniverse: (role) => (role === "focus" ? basePrimary : role === "secondary" ? baseRelated : baseAll),
-        proteinRole: isProteinRole
-          ? {
-              value: proteinRole,
-              setValue: (v) => {
-                proteinRole = v;
-              },
-              computeCounts: (draftFacetState, draftIngredientMode) => {
-                const matchesGeneric = (item) => matchesGroupedTags(item.tags, facetStateToTagIds(draftFacetState, GENERIC_FACET_DEFS), draftIngredientMode);
-                return { focus: basePrimary.filter(matchesGeneric).length, secondary: baseRelated.filter(matchesGeneric).length };
-              },
-            }
-          : null,
+        collection: collection,
+        // Correção de semântica (2026-07-29): universo de OUTRAS facetas (ex.: quantas
+        // receitas com Forno existem "dado que já escolhi Principal") depende de S = proteínas
+        // ATIVAS no rascunho (draftFacetState), não mais de basePrimary/baseRelated fixos.
+        getUniverse: (role, draftFacetState) => {
+          if (role === "focus" || role === "secondary") {
+            const S = activeProteinTagIds(draftFacetState, collection);
+            const split = TagModel.splitByProteinRole(baseAll, S);
+            return role === "focus" ? split.primary : split.secondary;
+          }
+          return baseAll;
+        },
+        proteinRole: {
+          value: proteinRole,
+          setValue: (v) => {
+            proteinRole = v;
+          },
+          computeCounts: (draftFacetState, draftIngredientMode) => {
+            const S = activeProteinTagIds(draftFacetState, collection);
+            if (!S.length) return { focus: 0, secondary: 0 };
+            const matchesGeneric = (item) => matchesGroupedTags(item.tags, facetStateToTagIds(draftFacetState, GENERIC_FACET_DEFS), draftIngredientMode);
+            const split = TagModel.splitByProteinRole(baseAll.filter(matchesGeneric), S);
+            return { focus: split.primary.length, secondary: split.secondary.length };
+          },
+        },
         ingredientMode: {
           value: ingredientMode,
           setValue: (v) => {
@@ -1678,12 +1750,13 @@
         countForDraft: (draftFacetState, draftRole, draftIngredientMode) => {
           const draftTags = facetStateToTagIds(draftFacetState, GENERIC_FACET_DEFS);
           const matches = (item) => matchesGroupedTags(item.tags, draftTags, draftIngredientMode);
-          const primary = draftTags.length ? basePrimary.filter(matches) : basePrimary;
-          const related = draftTags.length ? baseRelated.filter(matches) : baseRelated;
-          const all = draftTags.length ? baseAll.filter(matches) : baseAll;
-          if (draftRole === "focus") return primary.length;
-          if (draftRole === "secondary") return related.length;
-          return all.length;
+          const universe = draftTags.length ? baseAll.filter(matches) : baseAll;
+          if (draftRole === "focus" || draftRole === "secondary") {
+            const S = activeProteinTagIds(draftFacetState, collection);
+            const split = TagModel.splitByProteinRole(universe, S);
+            return draftRole === "focus" ? split.primary.length : split.secondary.length;
+          }
+          return universe.length;
         },
         onApply: () => {
           selectedFacetTags = facetStateToTagIds(facetState, GENERIC_FACET_DEFS);
@@ -1747,9 +1820,17 @@
     { label: "Tempo e dificuldade", ids: ["time:ate-30-min", "difficulty:facil"] },
   ];
 
-  function renderBusca(tagIds, textFilters, initialIngredientMode, initialQuery) {
+  function renderBusca(tagIds, textFilters, initialIngredientMode, initialQuery, initialRole) {
     textFilters = textFilters || [];
     let ingredientMode = initialIngredientMode || "or";
+    // Papel da proteína (correção de semântica, 2026-07-29) — antes inexistente em busca
+    // (proteinRole: null fixo). Validado contra o estado inicial de verdade (não só o valor cru
+    // da URL): sem NENHUMA proteína ativa (busca não tem coleção, então só conta o explícito da
+    // faceta Proteína em tagIds), nunca aplica um papel "fantasma" — mesma regra de renderCategory.
+    let proteinRole = null;
+    if (activeProteinTagIds(readFacetStateFromTags(tagIds, GENERIC_FACET_DEFS), null).length > 0 && (initialRole === "focus" || initialRole === "secondary")) {
+      proteinRole = initialRole;
+    }
     activeCat = null;
     refreshActiveCounts = null;
     // Sem cabeçalho: Pesquisar é uma aba de nível superior da barra inferior, igual
@@ -1817,7 +1898,10 @@
     function goTo(newTagIds, newTextFilters) {
       const dedupedTags = newTagIds.filter((id, i) => newTagIds.indexOf(id) === i);
       const dedupedText = (newTextFilters || textFilters).filter((t, i) => (newTextFilters || textFilters).indexOf(t) === i);
-      Router.toBusca(dedupedTags, dedupedText, ingredientMode);
+      // proteinRole (lido fresco, não um parâmetro) — por ora que goTo roda (onApply do modal já
+      // chamou setValue antes), reflete o valor final, já resetado pra null se a última proteína
+      // ativa tiver sido desselecionada (ver wireSegmentedToggle/reset no chip de Proteína).
+      Router.toBusca(dedupedTags, dedupedText, ingredientMode, proteinRole);
     }
     function goToTags(newTagIds) {
       goTo(newTagIds, textFilters);
@@ -1890,16 +1974,47 @@
       const base = nonFacetTagIds();
       renderFacetModal(facetBarEl, GENERIC_FACET_DEFS, {
         facetState: facetState,
-        getUniverse: () => facetUniverse(base, ingredientMode),
-        proteinRole: null,
+        // busca não tem coleção nenhuma (null) — S de Papel da proteína depende só do
+        // explícito, nunca de um implícito (correção de semântica, 2026-07-29).
+        collection: null,
+        getUniverse: (role, draftFacetState) => {
+          const universe = facetUniverse(base, ingredientMode);
+          if (role === "focus" || role === "secondary") {
+            const S = activeProteinTagIds(draftFacetState, null);
+            const split = TagModel.splitByProteinRole(universe, S);
+            return role === "focus" ? split.primary : split.secondary;
+          }
+          return universe;
+        },
+        proteinRole: {
+          value: proteinRole,
+          setValue: (v) => {
+            proteinRole = v;
+          },
+          computeCounts: (draftFacetState, draftIngredientMode) => {
+            const S = activeProteinTagIds(draftFacetState, null);
+            if (!S.length) return { focus: 0, secondary: 0 };
+            const draftTags = base.concat(facetStateToTagIds(draftFacetState, GENERIC_FACET_DEFS));
+            const universe = facetUniverse(draftTags, draftIngredientMode);
+            const split = TagModel.splitByProteinRole(universe, S);
+            return { focus: split.primary.length, secondary: split.secondary.length };
+          },
+        },
         ingredientMode: {
           value: ingredientMode,
           setValue: (v) => {
             ingredientMode = v;
           },
         },
-        countForDraft: (draftFacetState, draftRole, draftIngredientMode) =>
-          facetUniverse(base.concat(facetStateToTagIds(draftFacetState, GENERIC_FACET_DEFS)), draftIngredientMode).length,
+        countForDraft: (draftFacetState, draftRole, draftIngredientMode) => {
+          const universe = facetUniverse(base.concat(facetStateToTagIds(draftFacetState, GENERIC_FACET_DEFS)), draftIngredientMode);
+          if (draftRole === "focus" || draftRole === "secondary") {
+            const S = activeProteinTagIds(draftFacetState, null);
+            const split = TagModel.splitByProteinRole(universe, S);
+            return draftRole === "focus" ? split.primary.length : split.secondary.length;
+          }
+          return universe.length;
+        },
         onApply: () => {
           goToTags(base.concat(facetStateToTagIds(facetState, GENERIC_FACET_DEFS)));
         },
@@ -1936,7 +2051,16 @@
       // Sem rede de segurança reativa — o toggle Qualquer um/Todos estes (sempre visível com
       // 2+ ingredientes, ver renderIngredientTileSectionBody) já resolve o caso de AND zerado
       // de forma proativa, direto no modal. Zero resultado aqui é só o empty-state normal.
-      const items = facetUniverse(tagIds, ingredientMode);
+      let items = facetUniverse(tagIds, ingredientMode);
+      // Papel da proteína (correção de semântica, 2026-07-29) — items já vem filtrado pelas tags
+      // selecionadas (Proteína incluída, via matchesGroupedTags/matchesTagId); aqui só CLASSIFICA
+      // em Principal/Secundário quando um papel está ativo. S sempre = o que já filtrou items,
+      // então split.primary + split.secondary === items.length, nada sobra.
+      if (proteinRole === "focus" || proteinRole === "secondary") {
+        const facetStateNow = readFacetStateFromTags(tagIds, GENERIC_FACET_DEFS);
+        const split = TagModel.splitByProteinRole(items, activeProteinTagIds(facetStateNow, null));
+        items = proteinRole === "focus" ? split.primary : split.secondary;
+      }
       if (!items.length) {
         countEl.textContent = "";
         resultsEl.innerHTML =
@@ -2074,8 +2198,9 @@
     function schedulePreview(query) {
       const q = (query || "").trim();
       // Router.replaceBusca: preview vive só na URL (q=), sem empilhar histórico — Enter/chip
-      // é que materializa de verdade em tags=/text= (goTo -> Router.toBusca, dropa q).
-      Router.replaceBusca(tagIds, textFilters, ingredientMode, q);
+      // é que materializa de verdade em tags=/text= (goTo -> Router.toBusca, dropa q). role
+      // passado aqui só pra não SUMIR da URL enquanto o usuário digita (nenhuma lógica nova).
+      Router.replaceBusca(tagIds, textFilters, ingredientMode, q, proteinRole);
       if (!q) {
         previewEl.innerHTML = "";
         renderResults();
@@ -4134,7 +4259,7 @@
     // preso na tela por cima do conteúdo trocado (ex.: botão/gesto voltar do celular).
     if (closeActiveFilterModal) closeActiveFilterModal();
     if (route.name === "busca") {
-      renderBusca(route.tags || [], route.textFilters || [], route.ingredientMode || "or", route.query || "");
+      renderBusca(route.tags || [], route.textFilters || [], route.ingredientMode || "or", route.query || "", route.role || null);
     } else if (route.name === "grupo") {
       renderGrupo(route.grupoId);
     } else if (route.name === "categoria") {

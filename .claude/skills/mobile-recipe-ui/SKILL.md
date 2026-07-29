@@ -754,9 +754,16 @@ novo.
   `role="radiogroup"` (padrão nativo, nenhum dos 2 usos tinha antes). Rótulo visível do
   sub-controle de Proteína continua `.filter-subcontrol-label` estático, "Papel da proteína"
   (mantido — o dono optou por não trocar por nenhuma das 2 alternativas de copy da Fase F1a).
-  Mecanismo/contagens por trás (`getRecipesByCollection`/`matchesAnyTag` em tagmodel.js,
-  `opts.proteinRole.computeCounts`) seguem intocados em toda essa linhagem — só a apresentação
-  mudou, 3 vezes. **Achado da investigação de bug que motivou o redesenho original (item 1a)**: a
+  **Correção de semântica (2026-07-29, rodada 4 — a única desta linhagem que mexeu no
+  MECANISMO, não só na apresentação):** deixou de valer só em coleção de proteína — vale no app
+  inteiro (busca global incluída) sempre que houver >=1 proteína ATIVA. `getRecipesByCollection`
+  não serve mais de base pro cálculo de Principal/Secundário (é fixo por coleção, não sabe
+  operar sobre um conjunto de proteínas escolhido dinamicamente) — nova função
+  `TagModel.splitByProteinRole(items, S)` generaliza `matchesTagId` (que só respondia
+  presente/ausente) numa distinção protagonista/coadjuvante pra QUALQUER S. Visibilidade e
+  contagens do trilho passam a ser recalculadas a cada mudança de rascunho (helper
+  `activeProteinTagIds`), não fixadas 1x na abertura do modal. Ver detalhe completo em
+  `product-navigation-ux/SKILL.md` ("Princípio anti-overwhelm"). **Achado da investigação de bug que motivou o redesenho original (item 1a)**: a
   seção NÃO tinha defeito de código — deploy em produção batia byte-a-byte com HEAD, e a seção
   renderizava corretamente em teste ao vivo fresco; causa mais provável do relato foi staleness
   local de PWA/SW no dispositivo de teste do dono, não um bug a corrigir em código. **Bug real

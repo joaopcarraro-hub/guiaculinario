@@ -1301,6 +1301,29 @@ body.filter-modal-open { overflow: hidden; }
   color: var(--color-text-secondary);
   margin: 0 0 var(--space-2);
 }
+/* Correção de semântica (2026-07-29): sub-controle de Papel da proteína agora aparece/some
+   (app inteiro, não só coleção de proteína) — SEMPRE presente no DOM (nunca condicional no
+   innerHTML), .is-visible alterna a visibilidade com transição curta usando os tokens de
+   motion já existentes (mesma família --motion-fast/--motion-base do resto do app). max-height
+   é a técnica padrão pra animar de/para "altura automática" em CSS puro (generoso o bastante
+   pro label + trilho, nunca corta conteúdo real). visibility com transition-delay assimétrico
+   (0s ao aparecer, --motion-base ao sumir) tira o controle do tab-order e da árvore de
+   acessibilidade só DEPOIS que o fade some visualmente — nunca fica focável invisível. */
+.protein-role-wrap {
+  max-height: 0;
+  opacity: 0;
+  visibility: hidden;
+  overflow: hidden;
+  pointer-events: none;
+  transition: max-height var(--motion-base) ease, opacity var(--motion-fast) ease, visibility 0s linear var(--motion-base);
+}
+.protein-role-wrap.is-visible {
+  max-height: 160px;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: max-height var(--motion-base) ease, opacity var(--motion-fast) ease, visibility 0s linear 0s;
+}
 
 /* Piloto de redesenho visual — só a seção Equipamento (def.layout "tiles"). --color-text-muted
    não existe em docs/DESIGN-TOKENS.md; reaproveita --color-text-disabled (mesmo token já usado
@@ -2716,6 +2739,10 @@ body.filter-modal-open { overflow: hidden; }
   }
   .segmented-toggle__thumb {
     transition: transform var(--motion-fast) ease;
+  }
+  .protein-role-wrap,
+  .protein-role-wrap.is-visible {
+    transition: opacity var(--motion-fast) ease, visibility 0s linear 0s;
   }
 }
 /* Bordas sutis (--line/--color-border) reforçadas nos componentes mais tocados, sem criar

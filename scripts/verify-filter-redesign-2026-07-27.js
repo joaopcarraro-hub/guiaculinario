@@ -231,7 +231,7 @@ function main() {
   console.log("==================================================");
   console.log("11. SERVICE WORKER — CACHE_NAME bump (css/style.css e js/app.js mudam)");
   console.log("==================================================");
-  assert(/const CACHE_NAME = "cardapio-v38";/.test(swJs), "CACHE_NAME v35 -> v36 -> v37 -> v38 (2026-07-28, Papel da proteína aninhado + limpar busca + colapso de navegação, depois ajuste visual do trilho deslizante — item 1b desta MESMA suíte é parte das levas v37 E v38, ver seção 3 acima)");
+  assert(/const CACHE_NAME = "cardapio-v39";/.test(swJs), "CACHE_NAME v35 -> ... -> v38 -> v39 (2026-07-29, correção de semântica de Papel da proteína — item 1b desta MESMA suíte é parte das levas v37/v38/v39, ver seção 3 acima)");
 
   console.log("");
   console.log("==================================================");

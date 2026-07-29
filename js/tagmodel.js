@@ -456,6 +456,29 @@
     });
   }
 
+  // Correção de semântica (2026-07-29): "Papel da proteína" deixa de valer só em coleção de
+  // proteína — vale no app inteiro, pra QUALQUER conjunto de proteínas selecionadas (busca
+  // global, coleção não-proteica, ou a implícita de uma coleção de proteína). Generaliza
+  // matchesTagId (que só responde presente/ausente) numa distinção protagonista/coadjuvante:
+  // Principal = protein:X literal presente pra QUALQUER X em selectedProteinTagIds (S). Secundário
+  // = nenhum protein:X de S está literalmente presente, mas contains:X está, pra QUALQUER X em S.
+  // OR entre as proteínas de S (papel é qualificador do conjunto, não de uma proteína isolada) —
+  // por isso NUNCA some as contagens por tag individual (uma receita com 2 proteínas de S ao
+  // mesmo tempo só conta 1x). Coleção de proteína continua funcionando exatamente como antes
+  // disto: é o caso particular S = collection.primaryFilterTags (confirmado byte a byte contra
+  // getRecipesByCollection pras 7 coleções reais, ver scripts/verify-protein-search-nav-
+  // 2026-07-28.js seção 3).
+  function splitByProteinRole(items, selectedProteinTagIds) {
+    if (!selectedProteinTagIds || !selectedProteinTagIds.length) return { primary: items, secondary: [] };
+    const primary = items.filter((item) => selectedProteinTagIds.some((id) => item.tags.indexOf(id) !== -1));
+    const primaryIds = new Set(primary.map((item) => item.id));
+    const secondary = items.filter((item) => {
+      if (primaryIds.has(item.id)) return false;
+      return selectedProteinTagIds.some((id) => matchesTagId(item.tags, id));
+    });
+    return { primary, secondary };
+  }
+
   // Retorna as receitas de uma coleção já separadas por relevância:
   // principais (bateram em primaryFilterTags) e relacionadas (só bateram em relatedFilterTags).
   function getRecipesByCollection(collectionId) {
@@ -683,6 +706,7 @@
     matchesTagId,
     matchesGroupedTags,
     getRecipesByCollection,
+    splitByProteinRole,
     getRelatedTags,
     getTagLayers,
     getGuidedRelatedTags,

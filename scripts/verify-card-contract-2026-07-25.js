@@ -264,7 +264,7 @@ function main() {
   // vira foto de receita-assinatura, css/style.css e js/app.js mudaram de novo, fora desta
   // feature. v34 -> v35: calibração final do banner de hub (2026-07-26) — blur/scale removidos
   // de .grupo-banner__img, só css/style.css, também fora desta feature.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v38";'), "CACHE_NAME v36 -> v37 -> v38 (2026-07-28, ajuste visual do trilho deslizante generalizado, mesmo dia, fora desta feature)");
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v39";'), "CACHE_NAME v36 -> ... -> v38 -> v39 (2026-07-29, correção de semântica de Papel da proteína, fora desta feature)");
   assert(!swJs.includes('const CACHE_NAME = "cardapio-v25";'), "v25 não sobrevive — teste negativo");
 
   console.log("");

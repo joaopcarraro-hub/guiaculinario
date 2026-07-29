@@ -150,7 +150,12 @@ function main() {
   // Teste negativo: o mecanismo por trás (tagmodel/opts) não foi tocado — só a apresentação.
   const applyBtnScope = appJs.slice(appJs.indexOf('applyBtn.addEventListener("click"'), appJs.indexOf('applyBtn.addEventListener("click"') + 400);
   assert(/if \(opts\.proteinRole\) opts\.proteinRole\.setValue\(draftProteinRole\);/.test(applyBtnScope), "Ver resultados continua aplicando draftProteinRole via opts.proteinRole.setValue — mecanismo de aplicação intacto");
-  assert(/const isProteinRole = collection\.collectionType === "protein" && baseRelated\.length > 0;/.test(appJs), "gate isProteinRole (renderCategory) intacto — não tocado por este redesenho, só reposicionado no modal");
+  // SUPERSEDIDO pela correção de semântica (2026-07-29, seção "ITEM SEMÂNTICA" mais abaixo): o
+  // gate isProteinRole (fixo, só collectionType==="protein") foi deliberadamente removido e
+  // substituído por um dinâmico (activeProteinTagIds) — este item 1b só reposicionou o MARKUP,
+  // não tocou o gate; a rodada seguinte no mesmo dia é que generalizou o gate em si, por pedido
+  // explícito do dono. Ver seção 7 da "ITEM SEMÂNTICA" pro teste negativo atualizado.
+  assert(!/const isProteinRole = collection\.collectionType === "protein" && baseRelated\.length > 0;/.test(appJs), "gate isProteinRole antigo NÃO existe mais — generalizado pra activeProteinTagIds na correção de semântica do mesmo dia (2026-07-29)");
 
   console.log("");
   console.log("==================================================");
@@ -178,7 +183,7 @@ function main() {
   const grupoScope = sliceModuleFunction(appJs, "function renderGrupo(grupoId) {");
   assert(!!grupoScope && /attachSearchClear\(\s*search,/.test(grupoScope), "busca do hub (renderGrupo/.home-search) usa o helper compartilhado");
 
-  const buscaScope = sliceModuleFunction(appJs, "function renderBusca(tagIds, textFilters, initialIngredientMode, initialQuery) {");
+  const buscaScope = sliceModuleFunction(appJs, "function renderBusca(tagIds, textFilters, initialIngredientMode, initialQuery, initialRole) {");
   assert(!!buscaScope && /attachSearchClear\(\s*input,/.test(buscaScope), "busca global (renderBusca/.tagsearch-input) usa o helper compartilhado");
 
   // Teste negativo: o input numérico do timer (cook-timer-display__edit-input) NUNCA ganha o
@@ -317,6 +322,153 @@ function main() {
     assert(Router.current().tags && Router.current().tags.indexOf("ingredient:tomate") !== -1, "voltar da receita restaura o filtro aplicado DEPOIS que a receita foi aberta (fromHash sempre lido fresco, comportamento pré-existente não afetado)");
     assert(real.stack.length === 2, "colapso reconheceu o destino (já atualizado via replace) como o penúltimo de verdade — foi um go(-1), não um 3º push");
   }
+
+  console.log("");
+  console.log("==================================================");
+  console.log("ITEM SEMÂNTICA — Papel da proteína vale no app inteiro (2026-07-29)");
+  console.log("==================================================");
+  // Correção de semântica: "Papel da proteína" deixa de valer só em coleção de proteína — vale
+  // em QUALQUER contexto (busca global, coleção não-proteica) sempre que houver >=1 proteína
+  // selecionada. Investigação prévia (relatório da tarefa) confirmou: o mecanismo de hoje
+  // (getRecipesByCollection) só sabe operar sobre as tags FIXAS da própria coleção — não existe
+  // caminho pra calcular Principal/Secundário a partir de um conjunto de proteínas escolhido
+  // dinamicamente. A peça reaproveitável é matchesTagId (protein:X casa contains:X) — a nova
+  // função TagModel.splitByProteinRole generaliza isso de "presente?" pra "presente COMO O QUÊ?".
+
+  console.log("");
+  console.log("-- 1. TagModel.splitByProteinRole — assinatura e reaproveitamento de matchesTagId --");
+  const tagmodelJs = fs.readFileSync(path.join(ROOT, "js", "tagmodel.js"), "utf8");
+  assert(/function splitByProteinRole\(/.test(tagmodelJs), "TagModel ganhou splitByProteinRole(items, selectedProteinTagIds)");
+  assert(/splitByProteinRole,/.test(tagmodelJs), "splitByProteinRole exportada em window.TagModel");
+  const splitFnScope = sliceNestedFunction(tagmodelJs.replace(/\r\n  function /g, "\r\n      function "), "function splitByProteinRole(") || "";
+  // (fronteira "\r\n  function " também serve de nested aqui — tagmodel.js só tem 1 nível de
+  // indentação de função dentro do IIFE, diferente de app.js que tem módulo E aninhado)
+
+  console.log("");
+  console.log("-- 2. Números LITERAIS contra os dados reais (executando a função, não grep) --");
+  // Mesmo padrão de sandbox já usado nesta suíte/projeto (new Function/vm + dados reais) — ver
+  // scripts/verify-recipe-name-pt-2026-07-24.js. Números confirmados no relatório da investigação
+  // (2026-07-29): rodando TagModel.getRecipesByCollection HOJE e comparando com
+  // splitByProteinRole aplicada ao mesmo universo com S=primaryFilterTags da própria coleção.
+  function loadDataSandbox() {
+    const sandbox = {};
+    sandbox.window = sandbox;
+    const vm = require("vm");
+    vm.createContext(sandbox);
+    function load(relPath) {
+      vm.runInContext(fs.readFileSync(path.join(ROOT, relPath), "utf8"), sandbox, { filename: relPath });
+    }
+    load("js/countries.js");
+    load("js/tags.js");
+    load("js/categories.js");
+    load("js/collections.js");
+    fs.readdirSync(path.join(ROOT, "data"))
+      .filter((f) => f.endsWith(".js"))
+      .forEach((f) => load(path.join("data", f)));
+    load("js/tagmodel.js");
+    return sandbox.window;
+  }
+  const dataWin = loadDataSandbox();
+  const TagModel = dataWin.TagModel;
+  const allRecipes = TagModel.getAllRecipesFlat();
+
+  // Números por proteína ISOLADA (contra o universo INTEIRO, não só dentro de 1 coleção) — são
+  // os números literais do relatório da investigação (2026-07-29), citados pelo dono como
+  // referência ("bate com os teus números"). ovo é 33/17 (NÃO 104) — achado durante a
+  // investigação: o related da coleção Ovos hoje soma contains:ovo COM ingredient:ovo (egg como
+  // simples ingrediente de qualquer receita, ex. massa de bolo/pão/macarrão) — um sinal muito
+  // mais largo que "contains:X" das outras 6 proteínas. A especificação fechada do dono usa só
+  // protein:X/contains:X — 17 é o número CORRETO da nova semântica; 104 era o comportamento
+  // antigo, específico de Ovos, que este item aposenta de propósito (regra única, sem exceção
+  // por coleção).
+  const LITERAL_COUNTS = [
+    { label: "frango", ids: ["protein:frango"], primary: 30, secondary: 7 },
+    { label: "ave", ids: ["protein:ave"], primary: 14, secondary: 1 },
+    { label: "boi", ids: ["protein:boi"], primary: 50, secondary: 18 },
+    { label: "suino", ids: ["protein:suino"], primary: 27, secondary: 43 },
+    { label: "cordeiro", ids: ["protein:cordeiro"], primary: 10, secondary: 1 },
+    { label: "peixe", ids: ["protein:peixe"], primary: 32, secondary: 8 },
+    { label: "frutos-do-mar", ids: ["protein:frutos-do-mar"], primary: 30, secondary: 13 },
+    { label: "ovo", ids: ["protein:ovo"], primary: 33, secondary: 17 },
+  ];
+  LITERAL_COUNTS.forEach((c) => {
+    const split = TagModel.splitByProteinRole(allRecipes, c.ids);
+    assert(
+      split.primary.length === c.primary && split.secondary.length === c.secondary,
+      c.label + ": Principal=" + split.primary.length + " (esperado " + c.primary + "), Secundário=" + split.secondary.length + " (esperado " + c.secondary + ")"
+    );
+  });
+
+  console.log("");
+  console.log("-- 3. OR entre proteínas do conjunto — coleção de proteína é CASO PARTICULAR (S = primaryFilterTags) --");
+  // col-ovo é EXCEÇÃO DELIBERADA, tratada à parte logo abaixo: seu relatedFilterTags de hoje
+  // (["contains:ovo", "ingredient:ovo"]) soma um sinal MUITO mais largo que contains:X (ovo como
+  // simples ingrediente de qualquer receita — bolo, pão, massa — não "ovo como componente
+  // secundário da proteína"), achado durante a investigação (2026-07-29). A especificação
+  // fechada do dono usa só protein:X/contains:X — a regra nova, única, sem exceção por coleção,
+  // MUDA o número de Secundário de Ovos de propósito (104 -> 17). As outras 6 continuam idênticas.
+  const proteinCollections = dataWin.COLLECTIONS.filter((c) => c.collectionType === "protein" && c.id !== "col-ovo");
+  proteinCollections.forEach((c) => {
+    const old = TagModel.getRecipesByCollection(c.id);
+    const gen = TagModel.splitByProteinRole(old.allRecipes, c.primaryFilterTags);
+    assert(
+      gen.primary.length === old.primaryRecipes.length && gen.secondary.length === old.relatedRecipes.length,
+      "coleção " + c.id + ": splitByProteinRole(universo-da-coleção, primaryFilterTags) reproduz EXATAMENTE getRecipesByCollection de hoje — Principal=" + gen.primary.length + "/Secundário=" + gen.secondary.length
+    );
+  });
+  {
+    const oldOvo = TagModel.getRecipesByCollection("col-ovo");
+    const genOvo = TagModel.splitByProteinRole(oldOvo.allRecipes, ["protein:ovo"]);
+    assert(
+      oldOvo.primaryRecipes.length === 33 && oldOvo.relatedRecipes.length === 104,
+      "col-ovo ANTES desta rodada: Principal=33/Secundário=104 (o 104 inclui ingredient:ovo solto — qualquer receita com ovo como ingrediente comum, não como proteína secundária de verdade)"
+    );
+    assert(
+      genOvo.primary.length === 33 && genOvo.secondary.length === 17,
+      "col-ovo DEPOIS (regra única protein:X/contains:X, sem exceção): Principal=33 (igual), Secundário=17 (era 104) — mudança DELIBERADA, reportada explicitamente, não uma regressão"
+    );
+  }
+  // Teste negativo: soma ingênua por tag individual NÃO é igual ao OR de verdade (Aves tem
+  // sobreposição real — receitas com protein:ave E protein:frango ao mesmo tempo).
+  const avesGen = TagModel.splitByProteinRole(allRecipes, ["protein:ave", "protein:frango"]);
+  const naiveSum = 14 + 30; // ave isolado + frango isolado
+  assert(avesGen.primary.length === 40, "Aves (ave+frango combinados): Principal=40 — o número da COLEÇÃO, não a soma ingênua");
+  assert(avesGen.primary.length < naiveSum, "TESTE NEGATIVO: 40 < " + naiveSum + " (14+30) — confirma que existe sobreposição real (receita com as duas tags) e o OR não conta 2x, soma ingênua por tag estaria ERRADA");
+
+  console.log("");
+  console.log("-- 4. Teste negativo — proteína sem par contains:X definido (leguminosa/laticínio) não quebra --");
+  const legSplit = TagModel.splitByProteinRole(allRecipes, ["protein:leguminosa"]);
+  assert(legSplit.primary.length === 0 && legSplit.secondary.length === 0, "protein:leguminosa: 0 receitas reais no acervo hoje (achado da investigação) — função não quebra, retorna vazio (nunca aparece como opção clicável no facet Proteína, que só lista contagem > 0)");
+
+  console.log("");
+  console.log("-- 5. Gate de visibilidade dinâmico (app.js) — não mais um opts.proteinRole estático --");
+  const chipBodyScope2 = sliceNestedFunction(appJs, "function renderChipSectionBody(sectionBody, def, options) {");
+  assert(!!chipBodyScope2 && /function activeProteinTagIds\(/.test(appJs), "helper activeProteinTagIds(draftFacetState, collection) existe — explícito tem prioridade, cai pro implícito da coleção só se nada foi selecionado");
+  assert(!!chipBodyScope2 && /activeProteinTagIds\(draftFacetState/.test(chipBodyScope2), "renderChipSectionBody consulta activeProteinTagIds a cada render — visibilidade RE-AVALIADA a cada mudança de rascunho, não fixada 1x na abertura do modal");
+  assert(!!chipBodyScope2 && /protein-role-wrap/.test(chipBodyScope2), "wrapper .protein-role-wrap presente — sempre no DOM (permite transição de entrada/saída via CSS, não um hard show/hide)");
+
+  console.log("");
+  console.log("-- 6. Reset — desselecionar a última proteína (sem fallback implícito) zera o papel --");
+  assert(/draftProteinRole = null/.test(chipBodyScope2) && /activeProteinTagIds\(draftFacetState, opts\.collection\)\.length === 0/.test(chipBodyScope2.replace(/\s+/g, " ")), "listener de clique do chip de Proteína, ao ficar sem nenhuma proteína ativa, zera draftProteinRole — nunca fica com papel 'fantasma' (Principal/Secundário) sem nenhuma proteína selecionada");
+
+  console.log("");
+  console.log("-- 7. renderCategory — continua funcionando, agora via caso particular --");
+  const categoryScope = sliceModuleFunction(appJs, "function renderCategory(catId, initialFacetTags, initialRole, initialIngredientMode) {") || sliceModuleFunction(appJs, "function renderCategory(");
+  assert(!!categoryScope, "renderCategory encontrado");
+  assert(!!categoryScope && /TagModel\.splitByProteinRole\(/.test(categoryScope), "renderCategory usa TagModel.splitByProteinRole (não mais só basePrimary/baseRelated fixos) pro cálculo de Principal/Secundário");
+  assert(!!categoryScope && !/const isProteinRole = collection\.collectionType === "protein" && baseRelated\.length > 0;/.test(categoryScope), "TESTE NEGATIVO: o gate antigo (só collectionType==='protein') não existe mais sozinho — substituído pelo dinâmico");
+
+  console.log("");
+  console.log("-- 8. renderBusca — ganhou o caminho que não existia (antes proteinRole: null fixo) --");
+  const buscaScope2 = sliceModuleFunction(appJs, "function renderBusca(tagIds, textFilters, initialIngredientMode, initialQuery, initialRole) {");
+  assert(!!buscaScope2, "renderBusca encontrado");
+  assert(!!buscaScope2 && !/proteinRole: null,/.test(buscaScope2), "TESTE NEGATIVO: proteinRole não é mais hardcoded null em renderBusca");
+  assert(!!buscaScope2 && /TagModel\.splitByProteinRole\(/.test(buscaScope2), "renderBusca também usa TagModel.splitByProteinRole — mesmo mecanismo de renderCategory, sem duplicar lógica");
+
+  console.log("");
+  console.log("-- 9. router.js — busca ganha parâmetro role= (mesmo padrão de categoria) --");
+  assert(/if \(k === "role" && v\)/.test(routerJs) && (routerJs.match(/if \(k === "role" && v\)/g) || []).length === 2, "parseHash lê role= tanto em categoria (já existia) quanto em busca (novo) — 2 ocorrências");
+  assert(/toBusca: function \(tagIds, textFilters, ingredientMode, role\)/.test(routerJs) || /function buildBuscaPath\(tagIds, textFilters, ingredientMode, query, role\)/.test(routerJs), "toBusca/buildBuscaPath ganham parâmetro role");
 
   console.log("");
   console.log("==================================================");

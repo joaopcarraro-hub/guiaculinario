@@ -829,6 +829,22 @@ diretamente. Remoção dos alias fica pra uma rodada futura.
     componente (N=2) — verificado ao vivo que ficou visual/motion IDÊNTICO ao anterior, zero
     divergência futura entre os 2 usos. `.ingredient-mode-toggle*`/`.filter-segmented`/
     `.filter-chip--segment` removidos do CSS, sem consumidor restante.
+  - **Correção de semântica de Papel da proteína — app inteiro (2026-07-29).** Deixou de valer
+    só em coleção de proteína: aparece (transição curta, `.protein-role-wrap.is-visible`, tokens
+    de motion já existentes) sempre que houver >=1 proteína ATIVA — explícita (chip da faceta
+    Proteína, qualquer coleção/busca) tem prioridade; sem nada explícito, cai pro implícito da
+    coleção quando ela for de proteína (comportamento de sempre, agora caso particular). Nova
+    `TagModel.splitByProteinRole(items, S)`: Principal = `protein:X` literal pra QUALQUER X de
+    S; Secundário = nenhum `protein:X` de S literal mas `contains:X` presente pra qualquer X —
+    OR entre as proteínas do conjunto (uma receita com 2 delas só conta 1x; confirmado com Aves
+    real: ave isolado 14 + frango isolado 30 = 44, mas o conjunto {ave, frango} dá 40, não 44 —
+    a sobreposição real entre as duas tags prova que é OR de verdade, não soma por tag). Reset:
+    desselecionar a última proteína ativa (sem implícito de coleção pra cair) esconde o trilho E
+    zera o papel pra Tanto faz — nunca um papel "fantasma". Mudança deliberada de comportamento
+    na coleção Ovos: "Secundário" era 104 (somava `ingredient:ovo` solto, ovo como simples
+    ingrediente de qualquer receita — bolo, pão, massa) e passa a 17 (só `contains:ovo`,
+    consistente com a regra única sem exceção por coleção) — as outras 6 coleções de proteína
+    permanecem com os mesmos números de sempre.
   - **Bug da caixinha cinza do tile de país, causa raiz e fix.** `.filter-tile` (base
     compartilhada por todos os tiles do modal) é `display: flex; flex-direction: column;
     align-items: center` — certo pro tile-ícone (ícone/label/contagem hugam o próprio

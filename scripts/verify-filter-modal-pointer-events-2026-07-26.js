@@ -102,7 +102,7 @@ function main() {
   // header, css/style.css) — mesmo padrão, também externo a este hotfix.
   // v32 -> v33 -> v34 -> v35: item final do redesenho visual, rumo novo de Países, calibração
   // final do banner de hub — todos externos a este hotfix, mesmo padrão de sempre.
-  assert(/const CACHE_NAME = "cardapio-v38";/.test(swJs), "CACHE_NAME v29 -> ... -> v37 -> v38 (v37 Papel da proteína aninhado + limpar busca + colapso de navegação, v38 ajuste visual do trilho deslizante, mesmo dia 2026-07-28 — ambos externos a este hotfix, ver comentário acima)");
+  assert(/const CACHE_NAME = "cardapio-v39";/.test(swJs), "CACHE_NAME v29 -> ... -> v38 -> v39 (v39 é a correção de semântica de Papel da proteína, 2026-07-29 — externa a este hotfix, ver comentário acima)");
 
   console.log("");
   console.log("==================================================");

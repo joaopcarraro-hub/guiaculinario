@@ -61,7 +61,19 @@
 // segmentos via custom properties CSS. Ingrediente também migrou pro componente novo (zero
 // divergência futura). Mola (260ms cubic-bezier) e mecanismo de defer-até-transitionend
 // preservados byte a byte. css/style.css e js/app.js mudaram, os dois no APP_SHELL.
-const CACHE_NAME = "cardapio-v38";
+// v39 (2026-07-29, correção de semântica pedida pelo dono): "Papel da proteína" deixa de valer
+// só em coleção de proteína — vale no app inteiro (busca global incluída) sempre que houver
+// >=1 proteína ativa (explícita, via chip da faceta Proteína, ou implícita da própria coleção
+// de proteína, como já era). TagModel.splitByProteinRole (nova, tagmodel.js) generaliza
+// matchesTagId numa distinção Principal (protein:X literal)/Secundário (só contains:X) pra
+// QUALQUER conjunto de proteínas selecionado, com OR entre elas. Coleção de proteína continua
+// idêntica a antes (confirmado número a número contra os 7 casos reais) — EXCETO Ovos, mudança
+// deliberada: Secundário caiu de 104 pra 17 (a regra única não soma mais ingredient:ovo solto,
+// um sinal muito mais largo que contains:ovo). Visibilidade do trilho dinâmica (aparece/some
+// com transição curta) + reset pra Tanto faz ao ficar sem nenhuma proteína ativa (nunca um
+// papel "fantasma"). js/router.js ganha role= na rota de busca (mesmo padrão de categoria).
+// css/style.css, js/app.js, js/router.js e js/tagmodel.js mudaram — os 4 no APP_SHELL.
+const CACHE_NAME = "cardapio-v39";
 
 const APP_SHELL = [
   "./",
