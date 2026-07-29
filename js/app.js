@@ -366,10 +366,6 @@
     cozinhas: "imagens/categorias/paises.webp",
   };
 
-  function normText(s) {
-    return (s || "").toString().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
-  }
-
   // Hash atual em formato "path" (sem "#" nem "/" inicial) — mesmo formato que Router.navigate
   // espera e que Router.parseHash usa internamente ("raw"). Usado tanto pra guardar a rota de
   // origem completa ao abrir uma receita (Router.toReceita/toCozinhar, "Voltar" reconstrói via
@@ -598,6 +594,12 @@
     grid.className = "category-grid";
     sheetParent.appendChild(grid);
 
+    // S6 (motor unificado 2026-07-29): chips de tag sugeridos pelo parser — mesmo visual de
+    // sugestão já usado no preview da busca global (renderPopularTags/renderPreviewChips).
+    const chipsWrap = document.createElement("div");
+    chipsWrap.className = "tagsearch-suggestions";
+    sheetParent.appendChild(chipsWrap);
+
     const recipeResultsEl = document.createElement("div");
     recipeResultsEl.className = "grupo-recipe-results";
     sheetParent.appendChild(recipeResultsEl);
@@ -612,66 +614,126 @@
     // uma receita de Sobremesas). Categoria é a fonte de verdade de escopo aqui.
     const catIdToGroup = getCatIdToGroup();
     const groupRecipes = TagModel.getAllRecipesFlat().filter((item) => catIdToGroup[item.catId] === grupo.collectionGroup);
+    // S6.1 (correção de spec pós-auditoria 2026-07-29): escopo da BARRA passa a ser tudo que o
+    // hub ALCANÇA — união, deduplicada por id, de (a) receitas por categoria acima e (b) receitas
+    // que cada tile de coleção deste grupo abriria de verdade. (b) reusa
+    // TagModel.getRecipesByCollection — a MESMA função que renderCategory chama no clique real do
+    // tile — nunca uma cópia, pra escopo da barra e tile nunca divergirem por construção. Sem
+    // isso, "frutos" no hub Proteínas achava só 8 das 30 receitas de protein:frutos-do-mar (23
+    // arquivadas em categoria de País), mas o tile "Frutos do Mar" abre as 30 (+13 relacionadas
+    // via contains:frutos-do-mar) na MESMA tela — inconsistência entre tocar o tile e digitar na
+    // barra. `collections` (acima) já são as coleções deste grupo COM tile nesta tela —
+    // hideFromGrupoGrid fica de fora por não ter tile aqui pra abrir (escolha de implementação,
+    // não muda o tamanho do escopo em nenhum dos 5 hubs, testado). Calculado 1x por render do
+    // grupo, nunca por tecla — mesmo padrão de groupRecipes.
+    const groupScopeIds = new Set(groupRecipes.map((item) => item.id));
+    collections.forEach((c) => {
+      TagModel.getRecipesByCollection(c.id).allRecipes.forEach((item) => groupScopeIds.add(item.id));
+    });
+    const groupRecipeIds = Array.from(groupScopeIds);
 
+    // S4 (motor unificado, normalização única): DerivationDict.norm em vez de normText próprio
+    // (removido) — mesma normalização usada pelo motor global inteiro (data/derivation-dict.js:14).
     function matchesQuery(collection, q) {
       if (!q) return true;
-      const nq = normText(q);
-      if (normText(collection.label).indexOf(nq) !== -1) return true;
+      const nq = window.DerivationDict.norm(q);
+      if (window.DerivationDict.norm(collection.label).indexOf(nq) !== -1) return true;
       return (collection.primaryFilterTags || []).some((tagId) => {
         const tag = TagModel.getTagById(tagId);
         if (!tag) return false;
-        if (normText(tag.label).indexOf(nq) !== -1) return true;
-        return (tag.synonyms || []).some((syn) => normText(syn).indexOf(nq) !== -1);
+        if (window.DerivationDict.norm(tag.label).indexOf(nq) !== -1) return true;
+        return (tag.synonyms || []).some((syn) => window.DerivationDict.norm(syn).indexOf(nq) !== -1);
       });
     }
 
-    function renderGrid(query) {
+    // S6 (motor unificado 2026-07-29): Canal B antigo (renderRecipeMatches via Search.searchTags)
+    // morreu — reescrito sobre o MESMO motor da busca global (Search.parseQuery/searchByQuery),
+    // com escopo recortado às receitas deste grupo (groupRecipeIds, via getCatIdToGroup). 3 partes
+    // independentes, cada uma podendo zerar sem afetar as outras: (a) tiles de coleção, ATALHO por
+    // rótulo — 0 tiles some em silêncio, nunca mais mensagem de vazio própria (a mensagem única
+    // fica só no runSearch, condicionada às 3 partes juntas); (b) chips de tag sugeridos pelo
+    // parser (toque -> Router.toBusca([tag]), mesmo fluxo de sempre); (c)+(d) blocos filtrado-por-
+    // tag e mais-por-texto, títulos nomeando o escopo (grupo.label).
+    function renderTiles(query) {
       grid.innerHTML = "";
       const filtered = collections.filter((c) => matchesQuery(c, query));
-      if (!filtered.length) {
-        grid.innerHTML = '<div class="empty-state">Nenhuma opção encontrada para "' + query + '".</div>';
-        return;
-      }
+      categoriesLabel.textContent = filtered.length ? "Categorias" : "";
       filtered.forEach((collection) => grid.appendChild(renderCollectionCard(collection)));
+      return filtered.length;
     }
 
-    // Além de filtrar as coleções exibidas, se o termo bater numa tag ingredient:/contains:
-    // presente em alguma receita deste grupo (reaproveita Search.searchTags — mesmo índice de
-    // tags derivadas pelo motor de dicionário canônico em tagmodel.js, sem duplicar matching de
-    // texto), mostra essas receitas numa seção própria, separada da lista de coleções.
-    function renderRecipeMatches(query) {
-      recipeResultsEl.innerHTML = "";
-      const q = (query || "").trim();
-      if (q.length < 2) return false;
-      const matchedTags = Search.searchTags(q).filter((t) => t.id.indexOf("ingredient:") === 0 || t.id.indexOf("contains:") === 0 || t.id.indexOf("seasoning:") === 0);
-      if (!matchedTags.length) return false;
-      const matchedIds = new Set(matchedTags.map((t) => t.id));
-      const items = groupRecipes.filter((item) => item.tags.some((t) => matchedIds.has(t)));
-      if (!items.length) return false;
-
-      const title = document.createElement("div");
-      title.className = "subgroup-title";
-      title.textContent = 'Receitas com "' + q + '"';
-      recipeResultsEl.appendChild(title);
-      items.forEach((item) => {
-        recipeResultsEl.appendChild(renderRecipeCard(item, { fromHash: fromHash }));
+    function renderChips(parsed) {
+      chipsWrap.innerHTML = "";
+      const chipIds = [];
+      parsed.segments.forEach((seg) => {
+        if (seg.classification === "auto" && chipIds.indexOf(seg.autoTagId) === -1) chipIds.push(seg.autoTagId);
+        if (seg.classification === "optional") {
+          seg.chipTagIds.forEach((id) => {
+            if (chipIds.indexOf(id) === -1) chipIds.push(id);
+          });
+        }
       });
-      return true;
+      if (!chipIds.length) return 0;
+      const html = chipIds
+        .map((id) => {
+          const tag = TagModel.getTagById(id);
+          return tag ? '<button type="button" class="tag-suggestion" data-tag="' + id + '">' + tag.label + "</button>" : "";
+        })
+        .join("");
+      chipsWrap.innerHTML = '<div class="tagsearch-taglist">' + html + "</div>";
+      chipsWrap.querySelectorAll("[data-tag]").forEach((btn) => {
+        btn.addEventListener("click", () => Router.toBusca([btn.dataset.tag], []));
+      });
+      return chipIds.length;
     }
 
+    function renderBlocks(out) {
+      recipeResultsEl.innerHTML = "";
+      let total = 0;
+      function section(title, items) {
+        if (!items.length) return;
+        total += items.length;
+        const label = document.createElement("div");
+        label.className = "subgroup-title";
+        label.textContent = title + " em " + grupo.label + " (" + items.length + ")";
+        recipeResultsEl.appendChild(label);
+        items.forEach((r) => {
+          recipeResultsEl.appendChild(renderRecipeCard(r.item, { fromHash: fromHash }));
+        });
+      }
+      section("Com esses filtros", out.block1);
+      section("Mais resultados por texto", out.block2);
+      return total;
+    }
+
+    function runSearch(query) {
+      const tilesCount = renderTiles(query);
+      let chipsCount = 0;
+      let blocksCount = 0;
+      chipsWrap.innerHTML = "";
+      recipeResultsEl.innerHTML = "";
+      if (query) {
+        const parsed = Search.parseQuery(query, []);
+        chipsCount = renderChips(parsed);
+        const out = Search.searchByQuery(query, { parsed: parsed, scopeIds: groupRecipeIds });
+        blocksCount = renderBlocks(out);
+      }
+      if (query && tilesCount === 0 && chipsCount === 0 && blocksCount === 0) {
+        recipeResultsEl.innerHTML =
+          '<div class="empty-state">Nenhuma receita encontrada em ' + grupo.label + ' para "' + query + '".<br>Tente outro termo.</div>';
+      }
+    }
+
+    let searchDebounce = null;
     search.addEventListener("input", () => {
       const q = search.value.trim();
       grupoSearchQuery[grupoId] = q;
-      renderGrid(q);
-      const hasRecipeResults = renderRecipeMatches(q);
-      categoriesLabel.textContent = hasRecipeResults ? "Categorias" : "";
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(() => runSearch(q), 220);
     });
-    // Restaura a busca ao voltar de uma receita (mesmo texto de grupoSearchQuery usado acima
-    // pra preencher o input) — mesmo caminho do listener de "input", nunca lógica duplicada.
-    const initialQuery = search.value;
-    renderGrid(initialQuery);
-    const hasInitialRecipeResults = renderRecipeMatches(initialQuery);
-    categoriesLabel.textContent = hasInitialRecipeResults ? "Categorias" : "";
+    // Restaura a busca ao voltar de uma receita (mesmo texto de grupoSearchQuery usado acima pra
+    // preencher o input) — carga inicial roda sem debounce (nada foi digitado agora).
+    runSearch(search.value);
 
     content.appendChild(wrap);
   }
@@ -914,38 +976,14 @@
     return ""; // sem ícone disponível — sem espaço reservado
   }
 
-  // Faceta Proteína: "protein:X" agora significa "essa proteína está presente" (protagonista
-  // OU não) — casa também se a receita só tiver "contains:X". Não confundir com "Papel da
-  // proteína" (renderProteinRoleSection/getRecipesByCollection em tagmodel.js, focus/secondary
-  // via primaryFilterTags/relatedFilterTags) — mecanismo totalmente separado, não tocado aqui.
-  function matchesTagId(itemTags, id) {
-    if (itemTags.indexOf(id) !== -1) return true;
-    if (id.indexOf("protein:") === 0) {
-      return itemTags.indexOf("contains:" + id.slice("protein:".length)) !== -1;
-    }
-    return false;
-  }
-
-  // Regra geral de combinação: tags do MESMO prefixo (ex: dois ingredient:*) casam em OR
-  // entre si; prefixos DIFERENTES combinam em AND. Pra facetas de seleção única isso se
-  // comporta exatamente como um AND simples (só há uma tag por grupo).
-  // ingredientMode: "and" (default) exige TODOS os ingredientes selecionados (é um filtro de
-  // "quais ingredientes eu tenho em casa", não "qualquer um destes me serve") — "or" é usado
-  // só pela rede de segurança quando o AND dá zero resultado (ver renderList/renderResults).
-  function matchesGroupedTags(itemTags, tagIds, ingredientMode) {
-    if (!tagIds.length) return true;
-    const groups = {};
-    tagIds.forEach((id) => {
-      const prefix = id.slice(0, id.indexOf(":") + 1);
-      (groups[prefix] = groups[prefix] || []).push(id);
-    });
-    return Object.keys(groups).every((prefix) => {
-      if ((prefix === "ingredient:" || prefix === "seasoning:") && ingredientMode !== "or") {
-        return groups[prefix].every((id) => matchesTagId(itemTags, id));
-      }
-      return groups[prefix].some((id) => matchesTagId(itemTags, id));
-    });
-  }
+  // S5 (motor unificado, consolidação): matchesTagId/matchesGroupedTags deixaram de ter cópia
+  // local aqui — eram idênticas byte a byte a TagModel.matchesTagId/TagModel.matchesGroupedTags
+  // (js/tagmodel.js:433-457), com risco de deriva silenciosa entre as 2 cópias (o comentário
+  // original de tagmodel.js já admitia isso). Todos os call sites abaixo passaram a chamar
+  // TagModel.matchesTagId/TagModel.matchesGroupedTags diretamente. Faceta Proteína: "protein:X"
+  // significa "essa proteína está presente" (protagonista OU não) — casa também se a receita só
+  // tiver "contains:X" (ver TagModel.matchesTagId). Não confundir com "Papel da proteína"
+  // (splitByProteinRole/activeProteinTagIds, focus/secondary) — mecanismo separado, não tocado aqui.
 
   // Lê o estado dos dropdowns a partir de um array plano de tag ids (selectedFacetTags ou
   // tagIds) — facetas multi viram array, as demais pegam o primeiro tag do seu prefixo.
@@ -1024,7 +1062,7 @@
       if (d.multi) otherTagIds.push.apply(otherTagIds, facetState[d.key] || []);
       else if (facetState[d.key]) otherTagIds.push(facetState[d.key]);
     });
-    const restricted = universeItems.filter((item) => matchesGroupedTags(item.tags, otherTagIds, ingredientMode));
+    const restricted = universeItems.filter((item) => TagModel.matchesGroupedTags(item.tags, otherTagIds, ingredientMode));
     return def.prefix ? facetOptionsFromPrefix(restricted, def.prefix) : facetOptionsFromStatic(restricted, def.staticOptions);
   }
 
@@ -1635,7 +1673,7 @@
     let ingredientMode = initialIngredientMode || "or";
 
     function applyFacets() {
-      const matchesFacets = (item) => matchesGroupedTags(item.tags, selectedFacetTags, ingredientMode);
+      const matchesFacets = (item) => TagModel.matchesGroupedTags(item.tags, selectedFacetTags, ingredientMode);
       primaryRecipes = selectedFacetTags.length ? basePrimary.filter(matchesFacets) : basePrimary;
       relatedRecipes = selectedFacetTags.length ? baseRelated.filter(matchesFacets) : baseRelated;
       allRecipes = selectedFacetTags.length ? baseAll.filter(matchesFacets) : baseAll;
@@ -1736,7 +1774,7 @@
           computeCounts: (draftFacetState, draftIngredientMode) => {
             const S = activeProteinTagIds(draftFacetState, collection);
             if (!S.length) return { focus: 0, secondary: 0 };
-            const matchesGeneric = (item) => matchesGroupedTags(item.tags, facetStateToTagIds(draftFacetState, GENERIC_FACET_DEFS), draftIngredientMode);
+            const matchesGeneric = (item) => TagModel.matchesGroupedTags(item.tags, facetStateToTagIds(draftFacetState, GENERIC_FACET_DEFS), draftIngredientMode);
             const split = TagModel.splitByProteinRole(baseAll.filter(matchesGeneric), S);
             return { focus: split.primary.length, secondary: split.secondary.length };
           },
@@ -1749,7 +1787,7 @@
         },
         countForDraft: (draftFacetState, draftRole, draftIngredientMode) => {
           const draftTags = facetStateToTagIds(draftFacetState, GENERIC_FACET_DEFS);
-          const matches = (item) => matchesGroupedTags(item.tags, draftTags, draftIngredientMode);
+          const matches = (item) => TagModel.matchesGroupedTags(item.tags, draftTags, draftIngredientMode);
           const universe = draftTags.length ? baseAll.filter(matches) : baseAll;
           if (draftRole === "focus" || draftRole === "secondary") {
             const S = activeProteinTagIds(draftFacetState, collection);
@@ -1958,7 +1996,7 @@
     }
 
     function facetUniverse(base, mode) {
-      let items = base.length ? TagModel.getAllRecipesFlat().filter((item) => matchesGroupedTags(item.tags, base, mode)) : TagModel.getAllRecipesFlat();
+      let items = base.length ? TagModel.getAllRecipesFlat().filter((item) => TagModel.matchesGroupedTags(item.tags, base, mode)) : TagModel.getAllRecipesFlat();
       // Palavra inteira, multi-campo (nome/categoria/ingrediente/dificuldade) — mesma mecânica
       // do resíduo textual do preview (Search.matchesTextFilter), pra texto já materializado
       // não se comportar diferente de texto ainda sendo digitado. Antes era substring só em

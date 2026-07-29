@@ -55,14 +55,18 @@ function main() {
   console.log("==================================================");
   console.log("2. CARD DE RESULTADO DA BUSCA INLINE PASSA fromHash (o bug relatado)");
   console.log("==================================================");
-  // Atualizado 2026-07-25 (redesenho completo do card de receita, item 2 do roadmap-mestre,
-  // leva aprovada em separado): catLabel foi removido de TODOS os 6 call sites do card nesta
-  // tarefa (o chip de categoria morreu do componente em qualquer contexto) — a linha mudou de
-  // forma, mas o que esta suíte protege (fromHash chegando ao renderRecipeCard) continua intacto.
+  // Atualizado 2026-07-29 (motor unificado, S6 — ver scripts/verify-busca-unificada-2026-07-29.js):
+  // o Canal B antigo (renderRecipeMatches via Search.searchTags) morreu, substituído pelos blocos
+  // 1/2 do motor unificado (Search.parseQuery/searchByQuery com escopo=grupo). O item da variável
+  // virou "r.item" (blocos retornam {item,score,matchedTerms}) e o append agora serve os 2 blocos
+  // via um helper compartilhado — o que esta suíte protege (fromHash chegando ao renderRecipeCard
+  // a partir de resultado de busca inline no grupo) continua intacto, agora cobrindo 2 blocos em
+  // vez de 1 canal.
   assert(
-    grupoFnBody.includes('recipeResultsEl.appendChild(renderRecipeCard(item, { fromHash: fromHash }));'),
-    "renderRecipeMatches passa fromHash pro renderRecipeCard (catLabel saiu do card inteiro no redesenho, fromHash continua)"
+    grupoFnBody.includes('recipeResultsEl.appendChild(renderRecipeCard(r.item, { fromHash: fromHash }));'),
+    "blocos do motor unificado passam fromHash pro renderRecipeCard (Canal B/renderRecipeMatches morreu na S6, fromHash continua)"
   );
+  assert(!/renderRecipeMatches\(/.test(grupoFnBody), "TESTE NEGATIVO: Canal B antigo (renderRecipeMatches, forma de chamada/declaração) não sobrevive dentro de renderGrupo — só resta a menção em comentário explicando a mudança");
 
   console.log("");
   console.log("==================================================");
@@ -76,16 +80,16 @@ function main() {
 
   console.log("");
   console.log("==================================================");
-  console.log("4. CARGA INICIAL REUSA renderGrid/renderRecipeMatches — SEM lógica duplicada/divergente");
+  console.log("4. CARGA INICIAL REUSA runSearch — SEM lógica duplicada/divergente");
   console.log("==================================================");
-  // "function renderGrid(" (a declaração) também casa no regex — 1 declaração + 2 chamadas
-  // reais (listener de input + carga inicial) = 3. Isso também confirma que não existe uma
-  // SEGUNDA declaração duplicada em algum lugar.
-  const renderGridMatches = (grupoFnBody.match(/renderGrid\(/g) || []).length;
-  const renderMatchesMatches = (grupoFnBody.match(/renderRecipeMatches\(/g) || []).length;
-  assert(renderGridMatches === 3, "renderGrid: 1 declaração + 2 chamadas (listener de input + carga inicial), nenhuma duplicada — obtido " + renderGridMatches);
-  assert(renderMatchesMatches === 3, "renderRecipeMatches: 1 declaração + 2 chamadas, nenhuma duplicada — obtido " + renderMatchesMatches);
-  assert(grupoFnBody.includes("const initialQuery = search.value;"), "carga inicial lê o MESMO search.value já restaurado (não reconstrói de outra fonte)");
+  // Atualizado 2026-07-29 (motor unificado, S6): a checagem original protegia "renderGrid/
+  // renderRecipeMatches chamadas 2x sem duplicar lógica" — a S6 consolida AINDA MAIS isso: agora é
+  // 1 SÓ função (runSearch) chamada 2x (listener debounced + carga inicial), em vez de 2 funções
+  // cada uma chamada 2x. "function runSearch(" a declaração também casa no regex — 1 declaração +
+  // 2 chamadas reais = 3; confirma que não existe uma segunda declaração duplicada.
+  const runSearchMatches = (grupoFnBody.match(/runSearch\(/g) || []).length;
+  assert(runSearchMatches === 3, "runSearch: 1 declaração + 2 chamadas (listener de input + carga inicial), nenhuma duplicada — obtido " + runSearchMatches);
+  assert(grupoFnBody.includes("runSearch(search.value);"), "carga inicial lê o MESMO search.value já restaurado (não reconstrói de outra fonte)");
   assert(!grupoFnBody.includes('renderGrid("");'), "carga inicial NÃO força string vazia (regressão do bug: sempre resetava a busca)");
 
   console.log("");

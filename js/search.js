@@ -11,6 +11,17 @@
     return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   }
 
+  // ---------- S2 (motor unificado): tags da receita (label+sinônimos) como campo de texto ----------
+  function tagsText(item) {
+    return (item.tags || [])
+      .map((tagId) => {
+        const tag = window.TagModel && window.TagModel.getTagById(tagId);
+        if (!tag) return "";
+        return [tag.label].concat(tag.synonyms || []).join(" ");
+      })
+      .join(" ");
+  }
+
   // ---------- índice de campos (1x, cache sobre TagModel.getAllRecipesFlat) ----------
   // Substitui o antigo buildIndex() (rebuild a cada chamada, sem tags derivadas). Ingredientes
   // passam pela máscara de medidas (data/derivation-dict.js MEASUREMENT_MASKS) ANTES de virar
@@ -38,6 +49,7 @@
         ingrediente: maskMeasures(norm((r.ingredients || []).join(" "))),
         dificuldade: norm(r.difficulty || ""),
         descricao: norm(r.desc || ""),
+        tags: norm(tagsText(item)),
       };
     });
     fieldIndexById = {};
@@ -47,8 +59,11 @@
     return fieldCache;
   }
 
-  // Pesos por campo — nome/categoria/origem pesam mais que descrição.
-  const WEIGHTS = { nome: 5, categoria: 4, origem: 4, ingrediente: 3, dificuldade: 2, descricao: 1 };
+  // Pesos por campo — nome/categoria/origem pesam mais que descrição. "tags" (S2, motor
+  // unificado 2026-07-29): labels+sinônimos das tags da própria receita viram campo de texto —
+  // peso 3, mesmo tier de "ingrediente" (metadado estruturado, não é decisão do spec, escolha de
+  // implementação registrada no relatório da tarefa). Nunca entra em B1_FIELDS (ver abaixo).
+  const WEIGHTS = { nome: 5, categoria: 4, origem: 4, ingrediente: 3, dificuldade: 2, descricao: 1, tags: 3 };
   const ALL_FIELDS = Object.keys(WEIGHTS);
   // Bloco 1 (resíduo dentro de um filtro de tag já aplicado) usa escopo mais estrito: sem
   // descrição. Descrição é prosa (sugestão de uso, referência cruzada a outro preparo, às vezes
@@ -67,11 +82,27 @@
     return new RegExp("\\b" + escapeRegex(term) + "s?\\b");
   }
 
-  function fieldScore(f, terms, fieldNames, prefixQuery) {
+  // S3 (parcimônia): só o ÚLTIMO token da query, 3+ letras, casa INÍCIO de palavra (sem exigir
+  // fronteira de fechamento) — "carn" casa carne/carnes/carneiro. Tokens anteriores continuam em
+  // wordRegex (palavra inteira + plural-lite), inalterado.
+  //
+  // Herda o plural-lite de wordRegex (mesma regra: 4+ letras terminando em "s" -> tenta a forma
+  // sem "s"): sem isso, prefixo vira uma faca de 2 gumes ASSIMÉTRICA — "molho" (prefixo) alcança
+  // "molhos" (mais longo), mas "molhos" (prefixo) NUNCA alcança "molho" (mais curto que o próprio
+  // prefixo). Achado real rodando scripts/verify-busca-unificada-2026-07-29.js item 3: sem este
+  // ajuste, "molho"=56 e "molhos"=34 no mesmo escopo — a query singular/plural completa (não só o
+  // prefixo truncado do spec) também passa pelo último token, e precisa continuar simétrica.
+  function prefixRegex(term) {
+    const base = term.length >= 4 && term.slice(-1) === "s" ? term.slice(0, -1) : term;
+    return new RegExp("\\b" + escapeRegex(base));
+  }
+
+  function fieldScore(f, terms, fieldNames, prefixQuery, prefixEligibleTerm) {
     let score = 0;
     let matchedTerms = 0;
     terms.forEach((term) => {
-      const re = wordRegex(term);
+      const usePrefix = !!prefixEligibleTerm && term === prefixEligibleTerm && term.length >= 3;
+      const re = usePrefix ? prefixRegex(term) : wordRegex(term);
       let hit = false;
       fieldNames.forEach((fn) => {
         if (re.test(f[fn])) {
@@ -211,6 +242,56 @@
     return { classification: "optional", autoTagId: null, chipTagIds: chips };
   }
 
+  // Fallback de PREFIXO (S3, motor unificado 2026-07-29) — só chamado pelo parseQuery quando nem
+  // classifyCandidate nem classifySingleTokenFallback acham nada E o token é o ÚLTIMO da query
+  // inteira, com 3+ letras. Procura uma palavra de alguma frase do vocabulário que COMECE com o
+  // token e herda a classificação do termo completo alcançado (roda classifyCandidate nele) — mas
+  // NUNCA promove a auto, mesmo que o termo completo colapsasse sozinho: prefixo é sempre
+  // incerto (a palavra pode não estar terminada de digitar), então vira sempre chip sugerido, nunca
+  // filtro aplicado direto. Cap de chips = 2, mesmo cap de classifySingleTokenFallback (não há
+  // recorte adicional na renderização, então esse já É o cap efetivo da UI).
+  function classifyPrefixFallback(tok, excludeTagIds) {
+    const exclude = excludeTagIds || [];
+    const vocab = getVocabulary().filter((v) => exclude.indexOf(v.tag.id) === -1);
+    const seenWords = {};
+    const candidateWords = [];
+    vocab.forEach((v) => {
+      v.phrases.forEach((p) => {
+        p.split(" ").forEach((w) => {
+          if (w && w !== tok && w.indexOf(tok) === 0 && !seenWords[w]) {
+            seenWords[w] = true;
+            candidateWords.push(w);
+          }
+        });
+      });
+    });
+    if (!candidateWords.length) return { classification: "text", autoTagId: null, chipTagIds: [] };
+    const chipIds = [];
+    candidateWords.forEach((w) => {
+      // Mesmo processo de 2 etapas que parseQuery aplicaria se "w" fosse o único token digitado:
+      // classifyCandidate primeiro (pega igualdade exata, ex. "carneiro"); se vier "text" (palavra
+      // nunca é igual a frase nenhuma sozinha, só contida em frases maiores — caso de "carne"),
+      // cai pra classifySingleTokenFallback (continência). Sem isso, termos como "carne" (que só
+      // vira chip via continência, nunca via igualdade) ficariam de fora do prefixo silenciosamente.
+      let c = classifyCandidate(w, excludeTagIds);
+      if (c.classification === "text") c = classifySingleTokenFallback(w, excludeTagIds);
+      if (c.classification === "auto" && chipIds.indexOf(c.autoTagId) === -1) chipIds.push(c.autoTagId);
+      if (c.classification === "optional") {
+        c.chipTagIds.forEach((id) => {
+          if (chipIds.indexOf(id) === -1) chipIds.push(id);
+        });
+      }
+    });
+    if (!chipIds.length) return { classification: "text", autoTagId: null, chipTagIds: [] };
+    const sorted = chipIds
+      .map((id) => (window.TAGS || []).find((t) => t.id === id))
+      .filter(Boolean)
+      .sort((a, b) => tagPriority(a.id) - tagPriority(b.id))
+      .slice(0, 2)
+      .map((t) => t.id);
+    return { classification: "optional", autoTagId: null, chipTagIds: sorted };
+  }
+
   // ---------- parseQuery: decompõe a query em segmentos {auto|optional|text} ----------
   // n-grama maior primeiro (4→1); só consome mais de 1 token quando há IGUALDADE de frase
   // (classifyCandidate). excludeTagIds = tags já aplicadas (não sugere de novo).
@@ -234,7 +315,10 @@
         break;
       }
       if (!seg) {
-        const c = classifySingleTokenFallback(tokens[i], excludeTagIds);
+        let c = classifySingleTokenFallback(tokens[i], excludeTagIds);
+        if (c.classification === "text" && i === tokens.length - 1 && tokens[i].length >= 3) {
+          c = classifyPrefixFallback(tokens[i], excludeTagIds);
+        }
         seg = { classification: c.classification, autoTagId: c.autoTagId, chipTagIds: c.chipTagIds, tokens: [tokens[i]], text: tokens[i] };
         consumed = 1;
       }
@@ -262,8 +346,19 @@
     const baseTagIds = opts.baseTagIds || [];
     const baseTextFilters = opts.baseTextFilters || [];
     const ingredientMode = opts.ingredientMode || "or";
-    const fields = getFields();
+    // S1 (motor unificado, escopo): null = universo inteiro (busca global, comportamento de
+    // sempre); Set|Array de ids de receita recorta blocos 1/2/parcial pra um subconjunto (busca
+    // de hub, ver renderGrupo em app.js). getFields() permanece com o cache de sempre — filtramos
+    // uma CÓPIA do array, nunca mutamos fieldCache.
+    const scopeIds = opts.scopeIds || null;
+    const scopeSet = scopeIds ? (scopeIds instanceof Set ? scopeIds : new Set(scopeIds)) : null;
+    const fields = scopeSet ? getFields().filter((f) => scopeSet.has(f.item.id)) : getFields();
     const nq = norm(query).trim();
+    // S3: último token da query inteira (não do resíduo) — pode ter sido consumido por uma tag
+    // auto e nunca aparecer nos terms realmente escaneados; nesse caso simplesmente não bate em
+    // nenhum termo escaneado e não tem efeito (comparação por igualdade de string abaixo).
+    const lastToken = parsed.tokens.length ? parsed.tokens[parsed.tokens.length - 1] : null;
+    const prefixEligibleTerm = lastToken && lastToken.length >= 3 ? lastToken : null;
 
     function matchesBaseTextFilters(f) {
       return baseTextFilters.every((t) => B1_FIELDS.some((fn) => wordRegex(norm(t)).test(f[fn])));
@@ -276,7 +371,7 @@
       if (baseTextFilters.length) pool = pool.filter(matchesBaseTextFilters);
       block1 = pool
         .map((f) => {
-          const s = fieldScore(f, parsed.residualTokens, B1_FIELDS, null);
+          const s = fieldScore(f, parsed.residualTokens, B1_FIELDS, null, prefixEligibleTerm);
           return { item: f.item, score: s.score, matchedTerms: s.matchedTerms };
         })
         .filter((r) => parsed.residualTokens.length === 0 || r.matchedTerms === parsed.residualTokens.length);
@@ -295,7 +390,7 @@
     let block2 = basePool
       .filter((f) => !inBlock1[f.item.id])
       .map((f) => {
-        const s = fieldScore(f, allTerms, ALL_FIELDS, nq);
+        const s = fieldScore(f, allTerms, ALL_FIELDS, nq, prefixEligibleTerm);
         return { item: f.item, score: s.score, matchedTerms: s.matchedTerms };
       })
       .filter((r) => allTerms.length > 0 && r.matchedTerms === allTerms.length);
@@ -306,7 +401,7 @@
       partial = basePool
         .filter((f) => !inBlock1[f.item.id])
         .map((f) => {
-          const s = fieldScore(f, allTerms, ALL_FIELDS, nq);
+          const s = fieldScore(f, allTerms, ALL_FIELDS, nq, prefixEligibleTerm);
           return { item: f.item, score: s.score, matchedTerms: s.matchedTerms };
         })
         .filter((r) => r.matchedTerms > 0);

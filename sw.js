@@ -92,7 +92,7 @@
 // respiro no fim do scroll; só o trilho sangra, o título continua na calha normal. Fatia
 // visível do 4º card: 33,83px medido ao vivo (era 17,83px sem bleed, mesma rodada).
 // css/style.css e js/app.js são os arquivos do APP_SHELL que mudaram nesta rodada.
-const CACHE_NAME = "cardapio-v40";
+const CACHE_NAME = "cardapio-v41";
 
 const APP_SHELL = [
   "./",
