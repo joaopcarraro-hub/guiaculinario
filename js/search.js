@@ -412,14 +412,25 @@
   }
 
   // ---------- matchesTextFilter: usado por facetUniverse (app.js) pro estado JÁ materializado
-  // de textFilters — mesma mecânica (palavra inteira, B1_FIELDS) do resíduo do preview, pra
-  // texto não mudar de comportamento entre "ainda digitando" e "já aplicado". ----------
+  // de textFilters — pra texto não mudar de comportamento entre "ainda digitando" (preview,
+  // Bloco 2 de searchByQuery) e "já aplicado" (aqui). CORREÇÃO (P1, válvula de escape do hub,
+  // 2026-07-29): usava B1_FIELDS (4 campos) — divergia do Bloco 2, que usa ALL_FIELDS (7 campos,
+  // inclui descrição/origem/tags). B1_FIELDS existe pra outra situação (Bloco 1 = resíduo DENTRO
+  // de um pool já estreitado por tag automática, onde descrição vira ruído proporcionalmente
+  // maior) — matchesTextFilter nunca teve esse contexto de tag-já-aplicada quando o texto é
+  // 100% livre (sem nenhuma tag), então herdar B1_FIELDS aqui contradizia o próprio comentário
+  // acima ("não mudar de comportamento"): termo puro sem tag digitado na busca global mostrava
+  // uma contagem no preview (Bloco 2) e uma contagem MENOR ao confirmar com Enter (aqui) — bug
+  // real, não uma escolha deliberada. Confirmado por sondagem: 20/20 termos de texto puro
+  // testados divergiam (ex. "cremoso" 29 no preview vs 4 ao confirmar). ALL_FIELDS elimina a
+  // divergência inteira — verificado que os 2 mecanismos passam a produzir o MESMO número pra
+  // qualquer termo sem tag (prova em scripts/verify-busca-unificada-2026-07-29.js, seção 9d).
   function matchesTextFilter(item, term) {
     getFields();
     const f = fieldIndexById[item.id];
     if (!f) return false;
     const re = wordRegex(norm(term));
-    return B1_FIELDS.some((fn) => re.test(f[fn]));
+    return ALL_FIELDS.some((fn) => re.test(f[fn]));
   }
 
   // ---------- guard de teste: vocabulário completo pra suíte detectar deriva silenciosa ----------

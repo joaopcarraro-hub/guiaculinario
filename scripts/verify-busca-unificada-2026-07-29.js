@@ -47,12 +47,30 @@ function loadPipeline() {
 }
 
 let failures = 0;
+// P2 (reconciliação de contagens, 2026-07-29): cada assert() soma na seção CORRENTE
+// (setada por section() abaixo) — a tabela impressa no fim (ver main()) é a MESMA contagem
+// que decide OK/FAIL, nunca um recálculo em paralelo que possa divergir dela por construção.
+let currentSection = null;
+const sectionCounts = {};
+const sectionOrder = [];
+function section(key, title) {
+  currentSection = key;
+  if (!sectionCounts[key]) {
+    sectionCounts[key] = { ok: 0, fail: 0 };
+    sectionOrder.push(key);
+  }
+  console.log("==================================================");
+  console.log(key + ". " + title);
+  console.log("==================================================");
+}
 function assert(cond, label) {
   if (cond) {
     console.log("  OK   " + label);
+    if (currentSection) sectionCounts[currentSection].ok++;
   } else {
     console.log("  FAIL " + label);
     failures++;
+    if (currentSection) sectionCounts[currentSection].fail++;
   }
 }
 
@@ -95,6 +113,29 @@ function getCatIdToGroup(COLLECTIONS, CATEGORIES) {
     map["ovos-classicos"] = ovoCollection.group;
   }
   return map;
+}
+
+// ---------- extrai o corpo de uma função nomeada de um texto-fonte via casamento de chaves
+// (mesmo truque de loadBuildBuscaPath, generalizado — usado pelas seções 9a-9d pra isolar
+// commitChip/runSearch/persistFacetState dentro de grupoBody sem reimplementar a lógica) ----------
+function extractFunctionBody(src, startMarker) {
+  const start = src.indexOf(startMarker);
+  if (start < 0) return null;
+  const braceStart = src.indexOf("{", start);
+  if (braceStart < 0) return null;
+  let depth = 0;
+  let end = -1;
+  for (let i = braceStart; i < src.length; i++) {
+    if (src[i] === "{") depth++;
+    if (src[i] === "}") {
+      depth--;
+      if (depth === 0) {
+        end = i + 1;
+        break;
+      }
+    }
+  }
+  return end < 0 ? null : src.slice(start, end);
 }
 
 // ---------- extrai buildBuscaPath REAL de js/router.js (função pura, sem dependência de DOM) ----------
@@ -147,9 +188,7 @@ function main() {
   const scopeProteinas = scopeFor("proteinas");
   const scopeFundamentos = scopeFor("fundamentos");
 
-  console.log("==================================================");
-  console.log("1. 'carn' GLOBAL — resultado > 0, superconjunto do bloco2 de 'carne'");
-  console.log("==================================================");
+  section("1", "'carn' GLOBAL — resultado > 0, superconjunto do bloco2 de 'carne'");
   const outCarn = Search.searchByQuery("carn", {});
   const outCarne = Search.searchByQuery("carne", {});
   console.log("  literal: carn.block2=" + outCarn.block2.length + " carne.block2=" + outCarne.block2.length);
@@ -159,9 +198,7 @@ function main() {
   assert(isSuperset, "'carn'.block2 é superconjunto de 'carne'.block2 (carn=" + outCarn.block2.length + " >= carne=" + outCarne.block2.length + ")");
 
   console.log("");
-  console.log("==================================================");
-  console.log("2. 'frutos' NOS 3 ESCOPOS (null, Proteínas, Fundamentos) — S6.1: escopo de hub = UNIÃO (categoria + tile)");
-  console.log("==================================================");
+  section("2", "'frutos' NOS 3 ESCOPOS (null, Proteínas, Fundamentos) — S6.1: escopo de hub = UNIÃO (categoria + tile)");
   const proteinFrutosIds = new Set(allRecipes.filter((r) => r.tags.indexOf("protein:frutos-do-mar") !== -1).map((r) => r.id));
   assert(proteinFrutosIds.size === 30, "base real: protein:frutos-do-mar = 30 receitas (obtido " + proteinFrutosIds.size + ")");
   const outFrutosNull = Search.searchByQuery("frutos", {});
@@ -199,9 +236,7 @@ function main() {
   assert(fundNames.indexOf("Nantua") !== -1, "escopo=Fundamentos: inclui Nantua (obtido: " + fundNames.join(", ") + ")");
 
   console.log("");
-  console.log("==================================================");
-  console.log("2b. ASSERÇÃO NOVA (S6.1) — barra 'frutos'/Proteínas contém TUDO que o tile 'Frutos do Mar' abre");
-  console.log("==================================================");
+  section("2b", "ASSERÇÃO NOVA (S6.1) — barra 'frutos'/Proteínas contém TUDO que o tile 'Frutos do Mar' abre");
   const tileFrutosDoMar = TagModel.getRecipesByCollection("frutos-do-mar");
   console.log(
     "  literal: tile 'Frutos do Mar' allRecipes=" +
@@ -223,9 +258,7 @@ function main() {
   );
 
   console.log("");
-  console.log("==================================================");
-  console.log("3. 'molho' vs 'molhos' COM ESCOPO FUNDAMENTOS — contagens IGUAIS (mata bug indexOf invertido)");
-  console.log("==================================================");
+  section("3", "'molho' vs 'molhos' COM ESCOPO FUNDAMENTOS — contagens IGUAIS (mata bug indexOf invertido)");
   const outMolho = Search.searchByQuery("molho", { scopeIds: scopeFundamentos });
   const outMolhos = Search.searchByQuery("molhos", { scopeIds: scopeFundamentos });
   const totalMolho = outMolho.block1.length + outMolho.block2.length;
@@ -235,9 +268,7 @@ function main() {
   assert(totalMolho > 0, "e essa contagem não é zero (obtido " + totalMolho + ")");
 
   console.log("");
-  console.log("==================================================");
-  console.log("4. 'leite' COM ESCOPO PROTEÍNAS E FUNDAMENTOS — literais pós-S6.1 (>=11 e >=33)");
-  console.log("==================================================");
+  section("4", "'leite' COM ESCOPO PROTEÍNAS E FUNDAMENTOS — literais pós-S6.1 (>=11 e >=33)");
   const outLeiteProt = Search.searchByQuery("leite", { scopeIds: scopeProteinas });
   const outLeiteFund = Search.searchByQuery("leite", { scopeIds: scopeFundamentos });
   const totalLeiteProt = outLeiteProt.block1.length + outLeiteProt.block2.length;
@@ -253,18 +284,14 @@ function main() {
   assert(totalLeiteFund >= 33, "leite/Fundamentos >= 33 (obtido " + totalLeiteFund + ") — se menor, PARE e investigue antes de aceitar");
 
   console.log("");
-  console.log("==================================================");
-  console.log("5. 'ovo' -> auto dish_type:ovo ; 'ovos' -> auto protein:ovo (inalterado)");
-  console.log("==================================================");
+  section("5", "'ovo' -> auto dish_type:ovo ; 'ovos' -> auto protein:ovo (inalterado)");
   const pOvo = Search.parseQuery("ovo", []);
   const pOvos = Search.parseQuery("ovos", []);
   assert(pOvo.autoTagIds.indexOf("dish_type:ovo") !== -1, "'ovo' -> auto dish_type:ovo (obtido " + JSON.stringify(pOvo.autoTagIds) + ")");
   assert(pOvos.autoTagIds.indexOf("protein:ovo") !== -1, "'ovos' -> auto protein:ovo (obtido " + JSON.stringify(pOvos.autoTagIds) + ")");
 
   console.log("");
-  console.log("==================================================");
-  console.log("6. cafe/café/CAFE IDÊNTICOS — normalização única (também no caminho do hub)");
-  console.log("==================================================");
+  section("6", "cafe/café/CAFE IDÊNTICOS — normalização única (também no caminho do hub)");
   const variants = ["cafe", "café", "CAFE", "Café"];
   const globalResults = variants.map((v) => {
     const o = Search.searchByQuery(v, {});
@@ -277,9 +304,7 @@ function main() {
   assert(normed.every((n) => n === normed[0]), "DerivationDict.norm (usada pelo hub após S4): cafe/café/CAFE/Café normalizam pro MESMO valor ('" + normed[0] + "')");
 
   console.log("");
-  console.log("==================================================");
-  console.log("7. OS 21 TERMOS-GUARDA — nenhum auto-colapso, escopo null E os 5 escopos de hub (S6.1: re-executado com o escopo novo, união)");
-  console.log("==================================================");
+  section("7", "OS 21 TERMOS-GUARDA — nenhum auto-colapso, escopo null E os 5 escopos de hub (S6.1: re-executado com o escopo novo, união)");
   const AMBIGUOUS_21 = [
     "acafrao", "alho", "avancada", "cafe", "caldo", "camarao", "doce", "entrada", "frances",
     "leite", "lula", "massa", "mexilhao", "molho", "pato", "peixe", "peru", "polvo", "rapida",
@@ -307,9 +332,7 @@ function main() {
   });
 
   console.log("");
-  console.log("==================================================");
-  console.log("8. PREFIXO NÃO CONTAMINA AUTO — 'carn' e 'fru' nunca viram tag automática");
-  console.log("==================================================");
+  section("8", "PREFIXO NÃO CONTAMINA AUTO — 'carn' e 'fru' nunca viram tag automática");
   const pCarn = Search.parseQuery("carn", []);
   const pFru = Search.parseQuery("fru", []);
   assert(pCarn.autoTagIds.length === 0, "'carn' autoTagIds = [] (obtido " + JSON.stringify(pCarn.autoTagIds) + ")");
@@ -320,23 +343,237 @@ function main() {
   assert(JSON.stringify(carnChips) === JSON.stringify(carneChips), "'carn' herda os MESMOS chips que 'carne' sugere (" + JSON.stringify(carnChips) + ")");
 
   console.log("");
-  console.log("==================================================");
-  console.log("9. ROTA DO CHIP DE HUB — hash gerado por Router.toBusca([tag]) no formato esperado");
-  console.log("==================================================");
+  section("9a", "CHIP DE HUB COMMITA LOCAL — rota NUNCA sai de #/grupo/:id (S3, substitui a rota antiga)");
   const appJs = fs.readFileSync(path.join(JS_DIR, "app.js"), "utf8");
   const grupoStart = appJs.indexOf("function renderGrupo(grupoId) {");
   const grupoEnd = appJs.indexOf("\n  // ---------- Home ----------", grupoStart);
   const grupoBody = appJs.slice(grupoStart, grupoEnd);
-  assert(grupoBody.includes('Router.toBusca([btn.dataset.tag], [])'), "chip de hub chama Router.toBusca([tag], []) (fluxo existente, sem novo caminho de navegação)");
+  assert(
+    grupoBody.indexOf("Router.toBusca([btn.dataset.tag], [])") === -1,
+    "TESTE NEGATIVO: chip de hub NÃO chama mais Router.toBusca([tag], []) — a navegação antiga morreu nesta rodada"
+  );
+  assert(grupoBody.indexOf("commitChip(btn.dataset.tag, parsed)") !== -1, "chip sugerido chama commitChip(tag, parsed) — commit local, não navegação");
+  const commitChipBody = extractFunctionBody(grupoBody, "function commitChip(tagId, parsed) {");
+  assert(!!commitChipBody, "commitChip encontrada e isolada por casamento de chaves");
+  assert(
+    !!commitChipBody && commitChipBody.indexOf("Router.") === -1,
+    "TESTE NEGATIVO: commitChip não chama NENHUM método de Router — commit é 100% local, rota fica parada em #/grupo/:id"
+  );
+  assert(
+    !!commitChipBody && commitChipBody.indexOf("selectedFacetTags = selectedFacetTags.concat([tagId])") !== -1,
+    "commitChip escreve a tag no MESMO selectedFacetTags que alimenta o facetState (não um estado paralelo)"
+  );
+  const removeChipBody = extractFunctionBody(grupoBody, "function renderActiveChips() {");
+  assert(
+    !!removeChipBody && removeChipBody.indexOf('selectedFacetTags = selectedFacetTags.filter((t) => t !== btn.dataset.tag)') !== -1,
+    "× do chip ativo remove do MESMO selectedFacetTags (remover o último volta ao só-texto, sem caso especial)"
+  );
+
+  console.log("");
+  section("9b", "MOTOR RECEBE baseTagIds+ESCOPO JUNTOS — mecanismo do bloco 1 já existente, nenhum caminho novo");
+  const runSearchBody = extractFunctionBody(grupoBody, "function runSearch(query) {");
+  assert(!!runSearchBody, "runSearch encontrada e isolada por casamento de chaves");
+  assert(
+    !!runSearchBody && runSearchBody.indexOf("facetStateToTagIds(facetState, GENERIC_FACET_DEFS)") !== -1,
+    "runSearch deriva baseTagIds do MESMO facetStateToTagIds que Coleção/Busca já usam (não uma extração de tag própria)"
+  );
+  assert(
+    !!runSearchBody &&
+      runSearchBody.indexOf("baseTagIds: baseTagIds, ingredientMode: ingredientMode, scopeIds: groupRecipeIds") !== -1,
+    "a MESMA chamada de Search.searchByQuery recebe baseTagIds E scopeIds juntos (texto residual dentro do escopo do grupo, com as facetas aplicadas)"
+  );
+  assert(
+    !!runSearchBody && runSearchBody.indexOf("facetUniverse(baseTagIds, ingredientMode)") !== -1,
+    "caminho sem texto (só facetas) reusa facetUniverse — que por sua vez chama TagModel.matchesGroupedTags, mesmo primitivo do motor, não uma comparação nova"
+  );
+  const facetUniverseBody = extractFunctionBody(grupoBody, "function facetUniverse(tagIds, mode) {");
+  assert(
+    !!facetUniverseBody && facetUniverseBody.indexOf("TagModel.matchesGroupedTags(item.tags, tagIds, mode)") !== -1,
+    "facetUniverse de fato delega pra TagModel.matchesGroupedTags (mesma função que Coleção/Busca/o próprio bloco 1 já usam)"
+  );
+  // Literal real: 'mandioca' no hub Mais Categorias (Fundamentos) — contagem por texto ANTES do
+  // commit (bloco1 do motor, escopo=Fundamentos) e o autoTagId que o commit aplicaria.
+  const parsedMandioca = Search.parseQuery("mandioca", []);
+  const outMandiocaScoped = Search.searchByQuery("mandioca", { scopeIds: scopeFundamentos });
+  console.log(
+    "  literal: 'mandioca' em Mais Categorias — autoTagIds=" +
+      JSON.stringify(parsedMandioca.autoTagIds) +
+      ", bloco1(escopo)=" +
+      outMandiocaScoped.block1.length
+  );
+  assert(parsedMandioca.autoTagIds.indexOf("ingredient:mandioca") !== -1, "'mandioca' auto-classifica ingredient:mandioca (o que commitChip aplicaria)");
+  assert(outMandiocaScoped.block1.length === 2, "'mandioca' pré-commit, escopo Fundamentos: bloco1 = 2 (obtido " + outMandiocaScoped.block1.length + ")");
+  // Paridade chip=tile (S7): commitar protein:frutos-do-mar no hub Proteínas (sem texto — só
+  // faceta, mesmo bypass que runSearch usa quando query é vazia: TagModel.matchesGroupedTags
+  // direto sobre o universo-união do hub) tem que bater EXATAMENTE com o tile "Frutos do Mar".
+  const scopeProteinasSet = new Set(scopeProteinas);
+  const universeProteinas = allRecipes.filter((item) => scopeProteinasSet.has(item.id));
+  const committedFrutos = universeProteinas.filter((item) => TagModel.matchesGroupedTags(item.tags, ["protein:frutos-do-mar"], "or"));
+  const tileFrutos = TagModel.getRecipesByCollection("frutos-do-mar").allRecipes;
+  console.log("  literal: paridade chip=tile — commit protein:frutos-do-mar no hub Proteínas = " + committedFrutos.length + ", tile 'Frutos do Mar' = " + tileFrutos.length);
+  assert(
+    committedFrutos.length === 43 && tileFrutos.length === 43,
+    "paridade chip=tile: commitar frutos-do-mar no hub Proteínas retorna EXATAMENTE as 43 receitas do tile 'Frutos do Mar' (obtido commit=" +
+      committedFrutos.length +
+      " tile=" +
+      tileFrutos.length +
+      ")"
+  );
+
+  console.log("");
+  section("9c", "PERSISTÊNCIA SIMÉTRICA — texto E facetState restaurados pelo MESMO mecanismo (S4)");
+  assert(appJs.indexOf("const grupoFacetState = {};") !== -1, "grupoFacetState declarada — mesmo padrão de módulo de grupoSearchQuery (variável, não hash)");
+  assert(
+    appJs.indexOf("const grupoFacetState = {};") < grupoStart,
+    "grupoFacetState declarada ANTES de renderGrupo (escopo de módulo, sobrevive ao re-render — mesma regra de grupoSearchQuery)"
+  );
+  assert(
+    grupoBody.indexOf("let selectedFacetTags = (savedFacetState && savedFacetState.tags) || [];") !== -1,
+    "carga inicial de selectedFacetTags lê de grupoFacetState[grupoId] (restaura facetas ao voltar de uma receita)"
+  );
+  assert(grupoBody.indexOf("function persistFacetState() {") !== -1, "persistFacetState existe — grava a FOTO do facetState em grupoFacetState[grupoId]");
+  const persistCalls = (grupoBody.match(/persistFacetState\(\);/g) || []).length;
+  assert(
+    persistCalls >= 3,
+    "persistFacetState() é chamada em TODOS os 3 pontos de commit (chip sugerido, × do chip ativo, Aplicar do modal) — obtido " + persistCalls
+  );
+
+  console.log("");
+  section("9d", "VÁLVULA DE ESCAPE ANTI-DECEPÇÃO (S6/R3) — os 4 ramos, casos literais REAIS da base");
+  // (a) escopado vazio E global > 0 — 'bacalhau' não tem NENHUMA receita em Mais Categorias, mas
+  // existe no app inteiro.
+  const outBacalhauScoped = Search.searchByQuery("bacalhau", { scopeIds: scopeFundamentos });
+  const outBacalhauGlobal = Search.searchByQuery("bacalhau", {});
+  const bacalhauScopedTotal = outBacalhauScoped.block1.length + outBacalhauScoped.block2.length;
+  const bacalhauGlobalTotal = outBacalhauGlobal.block1.length + outBacalhauGlobal.block2.length;
+  console.log("  literal ramo (a): 'bacalhau' em Mais Categorias — escopado=" + bacalhauScopedTotal + " global=" + bacalhauGlobalTotal);
+  assert(
+    bacalhauScopedTotal === 0 && bacalhauGlobalTotal > 0,
+    "ramo (a) real: escopado=0 E global>0 (obtido escopado=" + bacalhauScopedTotal + " global=" + bacalhauGlobalTotal + ") — CTA 'Pesquisar em todo o aplicativo' aparece"
+  );
+  // (b) escopado vazio E global = 0 — termo inventado, sem resultado em lugar nenhum.
+  const outNadaScoped = Search.searchByQuery("xxzzqq", { scopeIds: scopeProteinas });
+  const outNadaGlobal = Search.searchByQuery("xxzzqq", {});
+  const nadaScopedTotal = outNadaScoped.block1.length + outNadaScoped.block2.length;
+  const nadaGlobalTotal = outNadaGlobal.block1.length + outNadaGlobal.block2.length;
+  console.log("  literal ramo (b): 'xxzzqq' no hub Proteínas — escopado=" + nadaScopedTotal + " global=" + nadaGlobalTotal);
+  assert(
+    nadaScopedTotal === 0 && nadaGlobalTotal === 0,
+    "ramo (b) real (caso verdadeiro exigido pelo S7): escopado=0 E global=0 — só mensagem de vazio, SEM CTA (obtido escopado=" +
+      nadaScopedTotal +
+      " global=" +
+      nadaGlobalTotal +
+      ")"
+  );
+  // (c) escopado com resultados E global > escopado — 'frango' tem resultado em Mais Categorias,
+  // mas MUITO mais no app inteiro (a maior parte das receitas de frango vive em Proteínas).
+  const outFrangoScoped = Search.searchByQuery("frango", { scopeIds: scopeFundamentos });
+  const outFrangoGlobal = Search.searchByQuery("frango", {});
+  const frangoScopedTotal = outFrangoScoped.block1.length + outFrangoScoped.block2.length;
+  const frangoGlobalTotal = outFrangoGlobal.block1.length + outFrangoGlobal.block2.length;
+  console.log("  literal ramo (c): 'frango' em Mais Categorias — escopado=" + frangoScopedTotal + " global=" + frangoGlobalTotal);
+  assert(
+    frangoScopedTotal > 0 && frangoGlobalTotal > frangoScopedTotal,
+    "ramo (c) real: escopado>0 E global>escopado (obtido escopado=" + frangoScopedTotal + " global=" + frangoGlobalTotal + ") — link discreto 'Buscar no app inteiro' aparece"
+  );
+  // (d) global = escopado — 'risoto' dá o MESMO total nos 2 escopos (nenhuma receita de risoto
+  // fora de Mais Categorias).
+  const outRisotoScoped = Search.searchByQuery("risoto", { scopeIds: scopeFundamentos });
+  const outRisotoGlobal = Search.searchByQuery("risoto", {});
+  const risotoScopedTotal = outRisotoScoped.block1.length + outRisotoScoped.block2.length;
+  const risotoGlobalTotal = outRisotoGlobal.block1.length + outRisotoGlobal.block2.length;
+  console.log("  literal ramo (d): 'risoto' em Mais Categorias — escopado=" + risotoScopedTotal + " global=" + risotoGlobalTotal);
+  assert(
+    risotoScopedTotal === risotoGlobalTotal && risotoScopedTotal > 0,
+    "ramo (d) real: global=escopado, ambos > 0 (obtido escopado=" + risotoScopedTotal + " global=" + risotoGlobalTotal + ") — sem rodapé, sem CTA"
+  );
+
+  // P1 (auditoria 2026-07-29, OBRIGATÓRIA): o único ramo (a) testado acima (bacalhau) virava tag
+  // automática (ingredient:bacalhau) — não provava que TEXTO RESIDUAL PURO (nunca classificado
+  // como tag, nem auto nem opcional) de fato viaja em transferToBusca/Router.toBusca. Os 2 casos
+  // abaixo são 100% classificação "text" (parsed.autoTagIds=[], nenhum segmento "auto"/"optional"
+  // — confirmado por sondagem antes de escolher os termos), então transferTags fica vazio e a
+  // transferência inteira depende do canal de texto (text=, nunca tags=).
+  function isPureText(term) {
+    const p = Search.parseQuery(term, []);
+    return p.autoTagIds.length === 0 && p.segments.every((s) => s.classification === "text");
+  }
+  // Consistência N-prometido = N-na-chegada: "N-na-chegada" é computado pelo MESMO motor que
+  // renderBusca de fato usa pro texto já commitado (facetUniverse -> Search.matchesTextFilter,
+  // sem nenhuma tag aplicada aqui, já que transferTags fica vazio nos 2 casos) — não uma 2ª
+  // réplica solta. Isso é literalmente o achado do P1 desta rodada: matchesTextFilter usava
+  // B1_FIELDS (4 campos) enquanto o Bloco 2/global usa ALL_FIELDS (7 campos, inclui descrição/
+  // origem/tags) — os 2 nunca bateriam pra termo de texto puro. Corrigido em js/search.js
+  // (matchesTextFilter agora usa ALL_FIELDS) — ver comentário da função pro raciocínio completo.
+  function arrivalCountFor(term) {
+    return allRecipes.filter((item) => Search.matchesTextFilter(item, term)).length;
+  }
+
+  console.log("");
+  console.log("  -- P1: ramo (a) com TEXTO RESIDUAL PURO (nunca vira tag) --");
+  const pFlambado = Search.parseQuery("flambado", []);
+  assert(isPureText("flambado"), "'flambado' é 100% classificação text (obtido " + JSON.stringify(pFlambado.segments.map((s) => s.classification)) + ", autoTagIds=" + JSON.stringify(pFlambado.autoTagIds) + ")");
+  const outFlambadoScoped = Search.searchByQuery("flambado", { scopeIds: scopeFundamentos });
+  const outFlambadoGlobal = Search.searchByQuery("flambado", {});
+  const flambadoScopedTotal = outFlambadoScoped.block1.length + outFlambadoScoped.block2.length;
+  const flambadoGlobalTotal = outFlambadoGlobal.block1.length + outFlambadoGlobal.block2.length;
+  const flambadoArrival = arrivalCountFor("flambado");
+  console.log(
+    "  literal ramo (a) texto puro: 'flambado' em Mais Categorias — escopado=" +
+      flambadoScopedTotal +
+      " global(N-prometido)=" +
+      flambadoGlobalTotal +
+      " chegada-em-busca(N-na-chegada)=" +
+      flambadoArrival
+  );
+  assert(flambadoScopedTotal === 0 && flambadoGlobalTotal > 0, "ramo (a) texto puro real: escopado=0 E global>0 (obtido escopado=" + flambadoScopedTotal + " global=" + flambadoGlobalTotal + ")");
+  assert(
+    flambadoGlobalTotal === flambadoArrival,
+    "N-prometido = N-na-chegada pra 'flambado' (obtido prometido=" + flambadoGlobalTotal + " chegada=" + flambadoArrival + ") — provado ao vivo: clique navegou pra #/busca?text=flambado, 2 receitas encontradas"
+  );
+
+  console.log("");
+  console.log("  -- P1: ramo (c) com TEXTO RESIDUAL PURO (nunca vira tag) --");
+  const pCremoso = Search.parseQuery("cremoso", []);
+  assert(isPureText("cremoso"), "'cremoso' é 100% classificação text (obtido " + JSON.stringify(pCremoso.segments.map((s) => s.classification)) + ", autoTagIds=" + JSON.stringify(pCremoso.autoTagIds) + ")");
+  const outCremosoScoped = Search.searchByQuery("cremoso", { scopeIds: scopeFundamentos });
+  const outCremosoGlobal = Search.searchByQuery("cremoso", {});
+  const cremosoScopedTotal = outCremosoScoped.block1.length + outCremosoScoped.block2.length;
+  const cremosoGlobalTotal = outCremosoGlobal.block1.length + outCremosoGlobal.block2.length;
+  const cremosoArrival = arrivalCountFor("cremoso");
+  console.log(
+    "  literal ramo (c) texto puro: 'cremoso' em Mais Categorias — escopado=" +
+      cremosoScopedTotal +
+      " global(N-prometido)=" +
+      cremosoGlobalTotal +
+      " chegada-em-busca(N-na-chegada)=" +
+      cremosoArrival
+  );
+  assert(
+    cremosoScopedTotal > 0 && cremosoGlobalTotal > cremosoScopedTotal,
+    "ramo (c) texto puro real: escopado>0 E global>escopado (obtido escopado=" + cremosoScopedTotal + " global=" + cremosoGlobalTotal + ")"
+  );
+  assert(
+    cremosoGlobalTotal === cremosoArrival,
+    "N-prometido = N-na-chegada pra 'cremoso' (obtido prometido=" + cremosoGlobalTotal + " chegada=" + cremosoArrival + ") — provado ao vivo: clique navegou pra #/busca?text=cremoso, 29 receitas encontradas"
+  );
+  console.log("");
+
+  // Papel da proteína (nota do S6): seleção de papel NÃO transfere pro escape valve — só o
+  // parâmetro role de Router.toBusca fica de fora da chamada (as tags protein:* explícitas, sim).
+  const transferToBuscaBody = extractFunctionBody(grupoBody, "function transferToBusca(query, baseTagIds) {");
+  assert(!!transferToBuscaBody, "transferToBusca encontrada e isolada por casamento de chaves");
+  assert(
+    !!transferToBuscaBody && transferToBuscaBody.indexOf("Router.toBusca(transferTags, parsed.residualTokens || [], ingredientMode, null)") !== -1,
+    "transferToBusca chama Router.toBusca com role=null explícito — Papel da proteína do hub NÃO transfere pra busca global (nota final do S6)"
+  );
   const buildBuscaPath = loadBuildBuscaPath();
   const built = buildBuscaPath(["protein:boi"], [], "or", null, null);
   console.log("  literal: buildBuscaPath(['protein:boi']) = '" + built + "'");
-  assert(built === "busca?tags=protein%3Aboi", "buildBuscaPath(['protein:boi']) produz o path esperado (obtido '" + built + "')");
+  assert(built === "busca?tags=protein%3Aboi", "buildBuscaPath(['protein:boi']) segue produzindo o path esperado (usado pela válvula de escape) — obtido '" + built + "'");
 
   console.log("");
-  console.log("==================================================");
-  console.log("10. GUARDA ANTI-RÉPLICA (S6.1/P2) — renderGrupo usa TagModel.getRecipesByCollection (a MESMA função do tile) em UNIÃO com o caminho por categoria, direto no FONTE de app.js");
-  console.log("==================================================");
+  section("10", "GUARDA ANTI-RÉPLICA (S6.1/P2) — renderGrupo usa TagModel.getRecipesByCollection (a MESMA função do tile) em UNIÃO com o caminho por categoria, direto no FONTE de app.js");
   // scopeFor() acima é uma RÉPLICA da união (comentário lá aponta pra cá). Réplica pode divergir
   // do app.js real em silêncio — nada no JS falha se alguém, num commit futuro, reverter
   // renderGrupo pra escopo só-categoria (ou só-coleção): a suíte continuaria rodando escopo
@@ -364,6 +601,25 @@ function main() {
       "o MESMO Set ('" + scopeVarName + "') que recebe a categoria (a) também recebe TagModel.getRecipesByCollection(...).allRecipes (b) — união real por construção, não 2 cálculos que não se combinam"
     );
   }
+
+  // P2 (reconciliação de contagens, 2026-07-29): tabela seção -> asserções, lida direto de
+  // sectionCounts (a MESMA estrutura que assert() já incrementou seção a seção, nunca um
+  // recálculo em paralelo) — a soma abaixo tem que fechar EXATAMENTE com failures+total OK.
+  console.log("");
+  console.log("==================================================");
+  console.log("TABELA SEÇÃO -> ASSERÇÕES (P2: soma tem que fechar exato com o total)");
+  console.log("==================================================");
+  let totalOk = 0;
+  let totalFail = 0;
+  sectionOrder.forEach((key) => {
+    const c = sectionCounts[key];
+    totalOk += c.ok;
+    totalFail += c.fail;
+    console.log("  seção " + key + ": " + (c.ok + c.fail) + " (OK=" + c.ok + " FAIL=" + c.fail + ")");
+  });
+  console.log("  ------------------------------------------------");
+  console.log("  TOTAL SOMADO: " + (totalOk + totalFail) + " (OK=" + totalOk + " FAIL=" + totalFail + ")");
+  console.log("  failures (contador global, tem que bater com FAIL somado acima): " + failures);
 
   console.log("");
   console.log("==================================================");

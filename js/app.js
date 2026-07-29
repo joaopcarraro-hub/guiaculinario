@@ -513,15 +513,25 @@
     return card;
   }
 
-  // Busca contextual: só considera as coleções do próprio grupo (label da coleção
-  // ou label/sinônimos das tags que ela filtra) — nunca busca receitas diretamente.
-  // Guarda o texto digitado na busca inline por grupo (chaveado por grupoId) numa variável de
-  // módulo simples — mesmo padrão de minhasReceitasTab (sobrevive só entre re-renders desta
-  // tela, não persiste em localStorage/URL). Sem isso, "Voltar" de uma receita aberta pela
-  // busca inline reconstrói a página do grupo em branco: o fromHash sozinho garante que o
-  // Voltar PARE no grupo certo, mas não repõe o texto nem os resultados, já que a busca
-  // inline nunca escreveu na URL (diferente de Coleção/Busca, que guardam o filtro no hash).
+  // Busca contextual: tiles reagem só ao texto (rótulo da coleção/sinônimos das tags que ela
+  // filtra) — nunca busca receitas diretamente, ver matchesQuery/renderTiles. Guarda o texto
+  // digitado na busca inline por grupo (chaveado por grupoId) numa variável de módulo simples —
+  // mesmo padrão de minhasReceitasTab (sobrevive só entre re-renders desta tela, não persiste em
+  // localStorage/URL). Sem isso, "Voltar" de uma receita aberta pela busca inline reconstrói a
+  // página do grupo em branco: o fromHash sozinho garante que o Voltar PARE no grupo certo, mas
+  // não repõe o texto nem os resultados, já que a busca inline nunca escreveu na URL (diferente
+  // de Coleção/Busca, que guardam o filtro no hash).
   const grupoSearchQuery = {};
+
+  // S1/S4 (filtros no hub, 2026-07-29): estado facetado do hub — MESMO mecanismo de persistência
+  // que grupoSearchQuery já usa pro texto (variável de módulo, chaveada por grupoId, restaurada
+  // no load — nunca hash: router.js fica fora do escopo desta tarefa, R2/S4 pedem "o mesmo
+  // mecanismo que hoje restaura o texto", não um novo formato de URL). facetState real (tags +
+  // modo do Ingrediente + Papel da proteína) vive nas variáveis locais de renderGrupo
+  // (selectedFacetTags/ingredientMode/proteinRole, mesma tríade de renderCategory/renderBusca);
+  // este objeto só guarda a FOTO pra sobreviver ao "Voltar" de uma receita, gravada via
+  // persistFacetState() a cada mudança confirmada (chip commitado, chip removido, modal Aplicar).
+  const grupoFacetState = {};
 
   function renderGrupo(grupoId) {
     const grupo = GRUPOS.find((g) => g.id === grupoId);
@@ -586,6 +596,17 @@
     attachSearchClear(search, searchWrap, () => search.dispatchEvent(new Event("input")));
     sheetParent.appendChild(searchWrap);
 
+    // S1/S2 (filtros no hub): botão "Filtros" (componente genérico reaproveitado, ver
+    // renderFacetModal) + linha de chips ativos (commitados, com ×) — mesma posição relativa
+    // que a barra de busca de Coleção/Busca já usam (perto do input, antes da listagem).
+    const facetBarEl = document.createElement("div");
+    facetBarEl.className = "filter-trigger-wrap";
+    sheetParent.appendChild(facetBarEl);
+
+    const activeChipsWrap = document.createElement("div");
+    activeChipsWrap.className = "tagsearch-chips";
+    sheetParent.appendChild(activeChipsWrap);
+
     const categoriesLabel = document.createElement("div");
     categoriesLabel.className = "subgroup-title";
     sheetParent.appendChild(categoriesLabel);
@@ -594,8 +615,9 @@
     grid.className = "category-grid";
     sheetParent.appendChild(grid);
 
-    // S6 (motor unificado 2026-07-29): chips de tag sugeridos pelo parser — mesmo visual de
-    // sugestão já usado no preview da busca global (renderPopularTags/renderPreviewChips).
+    // S3 (motor unificado do hub, filtros): chips de tag sugeridos pelo parser — mesmo visual de
+    // sugestão já usado no preview da busca global (renderPopularTags/renderPreviewChips). Tocar
+    // um chip aqui COMMITA no facetState local (ver commitChip) — nunca mais navega.
     const chipsWrap = document.createElement("div");
     chipsWrap.className = "tagsearch-suggestions";
     sheetParent.appendChild(chipsWrap);
@@ -632,6 +654,44 @@
     });
     const groupRecipeIds = Array.from(groupScopeIds);
 
+    // S1/S5 (filtros no hub): universo de ITENS (não só ids) pro modal de facetas e pro
+    // baseTagIds do motor — resolvido a partir do MESMO groupRecipeIds acima (nunca uma segunda
+    // fonte de escopo: groupUniverse.length === groupRecipeIds.length sempre, por construção),
+    // então nunca diverge do escopo já auditado pela seção 10 da suíte (guarda anti-réplica).
+    const groupItemById = {};
+    groupRecipes.forEach((item) => {
+      groupItemById[item.id] = item;
+    });
+    collections.forEach((c) => {
+      TagModel.getRecipesByCollection(c.id).allRecipes.forEach((item) => {
+        groupItemById[item.id] = item;
+      });
+    });
+    const groupUniverse = groupRecipeIds.map((id) => groupItemById[id]);
+
+    // Facetas do hub (S1): um estado só, duas portas de entrada (chip digitado commitado E
+    // faceta escolhida no modal alimentam o MESMO selectedFacetTags) — mesma tríade de variáveis
+    // de renderCategory/renderBusca (selectedFacetTags/ingredientMode/proteinRole), restaurada
+    // pelo MESMO mecanismo que já restaura o texto (grupoFacetState, módulo, chaveado por
+    // grupoId — ver comentário ao lado de grupoSearchQuery). Papel da proteína: SEM coleção
+    // própria aqui (hub não é 1 Collection só) — collection: null em todo lugar abaixo, mesmo
+    // caminho genérico que renderBusca já prova funcionar sem fork (activeProteinTagIds/
+    // splitByProteinRole INTOCADOS, só mais um consumidor).
+    const savedFacetState = grupoFacetState[grupoId] || null;
+    let selectedFacetTags = (savedFacetState && savedFacetState.tags) || [];
+    let ingredientMode = (savedFacetState && savedFacetState.ingredientMode) || "or";
+    let proteinRole = null;
+    {
+      const initialFacetState = readFacetStateFromTags(selectedFacetTags, GENERIC_FACET_DEFS);
+      const savedRole = savedFacetState && savedFacetState.proteinRole;
+      if (activeProteinTagIds(initialFacetState, null).length > 0 && (savedRole === "focus" || savedRole === "secondary")) {
+        proteinRole = savedRole;
+      }
+    }
+    function persistFacetState() {
+      grupoFacetState[grupoId] = { tags: selectedFacetTags.slice(), ingredientMode: ingredientMode, proteinRole: proteinRole };
+    }
+
     // S4 (motor unificado, normalização única): DerivationDict.norm em vez de normText próprio
     // (removido) — mesma normalização usada pelo motor global inteiro (data/derivation-dict.js:14).
     function matchesQuery(collection, q) {
@@ -646,20 +706,133 @@
       });
     }
 
-    // S6 (motor unificado 2026-07-29): Canal B antigo (renderRecipeMatches via Search.searchTags)
-    // morreu — reescrito sobre o MESMO motor da busca global (Search.parseQuery/searchByQuery),
-    // com escopo recortado às receitas deste grupo (groupRecipeIds, via getCatIdToGroup). 3 partes
-    // independentes, cada uma podendo zerar sem afetar as outras: (a) tiles de coleção, ATALHO por
-    // rótulo — 0 tiles some em silêncio, nunca mais mensagem de vazio própria (a mensagem única
-    // fica só no runSearch, condicionada às 3 partes juntas); (b) chips de tag sugeridos pelo
-    // parser (toque -> Router.toBusca([tag]), mesmo fluxo de sempre); (c)+(d) blocos filtrado-por-
-    // tag e mais-por-texto, títulos nomeando o escopo (grupo.label).
+    // S3: tiles reagem SÓ ao texto do input (rótulo) — nunca ao facetState, mesmo comportamento
+    // de sempre, intocado por esta rodada.
     function renderTiles(query) {
       grid.innerHTML = "";
       const filtered = collections.filter((c) => matchesQuery(c, query));
       categoriesLabel.textContent = filtered.length ? "Categorias" : "";
       filtered.forEach((collection) => grid.appendChild(renderCollectionCard(collection)));
       return filtered.length;
+    }
+
+    // Universo pro modal de facetas (S1/S5): SEMPRE groupUniverse (nunca a base inteira) —
+    // restrito pelas tags já commitadas (facetState), mesma regra AND-entre-facetas/OR-dentro-da-
+    // faceta de TagModel.matchesGroupedTags que qualquer outra tela usa, nunca reimplementada.
+    function facetUniverse(tagIds, mode) {
+      return tagIds.length ? groupUniverse.filter((item) => TagModel.matchesGroupedTags(item.tags, tagIds, mode)) : groupUniverse;
+    }
+
+    // S2: monta o MESMO componente genérico (renderFacetModal) que Coleção/Busca já usam sobre
+    // este hub — universo = escopo-união do grupo (groupUniverse), collection: null (like
+    // renderBusca). Nenhuma linha de renderFacetModal/openModal tocada.
+    function renderFacets() {
+      const facetState = readFacetStateFromTags(selectedFacetTags, GENERIC_FACET_DEFS);
+      renderFacetModal(facetBarEl, GENERIC_FACET_DEFS, {
+        facetState: facetState,
+        collection: null,
+        getUniverse: (role, draftFacetState) => {
+          if (role === "focus" || role === "secondary") {
+            const S = activeProteinTagIds(draftFacetState, null);
+            const split = TagModel.splitByProteinRole(groupUniverse, S);
+            return role === "focus" ? split.primary : split.secondary;
+          }
+          return groupUniverse;
+        },
+        proteinRole: {
+          value: proteinRole,
+          setValue: (v) => {
+            proteinRole = v;
+          },
+          computeCounts: (draftFacetState, draftIngredientMode) => {
+            const S = activeProteinTagIds(draftFacetState, null);
+            if (!S.length) return { focus: 0, secondary: 0 };
+            const matchesGeneric = (item) => TagModel.matchesGroupedTags(item.tags, facetStateToTagIds(draftFacetState, GENERIC_FACET_DEFS), draftIngredientMode);
+            const split = TagModel.splitByProteinRole(groupUniverse.filter(matchesGeneric), S);
+            return { focus: split.primary.length, secondary: split.secondary.length };
+          },
+        },
+        ingredientMode: {
+          value: ingredientMode,
+          setValue: (v) => {
+            ingredientMode = v;
+          },
+        },
+        countForDraft: (draftFacetState, draftRole, draftIngredientMode) => {
+          const draftTags = facetStateToTagIds(draftFacetState, GENERIC_FACET_DEFS);
+          const universe = facetUniverse(draftTags, draftIngredientMode);
+          if (draftRole === "focus" || draftRole === "secondary") {
+            const S = activeProteinTagIds(draftFacetState, null);
+            const split = TagModel.splitByProteinRole(universe, S);
+            return draftRole === "focus" ? split.primary.length : split.secondary.length;
+          }
+          return universe.length;
+        },
+        onApply: () => {
+          selectedFacetTags = facetStateToTagIds(facetState, GENERIC_FACET_DEFS);
+          persistFacetState();
+          renderActiveChips();
+          renderFacets();
+          // Reaproveita o listener de input já existente (mesmo truque de attachSearchClear
+          // acima) em vez de chamar runSearch direto — 1 único ponto de integração pro motor.
+          search.dispatchEvent(new Event("input"));
+        },
+      });
+    }
+
+    // S3: linha de chips ATIVOS (commitados) com × — remover o último volta ao só-texto (o
+    // próprio esvaziamento de selectedFacetTags já faz isso, nenhum caso especial). Mesmo padrão
+    // visual de renderBusca (tag-chip/tag-chip--selected), reaproveitado sem CSS novo.
+    function renderActiveChips() {
+      if (!selectedFacetTags.length) {
+        activeChipsWrap.innerHTML = "";
+        return;
+      }
+      activeChipsWrap.innerHTML = selectedFacetTags
+        .map((id) => {
+          const tag = TagModel.getTagById(id);
+          return (
+            '<button type="button" class="tag-chip tag-chip--selected" data-tag="' +
+            id +
+            '">' +
+            (tag ? tag.label : id) +
+            ' <span aria-hidden="true">×</span></button>'
+          );
+        })
+        .join("");
+      activeChipsWrap.querySelectorAll(".tag-chip").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          selectedFacetTags = selectedFacetTags.filter((t) => t !== btn.dataset.tag);
+          persistFacetState();
+          renderActiveChips();
+          renderFacets();
+          search.dispatchEvent(new Event("input"));
+        });
+      });
+    }
+
+    // S3: chip sugerido pelo parser — tocar COMMITA a tag no facetState local (nunca mais
+    // Router.toBusca, comportamento antigo morre aqui) e remove do texto digitado só as palavras
+    // que geraram esse chip (seg.tokens, mesmo campo que renderBusca já usa pra isso) — o resto
+    // do texto permanece, e as sugestões são recomputadas em cima do residual (runSearch de
+    // novo), mesmo padrão de renderBusca/commitParsed.
+    function commitChip(tagId, parsed) {
+      const seg = parsed.segments.find(
+        (s) => (s.classification === "auto" && s.autoTagId === tagId) || (s.classification === "optional" && s.chipTagIds.indexOf(tagId) !== -1)
+      );
+      const removeTokens = seg ? seg.tokens : [];
+      if (selectedFacetTags.indexOf(tagId) === -1) selectedFacetTags = selectedFacetTags.concat([tagId]);
+      const remaining = search.value
+        .trim()
+        .split(/\s+/)
+        .filter((w) => w && removeTokens.indexOf(w) === -1);
+      search.value = remaining.join(" ");
+      persistFacetState();
+      renderActiveChips();
+      renderFacets();
+      // Reaproveita o listener de input já existente (grava grupoSearchQuery + roda runSearch
+      // debounced) — mesmo padrão de attachSearchClear, nenhum 2º ponto de integração com o motor.
+      search.dispatchEvent(new Event("input"));
     }
 
     function renderChips(parsed) {
@@ -682,7 +855,7 @@
         .join("");
       chipsWrap.innerHTML = '<div class="tagsearch-taglist">' + html + "</div>";
       chipsWrap.querySelectorAll("[data-tag]").forEach((btn) => {
-        btn.addEventListener("click", () => Router.toBusca([btn.dataset.tag], []));
+        btn.addEventListener("click", () => commitChip(btn.dataset.tag, parsed));
       });
       return chipIds.length;
     }
@@ -706,21 +879,86 @@
       return total;
     }
 
+    // S6 (válvula de escape anti-decepção, R3): transfere texto residual + tags commitadas pra
+    // busca global — MESMO Router.toBusca/tags=/text= de sempre (nenhuma extensão de hash
+    // precisou ser feita: text= já existia). Papel da proteína NÃO transfere (role omitido) —
+    // é um recorte de exibição do próprio hub, não faz sentido fora dele; as tags protein:* em
+    // si (explícitas na faceta Proteína) transferem normalmente, junto de qualquer outra tag.
+    function transferToBusca(query, baseTagIds) {
+      const parsed = Search.parseQuery(query, baseTagIds);
+      const transferTags = baseTagIds.concat(parsed.autoTagIds);
+      Router.toBusca(transferTags, parsed.residualTokens || [], ingredientMode, null);
+    }
+
+    // S6: 4 ramos, calculados a cada tick a partir do MESMO texto+tags, só variando o escopo
+    // (scopeIds omitido = global) — nenhum caminho de matching novo, só mais 1 chamada de
+    // searchByQuery por tick (medido: ver relatório da tarefa).
+    function renderEscapeValve(query, baseTagIds, scopedTotal, globalTotal) {
+      const label = query ? ' para "' + query + '"' : " com esses filtros";
+      if (scopedTotal === 0) {
+        recipeResultsEl.innerHTML = '<div class="empty-state">Nenhuma receita encontrada em ' + grupo.label + label + ".</div>";
+        if (globalTotal > 0) {
+          const cta = document.createElement("button");
+          cta.type = "button";
+          cta.className = "primary-cta";
+          cta.textContent = "Pesquisar em todo o aplicativo? (" + globalTotal + " receita" + (globalTotal === 1 ? "" : "s") + ")";
+          cta.addEventListener("click", () => transferToBusca(query, baseTagIds));
+          recipeResultsEl.appendChild(cta);
+        }
+      } else if (globalTotal > scopedTotal) {
+        const link = document.createElement("button");
+        link.type = "button";
+        link.className = "text-link";
+        link.innerHTML = "<span>Buscar no app inteiro</span>" + iconSvg("arrowUpRight", "text-link__icon");
+        link.addEventListener("click", () => transferToBusca(query, baseTagIds));
+        recipeResultsEl.appendChild(link);
+      }
+    }
+
+    // S1/S6: motor único (Search.parseQuery/searchByQuery, baseTagIds = facetState) — texto
+    // residual E facetas commitadas alimentam a MESMA chamada (mecanismo do bloco 1, já
+    // existente). Roda mesmo com texto vazio, desde que haja faceta ativa (R2: hub ganha filtro
+    // como categoria já tem, inclusive sem digitar nada).
     function runSearch(query) {
       const tilesCount = renderTiles(query);
-      let chipsCount = 0;
-      let blocksCount = 0;
+      const facetState = readFacetStateFromTags(selectedFacetTags, GENERIC_FACET_DEFS);
+      const baseTagIds = facetStateToTagIds(facetState, GENERIC_FACET_DEFS);
       chipsWrap.innerHTML = "";
       recipeResultsEl.innerHTML = "";
-      if (query) {
-        const parsed = Search.parseQuery(query, []);
-        chipsCount = renderChips(parsed);
-        const out = Search.searchByQuery(query, { parsed: parsed, scopeIds: groupRecipeIds });
-        blocksCount = renderBlocks(out);
+      let chipsCount = 0;
+      if (!query && !baseTagIds.length) {
+        return;
       }
-      if (query && tilesCount === 0 && chipsCount === 0 && blocksCount === 0) {
+      const parsed = Search.parseQuery(query, baseTagIds);
+      if (query) chipsCount = renderChips(parsed);
+      let out;
+      let globalOut;
+      if (query) {
+        out = Search.searchByQuery(query, { parsed: parsed, baseTagIds: baseTagIds, ingredientMode: ingredientMode, scopeIds: groupRecipeIds });
+        // S6: +1 chamada de motor por tick, MESMO texto+tags, escopo null (global) — ver
+        // relatório pro custo medido.
+        globalOut = Search.searchByQuery(query, { parsed: parsed, baseTagIds: baseTagIds, ingredientMode: ingredientMode });
+      } else {
+        // Sem texto, só facetas (R2: hub ganha filtro como categoria já tem, mesmo sem digitar
+        // nada) — os blocos 1/2 do motor existem só pra pontuar resíduo TEXTUAL (fieldScore),
+        // que não existe aqui; MESMO primitivo de match (TagModel.matchesGroupedTags — o que
+        // block1/2/computeFacetOptions/applyFacets já usam em qualquer tela), sem o wrapper de
+        // pontuação textual que não tem o que fazer sem texto nenhum.
+        out = { block1: facetUniverse(baseTagIds, ingredientMode).map((item) => ({ item: item })), block2: [] };
+        globalOut = {
+          block1: TagModel.getAllRecipesFlat()
+            .filter((item) => TagModel.matchesGroupedTags(item.tags, baseTagIds, ingredientMode))
+            .map((item) => ({ item: item })),
+          block2: [],
+        };
+      }
+      const scopedTotal = out.block1.length + out.block2.length;
+      renderBlocks(out);
+      const globalTotal = globalOut.block1.length + globalOut.block2.length;
+      renderEscapeValve(query, baseTagIds, scopedTotal, globalTotal);
+      if (tilesCount === 0 && chipsCount === 0 && scopedTotal === 0 && globalTotal === 0) {
         recipeResultsEl.innerHTML =
-          '<div class="empty-state">Nenhuma receita encontrada em ' + grupo.label + ' para "' + query + '".<br>Tente outro termo.</div>';
+          '<div class="empty-state">Nenhuma receita encontrada em ' + grupo.label + (query ? ' para "' + query + '"' : " com esses filtros") + ".<br>Tente outro termo.</div>";
       }
     }
 
@@ -733,6 +971,8 @@
     });
     // Restaura a busca ao voltar de uma receita (mesmo texto de grupoSearchQuery usado acima pra
     // preencher o input) — carga inicial roda sem debounce (nada foi digitado agora).
+    renderActiveChips();
+    renderFacets();
     runSearch(search.value);
 
     content.appendChild(wrap);
