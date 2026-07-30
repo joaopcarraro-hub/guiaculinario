@@ -86,7 +86,7 @@ function main() {
   console.log("==================================================");
   console.log("4. SERVICE WORKER — CACHE_NAME bump único da rodada (v49 -> v50)");
   console.log("==================================================");
-  assert(/const CACHE_NAME = "cardapio-v52";/.test(swJs), "CACHE_NAME v49 -> v50 -> v51 -> v52 (corte de natureza 2026-07-30: bump de outra feature, atualizado pro valor vigente)");
+  assert(/const CACHE_NAME = "cardapio-v53";/.test(swJs), "CACHE_NAME v49 -> ... -> v52 -> v53 (F1c 2026-07-30: bump de outra feature, atualizado pro valor vigente)");
   assert(!/const CACHE_NAME = "cardapio-v49";/.test(swJs), "TESTE NEGATIVO: v49 não sobrevive");
 
   console.log("");

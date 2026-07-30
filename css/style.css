@@ -379,7 +379,7 @@ body {
    pointer-events normal pro body) — avaliado nesta correção e descartado por ora: mudança de
    arquitetura maior que o escopo de um hotfix, registrada como recomendação de acompanhamento. */
 body { pointer-events: none; }
-#bottom-nav, #category-header, #recipes-content, .filter-modal-overlay, .update-toast, .sort-sheet-overlay { pointer-events: auto; }
+#bottom-nav, #category-header, #recipes-content, .filter-modal-overlay, .update-toast, .sort-sheet-overlay, .shopping-undo-toast { pointer-events: auto; }
 
 /* padding-top: var(--chrome-clearance) (hotfix 2026-07-26) — só renderCategory de fato popula
    #category-header (back-float + h2 + desc); toda outra tela faz header.innerHTML = "" (fica
@@ -449,10 +449,20 @@ body { pointer-events: none; }
    sequencial) e Geral (soma agrupada entre receitas, ver buildShoppingListGroups em
    js/app.js). Ambas reaproveitam a MESMA lista/checkbox (.ingredients-list.checklist) que a
    tela de receita usava antes de virar só leitura. */
+/* Cabeçalho da tela (F1c, 2026-07-30) — abas + "Limpar lista" lado a lado, no canto. Antes eram
+   2 blocos empilhados (abas full-width, botão de limpar solto embaixo, pill vermelha competindo
+   como se fosse ação primária — achado do dono, "quase tudo vermelho e redondo"). */
+.shopping-list__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
 .shopping-list__tabs {
   display: flex;
+  flex: 1;
+  min-width: 0;
   gap: var(--space-2);
-  margin-bottom: var(--space-5);
 }
 .shopping-list__tab {
   position: relative;
@@ -473,14 +483,18 @@ body { pointer-events: none; }
   color: var(--color-text-primary);
   background: var(--color-accent-soft);
 }
+/* Rebaixado de pill cheia (borda+texto --color-error, competindo como ação primária) pra
+   texto/ghost discreto — mesma família estrutural de .text-link (sem borda/fundo/padding),
+   só a cor que sinaliza "destrutivo". Sem confirmação (window.confirm) — a rede de segurança
+   agora é o toast de desfazer (showShoppingUndoToast), não uma pergunta bloqueante. */
 .shopping-list__clear {
   position: relative;
-  display: block;
-  margin: 0 0 var(--space-5);
-  min-height: 40px;
-  padding: 0 var(--space-4);
-  border-radius: 999px;
-  border: 1px solid var(--color-error);
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 0;
+  border: none;
   background: none;
   color: var(--color-error);
   font-family: var(--font-ui);
@@ -520,7 +534,11 @@ body { pointer-events: none; }
 .shopping-list__recipe-row {
   display: flex;
   align-items: center;
-  gap: var(--space-1);
+  /* --space-1 (4px) medido ao vivo (F1c, Fase A) apertado pros 3 controles da linha (nome-link
+     + chevron + "x") — subiu pra --space-2 (8px), mesmo espaçamento já usado entre as próprias
+     abas (.shopping-list__tabs). Não afeta a área de toque de nome-link/"x" (stopPropagation,
+     ver js/app.js) nem o comportamento de colapso da linha — só respiro visual. */
+  gap: var(--space-2);
   cursor: pointer;
 }
 .shopping-list__recipe-row .shopping-list__recipe-name-link,
@@ -3097,7 +3115,8 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
    base, não aqui. */
 .minhas-receitas__tab::after { content: ""; position: absolute; inset: -5px 0; } /* 40->44, corrigido: borda do estado ativo é 2px (não 1px), comia o inset quase inteiro — ver nota abaixo */
 .shopping-list__tab::after { content: ""; position: absolute; inset: -5px 0; } /* mesmo padrão/correção do minhas-receitas__tab */
-.shopping-list__clear::after { content: ""; position: absolute; inset: -4px; } /* 40->44, botão isolado, borda 1px */
+/* .shopping-list__clear::after removido (F1c, 2026-07-30) — min-height:44px direto no elemento
+   agora que não há mais borda/pill visual a preservar (era 40px+inset pra não inflar a pill). */
 .filter-modal .tag-chip--selected::after { content: ""; position: absolute; inset: -6px -4px; } /* 34->44 vertical — medido ao vivo: -5px batia 43px (1px curto, arredondamento subpixel), -6px dá margem */
 .tag-suggestion::after { content: ""; position: absolute; inset: -5px; } /* 38->44, borda 1px */
 .recipe-suggestion::after { content: ""; position: absolute; inset: -5px; } /* 38->44, borda 1px */

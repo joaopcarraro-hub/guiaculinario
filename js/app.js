@@ -3693,6 +3693,15 @@
     content.innerHTML = "";
     progressEl.textContent = "";
 
+    const recipeEntries = Storage.getShoppingListRecipes();
+
+    // Cabeçalho da tela (F1c, 2026-07-30): abas + "Limpar lista" no canto, lado a lado — antes
+    // eram 2 blocos empilhados (abas full-width, Limpar lista solto embaixo). Abas continuam
+    // com seu próprio padrão de aba (nenhuma mudança de estilo aqui, ver .shopping-list__tab);
+    // Limpar lista é a peça que muda de linguagem (ver comentário no clearBtn abaixo).
+    const headerRow = document.createElement("div");
+    headerRow.className = "shopping-list__header";
+
     const toggleEl = document.createElement("div");
     toggleEl.className = "shopping-list__tabs";
     toggleEl.innerHTML =
@@ -3713,9 +3722,30 @@
       listaComprasView = "geral";
       renderListaCompras();
     });
-    content.appendChild(toggleEl);
+    headerRow.appendChild(toggleEl);
 
-    const recipeEntries = Storage.getShoppingListRecipes();
+    // "Limpar lista" (F1c, 2026-07-30, achado do dono: limiar de 10 receitas era indescobrível
+    // — a maioria das listas nunca chegava lá, e quem chegava não sabia que o botão existia).
+    // Visível sempre que a lista não estiver vazia — ausência real do elemento com lista vazia
+    // (nunca opacidade/disabled), mesmo princípio de antes, só o limiar que mudou. Rebaixada
+    // visualmente: texto/ghost na cor de erro, nunca mais pill cheia (ver CSS) — ação
+    // destrutiva mas SILENCIOSA, executa na hora + toast de desfazer em vez de window.confirm
+    // (mesmo espírito do "x" de remover preparo/receita, que também nunca confirma).
+    if (recipeEntries.length) {
+      const clearBtn = document.createElement("button");
+      clearBtn.type = "button";
+      clearBtn.className = "shopping-list__clear";
+      clearBtn.textContent = "Limpar lista";
+      clearBtn.addEventListener("click", () => {
+        const snapshot = Storage.snapshotShoppingList();
+        Storage.clearShoppingList();
+        renderListaCompras();
+        showShoppingUndoToast(snapshot);
+      });
+      headerRow.appendChild(clearBtn);
+    }
+
+    content.appendChild(headerRow);
 
     if (!recipeEntries.length) {
       const empty = document.createElement("div");
@@ -3725,27 +3755,39 @@
       return;
     }
 
-    // Só aparece com MAIS de 10 receitas na lista (contagem total, igual nas 2 visões — Por
-    // receita/Geral leem o mesmo recipeEntries) — com poucas receitas, excluir 1 a 1 (botão
-    // "x" por receita) já resolve, "Limpar lista inteira" só faz sentido valer a pena a partir
-    // de uma lista grande. Ausência real do elemento (não opacidade/disabled).
-    if (recipeEntries.length > 10) {
-      const clearBtn = document.createElement("button");
-      clearBtn.type = "button";
-      clearBtn.className = "shopping-list__clear";
-      clearBtn.textContent = "Limpar lista";
-      clearBtn.addEventListener("click", () => {
-        Storage.clearShoppingList();
-        renderListaCompras();
-      });
-      content.appendChild(clearBtn);
-    }
-
     if (listaComprasView === "geral") {
       renderShoppingListGeral();
     } else {
       renderShoppingListPorReceita(recipeEntries);
     }
+  }
+
+  // Toast de desfazer pra "Limpar lista" (F1c, 2026-07-30) — reusa a MESMA infraestrutura
+  // visual/pointer-events do update-toast (.update-toast/.update-toast__btn, ver showUpdateToast
+  // abaixo): 2 classes no container (.update-toast pro visual inteiro de graça, .shopping-undo-
+  // toast só como marcador semântico + entrada própria na whitelist de pointer-events do body —
+  // ver css/style.css). Diferente do update-toast (fica até o usuário clicar), este soma
+  // auto-dismiss de ~6s — clicar "Desfazer" restaura o snapshot completo (recipes+boughtKeys) e,
+  // SÓ SE a tela de Lista de Compras ainda estiver aberta, re-renderiza — nunca troca o conteúdo
+  // de uma tela diferente por baixo do usuário se ele já navegou pra outra aba nesse meio-tempo.
+  let shoppingUndoTimer = null;
+  function showShoppingUndoToast(snapshot) {
+    const existing = document.querySelector(".shopping-undo-toast");
+    if (existing) existing.remove(); // limpar de novo antes do 1º toast expirar: troca pelo mais recente
+    clearTimeout(shoppingUndoTimer);
+    const toast = document.createElement("div");
+    toast.className = "update-toast shopping-undo-toast";
+    toast.innerHTML = "<span>Lista limpa</span>" + '<button type="button" class="update-toast__btn">Desfazer</button>';
+    document.body.appendChild(toast);
+    toast.querySelector(".update-toast__btn").addEventListener("click", () => {
+      clearTimeout(shoppingUndoTimer);
+      toast.remove();
+      Storage.restoreShoppingListSnapshot(snapshot);
+      if (Router.current().name === "lista-compras") renderListaCompras();
+    });
+    shoppingUndoTimer = setTimeout(() => {
+      toast.remove();
+    }, 6000);
   }
 
   // "Comprado" é uma chave COMPARTILHADA entre receitas (item normalizado + unit) — marcar

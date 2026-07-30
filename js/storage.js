@@ -561,6 +561,18 @@
       shoppingListState.boughtKeys = {};
       saveShoppingList();
     },
+    // Desfazer "Limpar lista" (F1c, 2026-07-30) — snapshot/restore do estado COMPLETO:
+    // recipes (a fonte de tudo que a visão Por receita mostra) + boughtKeys (compartilhado
+    // entre Por receita/Geral/Despensa — os 3 sempre leram/escreveram o MESMO objeto, nunca
+    // houve um estado de "despensa" separado pra guardar). JSON round-trip clona de verdade
+    // (recipes[id].selectedEntries é array — precisa de cópia independente, não só espalhar
+    // o objeto raso, senão restaurar depois de outra mutação traria referência já alterada).
+    snapshotShoppingList: () => JSON.parse(JSON.stringify({ recipes: shoppingListState.recipes, boughtKeys: shoppingListState.boughtKeys })),
+    restoreShoppingListSnapshot: (snapshot) => {
+      shoppingListState.recipes = snapshot.recipes;
+      shoppingListState.boughtKeys = snapshot.boughtKeys;
+      saveShoppingList();
+    },
 
     // Últimas receitas visitadas — chame ao ABRIR a tela de uma receita (renderReceita).
     // Reabrir uma já vista sobe ela pro topo em vez de duplicar; corta em RECENT_MAX_ITEMS (a

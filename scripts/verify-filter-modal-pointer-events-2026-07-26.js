@@ -74,7 +74,16 @@ function main() {
       const endQuote = afterQuote.indexOf('"');
       const cls = afterQuote.slice(0, endQuote);
       auditedCount++;
-      assert(whitelist.includes("." + cls), "." + cls + " (appendado direto em document.body, fora de #bottom-nav/#category-header/#recipes-content) está coberto pela whitelist de pointer-events:auto");
+      // F1c (2026-07-30): className pode ter MAIS de 1 classe (ex. "update-toast shopping-
+      // undo-toast") — CSS casa por QUALQUER classe individual do elemento, nunca pela string
+      // composta inteira (".update-toast shopping-undo-toast" nunca existe como seletor único
+      // na whitelist, mesmo com as 2 classes cobertas separadamente). Checar cada classe da
+      // lista, cobertura basta em UMA — achado ao rodar esta suíte contra o toast novo de
+      // Lista de Compras, que reusa .update-toast (visual) + .shopping-undo-toast (marcador),
+      // as 2 já na whitelist, mas a checagem antiga só testava a string composta.
+      const classes = cls.split(/\s+/).filter(Boolean);
+      const covered = classes.some((c) => whitelist.includes("." + c));
+      assert(covered, "." + cls + " (appendado direto em document.body, fora de #bottom-nav/#category-header/#recipes-content) está coberto pela whitelist de pointer-events:auto — cobertura basta em 1 das " + classes.length + " classe(s): " + classes.join(", "));
     }
   }
   assert(auditedCount >= 2, "auditoria encontrou pelo menos os 2 casos conhecidos (.filter-modal-overlay, .update-toast) — " + auditedCount + " encontrados. Um 3º document.body.appendChild futuro sem classe correspondente na whitelist FALHA este teste automaticamente.");
@@ -102,7 +111,7 @@ function main() {
   // header, css/style.css) — mesmo padrão, também externo a este hotfix.
   // v32 -> v33 -> v34 -> v35: item final do redesenho visual, rumo novo de Países, calibração
   // final do banner de hub — todos externos a este hotfix, mesmo padrão de sempre.
-  assert(/const CACHE_NAME = "cardapio-v52";/.test(swJs), "CACHE_NAME v29 -> ... -> v51 -> v52 (corte de natureza 2026-07-30: mais um bump de feature externa, atualizado pro valor vigente)");
+  assert(/const CACHE_NAME = "cardapio-v53";/.test(swJs), "CACHE_NAME v29 -> ... -> v52 -> v53 (F1c 2026-07-30: mais um bump de feature externa, atualizado pro valor vigente)");
 
   console.log("");
   console.log("==================================================");

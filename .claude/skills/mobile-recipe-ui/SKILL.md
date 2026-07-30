@@ -121,12 +121,46 @@ capturando o `portionMultiplier` atual do stepper (mesmo padrão de `currentRati
 botão "Começar preparo" já usava). Clicar de novo com a receita já na lista só ressincroniza
 (porção/entries/`addedAt` atualizados) — não existe remover 1 receita pela tela de receita,
 só de dentro da própria Lista de Compras: "Limpar lista" remove tudo (receitas E o registro
-de comprados, sem confirmação — mesmo padrão sem `window.confirm` já usado no "✕" de remover
-preparo) e cada seção por receita também tem seu próprio "x" (`.preparo-card__delete`
-reaproveitado, `Storage.removeRecipeFromShoppingList`) pra remover só aquela receita. "Limpar
-lista" só é RENDERIZADO (não só escondido) com MAIS de 10 receitas na lista — contagem total
-de `Storage.getShoppingListRecipes()`, igual nas 2 abas; com 10 ou menos, excluir 1 a 1 já
-resolve e o botão de limpar tudo não faz sentido ainda.
+de comprados) e cada seção por receita também tem seu próprio "x" (`.preparo-card__delete`
+reaproveitado, `Storage.removeRecipeFromShoppingList`) pra remover só aquela receita.
+
+**"Limpar lista" — passada visual F1c (2026-07-30, achado do dono: "quase tudo vermelho e
+redondo").** Visível SEMPRE que a lista não estiver vazia (ausência real do elemento, nunca
+opacidade/disabled) — o limiar antigo de MAIS de 10 receitas morreu, era indescobrível (a
+maioria das listas nunca chegava lá). Rebaixado visualmente de pill cheia (borda+texto
+`--color-error`, competia como se fosse ação primária da tela) pra texto/ghost discreto
+(`.shopping-list__clear`: sem borda, sem fundo, só `color: var(--color-error)` — mesma família
+estrutural de `.text-link`, min-height 44px direto, sem precisar de `::after` já que não há
+mais pill a preservar). Sai do bloco empilhado sozinho e entra no canto do cabeçalho: novo
+wrapper `.shopping-list__header` (flex) contém as abas (`.shopping-list__tabs`, sem nenhuma
+mudança de estilo — `flex:1` pra dividir o espaço com o botão) e "Limpar lista" lado a lado.
+Continua sem `window.confirm` — a rede de segurança virou um toast de desfazer: clicar executa
+o clear NA HORA (`Storage.clearShoppingList()`, tela já mostra vazio) + `showShoppingUndoToast`
+reusa a infraestrutura visual/pointer-events do `.update-toast` (2 classes no elemento —
+`update-toast` de graça pro CSS, `shopping-undo-toast` como marcador PRÓPRIO na whitelist de
+`body { pointer-events: none }` (mesmo mecanismo do modal de Filtros, ver comentário em
+`css/style.css` perto de `body { pointer-events: none; }`) — sem isso o toast novo renderiza
+mas fica com clique morto, causa conhecida).
+Auto-some em 6s; "Desfazer" chama `Storage.snapshotShoppingList()`/`restoreShoppingListSnapshot`
+(clone JSON de `{recipes, boughtKeys}` tirado ANTES do clear) e só re-renderiza a tela se o
+usuário ainda estiver em Lista de Compras (`Router.current().name === "lista-compras"`) —
+navegar pra outra aba enquanto o toast existe não troca o conteúdo visível por baixo do
+usuário quando ele volta e clica Desfazer depois. `scripts/verify-lista-compras-ui-2026-07-30.js`
+prova a restauração com execução real (valores literais, não só contagem) e a auditoria
+sistêmica de `scripts/verify-filter-modal-pointer-events-2026-07-26.js` (todo
+`document.body.appendChild` precisa de cobertura na whitelist) ganhou suporte a elemento com
+MÚLTIPLAS classes nessa mesma rodada — a checagem antiga só testava a string composta inteira,
+nunca batendo pra um `className` com espaço.
+
+Gap da linha de receita (`.shopping-list__recipe-row`, nome-link + chevron + "x") subiu de
+`--space-1` (4px) pra `--space-2` (8px) — medido ao vivo na Fase A de F1c, apertado pros 3
+controles. Abas (`.shopping-list__tab`) e o "x" por receita (`.preparo-card__delete`)
+confirmados JÁ no padrão certo (aba: borda+fundo neutros, accent-soft só quando ativa, nunca
+pill; "x": neutro por padrão, `--color-error` só no hover) — nenhum dos dois mudou nesta
+rodada. Checkboxes de ingrediente (`accent-color: var(--color-accent)`, sólido quando marcado)
+tampouco mudaram — identificados na Fase A como outro contribuinte real pro "vermelho" da
+tela (chega a 40+ simultâneos numa lista grande), mas fora do escopo desta rodada por decisão
+explícita do dono ("checkboxes e linhas mantêm o comportamento funcional intocado").
 
 Cada seção por receita (`.shopping-list__recipe`) tem 3 controles na mesma linha
 (`.shopping-list__recipe-row`), com áreas de toque DELIBERADAMENTE desiguais — colapsar é a
