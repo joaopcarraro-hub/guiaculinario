@@ -221,6 +221,16 @@
     return collection && collection.collectionType === "protein" ? collection.primaryFilterTags : [];
   }
 
+  // 3b-UI (2026-07-30): vista padrão de coleção (proteína/país) — só mostra o que responde à
+  // identidade da coleção (nature:prato ∧ tag literal de identidade); participação (contains:X)
+  // e preparo/técnica ficam atrás de ação explícita (papel=Secundário, ou a seção fixa "Preparos
+  // e técnicas" em renderCategory, que é a única consumidora — helper local a ela, ver lá).
+  // Fora de coleção de proteína/país (collection null ou outro collectionType — hub, busca
+  // global, Fundamentos etc.), a checagem devolve false e ninguém filtra nada.
+  function isIdentityCollection(collection) {
+    return !!collection && (collection.collectionType === "protein" || collection.collectionType === "country");
+  }
+
   // Ícone de coração pro favoritar (docs/DESIGN-TOKENS.md) — usado tanto no botão da tela de
   // receita quanto no card. Não usa o sistema ICON_SVG_ATTRS/ICONS acima porque precisa de 2
   // estados de PREENCHIMENTO (contorno vazio parado, sólido quando favoritado), não só troca
@@ -1918,7 +1928,7 @@
     content.innerHTML = "";
     progressEl.textContent = "";
 
-    const { primaryRecipes: basePrimary, relatedRecipes: baseRelated, allRecipes: baseAll } = TagModel.getRecipesByCollection(collection.id);
+    const { primaryRecipes: basePrimary, relatedRecipes: baseRelated, allRecipes: baseAll, preparos: basePreparos } = TagModel.getRecipesByCollection(collection.id);
 
     if (!baseAll.length) {
       content.innerHTML = '<div class="empty-state">Essa coleção ainda não tem receitas — em breve.</div>';
@@ -2056,19 +2066,60 @@
     const escapeValveEl = document.createElement("div");
     content.appendChild(escapeValveEl);
 
-    function currentItems() {
-      if (proteinRole === "focus" || proteinRole === "secondary") {
-        // Correção de semântica (2026-07-29): Principal/Secundário não são mais fixos por
-        // coleção (basePrimary/baseRelated) — dependem de S = activeProteinTagIds (explícito da
-        // faceta Proteína, ou o implícito da própria coleção quando nada foi selecionado).
-        // Universo: allRecipes (já filtrado pelas OUTRAS facetas + a própria Proteína, se
-        // selecionada) — sempre soma exatamente allRecipes.length entre os 2 grupos, nunca
-        // sobra nem falta receita (S sempre é o que já filtrou allRecipes pra começo de conversa).
-        const facetState = readFacetStateFromTags(selectedFacetTags, GENERIC_FACET_DEFS);
-        const split = TagModel.splitByProteinRole(allRecipes, activeProteinTagIds(facetState, collection));
-        return proteinRole === "focus" ? split.primary : split.secondary;
+    // S2/S3 (3b-UI): seção "Preparos e técnicas", no fim da tela — só em coleção de
+    // proteína/país, só quando não-vazia (Cordeiro, Itália etc. não têm preparo algum
+    // alcançável, a seção some inteira). Fixa: usa basePreparos (universo BASE da coleção, TagModel.
+    // getRecipesByCollection) — NÃO reage a facetas/busca/papel, mesmo padrão "não reage ao
+    // filtro de papel" que S2 pede; reusa .subgroup-title (mesmo rótulo de seção já usado em
+    // renderGrupo) e renderRecipeCard sem CSS novo.
+    if (isIdentityCollection(collection) && basePreparos.length) {
+      const preparosTitle = document.createElement("div");
+      preparosTitle.className = "subgroup-title";
+      preparosTitle.textContent = "Preparos e técnicas";
+      content.appendChild(preparosTitle);
+      const preparosListEl = document.createElement("div");
+      content.appendChild(preparosListEl);
+      const preparosFromHash = currentHashPath();
+      basePreparos.forEach((item) => preparosListEl.appendChild(renderRecipeCard(item, { fromHash: preparosFromHash })));
+    }
+
+    // 3b-UI (2026-07-30): um único ponto que aplica papel (focus/secondary, ação explícita do
+    // usuário — sempre exclui preparo/técnica) OU a vista padrão (nature:prato ∧ identidade,
+    // quando não há papel selecionado) — reusado por currentItems()/getUniverse()/
+    // computeCounts()/countForDraft() abaixo, nunca reimplementado por call site.
+    // TagModel.splitByProteinRole continua sendo o único mecanismo que decide protagonista/
+    // coadjuvante (intocado); este helper só filtra o resultado por nature quando a coleção é
+    // de identidade (proteína/país) — local a renderCategory, não vaza pra renderGrupo/renderBusca.
+    function applyRoleAndNature(items, role, S, identityCollection) {
+      if (role === "focus" || role === "secondary") {
+        const split = TagModel.splitByProteinRole(items, S);
+        const roleItems = role === "focus" ? split.primary : split.secondary;
+        return isIdentityCollection(identityCollection) ? roleItems.filter((item) => item.recipe.nature === "prato") : roleItems;
       }
-      return allRecipes;
+      if (!isIdentityCollection(identityCollection)) return items;
+      const identityItems = S.length ? TagModel.splitByProteinRole(items, S).primary : items;
+      return identityItems.filter((item) => item.recipe.nature === "prato");
+    }
+
+    function currentItems() {
+      // Correção de semântica (2026-07-29): Principal/Secundário não são mais fixos por
+      // coleção (basePrimary/baseRelated) — dependem de S = activeProteinTagIds (explícito da
+      // faceta Proteína, ou o implícito da própria coleção quando nada foi selecionado).
+      // Universo: allRecipes (já filtrado pelas OUTRAS facetas + a própria Proteína, se
+      // selecionada) — sempre soma exatamente allRecipes.length entre os 2 grupos, nunca
+      // sobra nem falta receita (S sempre é o que já filtrou allRecipes pra começo de conversa).
+      const facetState = readFacetStateFromTags(selectedFacetTags, GENERIC_FACET_DEFS);
+      const S = activeProteinTagIds(facetState, collection);
+      if (proteinRole === "focus" || proteinRole === "secondary") {
+        // Papel é ação explícita — S1: preparo/técnica NUNCA aparece aqui, mesmo com busca ativa.
+        return applyRoleAndNature(allRecipes, proteinRole, S, collection);
+      }
+      // S5: busca continua alcançando tudo — a vista padrão (nature:prato ∧ identidade) só
+      // recorta quando NÃO há busca de texto em curso; com busca ativa, mostra o resultado
+      // normal (facetas+texto já aplicados em allRecipes via applyFacets), sem a restrição de
+      // identidade — senão buscar "carbonara" dentro de Suínos não acharia Carbonara.
+      if (searchResultIds) return allRecipes;
+      return applyRoleAndNature(allRecipes, proteinRole, S, collection);
     }
 
     function renderToolbarState() {
@@ -2089,13 +2140,13 @@
         // Correção de semântica (2026-07-29): universo de OUTRAS facetas (ex.: quantas
         // receitas com Forno existem "dado que já escolhi Principal") depende de S = proteínas
         // ATIVAS no rascunho (draftFacetState), não mais de basePrimary/baseRelated fixos.
+        // 3b-UI: reusa applyRoleAndNature — com "Ver tudo" (role vazio) numa coleção de
+        // identidade, o universo pro resto do modal já é o padrão (nature:prato ∧ identidade),
+        // senão as contagens de outras facetas ("Forno (N)") não bateriam com o que a lista
+        // padrão realmente mostra.
         getUniverse: (role, draftFacetState) => {
-          if (role === "focus" || role === "secondary") {
-            const S = activeProteinTagIds(draftFacetState, collection);
-            const split = TagModel.splitByProteinRole(baseAll, S);
-            return role === "focus" ? split.primary : split.secondary;
-          }
-          return baseAll;
+          const S = activeProteinTagIds(draftFacetState, collection);
+          return applyRoleAndNature(baseAll, role, S, collection);
         },
         proteinRole: {
           value: proteinRole,
@@ -2106,8 +2157,9 @@
             const S = activeProteinTagIds(draftFacetState, collection);
             if (!S.length) return { focus: 0, secondary: 0 };
             const matchesGeneric = (item) => TagModel.matchesGroupedTags(item.tags, facetStateToTagIds(draftFacetState, GENERIC_FACET_DEFS), draftIngredientMode);
-            const split = TagModel.splitByProteinRole(baseAll.filter(matchesGeneric), S);
-            return { focus: split.primary.length, secondary: split.secondary.length };
+            const matched = baseAll.filter(matchesGeneric);
+            // S1: papel filtra PRATOS — preparo/técnica nunca soma nas pílulas Principal/Secundário.
+            return { focus: applyRoleAndNature(matched, "focus", S, collection).length, secondary: applyRoleAndNature(matched, "secondary", S, collection).length };
           },
         },
         ingredientMode: {
@@ -2120,12 +2172,8 @@
           const draftTags = facetStateToTagIds(draftFacetState, GENERIC_FACET_DEFS);
           const matches = (item) => TagModel.matchesGroupedTags(item.tags, draftTags, draftIngredientMode);
           const universe = draftTags.length ? baseAll.filter(matches) : baseAll;
-          if (draftRole === "focus" || draftRole === "secondary") {
-            const S = activeProteinTagIds(draftFacetState, collection);
-            const split = TagModel.splitByProteinRole(universe, S);
-            return draftRole === "focus" ? split.primary.length : split.secondary.length;
-          }
-          return universe.length;
+          const S = activeProteinTagIds(draftFacetState, collection);
+          return applyRoleAndNature(universe, draftRole, S, collection).length;
         },
         onApply: () => {
           selectedFacetTags = facetStateToTagIds(facetState, GENERIC_FACET_DEFS);

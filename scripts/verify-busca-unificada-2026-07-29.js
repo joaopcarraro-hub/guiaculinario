@@ -840,6 +840,103 @@ function main() {
   assert(natureOf("Pickles Rápidos") === "preparo", "12c: Pickles Rápidos = preparo");
   assert(natureOf("Béchamel") === "preparo", "12c: Béchamel = preparo");
 
+  console.log("");
+  section(
+    "13",
+    "3b-UI (2026-07-30) — VISTA PADRÃO DE COLEÇÃO: partição {padrao, secundariosPrato, preparos} (TagModel.getRecipesByCollection), gabarito medido contra o código real"
+  );
+
+  // 13a/13b — proteínas: padrão (nature:prato ∧ protein:X literal) e seção "Preparos e
+  // técnicas" (alcançável ∧ nature != prato). Literais travados só depois de medir os 7 contra
+  // o gabarito da auditoria — bateram 100%, sem nenhuma divergência (protocolo: qualquer
+  // divergência pararia aqui antes de travar literal nenhum).
+  const PROTEIN_GABARITO = {
+    aves: { label: "Aves", padrao: 38, preparos: 2 },
+    "carnes-bovinas": { label: "Carnes Bovinas", padrao: 46, preparos: 9 },
+    suinos: { label: "Suínos", padrao: 27, preparos: 1 },
+    peixes: { label: "Peixes", padrao: 29, preparos: 4 },
+    "frutos-do-mar": { label: "Frutos do Mar", padrao: 29, preparos: 1 },
+    "col-ovo": { label: "Ovos", padrao: 31, preparos: 9 },
+    cordeiro: { label: "Cordeiro", padrao: 10, preparos: 0 },
+  };
+  Object.keys(PROTEIN_GABARITO).forEach((id) => {
+    const g = PROTEIN_GABARITO[id];
+    const r = TagModel.getRecipesByCollection(id);
+    console.log("  literal: " + g.label + " padrao=" + r.padrao.length + " preparos=" + r.preparos.length);
+    assert(r.padrao.length === g.padrao, "13a: " + g.label + " padrão (nature:prato ∧ protein:X literal) = " + g.padrao + " (medido " + r.padrao.length + ")");
+    assert(r.preparos.length === g.preparos, "13b: " + g.label + " seção Preparos e técnicas = " + g.preparos + " (medido " + r.preparos.length + ")");
+  });
+  const nantuaItem = TagModel.getRecipesByCollection("frutos-do-mar").preparos.find((it) => it.recipe.name === "Nantua");
+  assert(!!nantuaItem, "13b: Frutos do Mar/preparos contém Nantua nomeado (gabarito)");
+
+  // 13c — invariante permanente (trava de ingestão futura): NENHUMA receita com protein:* literal
+  // tem nature != prato — se algum dia uma ingestão violar isso, a vista padrão de proteína
+  // (padrao = primaryRecipes ∧ nature:prato) silenciosamente esconderia essa receita sem avisar
+  // ninguém. Hoje o dado garante isso (0 violações); esta asserção é a trava, não uma medição solta.
+  const proteinNatureViolations = allRecipes.filter((item) => item.tags.some((t) => t.indexOf("protein:") === 0) && item.recipe.nature !== "prato");
+  assert(proteinNatureViolations.length === 0, "13c: nenhuma receita com protein:* literal e nature != prato (obtido " + proteinNatureViolations.length + " violação(ões))");
+
+  // 13d — países: mesma regra (padrao = country:X ∧ nature:prato; preparos = alcançável ∧
+  // nature != prato), gabarito MEDIDO direto contra TagModel.getRecipesByCollection real (não
+  // uma projeção) pros 20 países — trava pelo menos França/Espanha/Brasil/Dinamarca/Itália
+  // (pedido explícito da tarefa), mas trava os 20 já que todos foram medidos.
+  const COUNTRY_GABARITO = {
+    brasil: { padrao: 33, preparos: 1 },
+    franca: { padrao: 59, preparos: 24 },
+    italia: { padrao: 42, preparos: 0 },
+    espanha: { padrao: 14, preparos: 4 },
+    portugal: { padrao: 15, preparos: 0 },
+    japao: { padrao: 16, preparos: 0 },
+    china: { padrao: 9, preparos: 0 },
+    coreia: { padrao: 8, preparos: 0 },
+    tailandia: { padrao: 8, preparos: 0 },
+    india: { padrao: 8, preparos: 0 },
+    mexico: { padrao: 10, preparos: 0 },
+    peru: { padrao: 7, preparos: 1 },
+    alemanha: { padrao: 7, preparos: 0 },
+    austria: { padrao: 7, preparos: 0 },
+    hungria: { padrao: 3, preparos: 0 },
+    grecia: { padrao: 6, preparos: 0 },
+    marrocos: { padrao: 4, preparos: 0 },
+    libano: { padrao: 8, preparos: 0 },
+    eua: { padrao: 14, preparos: 0 },
+    dinamarca: { padrao: 43, preparos: 1 },
+  };
+  win.COLLECTIONS.filter((c) => c.collectionType === "country").forEach((c) => {
+    const g = COUNTRY_GABARITO[c.id];
+    const r = TagModel.getRecipesByCollection(c.id);
+    assert(!!g, "13d: " + c.id + " tem gabarito medido (nenhum país de fora da tabela)");
+    if (!g) return;
+    assert(r.padrao.length === g.padrao, "13d: " + c.label + " padrão = " + g.padrao + " (medido " + r.padrao.length + ")");
+    assert(r.preparos.length === g.preparos, "13d: " + c.label + " seção Preparos e técnicas = " + g.preparos + " (medido " + r.preparos.length + ")");
+  });
+
+  // 13e — spot-checks nomeados (pedido explícito da tarefa): participação nunca some, mas some
+  // da vista padrão/lista de pratos; a receita real move de bucket, nunca desaparece de vez.
+  const hasNamed = (list, name) => list.some((it) => it.recipe.name === name);
+  const suinosPart = TagModel.getRecipesByCollection("suinos");
+  assert(!hasNamed(suinosPart.padrao, "Carbonara"), "13e: Carbonara FORA da vista padrão de Suínos");
+  assert(hasNamed(suinosPart.secundariosPrato, "Carbonara"), "13e: Carbonara presente no filtro secundário de Suínos");
+  assert(!hasNamed(suinosPart.padrao, "Amatriciana"), "13e: Amatriciana FORA da vista padrão de Suínos");
+  assert(hasNamed(suinosPart.secundariosPrato, "Amatriciana"), "13e: Amatriciana presente no filtro secundário de Suínos");
+  const bovinasPart = TagModel.getRecipesByCollection("carnes-bovinas");
+  assert(hasNamed(bovinasPart.preparos, "Glace de Carne"), "13e: Glace de Carne na seção de preparos de Bovinas");
+  assert(!hasNamed(bovinasPart.padrao, "Glace de Carne") && !hasNamed(bovinasPart.secundariosPrato, "Glace de Carne"), "13e: Glace de Carne FORA de qualquer lista de pratos de Bovinas (nem padrão nem secundário)");
+  const frutosPart = TagModel.getRecipesByCollection("frutos-do-mar");
+  assert(!hasNamed(frutosPart.padrao, "Paella"), "13e: Paella fora do padrão de Frutos do Mar");
+  assert(hasNamed(frutosPart.secundariosPrato, "Paella"), "13e: Paella presente no filtro secundário de Frutos do Mar");
+
+  // 13f — GUARDA ANTI-RÉPLICA (mesmo padrão da seção 10): lê o FONTE de app.js direto e assere
+  // que renderCategory realmente consome a partição canônica de tagmodel.js (padrao/preparos/
+  // isIdentityCollection), nunca uma cópia solta de lógica de nature/identidade. Se algum dia
+  // app.js voltar a filtrar por nature "na unha" em vez de reusar TagModel.getRecipesByCollection,
+  // esta seção fica vermelha antes de qualquer número desta suíte virar falso positivo.
+  assert(categoryBody.indexOf("preparos: basePreparos") !== -1, "13f: renderCategory desestrutura 'preparos' de TagModel.getRecipesByCollection (nunca recalcula nature na mão)");
+  assert(categoryBody.indexOf("isIdentityCollection(collection)") !== -1, "13f: seção 'Preparos e técnicas' gated por isIdentityCollection(collection) — só proteína/país");
+  assert(categoryBody.indexOf("TagModel.splitByProteinRole(") !== -1, "13f: TagModel.splitByProteinRole ainda é o único mecanismo de papel dentro de renderCategory (via applyRoleAndNature local)");
+  assert(appJs.indexOf('"Preparos e técnicas"') !== -1, "13f: literal do título da seção existe em app.js");
+  assert(appJs.indexOf("function isIdentityCollection(collection)") !== -1, "13f: helper isIdentityCollection existe (module scope, reusado por renderCategory)");
+
   // P2 (reconciliação de contagens, 2026-07-29): tabela seção -> asserções, lida direto de
   // sectionCounts (a MESMA estrutura que assert() já incrementou seção a seção, nunca um
   // recálculo em paralelo) — a soma abaixo tem que fechar EXATAMENTE com failures+total OK.

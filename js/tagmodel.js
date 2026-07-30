@@ -481,16 +481,35 @@
 
   // Retorna as receitas de uma coleção já separadas por relevância:
   // principais (bateram em primaryFilterTags) e relacionadas (só bateram em relatedFilterTags).
+  //
+  // 3b-UI (2026-07-30): partição canônica {padrao, secundariosPrato, preparos} — a mesma
+  // distinção identidade/participação/preparo que a vista padrão de coleção (proteína/país)
+  // precisa, resolvida UMA vez aqui (nunca reimplementada em app.js, que só consome). padrao =
+  // primaryRecipes que são nature:prato (identidade — protein:X literal, ou country:X, que já
+  // É toda primaryRecipes pra coleção de país). secundariosPrato = só pra coleção de proteína,
+  // reaproveita splitByProteinRole (mesmo mecanismo já usado pelo filtro de papel, nunca
+  // duplicado) e filtra pra nature:prato — participação (contains:X) que ainda é prato. preparos
+  // = qualquer receita alcançável pela coleção (allRecipes) com nature != prato, independente de
+  // primary/secondary — nunca aparece na lista principal nem no filtro de papel.
   function getRecipesByCollection(collectionId) {
     const collection = (window.COLLECTIONS || []).find((c) => c.id === collectionId);
-    if (!collection) return { collection: null, primaryRecipes: [], relatedRecipes: [], allRecipes: [] };
+    if (!collection) {
+      return { collection: null, primaryRecipes: [], relatedRecipes: [], allRecipes: [], padrao: [], secundariosPrato: [], preparos: [] };
+    }
     const all = getAllRecipesFlat();
     const primaryRecipes = all.filter((item) => matchesAnyTag(item.tags, collection.primaryFilterTags));
     const primaryIds = new Set(primaryRecipes.map((item) => item.id));
     const relatedRecipes = collection.relatedFilterTags
       ? all.filter((item) => !primaryIds.has(item.id) && matchesAnyTag(item.tags, collection.relatedFilterTags))
       : [];
-    return { collection, primaryRecipes, relatedRecipes, allRecipes: primaryRecipes.concat(relatedRecipes) };
+    const allRecipes = primaryRecipes.concat(relatedRecipes);
+    const padrao = primaryRecipes.filter((item) => item.recipe.nature === "prato");
+    const secundariosPrato =
+      collection.collectionType === "protein"
+        ? splitByProteinRole(allRecipes, collection.primaryFilterTags).secondary.filter((item) => item.recipe.nature === "prato")
+        : [];
+    const preparos = allRecipes.filter((item) => item.recipe.nature !== "prato");
+    return { collection, primaryRecipes, relatedRecipes, allRecipes, padrao, secundariosPrato, preparos };
   }
 
   // ---------- relevância e ordenação ----------
