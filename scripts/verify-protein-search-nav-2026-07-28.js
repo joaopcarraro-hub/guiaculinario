@@ -163,7 +163,10 @@ function main() {
   console.log("ITEM 2 — botao de limpar busca em toda barra de busca do app");
   console.log("==================================================");
 
-  assert((appJs.match(/document\.createElement\("input"\)/g) || []).length === 3, "inventário confirmado: 3 <input> no app inteiro (home-search do hub, tagsearch-input da busca global, e o input numérico do timer — este último NÃO é busca, fora de escopo)");
+  // Literal encadeado atualizado 2026-07-29 (S1, barra de busca em categoria): +1 <input>
+  // (.home-search de renderCategory, mesmo componente do hub) — ver seção 11 de
+  // verify-busca-unificada-2026-07-29.js.
+  assert((appJs.match(/document\.createElement\("input"\)/g) || []).length === 4, "inventário confirmado: 4 <input> no app inteiro (home-search do hub, home-search de categoria, tagsearch-input da busca global, e o input numérico do timer — este último NÃO é busca, fora de escopo)");
 
   const clearHelperScope = sliceModuleFunction(appJs, "function attachSearchClear(");
   assert(!!clearHelperScope, "helper compartilhado attachSearchClear encontrado (1 implementação, 2 usos — home-search e tagsearch-input)");
@@ -179,7 +182,10 @@ function main() {
   assert(searchClearBtnRuleIdx !== -1, ".search-clear-btn tem regra CSS própria");
   assert(/inset:\s*-\d+px/.test(searchClearBtnCss), "hit-area estendida via ::after inset (mesmo padrão de .preparo-card__delete) — alvo >=44px");
 
-  assert((appJs.match(/attachSearchClear\(/g) || []).length === 3, "attachSearchClear: 1 declaração + 2 chamadas (home-search + tagsearch-input), nenhuma duplicada");
+  // Literal encadeado atualizado 2026-07-29 (S1, barra de busca em categoria): +1 chamada de
+  // attachSearchClear (renderCategory reusa o helper, mesmo padrão do hub) — ver seção 11 de
+  // verify-busca-unificada-2026-07-29.js.
+  assert((appJs.match(/attachSearchClear\(/g) || []).length === 4, "attachSearchClear: 1 declaração + 3 chamadas (home-search do hub, home-search de categoria, tagsearch-input), nenhuma duplicada");
 
   const grupoScope = sliceModuleFunction(appJs, "function renderGrupo(grupoId) {");
   assert(!!grupoScope && /attachSearchClear\(\s*search,/.test(grupoScope), "busca do hub (renderGrupo/.home-search) usa o helper compartilhado");

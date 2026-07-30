@@ -602,6 +602,184 @@ function main() {
     );
   }
 
+  console.log("");
+  section("11a", "BARRA DE BUSCA EM CATEGORIA (S1, 2026-07-29) — mesmo pipeline do hub, commit no MESMO selectedFacetTags");
+  const categoryStart = appJs.indexOf("function renderCategory(collection, initialFacetTags, initialRole, initialIngredientMode) {");
+  assert(categoryStart !== -1, "renderCategory encontrada pela assinatura completa");
+  const categoryEnd = appJs.indexOf("\n  // ---------- Busca facetada por tags ----------", categoryStart);
+  assert(categoryEnd !== -1, "fim de renderCategory encontrado (próxima seção do arquivo)");
+  const categoryBody = appJs.slice(categoryStart, categoryEnd);
+
+  assert(
+    categoryBody.indexOf('search.placeholder = "Buscar em " + collection.label.toLowerCase() + "...";') !== -1,
+    "input .home-search com placeholder 'Buscar em <categoria>...' — mesmo componente/padrão do hub"
+  );
+  assert(categoryBody.indexOf('search.className = "home-search";') !== -1, "reusa a classe .home-search do hub — nenhum CSS novo");
+
+  const commitChipCatBody = extractFunctionBody(categoryBody, "function commitChip(tagId, parsed) {");
+  assert(!!commitChipCatBody, "commitChip de categoria encontrada e isolada por casamento de chaves");
+  assert(
+    !!commitChipCatBody && commitChipCatBody.indexOf("selectedFacetTags = selectedFacetTags.concat([tagId])") !== -1,
+    "commitChip de categoria escreve no MESMO selectedFacetTags que renderFacets()/o modal já usam — uma lógica, duas portas (padrão idêntico ao renderGrupo)"
+  );
+  const activeChipsCatBody = extractFunctionBody(categoryBody, "function renderActiveChips() {");
+  assert(!!activeChipsCatBody, "renderActiveChips de categoria encontrada e isolada por casamento de chaves");
+  assert(
+    !!activeChipsCatBody && activeChipsCatBody.indexOf("selectedFacetTags = selectedFacetTags.filter((t) => t !== btn.dataset.tag)") !== -1,
+    "× do chip ativo de categoria remove do MESMO selectedFacetTags"
+  );
+
+  console.log("");
+  section("11b", "CASO LITERAL REAL — 1 categoria + termo com resultados, invariante resultado ⊆ baseAll");
+  const catPeixes = TagModel.getRecipesByCollection("peixes");
+  const baseAllPeixes = catPeixes.allRecipes;
+  const baseAllIdsPeixes = baseAllPeixes.map((item) => item.id);
+  const baseAllIdsPeixesSet = new Set(baseAllIdsPeixes);
+  console.log("  literal: categoria 'peixes' (Peixes) — baseAll = " + baseAllPeixes.length + " receitas");
+  assert(baseAllPeixes.length === 40, "categoria 'peixes': baseAll = 40 receitas (obtido " + baseAllPeixes.length + ")");
+  const outCremosoPeixesScoped = Search.searchByQuery("cremoso", { scopeIds: baseAllIdsPeixes });
+  const cremosoPeixesItems = outCremosoPeixesScoped.block1.concat(outCremosoPeixesScoped.block2).map((r) => r.item);
+  console.log("  literal: 'cremoso' em Peixes — escopado=" + cremosoPeixesItems.length);
+  assert(cremosoPeixesItems.length === 4, "'cremoso' em Peixes: escopado = 4 (obtido " + cremosoPeixesItems.length + ")");
+  assert(cremosoPeixesItems.length > 0, "termo com resultados reais (não um caso degenerado de zero)");
+  assert(
+    cremosoPeixesItems.every((item) => baseAllIdsPeixesSet.has(item.id)),
+    "invariante: TODO resultado da barra de categoria é subconjunto de baseAll (nenhum vazamento pra fora da coleção)"
+  );
+
+  console.log("");
+  section("11c", "VÁLVULA DE ESCAPE (S2) — os 4 ramos, casos literais REAIS em 'Peixes', 1 caso (a) de texto residual puro + N-prometido=N-na-chegada");
+  const pFlambadoCat = Search.parseQuery("flambado", []);
+  assert(
+    isPureText("flambado"),
+    "'flambado' é 100% classificação text (mesmo termo já usado na seção 9d/P1 do hub, obtido " + JSON.stringify(pFlambadoCat.segments.map((s) => s.classification)) + ")"
+  );
+  const outFlambadoCatScoped = Search.searchByQuery("flambado", { scopeIds: baseAllIdsPeixes });
+  const outFlambadoCatGlobal = Search.searchByQuery("flambado", {});
+  const flambadoCatScoped = outFlambadoCatScoped.block1.length + outFlambadoCatScoped.block2.length;
+  const flambadoCatGlobal = outFlambadoCatGlobal.block1.length + outFlambadoCatGlobal.block2.length;
+  const flambadoCatArrival = arrivalCountFor("flambado");
+  console.log(
+    "  literal ramo (a) categoria, texto puro: 'flambado' em Peixes — escopado=" +
+      flambadoCatScoped +
+      " global(N-prometido)=" +
+      flambadoCatGlobal +
+      " chegada-em-busca(N-na-chegada)=" +
+      flambadoCatArrival
+  );
+  assert(
+    flambadoCatScoped === 0 && flambadoCatGlobal > 0,
+    "ramo (a) categoria real: escopado=0 E global>0 (obtido escopado=" + flambadoCatScoped + " global=" + flambadoCatGlobal + ") — CTA 'Pesquisar em todo o aplicativo' aparece"
+  );
+  assert(
+    flambadoCatGlobal === flambadoCatArrival,
+    "N-prometido = N-na-chegada pra 'flambado' partindo de categoria (obtido prometido=" + flambadoCatGlobal + " chegada=" + flambadoCatArrival + ")"
+  );
+
+  const outNadaCatScoped = Search.searchByQuery("xxzzqq", { scopeIds: baseAllIdsPeixes });
+  const outNadaCatGlobal = Search.searchByQuery("xxzzqq", {});
+  const nadaCatScoped = outNadaCatScoped.block1.length + outNadaCatScoped.block2.length;
+  const nadaCatGlobal = outNadaCatGlobal.block1.length + outNadaCatGlobal.block2.length;
+  console.log("  literal ramo (b) categoria: 'xxzzqq' em Peixes — escopado=" + nadaCatScoped + " global=" + nadaCatGlobal);
+  assert(
+    nadaCatScoped === 0 && nadaCatGlobal === 0,
+    "ramo (b) categoria real: escopado=0 E global=0 — só mensagem de vazio, SEM CTA (obtido escopado=" + nadaCatScoped + " global=" + nadaCatGlobal + ")"
+  );
+
+  const outCremosoCatGlobal = Search.searchByQuery("cremoso", {});
+  const cremosoCatScoped = cremosoPeixesItems.length;
+  const cremosoCatGlobal = outCremosoCatGlobal.block1.length + outCremosoCatGlobal.block2.length;
+  console.log("  literal ramo (c) categoria: 'cremoso' em Peixes — escopado=" + cremosoCatScoped + " global=" + cremosoCatGlobal);
+  assert(
+    cremosoCatScoped > 0 && cremosoCatGlobal > cremosoCatScoped,
+    "ramo (c) categoria real: escopado>0 E global>escopado (obtido escopado=" + cremosoCatScoped + " global=" + cremosoCatGlobal + ") — link discreto 'Buscar no app inteiro' aparece"
+  );
+
+  const outBacalhauCatScoped = Search.searchByQuery("bacalhau", { scopeIds: baseAllIdsPeixes });
+  const outBacalhauCatGlobal = Search.searchByQuery("bacalhau", {});
+  const bacalhauCatScoped = outBacalhauCatScoped.block1.length + outBacalhauCatScoped.block2.length;
+  const bacalhauCatGlobal = outBacalhauCatGlobal.block1.length + outBacalhauCatGlobal.block2.length;
+  console.log("  literal ramo (d) categoria: 'bacalhau' em Peixes — escopado=" + bacalhauCatScoped + " global=" + bacalhauCatGlobal);
+  assert(
+    bacalhauCatScoped === bacalhauCatGlobal && bacalhauCatScoped > 0,
+    "ramo (d) categoria real: global=escopado, ambos > 0 (obtido escopado=" + bacalhauCatScoped + " global=" + bacalhauCatGlobal + ") — sem rodapé, sem CTA"
+  );
+
+  assert(
+    categoryBody.indexOf("buildEscapeValveActionEl(scopedTotal, globalTotal, () => transferToBusca(query, baseTagIds))") !== -1,
+    "renderCategory chama o MESMO buildEscapeValveActionEl que renderGrupo — regra dos 4 ramos compartilhada, sem cópia divergente"
+  );
+  assert(
+    appJs.indexOf("function buildEscapeValveActionEl(scopedTotal, globalTotal, onTransfer) {") !== -1,
+    "buildEscapeValveActionEl declarada 1x só, fora de renderGrupo/renderCategory — helper de módulo compartilhado"
+  );
+  assert(
+    grupoBody.indexOf("buildEscapeValveActionEl(scopedTotal, globalTotal, () => transferToBusca(query, baseTagIds))") !== -1,
+    "renderGrupo (hub) TAMBÉM foi migrado pro mesmo helper — os 2 lados chamam a MESMA função, prova de zero cópia divergente"
+  );
+
+  console.log("");
+  section("11d", "PERSISTÊNCIA (S3, Dívida #1) — categoryFacetState, mesmo padrão de grupoFacetState, morta por asserção");
+  assert(appJs.indexOf("const categoryFacetState = {};") !== -1, "categoryFacetState declarada — mesmo padrão de módulo de grupoFacetState");
+  assert(
+    appJs.indexOf("const categoryFacetState = {};") < categoryStart,
+    "categoryFacetState declarada ANTES de renderCategory (escopo de módulo, sobrevive ao re-render)"
+  );
+  assert(
+    categoryBody.indexOf("const savedState = categoryFacetState[collection.id] || null;") !== -1,
+    "renderCategory lê categoryFacetState[collection.id] NO TOPO de toda renderização"
+  );
+  assert(
+    categoryBody.indexOf("let selectedFacetTags = (savedState ? savedState.tags : initialFacetTags || []).slice();") !== -1,
+    "tags restauradas de savedState (prioridade sobre os params da URL) — mesma regra do hub"
+  );
+  assert(
+    categoryBody.indexOf('let ingredientMode = (savedState ? savedState.ingredientMode : initialIngredientMode) || "or";') !== -1,
+    "ingredientMode restaurado de savedState"
+  );
+  assert(categoryBody.indexOf('let searchQuery = (savedState && savedState.text) || "";') !== -1, "texto da busca restaurado de savedState (nunca existiu na URL, mesma regra do hub)");
+  assert(categoryBody.indexOf("function persistState() {") !== -1, "persistState existe — grava a FOTO em categoryFacetState[collection.id]");
+  const persistStateCalls = (categoryBody.match(/persistState\(\);/g) || []).length;
+  assert(
+    persistStateCalls === 4,
+    "persistState() chamada nos 4 pontos de mutação pedidos (commit de chip, × de chip, Aplicar do modal, digitação) — obtido " + persistStateCalls
+  );
+  // Simulação de "voltar de receita": sem DOM real disponível neste harness (ver cabeçalho do
+  // arquivo), a prova é a MESMA leitura que o topo de renderCategory faz (linha a linha, acima)
+  // aplicada a um objeto categoryFacetState de teste — se savedState existe, tags/imode/texto
+  // saem EXATAMENTE do que foi gravado, nunca do valor inicial de URL/default.
+  const categoryFacetStateSim = { peixes: { tags: ["ingredient:limao"], ingredientMode: "and", proteinRole: null, text: "cremoso" } };
+  const savedSim = categoryFacetStateSim["peixes"] || null;
+  const selectedFacetTagsSim = (savedSim ? savedSim.tags : []).slice();
+  const ingredientModeSim = (savedSim ? savedSim.ingredientMode : "or") || "or";
+  const searchQuerySim = (savedSim && savedSim.text) || "";
+  assert(
+    JSON.stringify(selectedFacetTagsSim) === JSON.stringify(["ingredient:limao"]) && ingredientModeSim === "and" && searchQuerySim === "cremoso",
+    "simulação de 'voltar de receita': re-ler categoryFacetState pro MESMO catId devolve tags+imode+texto IDÊNTICOS ao que foi gravado antes de sair (obtido tags=" +
+      JSON.stringify(selectedFacetTagsSim) +
+      " imode=" +
+      ingredientModeSim +
+      " texto='" +
+      searchQuerySim +
+      "')"
+  );
+
+  console.log("");
+  section("11e", "ROTA FIXA — nenhuma chamada de Router ao digitar/commitar (tela nunca navega)");
+  const runSearchCatBody = extractFunctionBody(categoryBody, "function runSearch(query) {");
+  assert(!!runSearchCatBody, "runSearch de categoria encontrada e isolada por casamento de chaves");
+  assert(
+    !!runSearchCatBody && runSearchCatBody.indexOf("scopeIds: baseAllIds") !== -1,
+    "runSearch de categoria escopa a busca a baseAllIds (a coleção inteira) — mesmo mecanismo scopeIds do hub"
+  );
+  assert(!!runSearchCatBody && runSearchCatBody.indexOf("Router.") === -1, "TESTE NEGATIVO: runSearch de categoria NÃO chama nenhum método de Router — tela nunca navega ao digitar");
+  assert(!!commitChipCatBody && commitChipCatBody.indexOf("Router.") === -1, "TESTE NEGATIVO: commitChip NÃO chama Router — nunca navega ao commitar chip");
+  assert(!!activeChipsCatBody && activeChipsCatBody.indexOf("Router.") === -1, "TESTE NEGATIVO: × do chip ativo NÃO chama Router — nunca navega ao remover chip");
+  const onApplyCatIdx = categoryBody.indexOf("onApply: () => {");
+  assert(onApplyCatIdx !== -1, "onApply do modal de categoria encontrado");
+  const onApplyCatSnippet = categoryBody.slice(onApplyCatIdx, onApplyCatIdx + 400);
+  assert(onApplyCatSnippet.indexOf("Router.") === -1, "TESTE NEGATIVO: onApply do modal de categoria NÃO chama Router — Aplicar também não navega");
+
   // P2 (reconciliação de contagens, 2026-07-29): tabela seção -> asserções, lida direto de
   // sectionCounts (a MESMA estrutura que assert() já incrementou seção a seção, nunca um
   // recálculo em paralelo) — a soma abaixo tem que fechar EXATAMENTE com failures+total OK.
