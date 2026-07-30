@@ -242,6 +242,51 @@ const ACERVO = [
       " nothing crowded, no scattered small items, no busy pattern, nothing arranged symmetrically" +
       " or in a grid.",
   },
+
+  // ---------- MOMENTOS (3) — tela Pesquisar ----------
+  // Superfície NOVA e a mais exigente do acervo: o card de Momento tem ~120px. Nesse tamanho
+  // detalhe simplesmente não existe — sobrevivem SILHUETA e COR, nada mais. Por isso os três
+  // assuntos abaixo são deliberadamente mais pobres em elementos que os das categorias: UMA forma
+  // dominante que se lê de relance, e o resto é superfície.
+  // O template padrão já empurra pra isso ("two or three elements", "fill about half the frame"),
+  // mas aqui reduzo a UM objeto protagonista mais um coadjuvante pequeno — dois já é o teto.
+  //
+  // Momento não é categoria: é intenção de uso. A imagem tem que prometer o CONTEÚDO real do
+  // Momento, não uma vibe genérica de comida. É o risco nomeado do café da manhã abaixo.
+  {
+    id: "momento-cafe-da-manha", label: "Momento: Café da Manhã", superficie: "wooden worktop",
+    // RISCO NOMEADO pelo briefing: o conteúdo deste Momento é PADARIA. Se a imagem virar ovos
+    // benedict ou uma mesa farta de brunch, ela promete o que a lista não entrega. Por isso o pão
+    // é o protagonista absoluto e o café é coadjuvante — e nada de ovo no quadro.
+    // REPROVADA na rodada 1 por DOIS motivos, e o segundo só apareceu no teste de 120px:
+    //   1. veio torrada de pão de forma. "Griddled bread" não basta — pão na chapa é pão FRANCÊS
+    //      ABERTO, e é preciso dizer isso, com a forma nomeada.
+    //   2. claro sobre claro sobre claro: prato branco + pão pálido + mesa clara. A 120px virou
+    //      mancha bege em círculo bege, e o único contraste era a xícara, que é coadjuvante.
+    //      Este é o defeito que o resto do acervo não tem, porque lá o assunto é escuro (bife,
+    //      feijoada, bolo de chocolate) ou colorido. Café da manhã é pálido por natureza, então o
+    //      contraste tem que ser PEDIDO: marcas escuras de chapa no pão e o café como segunda
+    //      âncora escura, grande e perto — não um detalhe no canto.
+    assunto: "a Brazilian 'pão na chapa': one crusty white bread roll SPLIT OPEN lengthwise into two" +
+      " halves, laid cut-side up and griddled, with DARK GOLDEN-BROWN GRIDDLE MARKS striping the cut" +
+      " faces and melted butter pooling in them, on a small plate filling most of the frame, and" +
+      " right beside it a generous white cup of very dark black coffee, large and close — the deep" +
+      " brown of the griddle marks and the near-black coffee are the only dark tones and they must" +
+      " read strongly against the pale plate and pale surface. No sliced sandwich bread, no toast," +
+      " no eggs, no other dishes anywhere",
+  },
+  {
+    id: "momento-rapidas", label: "Momento: Rápidas", superficie: "wooden worktop",
+    assunto: "one single wide frying pan, filling most of the frame, holding a vivid colourful" +
+      " stir-fry just finished cooking — glossy vegetables and strips of meat, still glistening," +
+      " with a faint wisp of steam rising, as if it came off the heat one second ago",
+  },
+  {
+    id: "momento-fim-de-semana", label: "Momento: Fim de Semana", superficie: "wooden worktop",
+    assunto: "one heavy cast iron pot with the lid off, filling most of the frame, holding a deep" +
+      " dark braise of beef so slow-cooked it is falling apart into shreds in the glossy sauce, a" +
+      " serving fork lifting some of the meat to show how tender it is",
+  },
 ];
 
 // -------------------------------------------------------------------------------------------------
