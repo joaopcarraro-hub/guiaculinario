@@ -140,6 +140,22 @@ do fallback genérico do fim da função — e `renderReceita` calcula `fromHome
 do back-float ("Início"), pelo mesmo motivo que `fromBusca`/`fromMinhasReceitas` já tinham rótulo
 próprio. Suíte dedicada em `scripts/verify-recentes-ui-2026-07-25.js`.
 
+**Rodada 4 (Dívida #3, 2026-07-30) — 2 furos fechados, premissa vira invariante travada:** Lista
+de Compras (nome da receita, `Router.toReceita`) e Preparos (retomar sessão, `Router.toCozinhar`)
+navegavam SEM fromHash — Voltar caía na categoria da receita em vez da tela de origem real,
+violando a regra da seção acima. As duas chamadas ganharam o 2º argumento (`"lista-compras"` e
+`"preparos"`, mesmo padrão de `"home"` na Rodada 3); `renderReceita` ganhou `fromListaCompras`/
+`fromPreparos` e os 2 elos correspondentes no ternário de `backDestLabel`. Os "4 caminhos" viram
+6, contando por rótulo distinto no ternário: categoria, busca, minhas-receitas, home,
+lista-compras, preparos (o fallback pra categoria da receita fica de fora da contagem — só
+dispara sem NENHUM fromHash, deep link/bookmark). A premissa "cada coleção tem UM caminho de
+entrada" (que justifica o back-float com destino calculado em `renderGrupo`/`renderCategory`, ver
+parágrafos acima) deixa de ser só documentada em prosa e vira invariante TRAVADA: cada coleção
+tem exatamente os 4 pontos de entrada censados em `scripts/verify-nav-graph-2026-07-30.js`
+(`Router.toCategoria(` = 4). Call site novo de `Router.to*` quebra essa suíte de propósito — ao
+aparecer um, atualizar o censo E decidir conscientemente o mecanismo de volta (fromHash vs
+destino estrutural calculado) antes de dar green, nunca só ajustar o número pra fazer passar.
+
 EXCEÇÃO: a tela do modo de preparo (cozinhar) NUNCA deve ter botão voltar adicional — só o
 botão "Sair do modo cozinhar" resolve a saída daquela tela, e continua sendo o ÚNICO controle
 flutuante ali (nenhum `.back-float` nunca deve aparecer no modo cozinhar). Rodada 2: esse botão

@@ -140,8 +140,8 @@ function main() {
   const receitaFnBody = sliceFn(appJs, "function renderReceita(id, fromHash) {", "renderReceita");
   assert(receitaFnBody.includes("createBackFloat(backDestLabel, () => {"), "renderReceita chama o helper compartilhado (não constrói o botão inline mais)");
   assert(
-    receitaFnBody.includes("const backDestLabel = backCollection ? backCollection.label : fromBusca ? \"Pesquisar\" : fromMinhasReceitas ? \"Minhas Receitas\" : fromHome ? \"Início\" : cat ? cat.label : catId;"),
-    "cadeia de fallback do destino: rodada 1 preservada + elo novo pra Home (item 4, carrossel de recentes — coleção > busca > minhas receitas > home > categoria da receita), ver scripts/verify-recentes-ui-2026-07-25.js"
+    receitaFnBody.includes("const backDestLabel = backCollection ? backCollection.label : fromBusca ? \"Pesquisar\" : fromMinhasReceitas ? \"Minhas Receitas\" : fromHome ? \"Início\" : fromListaCompras ? \"Lista de Compras\" : fromPreparos ? \"Preparos\" : cat ? cat.label : catId;"),
+    "cadeia de fallback do destino: rodada 1 preservada + elo home (item 4) + elos lista de compras/preparos (Dívida #3, 2026-07-30 — coleção > busca > minhas receitas > home > lista de compras > preparos > categoria da receita), ver scripts/verify-nav-graph-2026-07-30.js"
   );
   assert(receitaFnBody.includes("if (fromHash) Router.navigate(fromHash);"), "fromHash real (histórico) tem prioridade — mecanismo intacto");
   assert(receitaFnBody.includes("else Router.toCategoria(backCollection ? backCollection.id : catId);"), "Router.toCategoria só é fallback sem contexto — nunca destino hardcoded");
@@ -208,8 +208,9 @@ function main() {
   console.log("==================================================");
   // Cadeia de bumps desde esta suíte: v25 (verify-recentes-ui-2026-07-25.js, carrossel) -> v26
   // (verify-card-contract-2026-07-25.js, redesenho completo do card) — mesma regra do CLAUDE.md,
-  // cada leva que muda css/style.css ou js/app.js sobe a versão, e esta asserção sempre
-  // acompanha o bump MAIS RECENTE, nunca uma versão presa no passado.
+  // cada leva que muda css/style.css ou js/app.js sobe a versão, e esta asserção valida
+  // formato+piso lendo o sw.js dinamicamente desde 2026-07-30 (o acompanhamento manual do
+  // literal morreu após quebrar 6 bumps seguidos).
   // v29 -> v30: hotfix 2026-07-26 (pointer-events da whitelist de body, ver
   // scripts/verify-filter-modal-pointer-events-2026-07-26.js), não uma rodada desta feature.
   // v30 -> v31: leva final de sobras (2026-07-26) — header de ingredientes perdeu o contador
@@ -220,7 +221,11 @@ function main() {
   // categoria/home e banner de hub, ver scripts/verify-categoria-tiles-2026-07-26.js.
   // v33 -> v34: rumo novo de Países — mural de bandeiras extinto, tile de país vira foto de
   // receita-assinatura. v34 -> v35: calibração final do banner de hub — blur/scale removidos.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v40";'), "CACHE_NAME v40 — 16º bump desde esta suíte (..., v37->v38 ajuste visual do trilho deslizante, v38->v39 correção de semântica de Papel da proteína, v39->v40 mini-rodada visual de fechamento — media 4:3 + calha do #main, 2026-07-29), mesma regra do CLAUDE.md");
+  const swCacheMatch = swJs.match(/const CACHE_NAME = "cardapio-v(\d+)";/);
+  assert(
+    !!swCacheMatch && parseInt(swCacheMatch[1], 10) >= 40,
+    "CACHE_NAME presente no formato cardapio-vN com N >= 40 (obtido " + (swCacheMatch ? "v" + swCacheMatch[1] : "nenhum") + ") — lido DINAMICAMENTE do sw.js (Dívida #3, 2026-07-30, 2ª exceção autorizada): o literal preso no passado quebrou 6 bumps seguidos; a regra do bump continua no CLAUDE.md, o piso >= 40 garante que a versão nunca regride"
+  );
 
   console.log("");
   console.log("==================================================");

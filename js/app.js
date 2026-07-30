@@ -2896,7 +2896,7 @@
         });
         card.appendChild(deleteBtn);
 
-        card.addEventListener("click", () => Router.toCozinhar(session.recipeId));
+        card.addEventListener("click", () => Router.toCozinhar(session.recipeId, "preparos"));
         card.setAttribute("aria-label", "Continuar preparo de " + recipe.name);
         makeKeyboardClickable(card);
         list.appendChild(card);
@@ -3321,7 +3321,7 @@
       nameLink.innerHTML = "<span>" + recipe.name + "</span>" + iconSvg("arrowUpRight", "text-link__icon");
       nameLink.addEventListener("click", (e) => {
         e.stopPropagation();
-        Router.toReceita(entry.recipeId);
+        Router.toReceita(entry.recipeId, "lista-compras");
       });
       row.appendChild(nameLink);
 
@@ -3786,6 +3786,8 @@
     // cairia no "cat ? cat.label : catId", mostrando a categoria da receita como se fosse a
     // origem, mesmo o clique realmente voltando pra Home.
     const fromHome = fromHash === "home";
+    const fromListaCompras = !!fromHash && fromHash.indexOf("lista-compras") === 0;
+    const fromPreparos = !!fromHash && fromHash.indexOf("preparos") === 0;
 
     activeCat = catId;
     refreshActiveCounts = null;
@@ -3800,7 +3802,7 @@
     // Flutuante (acompanha o scroll, ver .back-float no CSS) — substitui o antigo back-button
     // fixo no topo do fluxo. Rótulo vira aria-label (o botão não tem mais texto visível, só o
     // ícone chevron-esquerda), preservando o mesmo contexto que o texto antigo dava.
-    const backDestLabel = backCollection ? backCollection.label : fromBusca ? "Pesquisar" : fromMinhasReceitas ? "Minhas Receitas" : fromHome ? "Início" : cat ? cat.label : catId;
+    const backDestLabel = backCollection ? backCollection.label : fromBusca ? "Pesquisar" : fromMinhasReceitas ? "Minhas Receitas" : fromHome ? "Início" : fromListaCompras ? "Lista de Compras" : fromPreparos ? "Preparos" : cat ? cat.label : catId;
     page.appendChild(
       createBackFloat(backDestLabel, () => {
         // Volta pro hash de origem EXATO (mesmas tags/role/imode na coleção, tags/text/imode na
