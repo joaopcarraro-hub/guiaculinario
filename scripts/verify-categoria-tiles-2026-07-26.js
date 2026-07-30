@@ -427,7 +427,11 @@ function main() {
   // base o espaçamento vem do .filter-tile pai (flex column + gap, ver seção 1); aqui, sem
   // gap/flex PRÓPRIO de __band, colidiam de vdd na tela: "Itália12" sem separação nenhuma.
   assert(/display:\s*flex;/.test(filterPhotoBandRule) && /flex-direction:\s*column;/.test(filterPhotoBandRule), "rodada 4 (achado ao vivo): .filter-tile--photo .filter-tile__band é flex column — label e contagem (2 <span> irmãos colados no HTML) precisam de layout próprio pra não colidir");
-  assert(/gap:\s*2px;/.test(filterPhotoBandRule), "rodada 4 (achado ao vivo): gap:2px entre label e contagem (mesmo valor de .category-card__band, consistência visual entre os 2 componentes)");
+  // Higiene 2026-07-30 (commit 2f5fe83, pente-fino pós-Busca): o gap de 2px literal (fora da
+  // escala de tokens) foi identificado ao vivo como apertado demais e subiu pra var(--space-1)
+  // — mesmo valor (4px), agora com token. .category-card__band subiu JUNTO (os 2 continuam
+  // deliberadamente iguais entre si, só o valor mudou) — ver comentário no CSS.
+  assert(/gap:\s*var\(--space-1\);/.test(filterPhotoBandRule), "gap: var(--space-1) entre label e contagem (era 2px literal, subiu junto com .category-card__band no commit 2f5fe83 — consistência visual entre os 2 componentes preservada)");
   assert(!/^\s*display:\s*block;/m.test(filterPhotoBandRule), "TESTE NEGATIVO: .filter-tile--photo .filter-tile__band não é mais só display:block (era o bug — sem gap, label+contagem coladas)");
 
   console.log("");
@@ -539,7 +543,7 @@ function main() {
   console.log("9. SERVICE WORKER — v35 (calibração final do banner de hub, sem blur) + APP_SHELL completo");
   console.log("==================================================");
   const swJs = fs.readFileSync(path.join(ROOT, "sw.js"), "utf8");
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v40";'), "CACHE_NAME v36 -> ... -> v39 -> v40 (v39, 2026-07-29, correção de semântica de Papel da proteína, fora desta feature; v40, mesmo dia, mini-rodada visual de fechamento — ESTA é a feature: .category-card__media 1:1 -> 4:3, ver seção 6a)");
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v50";'), "CACHE_NAME v36 -> ... -> v40 -> ... -> v50 (higiene 2026-07-30: literal preso em v40 havia 10 versões; v39/v40 são a própria feature desta suíte, ver seção 6a; v50 é a rodada Ordenar+respiro, fora desta feature)");
   // Regressão que passou despercebida desde que js/countries.js foi criado: o arquivo é
   // pré-requisito duro de js/categories.js e js/collections.js (os dois leem window.COUNTRIES
   // no topo, fora de função) e não estava no APP_SHELL. Ficava no cache só de carona, pelo

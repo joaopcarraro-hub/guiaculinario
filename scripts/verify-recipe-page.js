@@ -221,7 +221,14 @@ function main() {
   assert(/margin-bottom:\s*var\(--space-6\);/.test(ctaRule), "CTA: espaço até os 2 secundários — --space-6 (era --space-5)");
   const actionsRhythmRule = sliceRule(css, ".recipe-page-actions {", "regra .recipe-page-actions (ritmo)");
   assert(/margin-bottom:\s*var\(--space-6\);/.test(actionsRhythmRule), "secundários: espaço até Ingredientes — --space-6 (já estava correto antes desta rodada)");
-  const tagChipRhythmRule = sliceRule(css, ".recipe-page-tags .tag-chip-link::after {", "regra ::after das tags (inset recalibrado, rodada 3)");
+  // Higiene 2026-07-30 (commit 2f5fe83, pente-fino pós-Busca): o tratamento calibrado (36px +
+  // hit-area -6px), antes escopado só a ".recipe-page-tags .tag-chip-link", foi hoisted pra
+  // regra BASE ".tag-chip-link" — o mesmo card em busca/hub/categoria/Minhas Receitas
+  // (.recipe-card__tag) media ~22px sem hit-area nenhuma com a classe base sozinha, e os 2
+  // únicos consumidores reais da classe precisavam do mesmo alvo de toque. Valores IDÊNTICOS
+  // (confirmado ao vivo: 36px, padding 8px/14px, inset -6px, nenhuma mudança visual na página
+  // da receita) — só a regra escopada específica foi removida por ficar 100% redundante.
+  const tagChipRhythmRule = sliceRule(css, ".tag-chip-link::after {", "regra ::after das tags (inset recalibrado, rodada 3 — hoisted pra base no commit 2f5fe83)");
   // -6px, não -5px: .tag-chip-link (base) tem border:1px, que "come" 1px do inset (mesma causa
   // raiz da Fase 0a pro .portion-stepper__btn) — sem compensar, o alcance efetivo media ~4-4,5px
   // ao vivo, não os 5px pretendidos. Achado ao vivo via elementFromPoint nesta rodada.
@@ -245,13 +252,16 @@ function main() {
   console.log("==================================================");
   console.log("10. TAGS >=44px — fecha a exceção documentada da Fase 0a (.recipe-page-tags .tag-chip-link, 37-38px). Dimensões revertidas/recalibradas na rodada 3 (revisão do dono) — aqui a MATEMÁTICA final");
   console.log("==================================================");
-  const tagChipRule = sliceRule(css, ".recipe-page-tags .tag-chip-link {", "regra .recipe-page-tags .tag-chip-link");
+  // Higiene 2026-07-30 (commit 2f5fe83): mesmo hoist do bullet 8 acima — ".recipe-page-tags
+  // .tag-chip-link" não existe mais como regra própria, os valores vivem na base ".tag-chip-link"
+  // agora (idênticos, confirmado ao vivo: 36px/padding/inset — zero mudança visual nesta tela).
+  const tagChipRule = sliceRule(css, ".tag-chip-link {", "regra .tag-chip-link (base — hoisted de .recipe-page-tags .tag-chip-link no commit 2f5fe83)");
   const minHeightMatch = tagChipRule.match(/min-height:\s*(\d+)px/);
   // Rodada 3: REVERTE a direção da rodada 1 (que pedia chip mais baixo que 30px) — agora é
   // maior, 36px, pra ler como um chip "cheio" outra vez, não um item espalhado.
   assert(!!minHeightMatch && parseInt(minHeightMatch[1], 10) === 36, "chip 36px (rodada 3: reverte a redução da rodada 1 — era 28px, spec agora pede maior/mais próximo) — " + (minHeightMatch && minHeightMatch[1]));
   assert(/padding:\s*var\(--space-2\)\s*14px;/.test(tagChipRule), "padding ~8px var(--space-2) / 14px (rodada 3)");
-  const tagChipAfterRule = sliceRule(css, ".recipe-page-tags .tag-chip-link::after {", "regra ::after do hit-padding das tags");
+  const tagChipAfterRule = sliceRule(css, ".tag-chip-link::after {", "regra ::after do hit-padding das tags (base, hoisted no commit 2f5fe83)");
   const insetMatch = tagChipAfterRule.match(/inset:\s*(-?\d+)px;/);
   assert(!!insetMatch, "inset uniforme declarado no ::after");
   if (minHeightMatch && insetMatch) {
@@ -303,7 +313,7 @@ function main() {
   // mudou de novo, mesma regra de sempre (todo push que toca APP_SHELL bumpa CACHE_NAME).
   // v32 -> v33: item final do redesenho visual. v33 -> v34: rumo novo de Países. v34 -> v35:
   // calibração final do banner de hub (blur/scale removidos) — todos fora desta feature.
-  assert(/const CACHE_NAME = "cardapio-v40";/.test(swJs), "CACHE_NAME v33 -> ... -> v39 -> v40 (v39 correção de semântica de Papel da proteína, v40 mini-rodada visual de fechamento — media 4:3 + calha do #main, 2026-07-29 — as 2 fora desta feature)");
+  assert(/const CACHE_NAME = "cardapio-v50";/.test(swJs), "CACHE_NAME v33 -> ... -> v40 -> ... -> v50 (higiene 2026-07-30: literal preso em v40 havia 10 versões, ambas v39/v40 fora desta feature; v50 é a rodada Ordenar+respiro, também fora)");
 
   console.log("");
   console.log("==================================================");

@@ -232,6 +232,28 @@ function main() {
   console.log("==================================================");
   console.log("3. TAGS IDÊNTICAS ANTES x DEPOIS DA LEVA 2 (renomear não deriva tag nenhuma)");
   console.log("==================================================");
+  // Higiene 2026-07-30: 2 exceções conhecidas — o commit dbd733b (eixo nature, 2026-07-29,
+  // "12 correções de identidade aprovadas") mudou as tags manuais destas 2 receitas por razão
+  // TOTALMENTE separada do renome de nome pra português (leva 2, este arquivo) — confirmado via
+  // `git log -S` isolando exatamente esse commit como origem de cada mudança, nenhum outro. Não
+  // é regressão do renome (a seção 1 acima já garante nome/slug intactos) nem falha desta suíte
+  // — é dado mais recente e aprovado sobrepondo um "antes" fixo de 6 dias atrás. Exceção documenta
+  // o valor NOVO esperado em vez de afrouxar a comparação — qualquer 3ª tag mudando sem entrar
+  // aqui continua pegando a suíte de propósito.
+  const KNOWN_TAG_CHANGES_POST_BASE = {
+    "tecnicas-contemporaneas-2|Glace de Carne": {
+      // Único delta: protein:boi -> contains:boi (as outras 6 tags derivadas idênticas).
+      before: ["country:franca", "cuisine:franca", "difficulty:media", "dish_type:tecnica-avancada", "format:tecnica", "protein:boi", "time:mais-de-1h"],
+      after: ["contains:boi", "country:franca", "cuisine:franca", "difficulty:media", "dish_type:tecnica-avancada", "format:tecnica", "time:mais-de-1h"],
+      reason: "dbd733b: Glace de Carne é preparo/técnica (glace, não prato de boi) — protein:boi rebaixado pra contains:boi, mesma lógica da partição prato/preparo/técnica",
+    },
+    "dinamarca|Molho de Salsinha": {
+      // Único delta: ganha format:molho (as outras 8 tags derivadas idênticas, puramente aditivo).
+      before: ["country:dinamarca", "cuisine:dinamarca", "diet:vegetariana", "difficulty:facil", "ingredient:leite", "seasoning:noz-moscada", "seasoning:salsinha", "time:ate-1h", "time:ate-30-min"],
+      after: ["country:dinamarca", "cuisine:dinamarca", "diet:vegetariana", "difficulty:facil", "format:molho", "ingredient:leite", "seasoning:noz-moscada", "seasoning:salsinha", "time:ate-1h", "time:ate-30-min"],
+      reason: "dbd733b: ganhou format:molho (tag nova da leva de derivação, aditiva — resto preservado)",
+    },
+  };
   RENAMES.forEach(([catId, oldName, newName]) => {
     const beforeItem = beforeFlat.find((it) => it.catId === catId && it.recipe.name === oldName);
     const afterItem = afterFlat.find((it) => it.catId === catId && it.recipe.name === newName);
@@ -241,6 +263,15 @@ function main() {
     }
     const beforeTags = beforeItem.tags.slice().sort();
     const afterTags = afterItem.tags.slice().sort();
+    const knownChange = KNOWN_TAG_CHANGES_POST_BASE[catId + "|" + newName];
+    if (knownChange) {
+      assert(
+        JSON.stringify(beforeTags) === JSON.stringify(knownChange.before.slice().sort()) &&
+          JSON.stringify(afterTags) === JSON.stringify(knownChange.after.slice().sort()),
+        catId + "/" + newName + ": tag mudou por razão aprovada e já documentada (" + knownChange.reason + ") — " + afterTags.length + " tags"
+      );
+      return;
+    }
     assert(
       JSON.stringify(beforeTags) === JSON.stringify(afterTags),
       catId + "/" + newName + ": tags idênticas (" + afterTags.length + " tags)"

@@ -198,8 +198,17 @@ function main() {
       /deleteBtn\.(?:textContent = "✕"|innerHTML = iconSvg\("close", "preparo-card__delete-icon"\));/g,
       "deleteBtn.__BOTAO_REMOVER_ICONE_NORMALIZADO__;"
     );
-  const appJsBefore = normalizeKnownFase0cIconChange(norm(execSync("git show " + BASE_COMMIT + ":js/app.js", { cwd: ROOT, encoding: "utf8" })));
-  const appJsNormalized = normalizeKnownFase0cIconChange(norm(appJs));
+  // Higiene 2026-07-30 — mesmo padrão do normalizador acima, 2ª exceção legítima e já documentada:
+  // Dívida #3 (commit 00b430b, 2026-07-30) fechou o furo de fromHash da Lista de Compras (Voltar
+  // caía na categoria da receita em vez da própria lista) adicionando o 2º argumento a
+  // Router.toReceita — mudança de navegação aprovada e sem relação nenhuma com o agrupamento por
+  // corredor que esta suíte protege (confirmado via `git log -S` isolando exatamente esse commit
+  // como origem, nenhum outro delta na função). Normaliza os DOIS lados pro mesmo texto canônico
+  // antes de comparar — qualquer OUTRA divergência continua pegando.
+  const normalizeKnownDivida3FromHash = (s) =>
+    s.replace(/Router\.toReceita\(entry\.recipeId(?:, "lista-compras")?\);/g, "Router.toReceita(entry.recipeId)/*__FROMHASH_NORMALIZADO__*/;");
+  const appJsBefore = normalizeKnownDivida3FromHash(normalizeKnownFase0cIconChange(norm(execSync("git show " + BASE_COMMIT + ":js/app.js", { cwd: ROOT, encoding: "utf8" }))));
+  const appJsNormalized = normalizeKnownDivida3FromHash(normalizeKnownFase0cIconChange(norm(appJs)));
   function extractFn(src, name) {
     const start = src.indexOf("function " + name + "(");
     if (start === -1) return null;

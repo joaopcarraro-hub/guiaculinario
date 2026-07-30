@@ -165,7 +165,14 @@ function main() {
   console.log("==================================================");
   console.log("6. Call sites — estrutura IDÊNTICA nos 6, divergência zero do cat-chip");
   console.log("==================================================");
-  const site1 = 'recipeResultsEl.appendChild(renderRecipeCard(item, { fromHash: fromHash }));';
+  // Higiene 2026-07-30: o motor unificado de busca (commit 8fee82c, 2026-07-29) reestruturou
+  // renderGrupo pro mesmo padrão block1/block2 de resultado que renderBusca já usa (ver site4
+  // logo abaixo, que já esperava "r.item") — o loop passou de "item" solto pra "r.item" (item
+  // vira um wrapper {item, ...} do resultado de busca). Confirmado ao vivo (busca por "limão"
+  // dentro do hub Proteínas, 80 resultados): card renderizado é .recipe-card padrão, ZERO
+  // .cat-chip/"catLabel" no HTML — divergência zero preservada, só o nome da variável do loop
+  // mudou. Sem relação com card/catLabel nenhuma.
+  const site1 = 'recipeResultsEl.appendChild(renderRecipeCard(r.item, { fromHash: fromHash }));';
   const site2 = 'sortedItems.forEach((item) => listEl.appendChild(renderRecipeCard(item, { fromHash: fromHash, countryOverride: countryOverride })));';
   const site3 = 'resultsEl.appendChild(renderRecipeCard(item, { fromHash: fromHash, countryOverride: countryOverride }));';
   const site4 = 'resultsEl.appendChild(renderRecipeCard(r.item, { fromHash: fromHash, countryOverride: countryOverride }));';
@@ -264,7 +271,7 @@ function main() {
   // vira foto de receita-assinatura, css/style.css e js/app.js mudaram de novo, fora desta
   // feature. v34 -> v35: calibração final do banner de hub (2026-07-26) — blur/scale removidos
   // de .grupo-banner__img, só css/style.css, também fora desta feature.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v40";'), "CACHE_NAME v36 -> ... -> v39 -> v40 (v39 correção de semântica de Papel da proteína, v40 mini-rodada visual de fechamento — media 4:3 + calha do #main, 2026-07-29 — as 2 fora desta feature)");
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v50";'), "CACHE_NAME v36 -> ... -> v40 -> ... -> v50 (higiene 2026-07-30: literal preso em v40 havia 10 versões, ambas v39/v40 fora desta feature; v50 é a rodada Ordenar+respiro, também fora)");
   assert(!swJs.includes('const CACHE_NAME = "cardapio-v25";'), "v25 não sobrevive — teste negativo");
 
   console.log("");

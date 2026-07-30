@@ -106,9 +106,18 @@ function main() {
     'checagem explícita de "home" (topo de parseHash) vem ANTES do fallback genérico do fim — não depende dele, "home" resolveria mesmo que esse fallback mudasse depois'
   );
   assert(appJs.includes('const fromHome = fromHash === "home";'), "renderReceita calcula fromHome explicitamente");
+  // Higiene 2026-07-30: Dívida #3 (commit 00b430b, 2026-07-30) inseriu 2 elos NOVOS no meio da
+  // cadeia (fromListaCompras/fromPreparos, fechando os 2 furos de fromHash da Lista de Compras
+  // e Preparos) — o "Início" desta rodada continua no mesmo lugar da cadeia (logo depois de
+  // fromMinhasReceitas), só ganhou vizinhos depois dele. Reproduzido ao vivo (Home -> carrossel
+  // "Vistas recentemente" -> Carbonara -> back-float): aria-label exato "Voltar para Início",
+  // clique no float navega pra "#/home" (destino real confirmado, não só o rótulo) — comportamento
+  // 100% intacto, só o literal do teste estava defasado do tamanho novo da cadeia.
   assert(
-    appJs.includes('fromMinhasReceitas ? "Minhas Receitas" : fromHome ? "Início" : cat ? cat.label : catId;'),
-    'rótulo do back-float mostra "Início" quando a origem é o carrossel — nunca a categoria da receita, mesmo o destino real sendo Home'
+    appJs.includes(
+      'fromMinhasReceitas ? "Minhas Receitas" : fromHome ? "Início" : fromListaCompras ? "Lista de Compras" : fromPreparos ? "Preparos" : cat ? cat.label : catId;'
+    ),
+    'rótulo do back-float mostra "Início" quando a origem é o carrossel — nunca a categoria da receita, mesmo o destino real sendo Home (verificado ao vivo: aria-label "Voltar para Início" + clique navega pra #/home)'
   );
 
   console.log("");
@@ -163,7 +172,7 @@ function main() {
   // ingredientes, css/style.css mudou de novo, também fora desta feature.
   // v32 -> v33: item final do redesenho visual. v33 -> v34: rumo novo de Países. v34 -> v35:
   // calibração final do banner de hub (blur/scale removidos) — todos fora desta feature.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v40";'), "CACHE_NAME v36 -> ... -> v39 -> v40 (v39, correção de semântica de Papel da proteína, fora desta feature; v40, mesmo dia, mini-rodada visual de fechamento — ESTA é a feature: calha do #main --space-5 -> --space-4, ver seção 12)");
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v50";'), "CACHE_NAME v36 -> ... -> v40 -> ... -> v50 (higiene 2026-07-30: literal preso em v40 havia 10 versões; v39/v40 fora desta feature exceto a calha do #main, ver seção 12; v50 é a rodada Ordenar+respiro, também fora)");
   assert(!swJs.includes('const CACHE_NAME = "cardapio-v25";'), "v25 não sobrevive — teste negativo (a versão desta tarefa foi sucedida, não deixada presa)");
   assert(swJs.includes('"css/style.css"') && swJs.includes('"js/app.js"'), "css/style.css e js/app.js seguem no APP_SHELL precache");
 

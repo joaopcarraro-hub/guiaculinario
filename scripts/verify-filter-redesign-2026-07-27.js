@@ -235,7 +235,7 @@ function main() {
   console.log("==================================================");
   console.log("11. SERVICE WORKER — CACHE_NAME bump (css/style.css e js/app.js mudam)");
   console.log("==================================================");
-  assert(/const CACHE_NAME = "cardapio-v40";/.test(swJs), "CACHE_NAME v35 -> ... -> v39 -> v40 (v37/v38/v39 tocam item 1b desta MESMA suíte, ver seção 3 acima; v40 é a mini-rodada visual de fechamento, 2026-07-29 — media 4:3 da grade + calha do #main, fora desta feature)");
+  assert(/const CACHE_NAME = "cardapio-v50";/.test(swJs), "CACHE_NAME v35 -> ... -> v40 -> ... -> v50 (higiene 2026-07-30: literal preso em v40 havia 10 versões — v37/v38/v39 tocam item 1b desta MESMA suíte, v40 é a mini-rodada visual de fechamento, 2026-07-29, ambos fora deste hotfix; v50 é a rodada Ordenar+respiro, também fora)");
 
   console.log("");
   console.log("==================================================");
