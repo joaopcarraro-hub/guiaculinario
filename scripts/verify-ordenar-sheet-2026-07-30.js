@@ -138,9 +138,13 @@ function main() {
 
   console.log("");
   console.log("==================================================");
-  console.log("6. SERVICE WORKER — CACHE_NAME NÃO bumpa neste commit (bump único fica pro commit 2)");
+  console.log("6. SERVICE WORKER — CACHE_NAME (bump único combinado, ver commit 2)");
   console.log("==================================================");
-  assert(/const CACHE_NAME = "cardapio-v49";/.test(swJs), "CACHE_NAME continua v49 — este commit não altera sw.js, o bump único é combinado (spec da tarefa) pro commit 2, junto do respiro de espaçamento");
+  // v49 -> v50: bump único da rodada, feito no commit 2 (respiro de espaçamento) por decisão da
+  // spec da tarefa — este commit (1) não alterava sw.js sozinho, mas o literal aqui precisa
+  // acompanhar o valor FINAL depois dos 2 commits (mesmo padrão de literal-encadeado de sempre:
+  // toda suíte pina a versão vigente, não a de quando foi escrita).
+  assert(/const CACHE_NAME = "cardapio-v50";/.test(swJs), "CACHE_NAME v49 -> v50 (bump único da rodada, ver commit 2)");
 
   console.log("");
   console.log("==================================================");

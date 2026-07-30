@@ -1528,13 +1528,14 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
    column, os 2 são filhos diretos dele junto do ícone). Aqui os 2 viraram filhos de __band,
    que só tinha display:block (sem gap) — colidiam sem espaço nenhum ("Itália12"). flex column +
    align-items:center (não stretch, pra manter o mesmo centro dos outros tiles do grid — Equipamento/
-   Proteína são ícone+label+contagem todos centralizados) resolve, mesmo gap:2px de
-   .category-card__band pra double-check visual consistente entre os 2 componentes. */
+   Proteína são ícone+label+contagem todos centralizados) resolve, mesmo gap de
+   .category-card__band pra double-check visual consistente entre os 2 componentes — pente-fino
+   2026-07-30 subiu os 2 juntos de 2px literal pra var(--space-1), ver comentário lá. */
 .filter-tile--photo .filter-tile__band {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: var(--space-1);
   padding: var(--space-1) var(--space-05);
   background: var(--color-bg);
 }
@@ -1613,6 +1614,13 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
 .tagsearch-input:focus-visible { outline: 2px solid var(--color-accent); } /* Fase 0a: era :focus, migrado pra :focus-visible (mesmo visual) */
 
 .tagsearch-suggestions { margin-top: var(--space-3); }
+/* Pente-fino 2026-07-30 (pós-Busca): sem margin-bottom nenhum, .tagsearch-suggestions colava
+   direto no bloco seguinte com 0px de gap quando populada (achado ao vivo: chip de tag
+   sugerida "Limão" encostando 0px no título "Com esses filtros em Proteínas (N)" — o "texto
+   perto de tags" que o dono reportou). :not(:empty) preserva o caso vazio intocado (container
+   reservado sem altura quando não há sugestão nenhuma, ex. renderCategory sem filtro ativo —
+   0 de gap ali não importa porque não há conteúdo pra colar em nada). */
+.tagsearch-suggestions:not(:empty) { margin-bottom: var(--space-5); }
 .tagsearch-empty {
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
@@ -1693,8 +1701,16 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
 }
 .tagsearch-popular { margin-top: var(--space-1); }
 
-/* ---------- Tags clicáveis (cards e página da receita) ---------- */
+/* ---------- Tags clicáveis (cards e página da receita) ----------
+   Pente-fino 2026-07-30 (pós-Busca): o padrão calibrado de chip (36px, hit-area -6px = 48px
+   efetivo — histórico completo abaixo) vivia só no escopo .recipe-page-tags, criado pra fechar
+   a exceção de hit-area da Fase 0a; a MESMA classe base (.tag-chip-link) reaparece sem esse
+   tratamento em .recipe-card__tag (a tag única de todo card de receita — busca, hub, categoria,
+   Minhas Receitas), medida ao vivo em ~22px sem hit-area nenhuma. Hoisted pra base: reaplicação
+   de régua (já calibrada, já auditada), não desenho novo — os 2 únicos consumidores reais desta
+   classe (confirmado por grep) ganham o mesmo tratamento de uma vez, sem duplicar valores. */
 .tag-chip-link {
+  position: relative;
   border: 1px solid var(--color-border); /* era --gold-soft: borda padrão/estática */
   background: transparent;
   /* era --gold: 11.52px falha o limiar 18px+ de ghost-text. --ink-soft no lugar. */
@@ -1702,12 +1718,18 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
   border-radius: 999px;
   font-family: var(--font-ui);
   font-size: var(--text-xs);
-  padding: var(--space-05) var(--space-3);
+  min-height: 36px;
+  padding: var(--space-2) 14px;
   cursor: pointer;
 }
 /* fundo era --gold-soft (tom tingido, decisão do Bloco 4); texto era #2b241b (escuro, pensado
    pro fundo claro) — fica ilegível aqui, sobe pra --ink (=--color-text-primary). */
 .tag-chip-link:hover { background: var(--color-accent-soft); color: var(--color-text-primary); }
+/* -6px, não -5px: border:1px "come" parte do inset (o inset de um ::after absolute resolve
+   contra o PADDING-BOX do ancestral posicionado, não a borda visível — mesma causa raiz já
+   documentada na Fase 0a pro .portion-stepper__btn). Sem compensar, o alcance efetivo mediria
+   ~4-4,5px por lado, não os 5px pretendidos. 36 + 6 + 6 = 48px efetivo, acima do mínimo de 44px. */
+.tag-chip-link::after { content: ""; position: absolute; inset: -6px; }
 
 /* item 1 de "Deixar pro Fable, depois": fecha a exceção de hit-area da Fase 0a (chip de 30px,
    gap de 8px, ~38px efetivos — 6px abaixo do alvo de 44px). Histórico: rodada 1 tentou chip
@@ -1717,26 +1739,16 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
    MAIOR (36px, mais próximo dos 30px originais que menor) + gap pequeno (calc(--space-2 + 2px)
    = 10px — não há degrau de 10px na escala, por isso o calc em vez de um token puro) — chips
    próximos, alvo de 44px fechado pelo TAMANHO do chip, não pelo gap (ver seção de matemática
-   no ::after abaixo). margin-bottom continua --space-6 (ritmo ENTRE seções, não mudou — só o
-   espaçamento INTERNO das tags reverteu). */
+   acima, agora na regra base). margin-bottom continua --space-6 (ritmo ENTRE seções, não mudou
+   — só o espaçamento INTERNO das tags reverteu). Altura/padding/hit-area do próprio chip
+   (min-height/padding/::after) saíram daqui — hoisted pra .tag-chip-link base (ver acima), já
+   que os 2 únicos consumidores da classe precisam do mesmo tratamento. */
 .recipe-page-tags {
   display: flex;
   flex-wrap: wrap;
   gap: calc(var(--space-2) + 2px);
   margin: 0 0 var(--space-6);
 }
-/* 36 (chip) + 5 + 5 (inset, metade do gap de 10px) = 46px efetivo, acima do mínimo de 44px.
-   padding: --space-2 (8px) vertical, 14px horizontal (fora da escala de propósito — mais
-   estreito que --space-3/12px pareceria apertado num chip de 36px, mais largo que --space-4/
-   16px sobraria demais num --text-xs). */
-.recipe-page-tags .tag-chip-link { position: relative; min-height: 36px; font-size: var(--text-xs); padding: var(--space-2) 14px; }
-/* -6px, não -5px: `.tag-chip-link` (base, compartilhada) tem border:1px — o inset de um ::after
-   absolute resolve contra o PADDING-BOX do ancestral posicionado, não a borda visível (mesma
-   causa raiz já documentada na Fase 0a pro .portion-stepper__btn). Sem compensar, o alcance
-   efetivo media ~4-4,5px por lado ao vivo (elementFromPoint), não os 5px pretendidos — os 1px
-   de borda "comiam" parte do inset silenciosamente. +1px de compensação aqui cobre a borda,
-   voltando ao alcance efetivo pretendido (~5px, confirmado ao vivo depois do ajuste). */
-.recipe-page-tags .tag-chip-link::after { content: ""; position: absolute; inset: -6px; }
 
 /* ---------- Home: tiles principais + "Mais categorias" (Bloco 2 — design tokens v3) ---------- */
 /* Mais evidente que clicável (era só texto solto, sem nenhum sinal visual) — reaproveita os
@@ -1981,10 +1993,17 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
 .category-card--country .category-card__media img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
 .category-card--country .category-card__media.placeholder { color: var(--color-text-disabled); }
 .category-card--country .category-card__media.placeholder svg { width: 24px; height: 24px; }
+/* Pente-fino 2026-07-30 (pós-Busca): gap era 2px literal (fora da escala — nem sequer citava
+   exceção geométrica) entre título e contador ("Aves"/"47 receitas"), medido ao vivo colado
+   (2px reais). Empate exato entre --space-05 (2px) e --space-1 (4px) na régua de tokens —
+   mesma regra de arredondamento pra cima já documentada em docs/DESIGN-TOKENS.md ("empate
+   arredonda pra cima"). Espelhado em .filter-tile--photo .filter-tile__band (ver comentário lá
+   — os 2 eram deliberadamente iguais pra consistência visual entre os 2 componentes; seguem
+   iguais aqui, só o valor sobe junto). */
 .category-card__band {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-1);
   padding: var(--space-2) var(--space-3);
   background: var(--color-bg);
 }
