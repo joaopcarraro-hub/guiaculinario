@@ -235,7 +235,7 @@ function main() {
   console.log("==================================================");
   console.log("11. SERVICE WORKER — CACHE_NAME bump (css/style.css e js/app.js mudam)");
   console.log("==================================================");
-  assert(/const CACHE_NAME = "cardapio-v51";/.test(swJs), "CACHE_NAME v35 -> ... -> v50 -> v51 (higiene F1b 2026-07-30: mais um bump de feature externa, atualizado pro valor vigente)");
+  assert(/const CACHE_NAME = "cardapio-v52";/.test(swJs), "CACHE_NAME v35 -> ... -> v51 -> v52 (corte de natureza 2026-07-30: mais um bump de feature externa, atualizado pro valor vigente)");
 
   console.log("");
   console.log("==================================================");

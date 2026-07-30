@@ -240,6 +240,28 @@
     return !!collection && (collection.collectionType === "protein" || collection.collectionType === "country");
   }
 
+  // S2 (corte de natureza, 2026-07-30): coleção "mundo-próprio" dos preparos — sua identidade
+  // (primaryFilterTags) já NOMEIA o mundo dos preparos (TagModel.isNamingTagSet), então nunca
+  // corta (Molhos Clássicos, Técnicas — esta última já tem ramo technique próprio em
+  // applyRoleAndNature, este helper é redundante ali mas consistente). Não confundir com
+  // isIdentityCollection (proteína/país — corte normal, vista padrão + seção "Preparos e
+  // técnicas"); mundo-próprio é o oposto: a coleção INTEIRA é o mundo dos preparos.
+  function isMundoProprioCollection(collection) {
+    return !!collection && TagModel.isNamingTagSet(collection.primaryFilterTags);
+  }
+
+  // S3 (corte de natureza, 2026-07-30): mesma regra do S2, pro motor de busca (bloco 1 — tags
+  // commitadas + auto-detectadas). Nunca corta bloco 2 (texto livre) — regra 2 do dono (busca
+  // que nomeia sempre alcança o mundo dos preparos, mesmo sem tag nenhuma ativa). Corte é
+  // sempre por recipe.nature, nunca por tag — Legumes Fermentados (nature:prato, mas
+  // format:tecnica) sobrevive mesmo alcançado por uma tag "não-nomeante". entries aceita tanto
+  // {item: <recipeFlatItem>} (bloco1/bloco2 de Search.searchByQuery) quanto o item cru
+  // (facetUniverse) — só um dos dois existe em cada entrada.
+  function cutByNatureIfGeneric(entries, activeTagIds, scopeCollection) {
+    if (isMundoProprioCollection(scopeCollection) || TagModel.isNamingTagSet(activeTagIds)) return entries;
+    return entries.filter((entry) => (entry.item ? entry.item.recipe : entry.recipe).nature === "prato");
+  }
+
   // Ícone de coração pro favoritar (docs/DESIGN-TOKENS.md) — usado tanto no botão da tela de
   // receita quanto no card. Não usa o sistema ICON_SVG_ATTRS/ICONS acima porque precisa de 2
   // estados de PREENCHIMENTO (contorno vazio parado, sólido quando favoritado), não só troca
@@ -986,6 +1008,13 @@
           block2: [],
         };
       }
+      // S3/S4 (corte de natureza, 2026-07-30): hub é mais uma superfície genérica — bloco 1
+      // (guiado por tag) corta quando as tags ativas não nomeiam o mundo dos preparos; bloco 2
+      // (texto livre) nunca corta. Cortado ANTES de calcular scopedTotal/globalTotal (abaixo),
+      // então a válvula promete exatamente o que a busca global vai entregar.
+      const activeTagIds = baseTagIds.concat(parsed.autoTagIds);
+      out.block1 = cutByNatureIfGeneric(out.block1, activeTagIds, null);
+      globalOut.block1 = cutByNatureIfGeneric(globalOut.block1, activeTagIds, null);
       // Dívida #2 (S3, Bug A): hub prometia papel no modal/contagem mas nunca recortava os
       // resultados — único ponto que faltava aplicar o mesmo mecanismo que renderCategory/
       // renderBusca já usam (TagModel.splitByProteinRole). globalOut/globalTotal ficam SEM
@@ -2213,10 +2242,14 @@
     // coadjuvante (intocado); este helper só filtra o resultado por nature quando a coleção é
     // de identidade (proteína/país) — local a renderCategory, não vaza pra renderGrupo/renderBusca.
     function applyRoleAndNature(items, role, S, identityCollection) {
+      // S2 (corte de natureza, 2026-07-30): coleção genérica (não-identidade, não-technique,
+      // não-mundo-próprio) — corte seco por nature, nos 2 ramos (papel ativo ou não), sem seção
+      // de preparos (ao contrário de proteína/país/técnica, que têm seção espelho própria).
+      const isGenericCut = !!identityCollection && identityCollection.collectionType !== "technique" && !isIdentityCollection(identityCollection) && !isMundoProprioCollection(identityCollection);
       if (role === "focus" || role === "secondary") {
         const split = TagModel.splitByProteinRole(items, S);
         const roleItems = role === "focus" ? split.primary : split.secondary;
-        return isIdentityCollection(identityCollection) ? roleItems.filter((item) => item.recipe.nature === "prato") : roleItems;
+        return isIdentityCollection(identityCollection) || isGenericCut ? roleItems.filter((item) => item.recipe.nature === "prato") : roleItems;
       }
       // 3b-UI (2026-07-30): ramo ADITIVO — coleção technique (tecnicas) esconde os pratos
       // (nature:prato) da lista principal quando não há papel de proteína ativo; eles ficam só na
@@ -2225,6 +2258,7 @@
       if (identityCollection && identityCollection.collectionType === "technique") {
         return items.filter((item) => item.recipe.nature !== "prato");
       }
+      if (isGenericCut) return items.filter((item) => item.recipe.nature === "prato");
       if (!isIdentityCollection(identityCollection)) return items;
       const identityItems = S.length ? TagModel.splitByProteinRole(items, S).primary : items;
       return identityItems.filter((item) => item.recipe.nature === "prato");
@@ -2480,13 +2514,20 @@
         renderChips(parsed);
         const out = Search.searchByQuery(query, { parsed: parsed, baseTagIds: baseTagIds, ingredientMode: ingredientMode, scopeIds: baseAllIds });
         const globalOut = Search.searchByQuery(query, { parsed: parsed, baseTagIds: baseTagIds, ingredientMode: ingredientMode });
+        // S3/S4 (corte de natureza, 2026-07-30): bloco 1 corta quando as tags ativas não nomeiam
+        // o mundo dos preparos E a coleção não é mundo-próprio (Molhos/Técnicas continuam vendo
+        // tudo mesmo com facetas aplicadas dentro delas — S5). Bloco 2 (texto livre) nunca corta
+        // — searchResultIds/scopedTotal/globalTotal saem todos do mesmo bloco já cortado.
+        const activeTagIds = baseTagIds.concat(parsed.autoTagIds);
+        out.block1 = cutByNatureIfGeneric(out.block1, activeTagIds, collection);
+        globalOut.block1 = cutByNatureIfGeneric(globalOut.block1, activeTagIds, collection);
         searchResultIds = new Set(out.block1.concat(out.block2).map((r) => r.item.id));
         scopedTotal = out.block1.length + out.block2.length;
         globalTotal = globalOut.block1.length + globalOut.block2.length;
       } else {
         searchResultIds = null;
-        scopedTotal = baseAll.filter((item) => TagModel.matchesGroupedTags(item.tags, baseTagIds, ingredientMode)).length;
-        globalTotal = TagModel.getAllRecipesFlat().filter((item) => TagModel.matchesGroupedTags(item.tags, baseTagIds, ingredientMode)).length;
+        scopedTotal = cutByNatureIfGeneric(baseAll.filter((item) => TagModel.matchesGroupedTags(item.tags, baseTagIds, ingredientMode)), baseTagIds, collection).length;
+        globalTotal = cutByNatureIfGeneric(TagModel.getAllRecipesFlat().filter((item) => TagModel.matchesGroupedTags(item.tags, baseTagIds, ingredientMode)), baseTagIds, collection).length;
       }
       applyFacets();
       renderToolbarState();
@@ -3018,12 +3059,26 @@
       // 2+ ingredientes, ver renderIngredientTileSectionBody) já resolve o caso de AND zerado
       // de forma proativa, direto no modal. Zero resultado aqui é só o empty-state normal.
       let items = facetUniverse(tagIds, ingredientMode);
+      // S3 (corte de natureza, 2026-07-30): generaliza o corte pro motor inteiro, não só o
+      // Momento — resultado guiado por tag (tagIds committed) corta quando as tags ativas não
+      // nomeiam o mundo dos preparos (TagModel.isNamingTagSet), sempre por recipe.nature. Texto
+      // livre (textFilters) NUNCA corta (regra 2 do dono — busca que nomeia sempre alcança).
+      // LIMITE CONHECIDO (aceito na auditoria, não é bug): facetUniverse combina tag+texto num
+      // único AND — não existe aqui a separação bloco1(tag)/bloco2(texto) que preview/hub/
+      // categoria têm de verdade via Search.searchByQuery. Por isso a regra vira uma aproximação:
+      // corta só quando NÃO há textFilters ativo; qualquer textFilters ativo pula o corte por
+      // INTEIRO (não só pro item que casou o texto). Não testado: tag não-nomeante + textFilters
+      // ativo simultâneos onde o texto NÃO bate em nenhum item — nesse caso hipotético o corte
+      // também ficaria pulado, ao contrário do que a regra "só o texto-matched escapa" pediria.
+      // Nenhum literal da tarefa exercita essa combinação; se aparecer relato de vazamento com
+      // busca+tags+texto ao mesmo tempo, comece a investigação por aqui.
+      if (!textFilters.length) {
+        items = cutByNatureIfGeneric(items, tagIds, null);
+      }
       // Nature=prato nos Momentos (F1b acabamento, 2026-07-30, correção do dono: molho/técnica
-      // aparecendo em "Fim de Semana") — CONTIDO aqui, na chamada específica dos Momentos via
-      // initialOrigin, nunca no motor genérico (facetUniverse/matchesGroupedTags/tagmodel.js
-      // continuam intocados — qualquer busca orgânica, incluindo uma que bata nas mesmas tags
-      // à mão, continua vendo preparos/técnicas normalmente). Molho/técnica não é "programa" —
-      // filtra ANTES da contagem exibida, então "N receitas encontradas" já reflete só pratos.
+      // aparecendo em "Fim de Semana") — fica REDUNDANTE depois do corte genérico acima (qualquer
+      // busca de Momento já não nomeia o mundo dos preparos, então já foi cortada ali); mantido
+      // por ora, remoção não é desta tarefa (ver relatório).
       if (initialOrigin === "vitrine") {
         items = items.filter((item) => item.recipe.nature === "prato");
       }
@@ -3155,6 +3210,10 @@
         ingredientMode: ingredientMode,
         excludeTagIds: tagIds,
       });
+      // S3 (corte de natureza, 2026-07-30): preview = commit — fecha a lacuna encontrada na
+      // investigação (bloco 1 do preview nunca teve filtro de nature nenhum, mesmo dentro de
+      // uma busca de Momento). Bloco 2 (texto livre) nunca corta.
+      out.block1 = cutByNatureIfGeneric(out.block1, tagIds.concat(parsed.autoTagIds), null);
       resultsEl.innerHTML = "";
       countEl.textContent = "";
       const fromHash = currentHashPath();

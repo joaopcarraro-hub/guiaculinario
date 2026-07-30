@@ -429,6 +429,17 @@
     return (filterTags || []).some((tagId) => itemTags.indexOf(tagId) !== -1);
   }
 
+  // S1 (corte de natureza, 2026-07-30): predicado único de "nomeia o mundo dos preparos" —
+  // qualquer format:* (as 4 famílias hoje: tecnica/componente/base/molho) ou um dos 3 dish_type:
+  // que juntos cobrem 100% das 61 receitas nature != prato (ver relatório da tarefa). Nunca
+  // decide corte sozinho — quem decide é sempre recipe.nature; isto só decide se um conjunto de
+  // tags já NOMEIA esse mundo o bastante pra a regra 2 do dono (busca/coleção que os nomeia)
+  // dispensar o corte.
+  const NAMING_DISH_TYPES = ["dish_type:molho", "dish_type:tecnica-avancada", "dish_type:contemporaneo"];
+  function isNamingTagSet(tagIds) {
+    return (tagIds || []).some((id) => id.indexOf("format:") === 0 || NAMING_DISH_TYPES.indexOf(id) !== -1);
+  }
+
   // protein:X também casa contains:X (a proteína apareceu, mesmo não sendo o foco).
   function matchesTagId(itemTags, id) {
     if (itemTags.indexOf(id) !== -1) return true;
@@ -725,6 +736,7 @@
     matchesTagId,
     matchesGroupedTags,
     getRecipesByCollection,
+    isNamingTagSet,
     splitByProteinRole,
     getRelatedTags,
     getTagLayers,

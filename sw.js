@@ -95,7 +95,11 @@
 // v49 -> v50 (2026-07-30): rodada "Ordenar + pente-fino pós-Busca" — Ordenar vira pill+mini-
 // sheet (commit 1) + respiro de espaçamento/consistência de chip nas superfícies de busca
 // (commit 2), css/style.css e js/app.js mudam nos 2 commits.
-const CACHE_NAME = "cardapio-v51";
+// v51 -> v52 (2026-07-30): corte de natureza nas listagens genéricas — predicado
+// TagModel.isNamingTagSet (js/tagmodel.js) + corte seco nas 8 coleções vazadas, motor de busca
+// (commit + preview) e válvula (hub + categoria) consistentes; mundo-próprio (Molhos/Técnicas)
+// e identidade (proteína/país) intactos. js/app.js é o único arquivo do APP_SHELL que mudou.
+const CACHE_NAME = "cardapio-v52";
 
 const APP_SHELL = [
   "./",

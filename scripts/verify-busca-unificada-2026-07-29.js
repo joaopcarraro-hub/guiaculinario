@@ -937,6 +937,188 @@ function main() {
   assert(appJs.indexOf('"Preparos e técnicas"') !== -1, "13f: literal do título da seção existe em app.js");
   assert(appJs.indexOf("function isIdentityCollection(collection)") !== -1, "13f: helper isIdentityCollection existe (module scope, reusado por renderCategory)");
 
+  console.log("");
+  section(
+    "14",
+    "CORTE DE NATUREZA (2026-07-30) — S1 predicado isNamingTagSet, S2 coleções genéricas, S3 motor, S4 válvula; gabarito = inventário da tarefa anterior"
+  );
+
+  // 14a — S1: TagModel.isNamingTagSet, execução REAL no sandbox (nunca texto — é função pura).
+  assert(typeof TagModel.isNamingTagSet === "function", "14a: TagModel.isNamingTagSet existe e é função");
+  if (typeof TagModel.isNamingTagSet === "function") {
+    assert(TagModel.isNamingTagSet(["format:molho"]) === true, "14a: format:molho nomeia o mundo dos preparos");
+    assert(TagModel.isNamingTagSet(["format:tecnica"]) === true, "14a: format:tecnica nomeia");
+    assert(TagModel.isNamingTagSet(["format:base"]) === true, "14a: format:base nomeia");
+    assert(TagModel.isNamingTagSet(["format:componente"]) === true, "14a: format:componente nomeia");
+    assert(TagModel.isNamingTagSet(["dish_type:molho"]) === true, "14a: dish_type:molho nomeia");
+    assert(TagModel.isNamingTagSet(["dish_type:tecnica-avancada"]) === true, "14a: dish_type:tecnica-avancada nomeia");
+    assert(TagModel.isNamingTagSet(["dish_type:contemporaneo"]) === true, "14a: dish_type:contemporaneo nomeia");
+    assert(TagModel.isNamingTagSet(["diet:vegetariana"]) === false, "14a: TESTE NEGATIVO diet:vegetariana NÃO nomeia");
+    assert(TagModel.isNamingTagSet(["time:ate-30-min"]) === false, "14a: TESTE NEGATIVO time:ate-30-min NÃO nomeia");
+    assert(TagModel.isNamingTagSet(["dish_type:sopa"]) === false, "14a: TESTE NEGATIVO dish_type:sopa NÃO nomeia (não é um dos 3 dish_type explícitos)");
+    assert(TagModel.isNamingTagSet([]) === false, "14a: TESTE NEGATIVO conjunto vazio NÃO nomeia");
+    assert(TagModel.isNamingTagSet(["time:ate-30-min", "format:molho"]) === true, "14a: mistura com 1 tag nomeante já nomeia (OR)");
+  }
+
+  // 14b — S2: applyRoleAndNature REAL, extraída de app.js/renderCategory e recompilada com o
+  // TagModel do sandbox — nunca reimplementa a regra numa 3ª forma (mesmo princípio da seção 13f).
+  function s14RealApplyRoleAndNature() {
+    const isIdentitySrc = extractFunctionBody(appJs, "function isIdentityCollection(");
+    const mundoSrc = extractFunctionBody(appJs, "function isMundoProprioCollection(");
+    const applyNatureSrc = extractFunctionBody(categoryBody, "function applyRoleAndNature(");
+    if (!isIdentitySrc || !mundoSrc || !applyNatureSrc) return null;
+    // eslint-disable-next-line no-new-func
+    return new Function("TagModel", isIdentitySrc + "\n" + mundoSrc + "\n" + applyNatureSrc + "\nreturn applyRoleAndNature;")(TagModel);
+  }
+  const s14ApplyRoleAndNatureFn = s14RealApplyRoleAndNature();
+  assert(!!s14ApplyRoleAndNatureFn, "14b: isIdentityCollection + isMundoProprioCollection + applyRoleAndNature recompilam sem erro a partir do FONTE real de app.js");
+
+  const s14LeakGabarito = {
+    "col-vegetariana": 23,
+    "col-rapidas": 35,
+    "col-ate-1h": 44,
+    "col-mais-de-1h": 13,
+    "col-preparo-longo": 6,
+    "col-faceis": 30,
+    "col-intermediarias": 27,
+    "col-avancadas": 4,
+  };
+  if (s14ApplyRoleAndNatureFn) {
+    Object.keys(s14LeakGabarito).forEach((id) => {
+      const collection = win.COLLECTIONS.find((c) => c.id === id);
+      assert(!!collection, "14b: coleção " + id + " existe em window.COLLECTIONS");
+      if (!collection) return;
+      const before = TagModel.getRecipesByCollection(id).allRecipes;
+      const after = s14ApplyRoleAndNatureFn(before, null, [], collection);
+      const delta = before.length - after.length;
+      console.log("  " + collection.label + " (" + id + "): antes=" + before.length + " depois=" + after.length + " delta=" + delta + " (esperado " + s14LeakGabarito[id] + ")");
+      assert(delta === s14LeakGabarito[id], "14b: " + collection.label + " perde EXATAMENTE " + s14LeakGabarito[id] + " (medido delta=" + delta + ")");
+      assert(after.every((item) => item.recipe.nature === "prato"), "14b: " + collection.label + " pós-corte é 100% nature:prato (corte seco)");
+    });
+  }
+
+  // 14c — mundo-próprio (molhos, técnicas) intocadas pelo novo ramo genérico.
+  if (s14ApplyRoleAndNatureFn) {
+    const s14MolhosCollection = win.COLLECTIONS.find((c) => c.id === "molhos");
+    const s14MolhosAll = TagModel.getRecipesByCollection("molhos").allRecipes;
+    const s14MolhosAfter = s14ApplyRoleAndNatureFn(s14MolhosAll, null, [], s14MolhosCollection);
+    assert(s14MolhosAfter.length === 17, "14c: Molhos Clássicos intacto (mundo-próprio, sem corte) — medido " + s14MolhosAfter.length);
+
+    const s14TecnicasCollection = win.COLLECTIONS.find((c) => c.id === "tecnicas");
+    const s14TecnicasAll = TagModel.getRecipesByCollection("tecnicas").allRecipes;
+    const s14TecnicasAfter = s14ApplyRoleAndNatureFn(s14TecnicasAll, null, [], s14TecnicasCollection);
+    assert(s14TecnicasAfter.length === 43, "14c: Técnicas intacta (ramo technique próprio, não o novo ramo genérico) — medido " + s14TecnicasAfter.length);
+    assert(s14TecnicasAfter.every((item) => item.recipe.nature !== "prato"), "14c: Técnicas continua excluindo os 3 pratos (ramo technique, inalterado)");
+  }
+
+  // 14d — identidade (proteína/país) intocada — spot-check França.
+  if (s14ApplyRoleAndNatureFn) {
+    const s14FrancaCollection = win.COLLECTIONS.find((c) => c.id === "franca");
+    const s14FrancaAll = TagModel.getRecipesByCollection("franca").allRecipes;
+    const s14FrancaAfter = s14ApplyRoleAndNatureFn(s14FrancaAll, null, [], s14FrancaCollection);
+    assert(s14FrancaAfter.length === 59, "14d: França (identidade) intacta — medido " + s14FrancaAfter.length);
+  }
+
+  // 14e — as 6 coleções dish-type "limpas" (0 preparos) não perdem nada — regressão contra corte
+  // demais.
+  if (s14ApplyRoleAndNatureFn) {
+    ["sopas", "entradas", "massas", "risotos-arroz", "padaria", "sobremesas-classicas"].forEach((id) => {
+      const collection = win.COLLECTIONS.find((c) => c.id === id);
+      const before = TagModel.getRecipesByCollection(id).allRecipes;
+      const after = s14ApplyRoleAndNatureFn(before, null, [], collection);
+      assert(after.length === before.length, "14e: " + id + " sem vazamento não perde nada (before=" + before.length + " after=" + after.length + ")");
+    });
+  }
+
+  // 14f — Legumes Fermentados (nature:prato, mas format:tecnica) NUNCA cortado em nenhuma das 8
+  // coleções vazadas em que porventura apareça — corte é por nature, nunca por tag.
+  if (s14ApplyRoleAndNatureFn) {
+    Object.keys(s14LeakGabarito).forEach((id) => {
+      const collection = win.COLLECTIONS.find((c) => c.id === id);
+      const before = TagModel.getRecipesByCollection(id).allRecipes;
+      const hasIt = before.some((it) => it.recipe.name === "Legumes Fermentados");
+      if (!hasIt) return;
+      const after = s14ApplyRoleAndNatureFn(before, null, [], collection);
+      assert(after.some((it) => it.recipe.name === "Legumes Fermentados"), "14f: Legumes Fermentados sobrevive ao corte em " + id + " (nature=prato sempre passa, nunca por tag)");
+    });
+  }
+
+  // 14g — S3: cutByNatureIfGeneric REAL, extraída de app.js e recompilada com TagModel real.
+  function s14RealCutByNature() {
+    const mundoSrc = extractFunctionBody(appJs, "function isMundoProprioCollection(");
+    const cutSrc = extractFunctionBody(appJs, "function cutByNatureIfGeneric(");
+    if (!mundoSrc || !cutSrc) return null;
+    // eslint-disable-next-line no-new-func
+    return new Function("TagModel", mundoSrc + "\n" + cutSrc + "\nreturn cutByNatureIfGeneric;")(TagModel);
+  }
+  const s14CutByNatureFn = s14RealCutByNature();
+  assert(!!s14CutByNatureFn, "14g: isMundoProprioCollection + cutByNatureIfGeneric recompilam sem erro a partir do FONTE real de app.js");
+
+  // 14h — literal do dono: Fim de Semana = 39 SEM depender de origin="vitrine" (corte no motor).
+  if (s14CutByNatureFn) {
+    const s14FimDeSemanaUniverse = allRecipes.filter((item) => TagModel.matchesGroupedTags(item.tags, ["time:preparo-longo"], "or"));
+    assert(s14FimDeSemanaUniverse.length === 45, "14h: universo bruto de Fim de Semana (time:preparo-longo) = 45 (pré-condição do gabarito)");
+    const s14FimDeSemanaCut = s14CutByNatureFn(s14FimDeSemanaUniverse, ["time:preparo-longo"], null);
+    assert(s14FimDeSemanaCut.length === 39, "14h literal: Fim de Semana via motor (sem origin=vitrine) = 39 — medido " + s14FimDeSemanaCut.length);
+  }
+
+  // 14i — literal do dono: diet:vegetariana "global" 99 -> 76.
+  if (s14CutByNatureFn) {
+    const s14VegUniverse = allRecipes.filter((item) => TagModel.matchesGroupedTags(item.tags, ["diet:vegetariana"], "or"));
+    assert(s14VegUniverse.length === 99, "14i: universo bruto diet:vegetariana = 99 (pré-condição do gabarito)");
+    const s14VegCut = s14CutByNatureFn(s14VegUniverse, ["diet:vegetariana"], null);
+    assert(s14VegCut.length === 76, "14i literal: diet:vegetariana global via motor = 76 — medido " + s14VegCut.length);
+  }
+
+  // 14j — literal do dono: chip format:molho NÃO corta (tag nomeante — regra 2 do dono).
+  if (s14CutByNatureFn) {
+    const s14FormatMolhoUniverse = allRecipes.filter((item) => TagModel.matchesGroupedTags(item.tags, ["format:molho"], "or"));
+    const s14FormatMolhoCut = s14CutByNatureFn(s14FormatMolhoUniverse, ["format:molho"], null);
+    assert(s14FormatMolhoCut.length === s14FormatMolhoUniverse.length, "14j literal: chip format:molho NÃO corta (obtido " + s14FormatMolhoCut.length + "/" + s14FormatMolhoUniverse.length + ")");
+  }
+
+  // 14k — literal do dono: busca texto "glace" nunca passa pelo corte (bloco 2/texto livre).
+  const s14CutCallSites = appJs.match(/cutByNatureIfGeneric\([^,]+,/g) || [];
+  assert(s14CutCallSites.length > 0, "14k: cutByNatureIfGeneric é chamada em pelo menos 1 lugar de app.js");
+  assert(
+    s14CutCallSites.every((c) => c.indexOf(".block2") === -1),
+    "14k: TESTE NEGATIVO nenhuma chamada de cutByNatureIfGeneric usa .block2 como 1º argumento (texto livre nunca corta) — chamadas: " + JSON.stringify(s14CutCallSites)
+  );
+  const s14OutGlace = Search.searchByQuery("glace", { parsed: Search.parseQuery("glace", []), baseTagIds: [] });
+  assert(s14OutGlace.block2.some((r) => r.item.recipe.name === "Glace de Carne"), "14k literal: busca texto 'glace' ainda acha Glace de Carne (bloco 2, nunca cortado)");
+
+  // 14l — preview = commit: renderPreviewResults (busca, digitação) TAMBÉM corta seu bloco 1 —
+  // fecha a lacuna ii do inventário (preview nunca teve o filtro antes desta tarefa).
+  const s14PreviewResultsBody = extractFunctionBody(appJs, "function renderPreviewResults(query) {");
+  assert(!!s14PreviewResultsBody, "14l: renderPreviewResults encontrada em app.js");
+  assert(!!s14PreviewResultsBody && s14PreviewResultsBody.indexOf("cutByNatureIfGeneric(out.block1") !== -1, "14l: renderPreviewResults corta out.block1 — preview usa a MESMA regra do commit (lacuna ii fechada)");
+  assert(
+    !!s14PreviewResultsBody && s14PreviewResultsBody.indexOf("out.block2") !== -1 && s14PreviewResultsBody.indexOf("cutByNatureIfGeneric(out.block2") === -1,
+    "14l: TESTE NEGATIVO renderPreviewResults NÃO corta out.block2"
+  );
+
+  // 14m — válvula: caso com tag genérica provando N-prometido = N-na-chegada com o corte dos 2
+  // lados (réplica do achado da investigação: hub "Por dificuldade" ∩ time:ate-30-min cobre os
+  // 398 inteiros, então escopado deveria bater com global depois do mesmo corte).
+  if (s14CutByNatureFn) {
+    const s14ScopedRapidas = allRecipes.filter((item) => TagModel.matchesGroupedTags(item.tags, ["time:ate-30-min"], "or"));
+    const s14GlobalRapidas = allRecipes.filter((item) => TagModel.matchesGroupedTags(item.tags, ["time:ate-30-min"], "or"));
+    const s14ScopedRapidasCut = s14CutByNatureFn(s14ScopedRapidas, ["time:ate-30-min"], null);
+    const s14GlobalRapidasCut = s14CutByNatureFn(s14GlobalRapidas, ["time:ate-30-min"], null);
+    assert(
+      s14ScopedRapidasCut.length === s14GlobalRapidasCut.length && s14ScopedRapidasCut.length === 95,
+      "14m literal: válvula com tag genérica (time:ate-30-min) — escopado=global=95 após corte dos 2 lados (medido " + s14ScopedRapidasCut.length + "/" + s14GlobalRapidasCut.length + ")"
+    );
+  }
+  assert(grupoBody.indexOf("cutByNatureIfGeneric(") !== -1, "14m: renderGrupo (hub) usa cutByNatureIfGeneric na contagem escopada e global da válvula");
+  assert(categoryBody.indexOf("cutByNatureIfGeneric(") !== -1, "14m: renderCategory usa cutByNatureIfGeneric na contagem escopada e global da válvula");
+
+  // 14n — S5, NÃO TOCAR: o filtro origin="vitrine" da frente de design continua existindo
+  // (fica redundante depois do corte no motor, mas removê-lo não é desta tarefa).
+  assert(appJs.indexOf('initialOrigin === "vitrine"') !== -1, "14n: filtro origin=\"vitrine\" da frente de design continua presente (redundante, não removido)");
+  assert(appJs.indexOf("function isMundoProprioCollection(") !== -1, "14n: helper isMundoProprioCollection existe (module scope)");
+  assert(appJs.indexOf("function cutByNatureIfGeneric(") !== -1, "14n: helper cutByNatureIfGeneric existe (module scope)");
+
   // P2 (reconciliação de contagens, 2026-07-29): tabela seção -> asserções, lida direto de
   // sectionCounts (a MESMA estrutura que assert() já incrementou seção a seção, nunca um
   // recálculo em paralelo) — a soma abaixo tem que fechar EXATAMENTE com failures+total OK.
