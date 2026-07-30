@@ -102,7 +102,7 @@ function main() {
   // header, css/style.css) — mesmo padrão, também externo a este hotfix.
   // v32 -> v33 -> v34 -> v35: item final do redesenho visual, rumo novo de Países, calibração
   // final do banner de hub — todos externos a este hotfix, mesmo padrão de sempre.
-  assert(/const CACHE_NAME = "cardapio-v50";/.test(swJs), "CACHE_NAME v29 -> ... -> v40 -> ... -> v50 (higiene 2026-07-30: literal preso em v40 havia 10 versões, único achado deste hotfix era o literal — atualizado pro valor vigente; v50 é a rodada Ordenar+respiro, externa a este hotfix, ver comentário acima)");
+  assert(/const CACHE_NAME = "cardapio-v51";/.test(swJs), "CACHE_NAME v29 -> ... -> v50 -> v51 (higiene F1b 2026-07-30: mais um bump de feature externa, atualizado pro valor vigente)");
 
   console.log("");
   console.log("==================================================");

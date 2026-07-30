@@ -73,6 +73,15 @@
       // na URL enquanto o usuário digita; renderBusca nasce já com o preview desse texto
       // renderizado (sobrevive ao "Voltar" de uma receita aberta a partir do preview).
       let query = null;
+      // origin: F1b acabamento (2026-07-30) — marca que esta busca foi alcançada por uma
+      // NAVEGAÇÃO com origem explícita (hoje só "vitrine", toque num Momento), nunca por
+      // refinamento orgânico dentro da própria tela (digitar, tocar chip/facet) — esses
+      // continuam construindo a URL sem este parâmetro (ver Router.toBusca/goTo/goToTags em
+      // app.js). renderBusca usa isto pra decidir 2 coisas, as duas só quando há resultado
+      // (tags/text não vazios): mostrar back-float "Voltar para Pesquisar" e filtrar
+      // nature==="prato" nos resultados dos Momentos (ver relatório da tarefa). Único valor
+      // válido hoje é "vitrine" — string opaca, mesmo espírito de fromHash="home".
+      let origin = null;
       if (queryPart) {
         queryPart.split("&").forEach(function (pair) {
           const [k, v] = pair.split("=");
@@ -95,9 +104,12 @@
               query = v;
             }
           }
+          if (k === "origin" && v) {
+            origin = v;
+          }
         });
       }
-      return { name: "busca", tags: tags, textFilters: textFilters, ingredientMode: ingredientMode, role: role, query: query };
+      return { name: "busca", tags: tags, textFilters: textFilters, ingredientMode: ingredientMode, role: role, query: query, origin: origin };
     }
     // fromHash: rota de origem inteira (ver comentário de Router.toReceita/toCozinhar abaixo),
     // não mais só um catId — decodificada aqui, mas NUNCA reprocessada por parseHash de novo
@@ -204,8 +216,8 @@
 
   // Compartilhado por toBusca (navega, sem q) e replaceBusca (substitui, com q opcional).
   // role: Papel da proteína (correção de semântica, 2026-07-29) — mesmo padrão de
-  // replaceCategoriaFacets, agora também em busca.
-  function buildBuscaPath(tagIds, textFilters, ingredientMode, query, role) {
+  // replaceCategoriaFacets, agora também em busca. origin: ver comentário em parseHash.
+  function buildBuscaPath(tagIds, textFilters, ingredientMode, query, role, origin) {
     const q = (tagIds || []).map(encodeURIComponent).join(",");
     const t = (textFilters || []).map(encodeURIComponent).join(",");
     const params = [];
@@ -214,6 +226,7 @@
     if (ingredientMode === "and") params.push("imode=and");
     if (role) params.push("role=" + encodeURIComponent(role));
     if (query) params.push("q=" + encodeURIComponent(query));
+    if (origin) params.push("origin=" + encodeURIComponent(origin));
     return "busca" + (params.length ? "?" + params.join("&") : "");
   }
 
@@ -271,8 +284,12 @@
       if (ingredientMode === "and") params.push("imode=and");
       replace("categoria/" + encodeURIComponent(catId) + (params.length ? "?" + params.join("&") : ""));
     },
-    toBusca: function (tagIds, textFilters, ingredientMode, role) {
-      navigate(buildBuscaPath(tagIds, textFilters, ingredientMode, null, role));
+    // origin (F1b acabamento, 2026-07-30): opcional, só os Momentos da vitrine passam
+    // "vitrine" hoje — qualquer refinamento orgânico dentro da tela (goTo/goToTags em app.js)
+    // NUNCA passa este argumento, propositalmente, pra não herdar o back-float/filtro de
+    // nature de um Momento numa busca que o usuário já customizou à mão.
+    toBusca: function (tagIds, textFilters, ingredientMode, role, origin) {
+      navigate(buildBuscaPath(tagIds, textFilters, ingredientMode, null, role, origin));
     },
     // Preview ao vivo (digitar e buscar): atualiza a URL com q= sem empilhar histórico e sem
     // re-disparar handleRoute (mesmo mecanismo de replaceCategoriaFacets) — Enter/tocar um chip

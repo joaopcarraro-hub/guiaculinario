@@ -408,6 +408,59 @@
     } catch (e) {}
   }
 
+  // Buscas recentes na tela Pesquisar (F1b, 2026-07-30) — mesmo padrão de gusta-recentes-v1
+  // acima: schema {version, items}, chave própria, teto curto, dedup com reinserção no topo.
+  // Guarda a QUERY DE TEXTO efetivada (Enter ou chip do preview do parser, ver commitParsed em
+  // app.js) — nunca cada tecla, nunca um toque em Momento/tag/categoria (esses já são atalhos
+  // próprios, não uma busca digitada).
+  const BUSCAS_KEY = "gusta-buscas-v1";
+  const BUSCAS_SCHEMA_VERSION = 1;
+  const BUSCAS_MAX_ITEMS = 5;
+  const BUSCAS_MIGRATIONS = {};
+
+  function isValidBuscaItem(item) {
+    return !!item && typeof item === "object" && typeof item.query === "string" && item.query.trim() !== "" && typeof item.searchedAt === "number";
+  }
+
+  function loadBuscas() {
+    const empty = { version: BUSCAS_SCHEMA_VERSION, items: [] };
+    try {
+      const raw = localStorage.getItem(BUSCAS_KEY);
+      if (!raw) return empty;
+      let parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object") return empty; // corrompido de um jeito irrecuperável
+
+      let hops = 0;
+      while (parsed.version !== BUSCAS_SCHEMA_VERSION) {
+        const migrate = BUSCAS_MIGRATIONS[parsed.version];
+        if (!migrate) return empty; // versão sem migração conhecida — irrecuperável
+        parsed = migrate(parsed);
+        if (!parsed || typeof parsed !== "object") return empty;
+        hops++;
+        if (hops > 20) return empty; // guarda contra migração mal escrita em loop
+      }
+
+      const items = Array.isArray(parsed.items) ? parsed.items.filter(isValidBuscaItem) : [];
+      return { version: BUSCAS_SCHEMA_VERSION, items: items.slice(0, BUSCAS_MAX_ITEMS) };
+    } catch (e) {
+      return empty;
+    }
+  }
+
+  const buscasState = loadBuscas();
+
+  function saveBuscas() {
+    try {
+      localStorage.setItem(BUSCAS_KEY, JSON.stringify(buscasState));
+    } catch (e) {}
+  }
+
+  // Dedup por texto normalizado (trim + lowercase) pra "Bolo"/"bolo" não duplicarem a lista —
+  // guarda a grafia mais RECENTE (a que o usuário acabou de digitar), não a mais antiga.
+  function normalizeBuscaKey(query) {
+    return query.trim().toLowerCase();
+  }
+
   window.Storage = {
     // Exposto pra Router aplicar o MESMO alias em #/receita/:id e #/cozinhar/:id — fonte única,
     // sem duplicar os 25 pares num segundo arquivo.
@@ -522,5 +575,25 @@
     // Mais recente primeiro (ordem já é a de armazenamento). Devolve {recipeId, viewedAt} —
     // resolver dados de exibição (nome, imagem) fica por conta de quem for construir a UI depois.
     getRecentlyViewed: () => recentState.items.slice(),
+
+    // Buscas recentes (F1b) — recordBusca ignora string vazia/só-espaço (nada a guardar).
+    // removeBusca compara pelo mesmo normalizador de recordBusca (× remove independente de
+    // maiúscula/minúscula ou espaço nas pontas).
+    recordBusca: (query) => {
+      const trimmed = (query || "").trim();
+      if (!trimmed) return;
+      const key = normalizeBuscaKey(trimmed);
+      buscasState.items = buscasState.items.filter((item) => normalizeBuscaKey(item.query) !== key);
+      buscasState.items.unshift({ query: trimmed, searchedAt: Date.now() });
+      buscasState.items = buscasState.items.slice(0, BUSCAS_MAX_ITEMS);
+      saveBuscas();
+    },
+    // Mais recente primeiro. Devolve {query, searchedAt} — mesma forma de getRecentlyViewed.
+    getRecentBuscas: () => buscasState.items.slice(),
+    removeBusca: (query) => {
+      const key = normalizeBuscaKey(query || "");
+      buscasState.items = buscasState.items.filter((item) => normalizeBuscaKey(item.query) !== key);
+      saveBuscas();
+    },
   };
 })();

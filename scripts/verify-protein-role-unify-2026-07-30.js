@@ -333,7 +333,7 @@ function main() {
   section("9", "NEGATIVOS — dedupe real, nada de código morto sobrevivendo");
   assert(appJs.indexOf("const savedRole") === -1, "TESTE NEGATIVO: 'const savedRole' não existe mais em app.js (cópia de init do hub morreu)");
   assert(appJs.indexOf("const roleCandidate") === -1, "TESTE NEGATIVO: 'const roleCandidate' não existe mais em app.js (cópia de init da categoria morreu)");
-  const buscaStart = appJs.indexOf("function renderBusca(tagIds, textFilters, initialIngredientMode, initialQuery, initialRole) {");
+  const buscaStart = appJs.indexOf("function renderBusca(tagIds, textFilters, initialIngredientMode, initialQuery, initialRole, initialOrigin) {");
   const buscaEnd = appJs.indexOf("\n  // ---------- Telas-placeholder", buscaStart);
   assert(buscaStart !== -1 && buscaEnd !== -1, "renderBusca isolada por marcador de início/fim");
   const buscaBody = buscaStart !== -1 && buscaEnd !== -1 ? appJs.slice(buscaStart, buscaEnd) : "";

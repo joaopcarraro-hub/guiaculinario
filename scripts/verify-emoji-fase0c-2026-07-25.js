@@ -134,12 +134,14 @@ assert(
     "relacionado a card de receita)."
 );
 assert(
-  byFile["CHECKLIST-GERAL.md"].after === byFile["CHECKLIST-GERAL.md"].before + 7,
-  "CHECKLIST-GERAL.md: +7 sobre o BASE_COMMIT (não regressão) — item 6 do roadmap-mestre " +
-    "(esta leva) formalizou a numeração pendente e marcou os itens 1-6 de \"Deixar pro Fable, " +
-    "depois\" como FEITO, reaproveitando o mesmo marcador \"✅ FEITO\" já usado em \"FAZER " +
-    "AGORA\" (7 ocorrências novas: itens 1/2/3/4/6 + as 2 sub-linhas do item 5) — decoração de " +
-    "seção estrutural existente (✅/🔵/🎨/etc.), não emoji novo em código de produto"
+  byFile["CHECKLIST-GERAL.md"].after === byFile["CHECKLIST-GERAL.md"].before + 6,
+  "CHECKLIST-GERAL.md: +6 sobre o BASE_COMMIT (não regressão) — item 6 do roadmap-mestre " +
+    "marcou os itens 1-6 de \"Deixar pro Fable, depois\" como FEITO (+7, reaproveitando \"✅ " +
+    "FEITO\"); F1b (2026-07-30) resolveu a pendência \"⚠️ DECISÃO PENDENTE DO JOÃO\" (tela " +
+    "Pesquisar) virando item 7 \"✅ FEITO\" — troca \"⚠️\" (2 code points: sinal + seletor de " +
+    "variação, ambos no range regex) por \"✅\" (1 code point), líquido -1; 7 + (-1) = +6. " +
+    "Decoração de seção estrutural existente (✅/⚠️/🔵/🎨/etc.), não emoji novo em código de " +
+    "produto"
 );
 
 console.log("");

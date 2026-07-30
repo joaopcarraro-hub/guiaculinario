@@ -190,7 +190,7 @@ function main() {
   const grupoScope = sliceModuleFunction(appJs, "function renderGrupo(grupoId) {");
   assert(!!grupoScope && /attachSearchClear\(\s*search,/.test(grupoScope), "busca do hub (renderGrupo/.home-search) usa o helper compartilhado");
 
-  const buscaScope = sliceModuleFunction(appJs, "function renderBusca(tagIds, textFilters, initialIngredientMode, initialQuery, initialRole) {");
+  const buscaScope = sliceModuleFunction(appJs, "function renderBusca(tagIds, textFilters, initialIngredientMode, initialQuery, initialRole, initialOrigin) {");
   assert(!!buscaScope && /attachSearchClear\(\s*input,/.test(buscaScope), "busca global (renderBusca/.tagsearch-input) usa o helper compartilhado");
 
   // Teste negativo: o input numérico do timer (cook-timer-display__edit-input) NUNCA ganha o
@@ -484,7 +484,7 @@ function main() {
 
   console.log("");
   console.log("-- 8. renderBusca — ganhou o caminho que não existia (antes proteinRole: null fixo) --");
-  const buscaScope2 = sliceModuleFunction(appJs, "function renderBusca(tagIds, textFilters, initialIngredientMode, initialQuery, initialRole) {");
+  const buscaScope2 = sliceModuleFunction(appJs, "function renderBusca(tagIds, textFilters, initialIngredientMode, initialQuery, initialRole, initialOrigin) {");
   assert(!!buscaScope2, "renderBusca encontrado");
   assert(!!buscaScope2 && !/proteinRole: null,/.test(buscaScope2), "TESTE NEGATIVO: proteinRole não é mais hardcoded null em renderBusca");
   assert(!!buscaScope2 && /TagModel\.splitByProteinRole\(/.test(buscaScope2), "renderBusca também usa TagModel.splitByProteinRole — mesmo mecanismo de renderCategory, sem duplicar lógica");
@@ -492,7 +492,9 @@ function main() {
   console.log("");
   console.log("-- 9. router.js — busca ganha parâmetro role= (mesmo padrão de categoria) --");
   assert(/if \(k === "role" && v\)/.test(routerJs) && (routerJs.match(/if \(k === "role" && v\)/g) || []).length === 2, "parseHash lê role= tanto em categoria (já existia) quanto em busca (novo) — 2 ocorrências");
-  assert(/toBusca: function \(tagIds, textFilters, ingredientMode, role\)/.test(routerJs) || /function buildBuscaPath\(tagIds, textFilters, ingredientMode, query, role\)/.test(routerJs), "toBusca/buildBuscaPath ganham parâmetro role");
+  // F1b acabamento (2026-07-30): as 2 assinaturas ganharam mais 1 parâmetro (origin) depois
+  // de role — regex tolera o que vier depois de role em vez de exigir fechamento imediato.
+  assert(/toBusca: function \(tagIds, textFilters, ingredientMode, role[,)]/.test(routerJs) || /function buildBuscaPath\(tagIds, textFilters, ingredientMode, query, role[,)]/.test(routerJs), "toBusca/buildBuscaPath ganham parâmetro role");
 
   console.log("");
   console.log("==================================================");

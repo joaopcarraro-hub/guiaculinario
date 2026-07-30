@@ -72,7 +72,10 @@ function main() {
   assert(nToCategoria === 4, "Router.toCategoria( aparece exatamente 4x — premissa de caminho único por coleção");
   assert(nToReceita === 7, "Router.toReceita( aparece exatamente 7x");
   assert(nToCozinhar === 2, "Router.toCozinhar( aparece exatamente 2x");
-  assert(nCreateBackFloat === 4, "createBackFloat( aparece exatamente 4x (1 declaração + hub/categoria/receita)");
+  assert(
+    nCreateBackFloat === 5,
+    "createBackFloat( aparece exatamente 5x (1 declaração + hub/categoria/receita/busca-condicional — F1b acabamento, 2026-07-30, ver seção 8 abaixo pro mecanismo de volta decidido conscientemente, não só o número atualizado)"
+  );
 
   console.log("");
   console.log("==================================================");
@@ -122,6 +125,24 @@ function main() {
   console.log("==================================================");
   const cookModeFnBody = sliceFn(appJs, "function renderCookMode(id, fromHash, portionMultiplier) {", "renderCookMode");
   assert(!cookModeFnBody.includes("createBackFloat("), "renderCookMode não chama createBackFloat( — modo cozinhar nunca tem voltar");
+
+  console.log("");
+  console.log("==================================================");
+  console.log("8. 5º createBackFloat — busca CONDICIONAL (F1b acabamento, 2026-07-30, decisão consciente)");
+  console.log("==================================================");
+  // Diferente dos outros 4 (sempre presentes na tela): este só aparece quando a busca foi
+  // alcançada por um Momento da vitrine (initialOrigin === "vitrine", nunca setado por
+  // refinamento orgânico — ver Router.toBusca em router.js e goTo/goToTags abaixo). Destino
+  // SEMPRE Router.toBusca([], []) — determinístico, nunca history.back() (mesma regra dos
+  // outros 4: "Voltar" nunca é um history.back() cru, sempre um destino calculado).
+  const renderBuscaBody = sliceFn(appJs, "function renderBusca(tagIds, textFilters, initialIngredientMode, initialQuery, initialRole, initialOrigin) {", "renderBusca");
+  assert(renderBuscaBody.includes('createBackFloat("Pesquisar"'), "5º call site: createBackFloat(\"Pesquisar\", ...) dentro de renderBusca");
+  assert(/initialOrigin === "vitrine" && !!\(tagIds\.length \|\| textFilters\.length\)/.test(renderBuscaBody), "condição exata: só com origin=vitrine E resultado não vazio (nunca na própria vitrine)");
+  assert(renderBuscaBody.includes("() => Router.toBusca([], [])"), "destino determinístico: Router.toBusca([], []) — nunca history.back() cru");
+  assert(
+    appJs.includes("Router.toBusca(dedupedTags, dedupedText, ingredientMode, proteinRole);"),
+    "TESTE NEGATIVO: goTo (refinamento orgânico — digitar, tocar chip/facet) chama Router.toBusca com exatamente 4 argumentos, NUNCA um 5º (origin) — organicamente construído nunca herda o back-float"
+  );
 
   console.log("");
   console.log("==================================================");

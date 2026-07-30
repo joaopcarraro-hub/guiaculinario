@@ -71,7 +71,11 @@ function main() {
   console.log("==================================================");
   console.log("4. Conteúdo do card — só foto e nome, nada além");
   console.log("==================================================");
-  const cardBuildMatch = appJs.match(/const card = document\.createElement\("div"\);\s*card\.className = "recent-card";[\s\S]*?rail\.appendChild\(card\);/);
+  // Higiene 2026-07-30 (F1b): o bloco de construção saiu de dentro do forEach de
+  // buildRecentlyViewedSection e virou o helper buildMiniRecipeCard(item, fromHash) —
+  // compartilhado com "Sugestões de hoje" (Pesquisar). Mesmo conteúdo/comportamento pro caso
+  // "home", só reorganizado; regex atualizada pra apontar pro novo endereço.
+  const cardBuildMatch = appJs.match(/function buildMiniRecipeCard\(item, fromHash\) \{[\s\S]*?\n  \}/);
   const cardBuildBody = cardBuildMatch ? cardBuildMatch[0] : "";
   assert(cardBuildBody.length > 0, "bloco de construção do recent-card localizado");
   assert(cardBuildBody.includes("recent-card__thumb"), "card tem thumb de foto");
@@ -97,7 +101,11 @@ function main() {
   console.log("==================================================");
   console.log('7. fromHash="home" — contrato EXPLÍCITO (emenda aprovada), não fallback acidental');
   console.log("==================================================");
-  assert(cardBuildBody.includes('Router.toReceita(item.id, "home")'), 'card navega com Router.toReceita(id, "home") literal — nunca currentHashPath() (retorna "" na home, falsy)');
+  // Higiene 2026-07-30: o literal "home" agora vive no CALL SITE (buildRecentlyViewedSection),
+  // não dentro do helper compartilhado (que ficou genérico, parametrizado por fromHash) — mesma
+  // garantia de antes (Home passa "home" explícito), endereço atualizado.
+  assert(appJs.includes('rail.appendChild(buildMiniRecipeCard(item, "home"))'), 'Home passa "home" literal pro helper — nunca currentHashPath() (retorna "" na home, falsy)');
+  assert(cardBuildBody.includes("Router.toReceita(item.id, fromHash)"), "helper compartilhado navega via Router.toReceita(id, fromHash) — genérico, cada chamador decide o literal");
   assert(routerJs.includes('raw === "home"'), 'parseHash trata "home" EXPLICITAMENTE, não só via fallback genérico do fim da função');
   const explicitHomeIdx = routerJs.indexOf('if (!raw || raw === "home") return { name: "home" };');
   const fallbackIdx = routerJs.lastIndexOf('return { name: "home" };');
@@ -172,7 +180,7 @@ function main() {
   // ingredientes, css/style.css mudou de novo, também fora desta feature.
   // v32 -> v33: item final do redesenho visual. v33 -> v34: rumo novo de Países. v34 -> v35:
   // calibração final do banner de hub (blur/scale removidos) — todos fora desta feature.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v50";'), "CACHE_NAME v36 -> ... -> v40 -> ... -> v50 (higiene 2026-07-30: literal preso em v40 havia 10 versões; v39/v40 fora desta feature exceto a calha do #main, ver seção 12; v50 é a rodada Ordenar+respiro, também fora)");
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v51";'), "CACHE_NAME v36 -> ... -> v50 -> v51 (higiene F1b 2026-07-30: buildMiniRecipeCard extraído — mesmo componente, refatorado pra ser reusado por Sugestões de hoje — e mais um bump de CACHE_NAME de feature externa; ambos atualizados pro valor vigente)");
   assert(!swJs.includes('const CACHE_NAME = "cardapio-v25";'), "v25 não sobrevive — teste negativo (a versão desta tarefa foi sucedida, não deixada presa)");
   assert(swJs.includes('"css/style.css"') && swJs.includes('"js/app.js"'), "css/style.css e js/app.js seguem no APP_SHELL precache");
 

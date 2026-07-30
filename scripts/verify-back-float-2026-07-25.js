@@ -182,12 +182,22 @@ function main() {
 
   console.log("");
   console.log("==================================================");
-  console.log("11. TESTE NEGATIVO GLOBAL — telas-raiz da bottom nav NÃO ganharam nenhum controle flutuante novo");
+  console.log("11. TESTE NEGATIVO GLOBAL — telas-raiz da bottom nav sem controle flutuante INCONDICIONAL novo (Busca ganhou 1 condicional, F1b, ver seção logo abaixo)");
   console.log("==================================================");
-  // Assinatura ganhou initialRole (correção de semântica, 2026-07-29) — marca de início
-  // atualizada, nada neste teste (controles flutuantes) depende do parâmetro em si.
-  const buscaFnBody = sliceFn(appJs, "function renderBusca(tagIds, textFilters, initialIngredientMode, initialQuery, initialRole) {", "renderBusca");
-  assert(!buscaFnBody.includes("chrome-float") && !buscaFnBody.includes("createBackFloat") && !buscaFnBody.includes("createExitCookFloat"), "Busca (aba raiz) sem back-float/exit-cook-float — sem página-mãe, por design (comentário do próprio código)");
+  // Assinatura ganhou initialRole (correção de semântica, 2026-07-29) e initialOrigin (F1b
+  // acabamento, 2026-07-30) — marca de início atualizada.
+  const buscaFnBody = sliceFn(appJs, "function renderBusca(tagIds, textFilters, initialIngredientMode, initialQuery, initialRole, initialOrigin) {", "renderBusca");
+  // ATUALIZADO (F1b acabamento, 2026-07-30): Busca deixou de ser um "NUNCA" absoluto — ganhou
+  // um back-float CONDICIONAL (resultado alcançado por um Momento da vitrine, achado do dono:
+  // até então a única saída de lá era remover a tag manualmente). A garantia que sobrevive
+  // aqui é mais fraca por design: nunca INCONDICIONAL (sempre presente controlado por 1 IF
+  // isolado), nunca exit-cook-float (isso é só do modo cozinhar). Teste completo do mecanismo
+  // condicional (condição exata, destino, teste negativo do caminho orgânico) mora em
+  // scripts/verify-nav-graph-2026-07-30.js seção 8, não duplicado aqui.
+  assert(!buscaFnBody.includes("createExitCookFloat"), "Busca nunca usa createExitCookFloat — controle exclusivo do modo cozinhar");
+  const backFloatOccurrences = (buscaFnBody.match(/createBackFloat\(/g) || []).length;
+  assert(backFloatOccurrences === 1, "createBackFloat( aparece exatamente 1x em renderBusca (dentro do if condicional, não duplicado) — achado " + backFloatOccurrences);
+  assert(/if \(showBackFloat\) \{\s*\n\s*wrap\.appendChild\(createBackFloat\(/.test(buscaFnBody), "createBackFloat só é chamado DENTRO do guard condicional if (showBackFloat) — nunca incondicional (Busca continua sem página-mãe fixa, o float é a exceção pontual do Momento, não a regra)");
   const minhasReceitasFnBody = sliceFn(appJs, "function renderMinhasReceitas() {", "renderMinhasReceitas");
   assert(!minhasReceitasFnBody.includes("chrome-float"), "Minhas Receitas (aba raiz) sem controle flutuante novo");
   const preparosFnBody = sliceFn(appJs, "function renderPreparosList() {", "renderPreparosList");

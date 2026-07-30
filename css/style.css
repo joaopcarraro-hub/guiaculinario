@@ -229,6 +229,8 @@ body {
 .tag-suggestion,
 .tag-chip--selected,
 .filter-modal .tag-chip--selected,
+.busca-recente-chip__label,
+.busca-recente-chip__remove,
 .update-toast__btn,
 .chrome-float,
 .checklist label,
@@ -244,6 +246,7 @@ body {
 .shopping-list__recipe-chevron,
 .shopping-list__recipe-row,
 .recent-card,
+.momento-card,
 .text-link {
   transition: transform var(--motion-base) var(--motion-easing), opacity var(--motion-base) var(--motion-easing);
 }
@@ -263,6 +266,8 @@ body {
 .tag-suggestion:active,
 .tag-chip--selected:active,
 .filter-modal .tag-chip--selected:active,
+.busca-recente-chip__label:active,
+.busca-recente-chip__remove:active,
 .update-toast__btn:active,
 .chrome-float:active,
 .checklist label:active,
@@ -278,6 +283,7 @@ body {
 .shopping-list__recipe-chevron:active,
 .shopping-list__recipe-row:active,
 .recent-card:active,
+.momento-card:active,
 .text-link:active {
   transform: scale(0.97);
   opacity: 0.85;
@@ -1587,6 +1593,11 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
 
 /* ---------- Busca facetada por tags ---------- */
 .tagsearch { margin-bottom: var(--space-6); }
+/* Back-float condicional (F1b acabamento, 2026-07-30) — só quando a busca foi alcançada por um
+   Momento da vitrine (ver renderBusca/js/app.js). Mesma técnica de chrome-clearance condicional
+   já usada em #category-header:has(.chrome-float): reserva o respiro só quando o float existe
+   de fato, sem precisar de uma classe extra alternada por JS. */
+.tagsearch:has(.back-float) { padding-top: var(--chrome-clearance); }
 /* Wrapper novo (item 2, 2026-07-28): a busca global não tinha nenhum wrapper próprio antes
    (input ia direto no .tagsearch) — precisa de um position:relative pra ancorar o
    .search-clear-btn, mesmo padrão já usado em .home-search-wrap. */
@@ -1700,6 +1711,119 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
   margin-top: var(--space-4);
 }
 .tagsearch-popular { margin-top: var(--space-1); }
+
+/* ---------- Vitrine da Pesquisar (F1b, 2026-07-30) ---------- estado de query vazia de
+   renderBusca/renderResults: Buscas recentes -> Momentos -> Sugestões de hoje -> Todas as
+   categorias. Ritmo entre seções via margin-bottom no PRÓPRIO container de cada seção — mesma
+   convenção já usada na página de receita ("cada elemento controla o espaço DEPOIS de si"). */
+.pesquisar-vitrine__section { margin-bottom: var(--space-6); }
+.pesquisar-vitrine__section:last-child { margin-bottom: 0; }
+
+/* Buscas recentes — chip de 2 zonas de toque (rótulo reexecuta, × remove), MESMA linguagem
+   visual de .tag-chip--selected (pílula, fundo --color-accent-deep) só que com 2 <button> IRMÃOS
+   dentro do <span> em vez de 1 — <button> dentro de <button> é HTML inválido, então a divisão em
+   2 controles independentes (em vez do truque de e.stopPropagation() num alvo aninhado, usado em
+   outros pontos do app pra um problema parecido) é a solução aqui. */
+.busca-recente-chip {
+  display: inline-flex;
+  align-items: stretch;
+  padding: 0;
+  border-radius: 999px;
+  background: var(--color-accent-deep); /* mesmo fundo de .tag-chip--selected — os 2 botões dentro ficam transparentes, o pill é esta camada */
+  overflow: hidden;
+}
+.busca-recente-chip__label,
+.busca-recente-chip__remove {
+  position: relative; /* âncora pro ::after de hit-padding abaixo */
+  background: transparent;
+  border: none;
+  color: var(--color-text-primary);
+  font-family: var(--font-ui);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+.busca-recente-chip__label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  padding: 0 var(--space-2) 0 var(--space-4);
+  min-height: 38px;
+}
+/* Hit-padding só vertical (-4px topo/baixo, 38->46px efetivo — mesma folga de
+   .tag-chip--selected::after): NUNCA horizontal aqui, pra não invadir o botão × vizinho — mesmo
+   cuidado documentado em DESIGN-TOKENS.md pro par +/- do portion-stepper. */
+.busca-recente-chip__label::after { content: ""; position: absolute; inset: -4px 0; }
+.busca-recente-chip__remove {
+  font-size: var(--text-md);
+  opacity: 0.85;
+  padding: 0 var(--space-3) 0 var(--space-1);
+  min-height: 38px;
+}
+/* Ícone estreito (~30px) — hit-padding nas 3 bordas LIVRES (topo/baixo/direita); ZERO à
+   esquerda, que é a borda compartilhada com o rótulo — mesma técnica assimétrica do
+   portion-stepper (DESIGN-TOKENS.md) pra 2 alvos pequenos lado a lado não ambiguarem o toque. */
+.busca-recente-chip__remove::after { content: ""; position: absolute; inset: -6px -6px -6px 0; }
+.busca-recente-chip__remove:hover,
+.busca-recente-chip__label:hover { background: var(--color-accent-hover); }
+
+/* Momentos — trilho full-bleed, MESMA técnica de .recent-views__rail (width:100vw +
+   margin-left:calc(50% - 50vw), reconstrói a calha com padding-left). Card maior que o
+   .recent-card de "Vistas recentemente" (representa uma CATEGORIA/atalho, não uma receita) —
+   por isso a mídia usa aspect-ratio 4/3, a mesma proporção de .category-card__media, em vez do
+   16/9 do mini-card de receita. */
+.pesquisar-momentos__rail {
+  display: flex;
+  gap: var(--space-3);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  padding-left: var(--space-4);
+  scroll-padding-left: var(--space-4);
+}
+.pesquisar-momentos__rail::-webkit-scrollbar { display: none; }
+.momento-card {
+  flex: 0 0 38vw;
+  min-width: 128px;
+  max-width: 190px;
+  scroll-snap-align: start;
+  cursor: pointer;
+}
+.momento-card:last-child { margin-right: var(--space-4); }
+.momento-card__media {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--color-surface-elevated);
+}
+.momento-card__img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+.momento-card__name {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--text-sm);
+  line-height: var(--leading-tight);
+  letter-spacing: 0;
+  color: var(--color-text-primary);
+  margin-top: var(--space-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Sugestões de hoje reusa .recent-views__rail direto (mesmo mini-card, mesma técnica
+   full-bleed) — sem classe própria, zero diferença visual da versão da Home. */
+
+/* Todas as categorias — mesma .category-card de sempre, grade mais compacta (3 colunas fixas em
+   vez do auto-fill de 150px mínimo da grade padrão, que só cabe 2 em ~350px úteis). */
+.category-grid--compact {
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+}
+.category-grid--compact .category-card__title { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
 /* ---------- Tags clicáveis (cards e página da receita) ----------
    Pente-fino 2026-07-30 (pós-Busca): o padrão calibrado de chip (36px, hit-area -6px = 48px
@@ -2841,6 +2965,8 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
   .tag-suggestion:active,
   .tag-chip--selected:active,
   .filter-modal .tag-chip--selected:active,
+  .busca-recente-chip__label:active,
+  .busca-recente-chip__remove:active,
   .update-toast__btn:active,
   .chrome-float:active,
   .checklist label:active,
@@ -2856,10 +2982,12 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
   .shopping-list__recipe-chevron:active,
   .shopping-list__recipe-row:active,
   .recent-card:active,
+  .momento-card:active,
   .text-link:active {
     transform: none;
   } /* Fase 0a: lista estendida junto com o bloco de :active acima — reduced-motion continua
-       suprimindo só a escala (sobra opacidade), mesmo princípio original, agora nos 31. */
+       suprimindo só a escala (sobra opacidade), mesmo princípio original, agora nos 34 (F1b
+       acrescentou momento-card e os 2 botões do chip de busca recente). */
   .filter-modal {
     animation: none;
   }
@@ -2934,6 +3062,8 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
 .tag-suggestion:focus-visible,
 .recipe-suggestion:focus-visible,
 .tag-chip--selected:focus-visible,
+.busca-recente-chip__label:focus-visible,
+.busca-recente-chip__remove:focus-visible,
 .tag-chip-link:focus-visible,
 .home-more-categories:focus-visible,
 .home-tile:focus-visible,
@@ -2951,6 +3081,7 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
 .preparo-card:focus-visible,
 .preparo-card__delete:focus-visible,
 .recent-card:focus-visible,
+.momento-card:focus-visible,
 .update-toast__btn:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);

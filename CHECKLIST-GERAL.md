@@ -168,10 +168,17 @@ hierarquia de área de toque confirmada por `elementFromPoint`).
 6. ~~Agrupamento por corredor na lista de compras~~ — ✅ FEITO (ver bloco "Lista de Compras"
    acima, Fase 4).
 
-⚠️ **DECISÃO PENDENTE DO JOÃO** — tela "Pesquisar" própria: hoje a aba só redireciona pra
-busca. A tela própria (picked-for-you, atalhos, grid de categorias) é bem mais visual/layout
-que os outros itens deste bloco. Fica aqui (funcional, agora) ou vai pra remodelagem visual
-(depois)? Destrava o sequenciamento do resto.
+7. ~~Tela "Pesquisar" própria (F1b)~~ — ✅ FEITO (2026-07-30). Antes a aba só redirecionava pra
+   `#/busca` vazio; ganhou vitrine própria (5 seções: Buscas recentes, Momentos, Sugestões de
+   hoje, Todas as categorias) no MESMO estado de query/tags vazios de `renderResults` — motor de
+   busca intocado, digitar/limpar continua o swap que já existia. Fase A (mapeamento) aprovada
+   pelo dono: 5 Momentos sobrevivem (Café da Manhã 9 receitas, Rápidas 130, Sobremesas 19,
+   Vegetarianas 99, Fim de Semana/Projetos Longos 45), Lanche cortado (0 receitas na única tag
+   candidata). Rota de todo Momento é `Router.toBusca([tagId])`, nunca a rota de categoria
+   dedicada (preserva a trava do grafo de navegação, `scripts/verify-nav-graph-2026-07-30.js`).
+   Detalhe completo nas skills `product-navigation-ux` ("Tela Pesquisar") e `mobile-recipe-ui`
+   ("Vitrine da Pesquisar"); suíte `scripts/verify-pesquisar-vitrine-2026-07-30.js`. `CACHE_NAME`
+   v50→v51.
 
 ## 🎨 REDESENHO VISUAL — CONCLUÍDO (era "Deixar pro Fable, depois")
 
@@ -222,6 +229,12 @@ Detalhe granular de cada um em `docs/DESIGN-TOKENS.md` e nas skills `mobile-reci
   baixo valor marginal (91,8% dos passos sem ambiguidade).
 - Texto "(dividida)"/"(dividido)" no ingrediente redundante — pode revisitar agora que a UI de
   quantidade-por-passo existe.
+- **Enriquecimento de dado — Momento "Café da Manhã" (F1b, decisão do dono 2026-07-30):** hoje
+  `course:cafe-da-manha` só cobre as 9 receitas de padaria (mapeamento limpo, mantido como está).
+  Candidatas a ganhar a tag numa rodada futura de curadoria: receitas de `ovos-basicos`/
+  `ovos-classicos` que são tipicamente café da manhã (omelete, ovos mexidos etc.) — precisa
+  revisão manual com aprovação do dono antes de aplicar (não é automático — nem toda receita de
+  ovo é café da manhã). Engorda o Momento sem mexer em taxonomia agora.
 
 ## 📌 DECISÕES PEQUENAS PENDENTES
 

@@ -88,11 +88,14 @@ function main() {
   const bandeiraDir = path.join(ROOT, "imagens", "bandeiras");
   const categoriaFiles = fs.readdirSync(categoriaDir).filter((f) => f.endsWith(".webp"));
   const bandeiraFiles = fs.readdirSync(bandeiraDir).filter((f) => f.endsWith(".webp"));
-  // 19 = 16 tiles de categoria + 2 banners de hub (fundamentos/proteinas) + 1 imagem-conceito
-  // (paises.webp). Bateu 19 antes do rumo novo de Países por outra conta (havia hub-cozinhas e
-  // não havia paises); o número só coincide, a composição mudou — por isso a decomposição
-  // explícita abaixo, que uma contagem solta não pegaria.
-  assert(categoriaFiles.length === 19, "imagens/categorias/: 19 webp = 16 categoria + 2 hub + 1 conceito (achado " + categoriaFiles.length + ")");
+  // 22 = 16 tiles de categoria + 2 banners de hub (fundamentos/proteinas) + 1 imagem-conceito
+  // (paises.webp) + 3 Momentos da vitrine da Pesquisar (F1b, 2026-07-30: momento-cafe-da-manha/
+  // momento-rapidas/momento-fim-de-semana.webp — prefixo "momento-" deliberado, nunca colide com
+  // nenhum collection.id, então nunca é resolvido por collectionTileImageSrc/CATEGORY_TILE_IMAGE_IDS,
+  // ver seção 1 abaixo, que continua batendo 16 exato). Bateu 19 antes do rumo novo de Países por
+  // outra conta (havia hub-cozinhas e não havia paises); o número só coincide, a composição
+  // mudou — por isso a decomposição explícita abaixo, que uma contagem solta não pegaria.
+  assert(categoriaFiles.length === 22, "imagens/categorias/: 22 webp = 16 categoria + 2 hub + 1 conceito + 3 Momentos F1b (achado " + categoriaFiles.length + ")");
   assert(bandeiraFiles.length === 20, "imagens/bandeiras/: 20 webp (achado " + bandeiraFiles.length + ")");
   assert(categoriaFiles.indexOf("paises.webp") !== -1, "paises.webp presente no acervo (imagem-conceito de 5 pratos — asset das 2 superfícies de Países)");
   assert(
@@ -543,7 +546,7 @@ function main() {
   console.log("9. SERVICE WORKER — v35 (calibração final do banner de hub, sem blur) + APP_SHELL completo");
   console.log("==================================================");
   const swJs = fs.readFileSync(path.join(ROOT, "sw.js"), "utf8");
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v50";'), "CACHE_NAME v36 -> ... -> v40 -> ... -> v50 (higiene 2026-07-30: literal preso em v40 havia 10 versões; v39/v40 são a própria feature desta suíte, ver seção 6a; v50 é a rodada Ordenar+respiro, fora desta feature)");
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v51";'), "CACHE_NAME v36 -> ... -> v50 -> v51 (higiene F1b 2026-07-30: mais um bump de feature externa, atualizado pro valor vigente)");
   // Regressão que passou despercebida desde que js/countries.js foi criado: o arquivo é
   // pré-requisito duro de js/categories.js e js/collections.js (os dois leem window.COUNTRIES
   // no topo, fora de função) e não estava no APP_SHELL. Ficava no cache só de carona, pelo

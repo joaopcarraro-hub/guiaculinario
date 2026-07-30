@@ -95,7 +95,7 @@
 // v49 -> v50 (2026-07-30): rodada "Ordenar + pente-fino pós-Busca" — Ordenar vira pill+mini-
 // sheet (commit 1) + respiro de espaçamento/consistência de chip nas superfícies de busca
 // (commit 2), css/style.css e js/app.js mudam nos 2 commits.
-const CACHE_NAME = "cardapio-v50";
+const CACHE_NAME = "cardapio-v51";
 
 const APP_SHELL = [
   "./",

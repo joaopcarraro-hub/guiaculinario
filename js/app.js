@@ -1053,6 +1053,37 @@
   // reimplementar ordem/dedup/cap aqui. Devolve null (nenhum elemento, nem título nem trilho)
   // quando não há histórico, pra renderHome simplesmente não anexar nada — ver critério "seção
   // ausente com histórico vazio" no relatório da tarefa.
+  // Mini-card de receita (foto 16:9 + nome, nada além — sem país/meta/coração) — compartilhado
+  // por "Vistas recentemente" (Home) e, desde F1b (2026-07-30), "Sugestões de hoje" (Pesquisar):
+  // mesmo componente visual/estrutural, só o fromHash muda por chamador (helper único, nenhuma
+  // tela duplica a criação do elemento — mesmo princípio já usado por createBackFloat).
+  function buildMiniRecipeCard(item, fromHash) {
+    const card = document.createElement("div");
+    card.className = "recent-card";
+    card.setAttribute("aria-label", "Ver receita de " + item.recipe.name);
+    makeKeyboardClickable(card);
+    card.addEventListener("click", () => {
+      Router.toReceita(item.id, fromHash);
+    });
+
+    const thumb = document.createElement("div");
+    thumb.className = "recent-card__thumb placeholder";
+    thumb.innerHTML = iconSvg("photoOff", "photo-placeholder__icon");
+    if (item.recipe.image) {
+      applyImage(thumb, item.recipe.image);
+    } else {
+      loadRecipeImage(item.recipe, thumb);
+    }
+
+    const name = document.createElement("div");
+    name.className = "recent-card__name";
+    name.textContent = item.recipe.name;
+
+    card.appendChild(thumb);
+    card.appendChild(name);
+    return card;
+  }
+
   function buildRecentlyViewedSection() {
     const recentItems = Storage.getRecentlyViewed()
       .map((entry) => {
@@ -1072,36 +1103,11 @@
 
     const rail = document.createElement("div");
     rail.className = "recent-views__rail";
-    recentItems.forEach((item) => {
-      const card = document.createElement("div");
-      card.className = "recent-card";
-      card.setAttribute("aria-label", "Ver receita de " + item.recipe.name);
-      makeKeyboardClickable(card);
-      card.addEventListener("click", () => {
-        // "home" é fromHash literal e PÚBLICO (contrato documentado em
-        // product-navigation-ux/SKILL.md), nunca currentHashPath() — na Home, currentHashPath()
-        // devolve "" (falsy), o que faria Router.toReceita NEM anexar "?from=" e o back-float
-        // cair na categoria da receita em vez de voltar pra Home.
-        Router.toReceita(item.id, "home");
-      });
-
-      const thumb = document.createElement("div");
-      thumb.className = "recent-card__thumb placeholder";
-      thumb.innerHTML = iconSvg("photoOff", "photo-placeholder__icon");
-      if (item.recipe.image) {
-        applyImage(thumb, item.recipe.image);
-      } else {
-        loadRecipeImage(item.recipe, thumb);
-      }
-
-      const name = document.createElement("div");
-      name.className = "recent-card__name";
-      name.textContent = item.recipe.name;
-
-      card.appendChild(thumb);
-      card.appendChild(name);
-      rail.appendChild(card);
-    });
+    // "home" é fromHash literal e PÚBLICO (contrato documentado em product-navigation-ux/
+    // SKILL.md), nunca currentHashPath() — na Home, currentHashPath() devolve "" (falsy), o que
+    // faria Router.toReceita NEM anexar "?from=" e o back-float cair na categoria da receita em
+    // vez de voltar pra Home.
+    recentItems.forEach((item) => rail.appendChild(buildMiniRecipeCard(item, "home")));
     section.appendChild(rail);
 
     return section;
@@ -2512,7 +2518,270 @@
     { label: "Tempo e dificuldade", ids: ["time:ate-30-min", "difficulty:facil"] },
   ];
 
-  function renderBusca(tagIds, textFilters, initialIngredientMode, initialQuery, initialRole) {
+  // ---------- Vitrine da tela Pesquisar (F1b, 2026-07-30) ----------
+  // Semente diária determinística — Sugestões de hoje: mesmo dia, mesma seleção; dia novo,
+  // seleção nova. Hash FNV-1a da string YYYY-MM-DD alimenta um PRNG mulberry32 — puro, sem
+  // Math.random, sem estado externo, testável isolado (ver
+  // scripts/verify-pesquisar-vitrine-2026-07-30.js, que extrai e EXECUTA esta função sozinha).
+  function seededRandom(seedStr) {
+    let h = 2166136261;
+    for (let i = 0; i < seedStr.length; i++) {
+      h ^= seedStr.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    let state = h >>> 0;
+    return function () {
+      state |= 0;
+      state = (state + 0x6d2b79f5) | 0;
+      let t = Math.imul(state ^ (state >>> 15), 1 | state);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  // Fisher-Yates com o PRNG semeado acima — devolve um array NOVO, nunca muta o original.
+  function seededShuffle(arr, seedStr) {
+    const rand = seededRandom(seedStr);
+    const out = arr.slice();
+    for (let i = out.length - 1; i > 0; i--) {
+      const j = Math.floor(rand() * (i + 1));
+      const tmp = out[i];
+      out[i] = out[j];
+      out[j] = tmp;
+    }
+    return out;
+  }
+
+  // Escolhe n itens embaralhados pela semente, preferindo espalhar por catId diferente antes de
+  // repetir categoria — 1ª passada pega no máximo 1 por categoria (na ordem já embaralhada), 2ª
+  // passada só entra se sobrar vaga (acervo pequeno ou poucas categorias distintas).
+  function pickDailySuggestions(items, n, seedStr) {
+    const shuffled = seededShuffle(items, seedStr);
+    const picked = [];
+    const usedCats = new Set();
+    for (let i = 0; i < shuffled.length && picked.length < n; i++) {
+      const cat = shuffled[i].catId;
+      if (!usedCats.has(cat)) {
+        usedCats.add(cat);
+        picked.push(shuffled[i]);
+      }
+    }
+    if (picked.length < n) {
+      const pickedIds = new Set(picked.map((it) => it.id));
+      for (let i = 0; i < shuffled.length && picked.length < n; i++) {
+        if (!pickedIds.has(shuffled[i].id)) {
+          pickedIds.add(shuffled[i].id);
+          picked.push(shuffled[i]);
+        }
+      }
+    }
+    return picked;
+  }
+
+  // Data local do usuário (não UTC — toISOString viraria o dia perto da meia-noite em fusos
+  // negativos, ex. Brasil, antes do calendário local do usuário realmente virar).
+  function todayDateSeed() {
+    const d = new Date();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "-" + mm + "-" + dd;
+  }
+
+  // Momentos (Fase A aprovada 2026-07-30, ver memory/relatório da tarefa pro mapa completo) —
+  // atalhos com foto na vitrine da Pesquisar. Cada tagId já existe na taxonomia (nenhuma tag
+  // nova inventada); Lanche foi cortado na Fase A (dish_type:sanduiche tem 0 receitas hoje).
+  // Rota SEMPRE Router.toBusca([tagId]), NUNCA a rota de categoria dedicada — dois motivos: (1)
+  // essa outra rota está travada em exatamente 4 ocorrências (censo textual) por
+  // scripts/verify-nav-graph-2026-07-30.js — um 5º call site quebraria essa suíte de propósito;
+  // (2) o back-float de renderCategory tem destino FIXO (grupo dono da coleção, ou Home) — nunca
+  // a origem real. Só caindo nos resultados da própria Busca (mesma tela) é que "Voltar" de uma
+  // receita aberta a partir daqui volta pra Pesquisar de graça, via o fromHash=currentHashPath()
+  // que renderResults já passa pra cada card — nenhum mecanismo de navegação novo. As 5 imagens
+  // já existem em imagens/categorias/: Sobremesas/Vegetarianas reaproveitam o mesmo asset do
+  // tile de categoria; as outras 3 vieram do mini-lote da frente de imagens (slugs combinados
+  // com o dono), entregue ainda durante esta mesma tarefa.
+  const PESQUISAR_MOMENTOS = [
+    { id: "cafe-da-manha", label: "Café da Manhã", tagId: "course:cafe-da-manha", img: "imagens/categorias/momento-cafe-da-manha.webp" },
+    { id: "rapidas", label: "Rápidas", tagId: "time:ate-30-min", img: "imagens/categorias/momento-rapidas.webp" },
+    { id: "sobremesas", label: "Sobremesas", tagId: "dish_type:sobremesa", img: "imagens/categorias/sobremesas-classicas.webp" },
+    { id: "vegetarianas", label: "Vegetarianas", tagId: "diet:vegetariana", img: "imagens/categorias/col-vegetariana.webp" },
+    { id: "fim-de-semana", label: "Fim de Semana", tagId: "time:preparo-longo", img: "imagens/categorias/momento-fim-de-semana.webp" },
+  ];
+
+  // Chip de "busca recente" (Storage.getRecentBuscas) — DOIS botões irmãos, não um botão
+  // aninhado dentro do outro (HTML inválido, além de complicar o toque): o rótulo reexecuta a
+  // busca, o × remove só aquela entrada. Reaproveita a MESMA linguagem visual de
+  // .tag-chip--selected (pílula, fundo --color-accent-deep) — só a estrutura interna muda pra
+  // caber 2 zonas de toque independentes em vez de 1.
+  function buildBuscaRecenteChip(query, sectionEl) {
+    const chip = document.createElement("span");
+    chip.className = "tag-chip tag-chip--selected busca-recente-chip";
+
+    const labelBtn = document.createElement("button");
+    labelBtn.type = "button";
+    labelBtn.className = "busca-recente-chip__label";
+    labelBtn.textContent = query;
+    labelBtn.setAttribute("aria-label", 'Buscar novamente "' + query + '"');
+    labelBtn.addEventListener("click", () => {
+      const parsed = Search.parseQuery(query, []);
+      Router.toBusca(parsed.autoTagIds, parsed.residualTokens || [], "or", null);
+    });
+
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "busca-recente-chip__remove";
+    removeBtn.setAttribute("aria-label", 'Remover "' + query + '" das buscas recentes');
+    removeBtn.innerHTML = '<span aria-hidden="true">×</span>';
+    removeBtn.addEventListener("click", () => {
+      Storage.removeBusca(query);
+      const fresh = buildBuscasRecentesSection();
+      if (fresh) sectionEl.replaceWith(fresh);
+      else sectionEl.remove();
+    });
+
+    chip.appendChild(labelBtn);
+    chip.appendChild(removeBtn);
+    return chip;
+  }
+
+  // Seção ausente por completo (nem título nem linha) quando não há histórico — mesmo padrão já
+  // estabelecido por buildRecentlyViewedSection (Home).
+  function buildBuscasRecentesSection() {
+    const recent = Storage.getRecentBuscas();
+    if (!recent.length) return null;
+
+    const section = document.createElement("div");
+    section.className = "pesquisar-vitrine__section";
+
+    const title = document.createElement("div");
+    title.className = "tagsearch-group-label";
+    title.textContent = "Buscas recentes";
+    section.appendChild(title);
+
+    const row = document.createElement("div");
+    row.className = "tagsearch-chips busca-recente-row";
+    recent.forEach((entry) => row.appendChild(buildBuscaRecenteChip(entry.query, section)));
+    section.appendChild(row);
+
+    return section;
+  }
+
+  // Momentos — sempre as 5 entradas (nunca vazio, nunca condicional). Rota e justificativa
+  // completas no comentário de PESQUISAR_MOMENTOS acima.
+  function buildMomentosSection() {
+    const section = document.createElement("div");
+    section.className = "pesquisar-vitrine__section";
+
+    const title = document.createElement("div");
+    title.className = "tagsearch-group-label";
+    title.textContent = "Momentos";
+    section.appendChild(title);
+
+    const rail = document.createElement("div");
+    rail.className = "pesquisar-momentos__rail";
+    PESQUISAR_MOMENTOS.forEach((m) => {
+      const card = document.createElement("div");
+      card.className = "momento-card";
+      card.setAttribute("aria-label", "Ver receitas de " + m.label);
+      makeKeyboardClickable(card);
+      card.addEventListener("click", () => {
+        // origin "vitrine": liga o back-float "Voltar para Pesquisar" e o filtro nature=prato
+        // nos resultados (ver comentários em router.js parseHash e em renderResults/app.js).
+        Router.toBusca([m.tagId], [], "or", null, "vitrine");
+      });
+
+      const media = document.createElement("div");
+      media.className = "momento-card__media";
+      // img null = fallback tipográfico limpo (mesmo princípio de CATEGORY_TILE_IMAGE_IDS:
+      // __media vazio, cor de fundo neutra via CSS, sem ícone, sem buraco) — guarda defensiva
+      // pra um Momento futuro que nasça sem asset pronto; hoje os 5 têm imagem.
+      if (m.img) {
+        media.innerHTML = '<img class="momento-card__img" src="' + m.img + '" alt="" loading="lazy">';
+      }
+      card.appendChild(media);
+
+      const name = document.createElement("div");
+      name.className = "momento-card__name";
+      name.textContent = m.label;
+      card.appendChild(name);
+
+      rail.appendChild(card);
+    });
+    section.appendChild(rail);
+
+    return section;
+  }
+
+  // Sugestões de hoje — 6 receitas, semente = data local do dia (todayDateSeed), espalhadas por
+  // categoria (pickDailySuggestions). Reusa buildMiniRecipeCard (mesmo mini-card de "Vistas
+  // recentemente"), fromHash = currentHashPath() — a própria Busca, mesmo padrão de renderResults
+  // pros cards de resultado normais.
+  function buildSugestoesDoDiaSection() {
+    const items = pickDailySuggestions(TagModel.getAllRecipesFlat(), 6, todayDateSeed());
+    if (!items.length) return null;
+
+    const section = document.createElement("div");
+    section.className = "pesquisar-vitrine__section";
+
+    const title = document.createElement("div");
+    title.className = "tagsearch-group-label";
+    title.textContent = "Sugestões de hoje";
+    section.appendChild(title);
+
+    const rail = document.createElement("div");
+    rail.className = "recent-views__rail";
+    const fromHash = currentHashPath();
+    items.forEach((item) => rail.appendChild(buildMiniRecipeCard(item, fromHash)));
+    section.appendChild(rail);
+
+    return section;
+  }
+
+  // Todas as categorias — mesma fonte de dado (window.COLLECTIONS) e mesmo componente
+  // (renderCollectionCard) dos tiles já existentes (Mais Categorias, hubs). Diferença deliberada:
+  // NENHUM filtro por grupo nem por hideFromGrupoGrid — "todas" aqui é literal (inclui Massas e
+  // Sobremesas, que só tinham tile grande da Home até agora, e Países/Tempo/Dificuldade, que hoje
+  // não têm nenhum link — primeiro entry point real pras 7 coleções órfãs de Por tempo/
+  // dificuldade). Grade 3 colunas (.category-grid--compact) em vez do auto-fill padrão de 2.
+  function buildTodasCategoriasSection() {
+    const section = document.createElement("div");
+    section.className = "pesquisar-vitrine__section";
+
+    const title = document.createElement("div");
+    title.className = "tagsearch-group-label";
+    title.textContent = "Todas as categorias";
+    section.appendChild(title);
+
+    const grid = document.createElement("div");
+    grid.className = "category-grid category-grid--compact";
+    (window.COLLECTIONS || []).forEach((collection) => grid.appendChild(renderCollectionCard(collection)));
+    section.appendChild(grid);
+
+    return section;
+  }
+
+  // Monta a vitrine inteira (estado de query vazia da Busca) — 5 seções do mockup aprovado na
+  // Fase A: busca no topo (já é o input de sempre, fora daqui) -> Buscas recentes -> Momentos ->
+  // Sugestões de hoje -> Todas as categorias. As 2 condicionais (Buscas recentes/Sugestões)
+  // somem por completo quando vazias — nunca aparecem "quebradas".
+  function buildPesquisarVitrine() {
+    const wrap = document.createElement("div");
+    wrap.className = "pesquisar-vitrine";
+
+    const buscasSection = buildBuscasRecentesSection();
+    if (buscasSection) wrap.appendChild(buscasSection);
+
+    wrap.appendChild(buildMomentosSection());
+
+    const sugestoesSection = buildSugestoesDoDiaSection();
+    if (sugestoesSection) wrap.appendChild(sugestoesSection);
+
+    wrap.appendChild(buildTodasCategoriasSection());
+
+    return wrap;
+  }
+
+  function renderBusca(tagIds, textFilters, initialIngredientMode, initialQuery, initialRole, initialOrigin) {
     textFilters = textFilters || [];
     let ingredientMode = initialIngredientMode || "or";
     // Papel da proteína (correção de semântica, 2026-07-29) — antes inexistente em busca
@@ -2524,13 +2793,23 @@
     refreshActiveCounts = null;
     // Sem cabeçalho: Pesquisar é uma aba de nível superior da barra inferior, igual
     // Preparos/Lista de Compras/Minhas Receitas (nenhuma delas tem botão voltar) — só a barra
-    // de busca fica visível, sem título "Buscar por tags" nem botão voltar.
+    // de busca fica visível, sem título "Buscar por tags" nem botão voltar. EXCEÇÃO (F1b
+    // acabamento, 2026-07-30): resultados alcançados por um Momento da vitrine (initialOrigin
+    // === "vitrine", nunca setado por refinamento orgânico — digitar, tocar chip/facet — ver
+    // Router.toBusca em router.js) ganham um back-float "Voltar para Pesquisar", porque até
+    // aqui a única saída de um Momento era remover a tag manualmente (achado do dono). Nunca
+    // aparece na própria vitrine (tagIds/textFilters vazios) nem em busca construída à mão.
     header.innerHTML = "";
     content.innerHTML = "";
     progressEl.textContent = "";
 
+    const showBackFloat = initialOrigin === "vitrine" && !!(tagIds.length || textFilters.length);
+
     const wrap = document.createElement("div");
     wrap.className = "tagsearch";
+    if (showBackFloat) {
+      wrap.appendChild(createBackFloat("Pesquisar", () => Router.toBusca([], [])));
+    }
 
     const inputWrap = document.createElement("div");
     inputWrap.className = "tagsearch-input-wrap";
@@ -2732,14 +3011,22 @@
       resultsEl.innerHTML = "";
       if (!tagIds.length && !textFilters.length) {
         countEl.textContent = "";
-        resultsEl.innerHTML = '<div class="empty-state">Escolha uma tag abaixo (ou digite acima) pra começar a buscar.</div>';
-        renderPopularTags();
+        resultsEl.appendChild(buildPesquisarVitrine());
         return;
       }
       // Sem rede de segurança reativa — o toggle Qualquer um/Todos estes (sempre visível com
       // 2+ ingredientes, ver renderIngredientTileSectionBody) já resolve o caso de AND zerado
       // de forma proativa, direto no modal. Zero resultado aqui é só o empty-state normal.
       let items = facetUniverse(tagIds, ingredientMode);
+      // Nature=prato nos Momentos (F1b acabamento, 2026-07-30, correção do dono: molho/técnica
+      // aparecendo em "Fim de Semana") — CONTIDO aqui, na chamada específica dos Momentos via
+      // initialOrigin, nunca no motor genérico (facetUniverse/matchesGroupedTags/tagmodel.js
+      // continuam intocados — qualquer busca orgânica, incluindo uma que bata nas mesmas tags
+      // à mão, continua vendo preparos/técnicas normalmente). Molho/técnica não é "programa" —
+      // filtra ANTES da contagem exibida, então "N receitas encontradas" já reflete só pratos.
+      if (initialOrigin === "vitrine") {
+        items = items.filter((item) => item.recipe.nature === "prato");
+      }
       // Papel da proteína (correção de semântica, 2026-07-29) — items já vem filtrado pelas tags
       // selecionadas (Proteína incluída, via matchesGroupedTags/matchesTagId); aqui só CLASSIFICA
       // em Principal/Secundário quando um papel está ativo. S sempre = o que já filtrou items,
@@ -2781,6 +3068,11 @@
     // intermediário de "excluí mas continuo digitando" (decisão deliberada, ver Passo 1 da
     // investigação: menos estado novo, e quem quer refinar mais já tem o modal de facetas).
     function commitParsed(parsed, overrideAutoTagIds, overrideResidual) {
+      // Buscas recentes (F1b): grava o texto EFETIVADO (Enter ou chip do preview) — nunca cada
+      // tecla, já que commitParsed só roda nesses 2 casos. input.value ainda é o texto digitado
+      // aqui (a linha de baixo é que limpa) — mesmo choke point pros 3 call sites (Enter, chip
+      // auto ×, chip opcional +).
+      Storage.recordBusca(input.value);
       const newTagIds = tagIds.concat(overrideAutoTagIds !== undefined ? overrideAutoTagIds : parsed.autoTagIds);
       const newTextFilters = textFilters.concat(overrideResidual !== undefined ? overrideResidual : parsed.residualTokens);
       input.value = "";
@@ -4995,7 +5287,7 @@
     // preso na tela por cima do conteúdo trocado (ex.: botão/gesto voltar do celular).
     if (closeActiveFilterModal) closeActiveFilterModal();
     if (route.name === "busca") {
-      renderBusca(route.tags || [], route.textFilters || [], route.ingredientMode || "or", route.query || "", route.role || null);
+      renderBusca(route.tags || [], route.textFilters || [], route.ingredientMode || "or", route.query || "", route.role || null, route.origin || null);
     } else if (route.name === "grupo") {
       renderGrupo(route.grupoId);
     } else if (route.name === "categoria") {

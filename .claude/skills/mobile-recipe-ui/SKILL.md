@@ -242,6 +242,50 @@ mínimo de 44px. `aria-label="Limpar busca"` via `setAttribute` (mesmo padrão d
 pra 50px fixo — espaço reservado pro botão mesmo escondido, texto digitado nunca reflui de
 largura ao aparecer/sumir o botão.
 
+## Vitrine da Pesquisar (F1b, 2026-07-30)
+
+Estado de query/tags vazios de `renderBusca` (dentro de `renderResults`, ver
+`product-navigation-ux/SKILL.md` "Tela Pesquisar" pra arquitetura/rotas completas) — substitui a
+mensagem estática antiga por 5 seções, `.pesquisar-vitrine` como wrapper, cada
+`.pesquisar-vitrine__section` controlando seu próprio `margin-bottom` (ritmo entre seções, mesma
+convenção já usada na página de receita: cada elemento cuida do espaço DEPOIS de si, nunca
+margin-top concorrente). Título de cada seção reusa `.tagsearch-group-label` (mesmo rótulo
+pequeno/uppercase já usado pelos grupos de tags populares) — zero CSS novo pros títulos.
+
+- **Buscas recentes (`.busca-recente-chip`)** — mesma linguagem visual de `.tag-chip--selected`
+  (pílula, fundo `--color-accent-deep`), mas 2 `<button>` IRMÃOS dentro do `<span>` externo em
+  vez de 1 só: `.busca-recente-chip__label` (reexecuta) e `.busca-recente-chip__remove` (some só
+  aquela entrada). Botão dentro de botão é HTML inválido — por isso 2 controles independentes em
+  vez do truque de `e.stopPropagation()` num alvo aninhado que o app usa em outros pontos pro
+  mesmo tipo de problema (ex. coração dentro do card de receita). Hit-padding assimétrico (mesmo
+  princípio já documentado pro par +/- do `.portion-stepper`): o rótulo expande só verticalmente
+  (`inset: -4px 0`, nunca invade o × vizinho), o × expande nas 3 bordas livres e ZERO na borda
+  compartilhada com o rótulo (`inset: -6px -6px -6px 0`) — os 2 chegam a ~44-46px efetivos sem
+  ambiguar o toque no meio.
+- **Momentos (`.momento-card`)** — trilho full-bleed, MESMA técnica de `.recent-views__rail`
+  (`width:100vw` + `margin-left:calc(50% - 50vw)`, reconstrói a calha com `padding-left`). Card
+  maior que o `.recent-card` de "Vistas recentemente" (representa uma CATEGORIA/atalho, não uma
+  receita específica): mídia em `aspect-ratio: 4/3` — a mesma proporção de `.category-card__media`,
+  não o 16:9 do mini-card de receita — + nome serif ABAIXO da foto (nunca sobre ela, regra-mãe do
+  item 6 do roadmap-mestre). Sem foto mapeada = `.momento-card__media` vazio, fundo
+  `--color-surface-elevated`, mesmo fallback tipográfico limpo das 7 coleções órfãs de tempo/
+  dificuldade — guarda defensiva pra um Momento futuro sem asset pronto; os 5 atuais têm foto
+  (Sobremesas/Vegetarianas reaproveitam o asset que já existia; os outros 3, mini-lote novo,
+  `momento-cafe-da-manha.webp`/`momento-rapidas.webp`/`momento-fim-de-semana.webp`).
+- **Sugestões de hoje** — reusa `.recent-views__rail`/`.recent-card` (mesmo mini-card, mesma
+  técnica full-bleed) SEM classe própria — zero diferença visual da versão da Home. A construção
+  do card (`buildMiniRecipeCard(item, fromHash)`) saiu de dentro de `buildRecentlyViewedSection`
+  (Home) e virou helper compartilhado — 2 call sites agora, nenhum duplica a criação do elemento
+  (mesmo princípio já usado por `createBackFloat`).
+- **Todas as categorias** — `.category-grid--compact` (modificador: `repeat(3, 1fr)` fixo, no
+  lugar do `repeat(auto-fill, minmax(150px, 1fr))` padrão, que só cabe 2 colunas em ~350px
+  úteis). Mesmo `.category-card`/`renderCollectionCard` de sempre, `__title` ganha
+  `-webkit-line-clamp: 2` só dentro deste modificador (nomes mais longos, coluna mais estreita).
+
+Estados `:active`/`:focus-visible`/`prefers-reduced-motion` de `.momento-card` e dos 2 botões do
+chip de busca recente entram nas MESMAS listas compartilhadas que todo o resto do app já usa
+(ver "Reskin escuro (Bloco 4)" abaixo) — nenhuma regra de estado isolada nova.
+
 ## Cards de receita mobile
 
 O card mobile deve ser vertical e escaneável.

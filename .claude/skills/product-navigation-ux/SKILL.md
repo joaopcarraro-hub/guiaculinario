@@ -50,11 +50,18 @@ antigo de tracking, redundante nesta tela).
 
 Busca livre e os atalhos de Favoritos/Quero fazer/Histórico saíram da home — migram pra dentro
 de "Minhas Receitas" (aba da barra inferior) num bloco futuro; a busca livre virou a aba
-"Pesquisar" da barra inferior (reaproveita a rota #/busca já existente).
+"Pesquisar" da barra inferior (reaproveita a rota #/busca já existente — ver seção própria
+"Tela Pesquisar (vitrine, F1b)" abaixo pro que essa aba mostra hoje).
 
 Tempo e Dificuldade continuam existindo como grupos/rotas próprios (#/grupo/tempo,
-#/grupo/dificuldade) mas, neste bloco, sem link direto na home — só alcançáveis por URL direta
-por ora.
+#/grupo/dificuldade) mas, neste bloco, sem link direto na HOME — só alcançáveis por URL direta
+por ora. **Atualização F1b (2026-07-30):** ganharam o primeiro link real do app fora de URL
+direta — a seção "Todas as categorias" da vitrine da Pesquisar lista TODAS as entradas de
+`window.COLLECTIONS` sem filtro de grupo, então as 7 coleções órfãs (Por tempo ×4 + Por
+dificuldade ×3) aparecem ali como qualquer outra. Os grupos/rotas em si (`#/grupo/tempo`,
+`#/grupo/dificuldade`) continuam sem link — o que mudou é que as COLEÇÕES individuais de tempo/
+dificuldade (ex. "Rápidas", "Fáceis") agora são alcançáveis por toque, só não a página de grupo
+que as agrupa.
 
 Massas e Sobremesas saíram da grade do grupo `fundamentos` (tela "Mais Categorias", ficam só
 acessíveis via tile da home) — a taxonomia/grupo delas pra efeito de busca escopada continua
@@ -67,6 +74,54 @@ botão "Início" do topo (removido). Minhas Receitas, Preparos e Lista de Compra
 reais (não placeholder mais) — Minhas Receitas (favoritas/já feitas em abas), Preparos (lista
 de sessões de cozinha em andamento) e Lista de Compras (2 visões já funcionam: "Por receita" e
 "Geral" com soma agrupada entre receitas por família de unidade, ver mobile-recipe-ui/SKILL.md).
+
+## Tela Pesquisar (vitrine, F1b — 2026-07-30)
+
+Até aqui, a aba "Pesquisar" só redirecionava pra `#/busca` vazio, caindo direto no modal de
+facetas/mensagem genérica ("Escolha uma tag abaixo..."). F1b dá à Pesquisar uma vitrine própria
+— mesma rota (`#/busca`), mesma `renderBusca`, só o ESTADO de query/tags vazios (dentro de
+`renderResults`) que passa a montar 5 seções em vez da mensagem estática antiga. Ao digitar (ou
+tocar um Momento/categoria, que também resulta em tags/texto não-vazios), a vitrine some e entra
+a UI de resultados de sempre — mecanismo de troca já existia (`schedulePreview`), nenhuma lógica
+nova de swap foi criada, só o CONTEÚDO do lado "vazio" mudou.
+
+As 5 seções, nesta ordem:
+1. Busca (o input de sempre, não faz parte da vitrine em si — sempre visível).
+2. Buscas recentes — até 5 chips das últimas queries de TEXTO efetivadas (Enter ou tocar um chip
+   do preview do parser; nunca tag/Momento/categoria, que já são atalhos próprios). Ausente por
+   completo quando vazia (mesmo princípio do carrossel "Vistas recentemente" da Home). Cada chip
+   tem 2 zonas de toque: o corpo reexecuta a busca (mesmo parser, `Search.parseQuery`), o × some
+   só aquela entrada. Chave `gusta-buscas-v1` (mesma família de `gusta-recentes-v1`), teto 5.
+3. Momentos — 5 atalhos fixos com foto (Café da Manhã, Rápidas, Sobremesas, Vegetarianas, Fim de
+   Semana/Projetos Longos), cada um mapeado a 1 tag JÁ EXISTENTE na taxonomia (nenhuma tag nova
+   foi criada). Toque em qualquer um chama `Router.toBusca([tagId], [], "or", null, "vitrine")`
+   — NUNCA a rota de categoria dedicada (ver seção "Botão Voltar" acima: aquela rota tem destino
+   de back-float FIXO — grupo dono da coleção ou Home — nunca a origem real). O 5º argumento
+   ("vitrine") liga 2 coisas nos resultados (ver seção "Botão Voltar" acima pro back-float, e
+   abaixo pro filtro): back-float "Voltar para Pesquisar" e filtro `nature === "prato"` — molho/
+   técnica não é o que alguém chama de "Momento" (achado do dono, F1b acabamento: contagens
+   reais antes/depois do filtro — Café da Manhã 9→9, Rápidas 130→95, Sobremesas 19→19,
+   Vegetarianas 99→76, Fim de Semana 45→39; nenhum zerou). Filtro CONTIDO só na chamada dos
+   Momentos (`initialOrigin === "vitrine"` dentro de `renderResults`), nunca no motor genérico —
+   uma busca orgânica pelas mesmas tags continua vendo preparos/técnicas normalmente. Abrir uma
+   receita a partir de um Momento e voltar cai de volta nos MESMOS resultados filtrados (fromHash
+   já é a própria tela por construção). "Lanche" foi avaliado e CORTADO na Fase A de mapeamento
+   (única tag candidata, `dish_type:sanduiche`, tinha 0 receitas) — regra dura do time: sem
+   mapeamento limpo pra taxonomia já existente, o atalho não entra, nunca se inventa tag nova só
+   pra preencher um Momento.
+4. Sugestões de hoje — 6 receitas, embaralhadas por uma semente determinística = data local do
+   dia (mesma seleção o dia inteiro, nova no dia seguinte), preferindo espalhar por categorias
+   diferentes. Reusa o MESMO mini-card (foto 16:9 + nome, nada além) do carrossel "Vistas
+   recentemente" da Home — 1 único componente compartilhado entre as 2 telas.
+5. Todas as categorias — grade compacta de 3 colunas, MESMA fonte de dado e MESMO componente de
+   tile das grades já existentes (`window.COLLECTIONS`/`renderCollectionCard`), sem nenhum
+   filtro de grupo e sem excluir as coleções que só tinham tile grande da Home (Massas,
+   Sobremesas). Diferença deliberada da grade "Mais Categorias" do hub Fundamentos (que SÓ
+   mostra o grupo Fundamentos, excluindo essas 2): "todas" aqui é literal — ver nota na seção
+   "Nova home" acima sobre Por tempo/Por dificuldade ganharem o primeiro link real do app aqui.
+
+Ver `mobile-recipe-ui/SKILL.md` ("Vitrine da Pesquisar") pro detalhe visual/CSS completo e
+`scripts/verify-pesquisar-vitrine-2026-07-30.js` pra suíte versionada.
 
 ## Botão Voltar (item 1 do roadmap — flutuante, expandido pra todas as telas com página-mãe)
 
@@ -104,6 +159,24 @@ contraste) e `scripts/verify-back-float-2026-07-25.js` pra a suíte versionada (
 Busca/Pesquisar, Minhas Receitas, Preparos e Lista de Compras são abas de nível superior da
 barra inferior — não têm página-mãe (múltiplos entry points, ou nenhum "pai" conceitual, mesmo
 comentário já existia no código antes desta tarefa) — não ganham `.back-float`.
+
+**Exceção pontual — resultados alcançados por um Momento da vitrine (F1b acabamento,
+2026-07-30, achado do dono: sem essa exceção, a única saída de "Fim de Semana" era remover a
+tag manualmente).** Busca segue sem página-mãe fixa — a exceção é condicional, não uma 5ª tela
+com pai definido. Regra exata: `renderBusca` ganha `.back-float` ("Voltar para Pesquisar")
+SÓ quando a tela de resultados foi alcançada por NAVEGAÇÃO com origem explícita
+(`Router.toBusca(..., "vitrine")`, hoje só o toque num Momento) E há resultado (tags/texto não
+vazios) — nunca na própria vitrine. Destino sempre `Router.toBusca([], [])`, determinístico,
+nunca `history.back()` cru (mesma regra de todo `.back-float` do app). Estado ORGANICAMENTE
+CONSTRUÍDO dentro da própria tela — digitar e confirmar, tocar um chip/facet, tirar um filtro —
+NUNCA ganha o float: `goTo`/`goToTags` (os 2 pontos que materializam qualquer refinamento
+manual em `js/app.js`) nunca passam esse 5º argumento pra `Router.toBusca`, propositalmente —
+ali o × de cada chip e "Remover filtro" seguem sendo a saída natural, igual sempre foi. Como
+toda navegação por `Router.toBusca` recria `renderBusca` do zero, o float aparece/some sozinho
+a cada troca real de rota — nenhum código reage "ao vivo" enquanto o usuário digita em cima de
+um resultado que veio de Momento. Trava em `scripts/verify-nav-graph-2026-07-30.js` (seção 8:
+condição exata, destino, teste negativo do caminho orgânico) — `createBackFloat(` subiu de 4
+pra 5 ocorrências, censo atualizado conscientemente, não só o número.
 
 A regra de navegação, já valendo antes desta rodada e reafirmada aqui: o botão voltar deve
 SEMPRE voltar pra última tela realmente visitada pelo usuário (histórico real de navegação —
