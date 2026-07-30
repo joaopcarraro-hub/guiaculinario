@@ -221,6 +221,14 @@
     return collection && collection.collectionType === "protein" ? collection.primaryFilterTags : [];
   }
 
+  // Dívida #2 (2026-07-30): única fonte da regra anti-fantasma — substitui 3 cópias de
+  // validação no init (renderGrupo/renderCategory/renderBusca), reusada também nos 2 handlers
+  // de × que re-validam antes de persistir.
+  function validProteinRole(candidate, facetState, collection) {
+    if (candidate !== "focus" && candidate !== "secondary") return null;
+    return activeProteinTagIds(facetState, collection).length > 0 ? candidate : null;
+  }
+
   // 3b-UI (2026-07-30): vista padrão de coleção (proteína/país) — só mostra o que responde à
   // identidade da coleção (nature:prato ∧ tag literal de identidade); participação (contains:X)
   // e preparo/técnica ficam atrás de ação explícita (papel=Secundário, ou a seção fixa "Preparos
@@ -720,14 +728,7 @@
     const savedFacetState = grupoFacetState[grupoId] || null;
     let selectedFacetTags = (savedFacetState && savedFacetState.tags) || [];
     let ingredientMode = (savedFacetState && savedFacetState.ingredientMode) || "or";
-    let proteinRole = null;
-    {
-      const initialFacetState = readFacetStateFromTags(selectedFacetTags, GENERIC_FACET_DEFS);
-      const savedRole = savedFacetState && savedFacetState.proteinRole;
-      if (activeProteinTagIds(initialFacetState, null).length > 0 && (savedRole === "focus" || savedRole === "secondary")) {
-        proteinRole = savedRole;
-      }
-    }
+    let proteinRole = validProteinRole(savedFacetState && savedFacetState.proteinRole, readFacetStateFromTags(selectedFacetTags, GENERIC_FACET_DEFS), null);
     function persistFacetState() {
       grupoFacetState[grupoId] = { tags: selectedFacetTags.slice(), ingredientMode: ingredientMode, proteinRole: proteinRole };
     }
@@ -843,6 +844,9 @@
       activeChipsWrap.querySelectorAll(".tag-chip").forEach((btn) => {
         btn.addEventListener("click", () => {
           selectedFacetTags = selectedFacetTags.filter((t) => t !== btn.dataset.tag);
+          // Dívida #2: papel nunca sobrevive sem proteína ativa — mesma regra do init, agora
+          // em todo caminho de mutação.
+          proteinRole = validProteinRole(proteinRole, readFacetStateFromTags(selectedFacetTags, GENERIC_FACET_DEFS), null);
           persistFacetState();
           renderActiveChips();
           renderFacets();
@@ -980,6 +984,20 @@
             .map((item) => ({ item: item })),
           block2: [],
         };
+      }
+      // Dívida #2 (S3, Bug A): hub prometia papel no modal/contagem mas nunca recortava os
+      // resultados — único ponto que faltava aplicar o mesmo mecanismo que renderCategory/
+      // renderBusca já usam (TagModel.splitByProteinRole). globalOut/globalTotal ficam SEM
+      // papel (transferência pra busca global já vai com role=null, pino busca-unificada).
+      if (proteinRole === "focus" || proteinRole === "secondary") {
+        const S = activeProteinTagIds(facetState, null);
+        const sliceByRole = (entries) => {
+          const split = TagModel.splitByProteinRole(entries.map((e) => e.item), S);
+          const keep = new Set((proteinRole === "focus" ? split.primary : split.secondary).map((i) => i.id));
+          return entries.filter((e) => keep.has(e.item.id));
+        };
+        out.block1 = sliceByRole(out.block1);
+        out.block2 = sliceByRole(out.block2);
       }
       const scopedTotal = out.block1.length + out.block2.length;
       renderBlocks(out);
@@ -1984,14 +2002,7 @@
     // ver activeProteinTagIds). Validado aqui no load inicial também (não só reativamente): um
     // link/bookmark com "?role=focus" mas sem NENHUM contexto de proteína ativo nunca aplica —
     // nunca um papel "fantasma" sem proteína, mesma regra que vale pra interação do usuário.
-    let proteinRole = null;
-    {
-      const initialFacetState = readFacetStateFromTags(selectedFacetTags, GENERIC_FACET_DEFS);
-      const roleCandidate = savedState ? savedState.proteinRole : initialRole;
-      if (activeProteinTagIds(initialFacetState, collection).length > 0 && (roleCandidate === "focus" || roleCandidate === "secondary")) {
-        proteinRole = roleCandidate;
-      }
-    }
+    let proteinRole = validProteinRole(savedState ? savedState.proteinRole : initialRole, readFacetStateFromTags(selectedFacetTags, GENERIC_FACET_DEFS), collection);
 
     function syncUrl() {
       Router.replaceCategoriaFacets(collection.id, selectedFacetTags, proteinRole, ingredientMode);
@@ -2295,6 +2306,9 @@
       activeChipsWrap.querySelectorAll(".tag-chip").forEach((btn) => {
         btn.addEventListener("click", () => {
           selectedFacetTags = selectedFacetTags.filter((t) => t !== btn.dataset.tag);
+          // Dívida #2: papel nunca sobrevive sem proteína ativa — mesma regra do init, agora
+          // em todo caminho de mutação.
+          proteinRole = validProteinRole(proteinRole, readFacetStateFromTags(selectedFacetTags, GENERIC_FACET_DEFS), collection);
           syncUrl();
           persistState();
           renderActiveChips();
@@ -2389,10 +2403,7 @@
     // (proteinRole: null fixo). Validado contra o estado inicial de verdade (não só o valor cru
     // da URL): sem NENHUMA proteína ativa (busca não tem coleção, então só conta o explícito da
     // faceta Proteína em tagIds), nunca aplica um papel "fantasma" — mesma regra de renderCategory.
-    let proteinRole = null;
-    if (activeProteinTagIds(readFacetStateFromTags(tagIds, GENERIC_FACET_DEFS), null).length > 0 && (initialRole === "focus" || initialRole === "secondary")) {
-      proteinRole = initialRole;
-    }
+    let proteinRole = validProteinRole(initialRole, readFacetStateFromTags(tagIds, GENERIC_FACET_DEFS), null);
     activeCat = null;
     refreshActiveCounts = null;
     // Sem cabeçalho: Pesquisar é uma aba de nível superior da barra inferior, igual
