@@ -5,6 +5,7 @@ window.RECIPES["carnes-bovinas"] = [
   // ===================== ASSADOS E GRELHADOS NOBRES =====================
   {
     name: "Beef Wellington",
+    nature: "prato",
     subgroup: "Assados e Grelhados Nobres",
     desc: "Filé mignon selado, envolto em duxelles de cogumelos e presunto de Parma, coberto com massa folhada e assado até dourar.",
     origin: "Reino Unido",
@@ -94,6 +95,7 @@ window.RECIPES["carnes-bovinas"] = [
   },
   {
     name: "Chateaubriand",
+    nature: "prato",
     subgroup: "Assados e Grelhados Nobres",
     desc: "Peça central e mais grossa do filé mignon, selada e regada com manteiga, finalizada no forno e servida fatiada para compartilhar.",
     origin: "França",
@@ -179,6 +181,7 @@ window.RECIPES["carnes-bovinas"] = [
   },
   {
     name: "Bife à Pimenta",
+    nature: "prato",
     subgroup: "Assados e Grelhados Nobres",
     desc: "Filé com crosta grosseira de pimenta-do-reino, selado e servido com molho cremoso de conhaque flambado e creme de leite.",
     origin: "França",
@@ -272,6 +275,7 @@ window.RECIPES["carnes-bovinas"] = [
   },
   {
     name: "Bife Diane",
+    nature: "prato",
     subgroup: "Assados e Grelhados Nobres",
     desc: "Filé fino selado rapidamente e servido com molho de cogumelos, conhaque flambado, mostarda Dijon e creme de leite.",
     origin: "EUA / Reino Unido (bistrô clássico)",
@@ -400,6 +404,7 @@ window.RECIPES["carnes-bovinas"] = [
   },
   {
     name: "Tornedor Rossini",
+    nature: "prato",
     subgroup: "Assados e Grelhados Nobres",
     desc: "Medalhão de filé mignon sobre torrada de brioche, coroado com foie gras selado e regado com molho de Madeira e Demi-glace.",
     origin: "França / Itália",
@@ -504,6 +509,7 @@ window.RECIPES["carnes-bovinas"] = [
   // ===================== ENSOPADOS E BRASEADOS =====================
   {
     name: "Boeuf Bourguignon",
+    nature: "prato",
     subgroup: "Ensopados e Braseados",
     desc: "Ensopado francês clássico de carne bovina cozida lentamente em vinho tinto com bacon, cogumelos e cebolinhas pérola.",
     origin: "França (Borgonha)",
@@ -649,6 +655,7 @@ window.RECIPES["carnes-bovinas"] = [
   },
   {
     name: "Ossobuco",
+    nature: "prato",
     subgroup: "Ensopados e Braseados",
     desc: "Posta de canela bovina com osso e tutano, braseada em vinho branco e tomate até desmanchar, finalizada com gremolata fresca.",
     origin: "Itália (Milão)",
@@ -773,6 +780,7 @@ window.RECIPES["carnes-bovinas"] = [
   },
   {
     name: "Goulash",
+    nature: "prato",
     subgroup: "Ensopados e Braseados",
     desc: "Ensopado húngaro caldoso de carne bovina com páprica, cebola, tomate e pimentão, tradicionalmente servido com creme azedo.",
     origin: "Hungria",
@@ -900,6 +908,7 @@ window.RECIPES["carnes-bovinas"] = [
   // ===================== PRATOS DO DIA A DIA =====================
   {
     name: "Bife à Parmegiana",
+    nature: "prato",
     subgroup: "Pratos do Dia a Dia",
     desc: "Bife empanado e frito, coberto com molho de tomate, muçarela e parmesão, gratinado no forno até derreter.",
     origin: "Brasil / Itália (adaptação)",
@@ -995,6 +1004,7 @@ window.RECIPES["carnes-bovinas"] = [
   },
   {
     name: "Filé ao Molho Madeira",
+    nature: "prato",
     subgroup: "Pratos do Dia a Dia",
     desc: "Medalhões de filé mignon selados, servidos com molho encorpado de vinho Madeira, échalote e cogumelos.",
     origin: "Portugal / Internacional",

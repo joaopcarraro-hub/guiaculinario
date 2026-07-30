@@ -5,6 +5,7 @@ window.RECIPES["risotos"] = [
   // ===================== CLÁSSICOS =====================
   {
     name: "Risoto alla Milanese",
+    nature: "prato",
     subgroup: "Clássicos",
     desc: "Arroz cremoso cozido aos poucos em caldo, com açafrão e finalizado com manteiga e parmesão — o clássico de Milão que acompanha o Ossobuco.",
     origin: "Itália (Milão)",
@@ -120,6 +121,7 @@ window.RECIPES["risotos"] = [
   },
   {
     name: "Risoto de Cogumelos",
+    nature: "prato",
     subgroup: "Clássicos",
     desc: "Risoto cremoso de arroz arbóreo com cogumelos frescos e secos (porcini), finalizado com manteiga e parmesão.",
     origin: "Itália",
@@ -251,6 +253,7 @@ window.RECIPES["risotos"] = [
   },
   {
     name: "Risoto de Parmesão",
+    nature: "prato",
     subgroup: "Clássicos",
     desc: "O risoto mais simples e puro: só arroz, caldo e bastante parmesão envelhecido, cremoso pela mantecatura final.",
     origin: "Itália",
@@ -347,6 +350,7 @@ window.RECIPES["risotos"] = [
   // ===================== CONTEMPORÂNEOS E FRUTOS DO MAR =====================
   {
     name: "Risoto de Frutos do Mar",
+    nature: "prato",
     subgroup: "Contemporâneos e Frutos do Mar",
     desc: "Risoto de frutos do mar (camarão, mexilhão e lula) cozido em fumet de peixe caseiro, tradicionalmente servido sem queijo.",
     origin: "Itália",
@@ -484,6 +488,7 @@ window.RECIPES["risotos"] = [
   },
   {
     name: "Risoto de Limão",
+    nature: "prato",
     subgroup: "Contemporâneos e Frutos do Mar",
     desc: "Risoto cremoso com raspas e suco de limão-siciliano — leve e cítrico, típico da Costa Amalfitana, ótimo com peixes grelhados.",
     origin: "Itália (Amalfi)",
@@ -603,6 +608,7 @@ window.RECIPES["risotos"] = [
   },
   {
     name: "Risoto de Beterraba",
+    nature: "prato",
     subgroup: "Contemporâneos e Frutos do Mar",
     desc: "Risoto rosa vibrante feito com purê e cubos de beterraba assada, finalizado com queijo de cabra e nozes tostadas.",
     origin: "Itália (contemporâneo)",
@@ -723,6 +729,7 @@ window.RECIPES["risotos"] = [
   },
   {
     name: "Risoto de Abóbora",
+    nature: "prato",
     subgroup: "Contemporâneos e Frutos do Mar",
     desc: "Risoto cremoso de abóbora assada e em purê, com toque de noz-moscada e sálvia crocante frita na manteiga.",
     origin: "Itália (Norte)",

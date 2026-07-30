@@ -5,6 +5,7 @@ window.RECIPES["sopas"] = [
   // ===================== SOPAS FRANCESAS =====================
   {
     name: "Bisque",
+    nature: "prato",
     subgroup: "Sopas Francesas",
     desc: "Creme aveludado de frutos do mar feito com as cascas de camarão, refogadas e batidas com creme de leite — sopa francesa rica e sedosa.",
     origin: "França",
@@ -136,6 +137,7 @@ window.RECIPES["sopas"] = [
   },
   {
     name: "Consommé",
+    nature: "prato",
     subgroup: "Sopas Francesas",
     desc: "Caldo de carne clarificado com claras de ovo e legumes até ficar perfeitamente transparente — sopa francesa refinada, límpida como chá.",
     origin: "França",
@@ -223,6 +225,7 @@ window.RECIPES["sopas"] = [
   },
   {
     name: "Vichyssoise",
+    nature: "prato",
     subgroup: "Sopas Francesas",
     desc: "Creme de batata com alho-poró e creme de leite, servido bem gelado — clássico francês refrescante.",
     origin: "França",
@@ -315,6 +318,7 @@ window.RECIPES["sopas"] = [
   },
   {
     name: "Sopa de Cebola Francesa",
+    nature: "prato",
     subgroup: "Sopas Francesas",
     desc: "Sopa de cebolas bem caramelizadas em caldo de carne, coberta com torrada e queijo gruyère gratinado.",
     origin: "França",
@@ -428,6 +432,7 @@ window.RECIPES["sopas"] = [
   // ===================== SOPAS ITALIANAS =====================
   {
     name: "Minestrone",
+    nature: "prato",
     subgroup: "Sopas Italianas",
     desc: "Sopa italiana de legumes variados com feijão branco e massa curta num caldo de tomate — receita flexível de 'geladeira'.",
     origin: "Itália",
@@ -565,6 +570,7 @@ window.RECIPES["sopas"] = [
   // ===================== SOPAS MEDITERRÂNEAS =====================
   {
     name: "Bouillabaisse",
+    nature: "prato",
     subgroup: "Sopas Mediterrâneas",
     desc: "Ensopado de peixes e frutos do mar variados num caldo aromatizado com açafrão e casca de laranja, servido com torrada e rouille.",
     origin: "França (Marselha)",
@@ -694,6 +700,7 @@ window.RECIPES["sopas"] = [
   },
   {
     name: "Gazpacho",
+    nature: "prato",
     subgroup: "Sopas Mediterrâneas",
     desc: "Sopa fria espanhola de tomate, pepino e pimentão batidos crus com azeite — como uma salada líquida temperada, sem cozimento.",
     origin: "Espanha",
@@ -806,6 +813,7 @@ window.RECIPES["sopas"] = [
   // ===================== SOPAS PORTUGUESAS =====================
   {
     name: "Caldo Verde",
+    nature: "prato",
     subgroup: "Sopas Portuguesas",
     desc: "Creme de batata português com tiras finas de couve-galega e rodelas de chouriço douradas por cima.",
     origin: "Portugal",
@@ -899,6 +907,7 @@ window.RECIPES["sopas"] = [
   // ===================== SOPAS BRASILEIRAS =====================
   {
     name: "Canja",
+    nature: "prato",
     subgroup: "Sopas Brasileiras",
     desc: "Sopa brasileira de frango desfiado, arroz e cenoura no caldo feito com o próprio frango — prato de conforto clássico.",
     origin: "Brasil",

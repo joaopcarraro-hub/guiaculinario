@@ -7,6 +7,7 @@ window.RECIPES["portugal"] = [
   // ===================== BACALHAU =====================
   {
     name: "Bacalhau com Natas",
+    nature: "prato",
     subgroup: "Bacalhau",
     desc: "Bacalhau desfiado com batata frita, gratinado no forno com molho Béchamel e creme de leite.",
     origin: "Portugal",
@@ -128,6 +129,7 @@ window.RECIPES["portugal"] = [
   },
   {
     name: "Pastéis de Bacalhau",
+    nature: "prato",
     subgroup: "Bacalhau",
     desc: "Bolinhos fritos de bacalhau desfiado e purê de batata seco, moldados em formato oval e fritos por imersão.",
     origin: "Portugal",
@@ -225,6 +227,7 @@ window.RECIPES["portugal"] = [
   // ===================== MAR =====================
   {
     name: "Cataplana de Marisco",
+    nature: "prato",
     subgroup: "Mar",
     desc: "Frutos do mar, peixe e chouriço cozidos no vapor dentro da cataplana (panela de cobre que fecha hermeticamente) — mistura mar e terra do Algarve.",
     origin: "Portugal (Algarve)",
@@ -346,6 +349,7 @@ window.RECIPES["portugal"] = [
   },
   {
     name: "Polvo à Lagareiro",
+    nature: "prato",
     subgroup: "Mar",
     desc: "Polvo assado no forno com batatas amassadas ('a murro') e alho, regado com azeite abundante.",
     origin: "Portugal",
@@ -433,6 +437,7 @@ window.RECIPES["portugal"] = [
   // ===================== DOCES =====================
   {
     name: "Pastel de Nata",
+    nature: "prato",
     subgroup: "Doces",
     desc: "Tartelete de massa folhada crocante com creme de ovos, assado bem quente até formar manchas escuras no topo.",
     origin: "Portugal (Lisboa)",

@@ -5,6 +5,7 @@ window.RECIPES["hungria"] = [
 
   {
     name: "Frango Paprikash",
+    nature: "prato",
     subgroup: "Principais",
     desc: "Frango cozido em molho cremoso de páprica húngara, cebola e creme azedo, servido com Spätzle ou nhoque.",
     origin: "Hungria",
@@ -114,6 +115,7 @@ window.RECIPES["hungria"] = [
   },
   {
     name: "Lángos",
+    nature: "prato",
     subgroup: "Pães e Petiscos",
     desc: "Disco de massa fermentada frito em óleo até dourar, esfregado com alho e coberto com creme azedo e queijo — street food húngaro.",
     origin: "Hungria",

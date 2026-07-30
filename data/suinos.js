@@ -5,6 +5,7 @@ window.RECIPES["suinos"] = [
   // ===================== ASSADOS =====================
   {
     name: "Porchetta",
+    nature: "prato",
     subgroup: "Assados",
     desc: "Barriga de porco enrolada com lombo, alho e ervas, assada até a pele ficar bem crocante.",
     origin: "Itália",
@@ -109,6 +110,7 @@ window.RECIPES["suinos"] = [
   },
   {
     name: "Pernil Assado",
+    nature: "prato",
     subgroup: "Assados",
     desc: "Pernil suíno marinado em alho, laranja e vinho branco, assado lentamente até ficar macio e com a pele crocante.",
     origin: "Brasil / Internacional",
@@ -210,6 +212,7 @@ window.RECIPES["suinos"] = [
   },
   {
     name: "Lombo Recheado",
+    nature: "prato",
     subgroup: "Assados",
     desc: "Lombo suíno aberto em manta, recheado com damasco, espinafre e queijo, enrolado e assado em rolo.",
     origin: "Internacional",
@@ -316,6 +319,7 @@ window.RECIPES["suinos"] = [
   // ===================== DEFUMADOS E GRELHADOS =====================
   {
     name: "Kassler",
+    nature: "prato",
     subgroup: "Defumados e Grelhados",
     desc: "Posta de lombo suíno curado e defumado (à moda alemã), selada e servida com repolho roxo agridoce.",
     origin: "Alemanha",
@@ -416,6 +420,7 @@ window.RECIPES["suinos"] = [
   },
   {
     name: "Costelinha Barbecue",
+    nature: "prato",
     subgroup: "Defumados e Grelhados",
     desc: "Costelinha suína temperada com rub seco, assada lentamente e finalizada com molho barbecue caramelizado.",
     origin: "EUA",
@@ -476,6 +481,7 @@ window.RECIPES["suinos"] = [
   // ===================== EMPANADOS =====================
   {
     name: "Schnitzel",
+    nature: "prato",
     subgroup: "Empanados",
     desc: "Bife suíno fino empanado e frito até ficar crocante e dourado, ao estilo austríaco.",
     origin: "Áustria / Alemanha",

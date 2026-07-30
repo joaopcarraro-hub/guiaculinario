@@ -5,6 +5,7 @@ window.RECIPES["arrozes"] = [
   // ===================== ARROZES SECOS =====================
   {
     name: "Arroz Biro-Biro",
+    nature: "prato",
     subgroup: "Arrozes Secos",
     desc: "Arroz soltinho finalizado com tiras de omelete, bacon crocante e cheiro-verde.",
     origin: "Brasil",
@@ -114,6 +115,7 @@ window.RECIPES["arrozes"] = [
   },
   {
     name: "Arroz de Pato",
+    nature: "prato",
     subgroup: "Arrozes Secos",
     desc: "Arroz assado no próprio caldo de pato desfiado, com chouriço, e finalizado com crosta crocante — clássico português.",
     origin: "Portugal",
@@ -233,10 +235,156 @@ window.RECIPES["arrozes"] = [
       "Pode ser preparado com antecedência até a etapa de ir ao forno, facilitando o preparo para receber convidados."
     ]
   },
+  {
+    name: "Paella",
+    nature: "prato",
+    subgroup: "Arrozes Secos",
+    desc: "Arroz espanhol de grãos soltos, cozido com açafrão e frutos do mar (ou frango), com crosta dourada no fundo.",
+    origin: "Espanha (Valência)",
+    time: { prep: "25 min", cook: "35 min", total: "1h" },
+    yield: "4-6 porções",
+    difficulty: "Média-alta",
+    tags: ["contains:frutos-do-mar", "contains:frango", "ingredient:arroz", "ingredient:tomate", "ingredient:ervilha", "ingredient:pimentao"],
+    ingredients: [
+      "400 g de arroz tipo bomba (ou arbóreo, na falta do original)",
+      "300 g de camarão médio, limpo (cascas reservadas)",
+      "300 g de mexilhões limpos",
+      "200 g de lula em anéis",
+      "4 pedaços de frango com osso (coxa/sobrecoxa), opcional para paella mista",
+      "1 pimentão vermelho picado",
+      "3 tomates maduros ralados (só a polpa, sem a pele)",
+      "4 dentes de alho picados",
+      "1 pitada generosa de açafrão em pistilos (ou corante próprio para paella)",
+      "1 L de fumet de peixe (feito com as cascas do camarão) ou caldo de peixe, bem quente",
+      "100 g de ervilha (opcional)",
+      "Azeite de oliva",
+      "Sal a gosto",
+      "Rodelas de limão para servir"
+    ],
+    ingredientsStructured: [
+      {
+        raw: "400 g de arroz tipo bomba (ou arbóreo, na falta do original)",
+        group: null,
+        items: [
+          { qty: 400, qtyRange: null, unit: "grama", item: "arroz tipo bomba", prep: null, alt: "arbóreo, na falta do original", optional: false, isReference: false },
+        ],
+      },
+      {
+        raw: "300 g de camarão médio, limpo (cascas reservadas)",
+        group: null,
+        items: [
+          { qty: 300, qtyRange: null, unit: "grama", item: "camarão médio", prep: "limpo (cascas reservadas)", alt: null, optional: false, isReference: false },
+        ],
+      },
+      {
+        raw: "300 g de mexilhões limpos",
+        group: null,
+        items: [
+          { qty: 300, qtyRange: null, unit: "grama", item: "mexilhões", prep: "limpos", alt: null, optional: false, isReference: false },
+        ],
+      },
+      {
+        raw: "200 g de lula em anéis",
+        group: null,
+        items: [
+          { qty: 200, qtyRange: null, unit: "grama", item: "lula", prep: "em anéis", alt: null, optional: false, isReference: false },
+        ],
+      },
+      {
+        raw: "4 pedaços de frango com osso (coxa/sobrecoxa), opcional para paella mista",
+        group: null,
+        items: [
+          { qty: 4, qtyRange: null, unit: "pedaco", item: "frango com osso", prep: "coxa/sobrecoxa; opcional para paella mista", alt: null, optional: true, isReference: false },
+        ],
+      },
+      {
+        raw: "1 pimentão vermelho picado",
+        group: null,
+        items: [
+          { qty: 1, qtyRange: null, unit: null, item: "pimentão vermelho", prep: "picado", alt: null, optional: false, isReference: false },
+        ],
+      },
+      {
+        raw: "3 tomates maduros ralados (só a polpa, sem a pele)",
+        group: null,
+        items: [
+          { qty: 3, qtyRange: null, unit: null, item: "tomates maduros", prep: "ralados (só a polpa, sem a pele)", alt: null, optional: false, isReference: false },
+        ],
+      },
+      {
+        raw: "4 dentes de alho picados",
+        group: null,
+        items: [
+          { qty: 4, qtyRange: null, unit: "dente", item: "alho", prep: "picados", alt: null, optional: false, isReference: false },
+        ],
+      },
+      {
+        raw: "1 pitada generosa de açafrão em pistilos (ou corante próprio para paella)",
+        group: null,
+        items: [
+          { qty: 1, qtyRange: null, unit: "pitada", item: "açafrão em pistilos", prep: "generosa", alt: "corante próprio para paella", optional: false, isReference: false },
+        ],
+      },
+      {
+        raw: "1 L de fumet de peixe (feito com as cascas do camarão) ou caldo de peixe, bem quente",
+        group: null,
+        items: [
+          { qty: 1, qtyRange: null, unit: "litro", item: "fumet de peixe (feito com as cascas do camarão)", prep: null, alt: "caldo de peixe, bem quente", optional: false, isReference: false },
+        ],
+      },
+      {
+        raw: "100 g de ervilha (opcional)",
+        group: null,
+        items: [
+          { qty: 100, qtyRange: null, unit: "grama", item: "ervilha", prep: null, alt: null, optional: true, isReference: false },
+        ],
+      },
+      {
+        raw: "Azeite de oliva",
+        group: null,
+        items: [
+          { qty: null, qtyRange: null, unit: null, item: "azeite de oliva", prep: null, alt: null, optional: false, isReference: false },
+        ],
+      },
+      {
+        raw: "Sal a gosto",
+        group: null,
+        items: [
+          { qty: null, qtyRange: null, unit: null, item: "sal", prep: "a gosto", alt: null, optional: false, isReference: false },
+        ],
+      },
+      {
+        raw: "Rodelas de limão para servir",
+        group: null,
+        items: [
+          { qty: null, qtyRange: null, unit: null, item: "rodelas de limão", prep: "para servir", alt: null, optional: false, isReference: false },
+        ],
+      },
+    ],
+    steps: [
+      "Prepare um fumet rápido fervendo as cascas do camarão em água por 15 minutos; coe e mantenha quente.",
+      "Numa paellera (ou frigideira larga e rasa), aqueça bastante azeite e doure o frango (se usar), até dourar bem. Retire e reserve.",
+      "Na mesma panela, sele rapidamente o camarão e a lula, só para dourar por fora. Retire e reserve.",
+      "Refogue o pimentão até macio, junte o alho e o tomate ralado, cozinhando até o molho (sofrito) encorpar e escurecer levemente, 8-10 minutos.",
+      "Dissolva o açafrão numa concha do fumet quente e junte à panela.",
+      "Adicione o arroz, distribuindo por igual e mexendo só uma vez para incorporar ao sofrito — a partir daqui, NÃO mexa mais o arroz.",
+      "Cubra com o fumet quente (cerca de 2,5 vezes o volume do arroz), volte o frango à panela, e ajuste o sal.",
+      "Cozinhe em fogo médio-alto por 10 minutos sem mexer, depois abaixe para médio-baixo e continue por mais 8-10 minutos.",
+      "Nos últimos 5 minutos, distribua o camarão, a lula e os mexilhões (com a abertura para cima) por cima do arroz, junto com as ervilhas.",
+      "Continue cozinhando até o líquido secar completamente e o fundo formar uma crosta dourada e crocante (o 'socarrat', muito valorizado).",
+      "Desligue o fogo, cubra com um pano limpo por 5 minutos antes de servir, com rodelas de limão."
+    ],
+    tips: [
+      "A regra de ouro: depois que o arroz entra na panela, não mexa mais — mexer libera o amido e transforma a paella num risoto, o que é o oposto do objetivo (grãos soltos, com uma crosta no fundo).",
+      "O 'socarrat' (a crosta caramelizada e levemente queimada no fundo) é considerada a melhor parte da paella por muitos espanhóis — não tenha medo de deixar o fundo formar essa crosta.",
+      "Uma paellera larga e rasa (não uma panela funda) é importante — a superfície ampla permite que o líquido evapore por igual e rápido."
+    ]
+  },
 
   // ===================== ARROZES CALDOSOS =====================
   {
     name: "Arroz Caldoso",
+    nature: "prato",
     subgroup: "Arrozes Caldosos",
     desc: "Como uma paella bem mais líquida — arroz com camarão, lula e mexilhão, cozido em fumet até ficar caldoso feito sopa espessa.",
     origin: "Espanha",
@@ -363,6 +511,7 @@ window.RECIPES["arrozes"] = [
   },
   {
     name: "Arroz de Polvo",
+    nature: "prato",
     subgroup: "Arrozes Caldosos",
     desc: "Arroz caldoso português cozido no próprio caldo de cozimento do polvo, com pedaços de polvo por cima.",
     origin: "Portugal",
@@ -481,6 +630,7 @@ window.RECIPES["arrozes"] = [
   },
   {
     name: "Arroz de Mariscos",
+    nature: "prato",
     subgroup: "Arrozes Caldosos",
     desc: "Arroz caldoso português com mistura farta de camarão, mexilhão, amêijoa e lula, cozidos em fumet de peixe.",
     origin: "Portugal",

@@ -5,6 +5,7 @@ window.RECIPES["india"] = [
   // ===================== FRANGO =====================
   {
     name: "Tandoori Chicken",
+    nature: "prato",
     subgroup: "Frango",
     desc: "Frango marinado em iogurte, gengibre, alho e especiarias (garam masala, páprica), assado em forno bem quente até ficar com marcas escurecidas — servido com naan.",
     origin: "Índia (Punjab)",
@@ -116,6 +117,7 @@ window.RECIPES["india"] = [
   },
   {
     name: "Butter Chicken (Murgh Makhani)",
+    nature: "prato",
     subgroup: "Frango",
     desc: "Frango grelhado após marinar em iogurte e especiarias, finalizado num molho cremoso de tomate, manteiga e creme de leite — servido com arroz basmati ou naan.",
     origin: "Índia (Delhi)",
@@ -256,6 +258,7 @@ window.RECIPES["india"] = [
   },
   {
     name: "Chicken Tikka Masala",
+    nature: "prato",
     subgroup: "Frango",
     desc: "Pedaços de frango marinado e grelhado (tikka) num molho cremoso de tomate com creme de leite e especiarias — parecido com o Butter Chicken, porém mais picante e defumado.",
     origin: "Reino Unido / Índia",
@@ -395,6 +398,7 @@ window.RECIPES["india"] = [
   // ===================== CARNES E ARROZ =====================
   {
     name: "Rogan Josh",
+    nature: "prato",
     subgroup: "Carnes e Arroz",
     desc: "Ensopado de cordeiro cozido lentamente em molho encorpado de cebola, iogurte, páprica e especiarias inteiras (canela, cravo, cardamomo) — de cor vermelha intensa, servido com arroz basmati.",
     origin: "Índia (Caxemira)",
@@ -517,6 +521,7 @@ window.RECIPES["india"] = [
   },
   {
     name: "Biryani",
+    nature: "prato",
     subgroup: "Carnes e Arroz",
     desc: "Arroz basmati cozido em camadas com carne (frango ou cordeiro) marinada e especiarias, finalizado em fogo baixo e tampa lacrada (técnica 'dum') para os sabores se infundirem no arroz.",
     origin: "Índia",
@@ -653,6 +658,7 @@ window.RECIPES["india"] = [
   // ===================== VEGETARIANOS E PÃES =====================
   {
     name: "Dal Makhani",
+    nature: "prato",
     subgroup: "Vegetarianos e Pães",
     desc: "Ensopado cremoso de feijão preto (urad dal) e feijão vermelho, cozidos lentamente em molho de tomate com manteiga (ghee) e creme de leite — prato vegetariano rico e amanteigado.",
     origin: "Índia (Punjab)",
@@ -764,6 +770,7 @@ window.RECIPES["india"] = [
   },
   {
     name: "Samosa",
+    nature: "prato",
     subgroup: "Vegetarianos e Pães",
     desc: "Pastel triangular de massa crocante, recheado com batata amassada, ervilha e especiarias, frito até dourar — servido com chutney de hortelã ou tamarindo.",
     origin: "Índia",
@@ -872,6 +879,7 @@ window.RECIPES["india"] = [
   },
   {
     name: "Naan",
+    nature: "prato",
     subgroup: "Vegetarianos e Pães",
     desc: "Pão chato de fermentação com iogurte, assado em frigideira bem quente até formar bolhas douradas — pincelado com manteiga (ou ghee) e alho ao sair do fogo.",
     origin: "Índia",

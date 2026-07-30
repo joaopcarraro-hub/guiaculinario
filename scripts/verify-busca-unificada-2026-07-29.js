@@ -199,8 +199,12 @@ function main() {
 
   console.log("");
   section("2", "'frutos' NOS 3 ESCOPOS (null, Proteínas, Fundamentos) — S6.1: escopo de hub = UNIÃO (categoria + tile)");
+  // Recalibrado 2026-07-29 (Ato 3b-cont): 30 -> 29, só a Paella — recategorizada de
+  // frutos-do-mar pra arrozes (era arroz seco mal classificado como frutos do mar; auto-tag
+  // protein:frutos-do-mar de CATEGORY_BASE_TAGS some com o catId, contains:frutos-do-mar
+  // explícita entra no lugar). Nenhuma outra causa.
   const proteinFrutosIds = new Set(allRecipes.filter((r) => r.tags.indexOf("protein:frutos-do-mar") !== -1).map((r) => r.id));
-  assert(proteinFrutosIds.size === 30, "base real: protein:frutos-do-mar = 30 receitas (obtido " + proteinFrutosIds.size + ")");
+  assert(proteinFrutosIds.size === 29, "base real: protein:frutos-do-mar = 29 receitas (obtido " + proteinFrutosIds.size + ")");
   const outFrutosNull = Search.searchByQuery("frutos", {});
   const outFrutosProt = Search.searchByQuery("frutos", { scopeIds: scopeProteinas });
   const outFrutosFund = Search.searchByQuery("frutos", { scopeIds: scopeFundamentos });
@@ -779,6 +783,62 @@ function main() {
   assert(onApplyCatIdx !== -1, "onApply do modal de categoria encontrado");
   const onApplyCatSnippet = categoryBody.slice(onApplyCatIdx, onApplyCatIdx + 400);
   assert(onApplyCatSnippet.indexOf("Router.") === -1, "TESTE NEGATIVO: onApply do modal de categoria NÃO chama Router — Aplicar também não navega");
+
+  console.log("");
+  section(
+    "12",
+    "TRAVA DE INGESTÃO (Ato 3b, 2026-07-29) — campo nature: obrigatório (data/*.js), censo travado, spot-checks literais"
+  );
+  // 12a — todo recipe.nature (campo BRUTO de data/*.js, não derivado) precisa existir e estar
+  // no enum. Esta é a trava permanente pra qualquer ingestão em massa futura: receita nova sem
+  // nature, ou com valor fora do enum, derruba a suíte aqui antes de chegar em produção.
+  const NATURE_ENUM = new Set(["prato", "preparo", "tecnica"]);
+  assert(allRecipes.length === 398, "12a: 398 receitas no total (censo estrutural)");
+  const semNatureValido = allRecipes.filter((item) => !NATURE_ENUM.has(item.recipe.nature));
+  assert(
+    semNatureValido.length === 0,
+    "12a: 398/398 receitas com nature válido (prato|preparo|tecnica) — " + semNatureValido.length + " sem nature válido"
+  );
+  semNatureValido.slice(0, 10).forEach((item) => {
+    console.log("      sem nature válido: " + item.catId + " / " + item.recipe.name + " (nature=" + item.recipe.nature + ")");
+  });
+
+  // 12b — censo literal (tabela-mestra do Ato 3a + delta aprovado pelo dono: Legumes Fermentados
+  // tecnica -> prato, única mudança de nature vs a tabela original).
+  const natureCounts = { prato: 0, preparo: 0, tecnica: 0 };
+  allRecipes.forEach((item) => {
+    if (NATURE_ENUM.has(item.recipe.nature)) natureCounts[item.recipe.nature]++;
+  });
+  assert(natureCounts.prato === 337, "12b: censo prato === 337 (medido: " + natureCounts.prato + ")");
+  assert(natureCounts.preparo === 46, "12b: censo preparo === 46 (medido: " + natureCounts.preparo + ")");
+  assert(natureCounts.tecnica === 15, "12b: censo tecnica === 15 (medido: " + natureCounts.tecnica + ")");
+
+  // 12c — spot-checks literais (receitas nomeadas pelo dono na auditoria do Ato 3a/3b).
+  function natureOf(name) {
+    const item = allRecipes.find((it) => it.recipe.name === name);
+    return item ? item.recipe.nature : undefined;
+  }
+  assert(natureOf("Glace de Carne") === "preparo", "12c: Glace de Carne = preparo");
+  assert(natureOf("Maturação Seca (Dry Aging)") === "tecnica", "12c: Maturação Seca (Dry Aging) = tecnica");
+  assert(natureOf("Carbonara") === "prato", "12c: Carbonara = prato");
+  assert(natureOf("Croque Monsieur") === "prato", "12c: Croque Monsieur = prato");
+  assert(natureOf("Paella") === "prato", "12c: Paella = prato");
+  // Reinstalado 2026-07-29 (Ato 3b-cont): a omissão anterior (P0-gated) foi resolvida —
+  // Paella recategorizada de frutos-do-mar pra arrozes (gate de referência provou id/slug
+  // estável, ver relatório). protein:frutos-do-mar não vem mais de CATEGORY_BASE_TAGS (o catId
+  // mudou), e contains:frutos-do-mar entrou explícita em recipe.tags — spot-check completo, como
+  // pedido originalmente, sem mais omissão.
+  const paellaItem = allRecipes.find((it) => it.recipe.name === "Paella");
+  assert(!!paellaItem && paellaItem.catId === "arrozes", "12c: Paella catId = arrozes (recategorizada, era frutos-do-mar)");
+  assert(!!paellaItem && paellaItem.tags.indexOf("protein:frutos-do-mar") === -1, "12c: Paella SEM protein:frutos-do-mar no conjunto efetivo");
+  assert(!!paellaItem && paellaItem.tags.indexOf("contains:frutos-do-mar") !== -1, "12c: Paella COM contains:frutos-do-mar no conjunto efetivo");
+  assert(natureOf("Gravlax") === "tecnica", "12c: Gravlax = tecnica");
+  assert(
+    natureOf("Legumes Fermentados") === "prato",
+    "12c: Legumes Fermentados = prato (delta de arbitragem do dono — única mudança de nature vs tabela-mestra original)"
+  );
+  assert(natureOf("Pickles Rápidos") === "preparo", "12c: Pickles Rápidos = preparo");
+  assert(natureOf("Béchamel") === "preparo", "12c: Béchamel = preparo");
 
   // P2 (reconciliação de contagens, 2026-07-29): tabela seção -> asserções, lida direto de
   // sectionCounts (a MESMA estrutura que assert() já incrementou seção a seção, nunca um

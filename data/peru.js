@@ -6,6 +6,7 @@ window.RECIPES["peru"] = [
   // ===================== CRUS =====================
   {
     name: "Tiradito",
+    nature: "prato",
     subgroup: "Crus",
     desc: "Fatias finas de peixe cru (estilo sashimi) regadas na hora com molho cítrico de limão, alho e pimenta amarela.",
     origin: "Peru",
@@ -100,6 +101,7 @@ window.RECIPES["peru"] = [
   // ===================== GUISADOS E FRIOS COMPOSTOS =====================
   {
     name: "Ají de Gallina",
+    nature: "prato",
     subgroup: "Guisados e Frios Compostos",
     desc: "Frango desfiado num creme espesso de pimenta amarela peruana, pão amolecido no leite, nozes e queijo, servido sobre arroz.",
     origin: "Peru",
@@ -213,6 +215,7 @@ window.RECIPES["peru"] = [
   },
   {
     name: "Causa Limeña",
+    nature: "prato",
     subgroup: "Guisados e Frios Compostos",
     desc: "Terrine frio em camadas de purê de batata temperado com limão e pimenta amarela, recheado com frango ou atum e maionese.",
     origin: "Peru (Lima)",
@@ -318,6 +321,7 @@ window.RECIPES["peru"] = [
   // ===================== SALTEADOS E ARROZ =====================
   {
     name: "Lomo Saltado",
+    nature: "prato",
     subgroup: "Salteados e Arroz",
     desc: "Tiras de carne salteadas em fogo alto com cebola, tomate e shoyu, finalizadas com batata frita crocante — fusão peruano-chinesa.",
     origin: "Peru",
@@ -445,6 +449,7 @@ window.RECIPES["peru"] = [
   },
   {
     name: "Arroz Chaufa",
+    nature: "prato",
     subgroup: "Salteados e Arroz",
     desc: "Arroz frito na wok com carne, ovo mexido, cebolinha e shoyu — a versão peruana do arroz chinês, herança da comunidade chifa.",
     origin: "Peru (fusão chinesa-peruana)",
@@ -549,6 +554,7 @@ window.RECIPES["peru"] = [
   // ===================== GRELHADOS =====================
   {
     name: "Anticuchos",
+    nature: "prato",
     subgroup: "Grelhados",
     desc: "Espetos de coração de boi (ou carne bovina) marinados em pimenta vermelha peruana e grelhados, servidos com batata e milho.",
     origin: "Peru",

@@ -5,6 +5,7 @@ window.RECIPES["grecia"] = [
   // ===================== PRINCIPAIS =====================
   {
     name: "Moussaka",
+    nature: "prato",
     subgroup: "Principais",
     desc: "Camadas de berinjela grelhada e carne moída com canela, cobertas por molho béchamel e gratinadas no forno — a lasanha grega.",
     origin: "Grécia",
@@ -134,6 +135,7 @@ window.RECIPES["grecia"] = [
   },
   {
     name: "Souvlaki",
+    nature: "prato",
     subgroup: "Principais",
     desc: "Espetinhos de carne marinada em azeite, limão e orégano, grelhados e servidos em pão pita com molho tzatziki.",
     origin: "Grécia",
@@ -227,6 +229,7 @@ window.RECIPES["grecia"] = [
   },
   {
     name: "Gyros",
+    nature: "prato",
     subgroup: "Principais",
     desc: "Fatias finas de carne marinada e seladas na chapa, enroladas em pão pita com tomate, cebola, batata frita e tzatziki.",
     origin: "Grécia",
@@ -324,6 +327,7 @@ window.RECIPES["grecia"] = [
   // ===================== ENTRADAS E ACOMPANHAMENTOS =====================
   {
     name: "Spanakopita",
+    nature: "prato",
     subgroup: "Entradas e Acompanhamentos",
     desc: "Torta salgada de massa filo crocante recheada com espinafre refogado, queijo feta e ricota.",
     origin: "Grécia",
@@ -441,6 +445,7 @@ window.RECIPES["grecia"] = [
   },
   {
     name: "Dolmades",
+    nature: "prato",
     subgroup: "Entradas e Acompanhamentos",
     desc: "Charutinhos de folha de parreira recheados com arroz temperado com limão, endro e hortelã, cozidos e servidos com iogurte.",
     origin: "Grécia",
@@ -556,6 +561,7 @@ window.RECIPES["grecia"] = [
   },
   {
     name: "Tzatziki",
+    nature: "prato",
     subgroup: "Entradas e Acompanhamentos",
     desc: "Molho frio e cremoso de iogurte grego, pepino ralado escorrido, alho e endro — acompanhamento clássico de carnes grelhadas.",
     origin: "Grécia",

@@ -5,6 +5,7 @@ window.RECIPES["brasileiros"] = [
   // ===================== FEIJÕES E CARNES DE PANELA =====================
   {
     name: "Feijoada",
+    nature: "prato",
     subgroup: "Feijões e Carnes de Panela",
     desc: "Feijão preto cozido com carnes salgadas e defumadas de porco, servido com arroz, couve, farofa e laranja.",
     origin: "Brasil",
@@ -129,6 +130,7 @@ window.RECIPES["brasileiros"] = [
   },
   {
     name: "Tutu de Feijão",
+    nature: "prato",
     subgroup: "Feijões e Carnes de Panela",
     desc: "Feijão cozido engrossado com farinha de mandioca até virar um purê cremoso, típico mineiro.",
     origin: "Brasil (Minas Gerais)",
@@ -216,6 +218,7 @@ window.RECIPES["brasileiros"] = [
   },
   {
     name: "Dobradinha",
+    nature: "prato",
     subgroup: "Feijões e Carnes de Panela",
     desc: "Bucho bovino cozido até macio e guisado com feijão branco, linguiça e tomate — herança portuguesa.",
     origin: "Brasil / Portugal",
@@ -320,6 +323,7 @@ window.RECIPES["brasileiros"] = [
   },
   {
     name: "Rabada",
+    nature: "prato",
     subgroup: "Feijões e Carnes de Panela",
     desc: "Rabo bovino cozido bem lentamente em molho de tomate até a carne soltar do osso e o caldo engrossar naturalmente.",
     origin: "Brasil",
@@ -432,6 +436,7 @@ window.RECIPES["brasileiros"] = [
   },
   {
     name: "Vaca Atolada",
+    nature: "prato",
     subgroup: "Feijões e Carnes de Panela",
     desc: "Costela bovina cozida em caldo até macia, com mandioca que desmancha e engrossa o molho — prato mineiro.",
     origin: "Brasil (Minas Gerais)",
@@ -529,6 +534,7 @@ window.RECIPES["brasileiros"] = [
   // ===================== PEIXES E FRUTOS DO MAR BRASILEIROS =====================
   {
     name: "Moqueca",
+    nature: "prato",
     subgroup: "Peixes e Frutos do Mar Brasileiros",
     desc: "Peixe cozido em camadas de legumes com leite de coco e dendê (baiana) ou só azeite (capixaba), na panela de barro.",
     origin: "Brasil (Bahia / Espírito Santo)",
@@ -641,6 +647,7 @@ window.RECIPES["brasileiros"] = [
   },
   {
     name: "Bobó de Camarão",
+    nature: "prato",
     subgroup: "Peixes e Frutos do Mar Brasileiros",
     desc: "Camarão num creme liso de purê de mandioca, leite de coco e dendê — prato baiano.",
     origin: "Brasil (Bahia)",
@@ -765,6 +772,7 @@ window.RECIPES["brasileiros"] = [
   },
   {
     name: "Vatapá",
+    nature: "prato",
     subgroup: "Peixes e Frutos do Mar Brasileiros",
     desc: "Creme espesso de pão, castanha, camarão seco e fresco cozidos no leite de coco e dendê — prato afro-baiano.",
     origin: "Brasil (Bahia)",
@@ -876,6 +884,7 @@ window.RECIPES["brasileiros"] = [
   },
   {
     name: "Acarajé",
+    nature: "prato",
     subgroup: "Peixes e Frutos do Mar Brasileiros",
     desc: "Bolinho de massa de feijão-fradinho frito no dendê, recheado com vatapá e camarão seco — tradição baiana.",
     origin: "Brasil (Bahia)",
@@ -956,6 +965,7 @@ window.RECIPES["brasileiros"] = [
   // ===================== PRATOS DE PANELA E ACOMPANHAMENTOS =====================
   {
     name: "Escondidinho",
+    nature: "prato",
     subgroup: "Pratos de Panela e Acompanhamentos",
     desc: "Carne seca desfiada 'escondida' entre camadas de purê de mandioca, gratinada com queijo no forno.",
     origin: "Brasil",
@@ -1059,6 +1069,7 @@ window.RECIPES["brasileiros"] = [
   },
   {
     name: "Virado à Paulista",
+    nature: "prato",
     subgroup: "Pratos de Panela e Acompanhamentos",
     desc: "Combinado paulista de bife suíno, tutu de feijão, couve refogada e ovo com gema mole.",
     origin: "Brasil (São Paulo)",
@@ -1168,6 +1179,7 @@ window.RECIPES["brasileiros"] = [
   },
   {
     name: "Galinhada",
+    nature: "prato",
     subgroup: "Pratos de Panela e Acompanhamentos",
     desc: "Arroz cozido junto com frango caipira, colorido com açafrão-da-terra — prato de festa do interior de Minas e Goiás.",
     origin: "Brasil (Minas Gerais / Goiás)",
@@ -1289,6 +1301,7 @@ window.RECIPES["brasileiros"] = [
   },
   {
     name: "Barreado",
+    nature: "prato",
     subgroup: "Pratos de Panela e Acompanhamentos",
     desc: "Carne bovina cozida por horas numa panela vedada com massa de farinha, até desmanchar num molho concentrado — prato do litoral do Paraná.",
     origin: "Brasil (Paraná, litoral)",
@@ -1384,6 +1397,7 @@ window.RECIPES["brasileiros"] = [
   },
   {
     name: "Baião de Dois",
+    nature: "prato",
     subgroup: "Pratos de Panela e Acompanhamentos",
     desc: "Arroz e feijão-de-corda cozidos juntos com carne seca e queijo coalho — clássico nordestino.",
     origin: "Brasil (Nordeste)",
@@ -1479,6 +1493,7 @@ window.RECIPES["brasileiros"] = [
   },
   {
     name: "Arroz Carreteiro",
+    nature: "prato",
     subgroup: "Pratos de Panela e Acompanhamentos",
     desc: "Arroz refogado com charque desfiado e dourado — prato gaúcho de origem tropeira.",
     origin: "Brasil (Rio Grande do Sul)",
@@ -1583,6 +1598,7 @@ window.RECIPES["brasileiros"] = [
   // ===================== PRATOS DO NORTE =====================
   {
     name: "Tacacá",
+    nature: "prato",
     subgroup: "Pratos do Norte",
     desc: "Caldo quente de tucupi fervido com goma de tapioca, camarão seco e folha de jambu — servido numa cuia, típico da Amazônia.",
     origin: "Brasil (Amazônia)",

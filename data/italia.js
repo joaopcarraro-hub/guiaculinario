@@ -10,6 +10,7 @@ window.RECIPES["italia"] = [
   // ===================== MASSAS =====================
   {
     name: "Pasta alla Norma",
+    nature: "prato",
     subgroup: "Massas",
     desc: "Massa siciliana com molho de tomate, berinjela frita e ricota salata ralada por cima.",
     origin: "Itália (Sicília)",
@@ -127,6 +128,7 @@ window.RECIPES["italia"] = [
   },
   {
     name: "Pasta alla Gricia",
+    nature: "prato",
     subgroup: "Massas",
     desc: "Massa romana só com guanciale crocante, pecorino e pimenta — a 'mãe' da Carbonara e da Amatriciana, sem ovo e sem tomate.",
     origin: "Itália (Roma)",
@@ -194,6 +196,7 @@ window.RECIPES["italia"] = [
   },
   {
     name: "Ragù à Bolonhesa",
+    nature: "prato",
     subgroup: "Massas",
     desc: "Molho de carne moída cozido lentamente por horas com vinho, leite e tomate, servido sobre tagliatelle fresco.",
     origin: "Itália (Bolonha)",
@@ -316,6 +319,7 @@ window.RECIPES["italia"] = [
   // ===================== CARNES =====================
   {
     name: "Saltimbocca à Romana",
+    nature: "prato",
     subgroup: "Carnes",
     desc: "Filés de vitela enrolados com presunto de Parma e sálvia, selados na manteiga e finalizados com molho de vinho branco.",
     origin: "Itália (Roma)",
@@ -412,6 +416,7 @@ window.RECIPES["italia"] = [
   // ===================== SOBREMESAS =====================
   {
     name: "Zabaglione",
+    nature: "prato",
     subgroup: "Sobremesas",
     desc: "Creme aerado de gemas batidas em banho-maria com vinho Marsala, servido morno sobre frutas ou biscoitos.",
     origin: "Itália (Piemonte)",
@@ -470,6 +475,7 @@ window.RECIPES["italia"] = [
   },
   {
     name: "Semifreddo",
+    nature: "prato",
     subgroup: "Sobremesas",
     desc: "Sobremesa gelada e aerada de gemas, claras em neve e creme batido, congelada sem precisar de máquina de sorvete.",
     origin: "Itália",
@@ -565,6 +571,7 @@ window.RECIPES["italia"] = [
   },
   {
     name: "Affogato",
+    nature: "prato",
     subgroup: "Sobremesas",
     desc: "Bolas de sorvete de creme 'afogadas' em espresso quente na hora de servir.",
     origin: "Itália",

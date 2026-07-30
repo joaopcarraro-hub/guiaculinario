@@ -5,6 +5,7 @@ window.RECIPES["ovos-classicos"] = [
   // ===================== FAMÍLIA BENEDICT =====================
   {
     name: "Eggs Benedict",
+    nature: "prato",
     subgroup: "Família Benedict",
     desc: "Muffin inglês tostado com bacon canadense, ovo poché e molho Hollandaise por cima — o clássico americano de brunch.",
     origin: "EUA",
@@ -89,6 +90,7 @@ window.RECIPES["ovos-classicos"] = [
   },
   {
     name: "Eggs Florentine",
+    nature: "prato",
     subgroup: "Família Benedict",
     desc: "Versão vegetariana do Eggs Benedict: muffin com espinafre refogado, ovo poché e Hollandaise, no lugar do bacon.",
     origin: "EUA / França",
@@ -174,6 +176,7 @@ window.RECIPES["ovos-classicos"] = [
   },
   {
     name: "Eggs Royale",
+    nature: "prato",
     subgroup: "Família Benedict",
     desc: "Versão de luxo do Eggs Benedict, com salmão defumado no lugar do bacon, coberto de ovo poché, Hollandaise e endro.",
     origin: "Reino Unido",
@@ -258,6 +261,7 @@ window.RECIPES["ovos-classicos"] = [
   // ===================== OVOS COM MOLHO =====================
   {
     name: "Ovos en Meurette",
+    nature: "prato",
     subgroup: "Ovos com Molho",
     desc: "Ovos pochê da Borgonha servidos sobre torradas de alho, cobertos com molho encorpado de vinho tinto, bacon e cogumelos.",
     origin: "França (Borgonha)",
@@ -394,6 +398,7 @@ window.RECIPES["ovos-classicos"] = [
   },
   {
     name: "Shakshuka",
+    nature: "prato",
     subgroup: "Ovos com Molho",
     desc: "Ovos cozidos inteiros num molho de tomate temperado com cominho e páprica — prato de brunch do Norte da África e Oriente Médio.",
     origin: "Norte da África / Oriente Médio",
@@ -528,6 +533,7 @@ window.RECIPES["ovos-classicos"] = [
   },
   {
     name: "Menemen",
+    nature: "prato",
     subgroup: "Ovos com Molho",
     desc: "Café da manhã turco parecido com a Shakshuka, mas com os ovos mexidos dentro do molho de tomate e pimentão, formando um creme.",
     origin: "Turquia",
@@ -628,6 +634,7 @@ window.RECIPES["ovos-classicos"] = [
   },
   {
     name: "Huevos Rancheros",
+    nature: "prato",
     subgroup: "Ovos com Molho",
     desc: "Tortilla de milho com feijão, molho de tomate e jalapeño, coroada com ovo frito, abacate e queijo fresco — clássico mexicano.",
     origin: "México",
@@ -744,6 +751,7 @@ window.RECIPES["ovos-classicos"] = [
   },
   {
     name: "Ovos à Portuguesa",
+    nature: "prato",
     subgroup: "Ovos com Molho",
     desc: "Ovos cozidos num molho de tomate com cebola, pimentão e chouriço ou presunto — parecido com a Shakshuka, mas com toque português.",
     origin: "Portugal",
@@ -862,6 +870,7 @@ window.RECIPES["ovos-classicos"] = [
   // ===================== OVOS FRIOS E ESPECIAIS =====================
   {
     name: "Ovos com Maionese",
+    nature: "prato",
     subgroup: "Ovos Frios e Especiais",
     desc: "Ovos cozidos duros, cortados ao meio e cobertos com maionese caseira temperada — entrada simples e clássica dos bistrôs franceses.",
     origin: "França",
@@ -938,6 +947,7 @@ window.RECIPES["ovos-classicos"] = [
   },
   {
     name: "Scotch Egg",
+    nature: "prato",
     subgroup: "Ovos Frios e Especiais",
     desc: "Ovo cozido envolto em carne de linguiça temperada, empanado e frito — clássico britânico de piquenique, ótimo frio.",
     origin: "Reino Unido",
@@ -1024,6 +1034,7 @@ window.RECIPES["ovos-classicos"] = [
   },
   {
     name: "Ovos en Cocotte à la Forestière",
+    nature: "prato",
     subgroup: "Ovos Frios e Especiais",
     desc: "Versão elevada do Ovo Cocotte, assado em ramequim sobre uma duxelles de cogumelos reduzidos com creme de leite.",
     origin: "França",

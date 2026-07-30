@@ -5,6 +5,7 @@ window.RECIPES["aves"] = [
   // ===================== FRANGO =====================
   {
     name: "Coq au Vin",
+    nature: "prato",
     subgroup: "Frango",
     desc: "Clássico francês de frango cozido lentamente em vinho tinto com bacon, cebolinhas e cogumelos, em molho encorpado.",
     origin: "França (Borgonha)",
@@ -133,6 +134,7 @@ window.RECIPES["aves"] = [
   },
   {
     name: "Frango Cordon Bleu",
+    nature: "prato",
     subgroup: "Frango",
     desc: "Filé de frango recheado com presunto e queijo gruyère, empanado e frito (ou assado) até dourar e o queijo derreter por dentro.",
     origin: "Suíça / França",
@@ -212,6 +214,7 @@ window.RECIPES["aves"] = [
   },
   {
     name: "Suprême de Frango",
+    nature: "prato",
     subgroup: "Frango",
     desc: "Peito de frango com osso da asa, selado com a pele crocante e servido coberto pelo molho Suprême (creme de fundo de aves).",
     origin: "França",
@@ -281,6 +284,7 @@ window.RECIPES["aves"] = [
   },
   {
     name: "Frango Recheado",
+    nature: "prato",
     subgroup: "Frango",
     desc: "Frango inteiro assado com recheio de farofa, linguiça, damasco e castanhas, regado com os próprios sucos até dourar.",
     origin: "Internacional",
@@ -396,6 +400,7 @@ window.RECIPES["aves"] = [
   // ===================== PATO =====================
   {
     name: "Confit de Pato",
+    nature: "prato",
     subgroup: "Pato",
     desc: "Coxas de pato salgadas e depois cozidas lentamente submersas na própria gordura, até ficarem extremamente macias, e finalizadas crocantes na frigideira.",
     origin: "França (Gasconha)",
@@ -473,6 +478,7 @@ window.RECIPES["aves"] = [
   },
   {
     name: "Magret de Pato",
+    nature: "prato",
     subgroup: "Pato",
     desc: "Peito de pato com a pele cortada em losango, selado a frio até crocante e servido rosado, fatiado com molho agridoce de frutas.",
     origin: "França (Gasconha)",

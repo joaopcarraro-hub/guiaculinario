@@ -5,6 +5,7 @@ window.RECIPES["libano"] = [
   // ===================== PASTAS E MOLHOS =====================
   {
     name: "Hommus",
+    nature: "prato",
     subgroup: "Pastas e Molhos",
     desc: "Pasta cremosa de grão-de-bico batido com tahine, alho, limão e azeite — clássico dip árabe para pão pita.",
     origin: "Líbano",
@@ -105,6 +106,7 @@ window.RECIPES["libano"] = [
   },
   {
     name: "Babaganuche",
+    nature: "prato",
     subgroup: "Pastas e Molhos",
     desc: "Pasta de berinjela assada na chama, amassada com tahine, alho e limão — fumê e rústica, para petiscar com pão.",
     origin: "Líbano",
@@ -191,6 +193,7 @@ window.RECIPES["libano"] = [
   // ===================== CARNES =====================
   {
     name: "Quibe Cru",
+    nature: "prato",
     subgroup: "Carnes",
     desc: "Carne bovina crua moída, sovada com trigo para quibe e cebola — entrada libanesa servida gelada, temperada com especiarias.",
     origin: "Líbano",
@@ -269,6 +272,7 @@ window.RECIPES["libano"] = [
   },
   {
     name: "Quibe Frito",
+    nature: "prato",
     subgroup: "Carnes",
     desc: "Casca de carne moída com trigo, recheada com carne temperada e pinoli, moldada em torpedo e frita até dourar.",
     origin: "Líbano",
@@ -331,6 +335,7 @@ window.RECIPES["libano"] = [
   },
   {
     name: "Kafta",
+    nature: "prato",
     subgroup: "Carnes",
     desc: "Espetos de carne moída temperada com cebola, salsinha e especiarias, grelhados — servidos com pão pita e molho de alho.",
     origin: "Líbano",
@@ -410,6 +415,7 @@ window.RECIPES["libano"] = [
   // ===================== SALADAS E PÃES =====================
   {
     name: "Tabule",
+    nature: "prato",
     subgroup: "Saladas e Pães",
     desc: "Salada libanesa de ervas picadas — principalmente salsinha e hortelã — com pouco trigo, tomate e limão.",
     origin: "Líbano",
@@ -502,6 +508,7 @@ window.RECIPES["libano"] = [
   },
   {
     name: "Fattoush",
+    nature: "prato",
     subgroup: "Saladas e Pães",
     desc: "Salada libanesa de vegetais frescos com pedaços de pão pita tostado e molho de limão e melaço de romã.",
     origin: "Líbano",
@@ -606,6 +613,7 @@ window.RECIPES["libano"] = [
   },
   {
     name: "Esfiha",
+    nature: "prato",
     subgroup: "Saladas e Pães",
     desc: "Disquinho de massa de pão aberto, recheado com carne moída temperada com tomate e limão, assado no forno.",
     origin: "Líbano / Síria (adaptação brasileira)",

@@ -5,6 +5,7 @@ window.RECIPES["massas"] = [
   // ===================== MOLHOS ROMANOS CLÁSSICOS =====================
   {
     name: "Carbonara",
+    nature: "prato",
     subgroup: "Molhos Romanos Clássicos",
     desc: "Massa com molho cremoso de ovo, pecorino e guanciale crocante, sem creme de leite — a cremosidade vem só do ovo e da água da massa.",
     origin: "Itália (Roma)",
@@ -83,6 +84,7 @@ window.RECIPES["massas"] = [
   },
   {
     name: "Cacio e Pepe",
+    nature: "prato",
     subgroup: "Molhos Romanos Clássicos",
     desc: "Massa num molho cremoso feito só de pecorino ralado, água do cozimento e pimenta-do-reino tostada — simples, mas exige técnica para não empelotar.",
     origin: "Itália (Roma)",
@@ -142,6 +144,7 @@ window.RECIPES["massas"] = [
   },
   {
     name: "Amatriciana",
+    nature: "prato",
     subgroup: "Molhos Romanos Clássicos",
     desc: "Massa com molho de tomate e guanciale crocante, sem alho ou cebola — a base tradicional de muitos molhos de tomate com carne curada da Itália central.",
     origin: "Itália (Amatrice)",
@@ -235,6 +238,7 @@ window.RECIPES["massas"] = [
   // ===================== MOLHOS DO SUL =====================
   {
     name: "Puttanesca",
+    nature: "prato",
     subgroup: "Molhos do Sul",
     desc: "Massa com molho de tomate, anchova, azeitona preta e alcaparras — sabor salgado e intenso, pronto rápido.",
     origin: "Itália (Nápoles)",
@@ -342,6 +346,7 @@ window.RECIPES["massas"] = [
   },
   {
     name: "Alho e Óleo",
+    nature: "prato",
     subgroup: "Molhos do Sul",
     desc: "Massa salteada só com azeite, alho dourado e pimenta — prato napolitano minimalista da 'cucina povera'.",
     origin: "Itália (Nápoles)",
@@ -419,6 +424,7 @@ window.RECIPES["massas"] = [
   // ===================== MASSA AO FORNO =====================
   {
     name: "Lasanha",
+    nature: "prato",
     subgroup: "Massa ao Forno",
     desc: "Camadas de massa, ragù à bolonhesa e Béchamel gratinadas com queijo no forno — clássico italiano de conforto.",
     origin: "Itália (Emília-Romanha)",
@@ -497,6 +503,7 @@ window.RECIPES["massas"] = [
   // ===================== MASSAS RECHEADAS =====================
   {
     name: "Ravioli",
+    nature: "prato",
     subgroup: "Massas Recheadas",
     desc: "Pequenos travesseirinhos de massa fresca recheados com ricota e espinafre, servidos com manteiga e sálvia.",
     origin: "Itália",
@@ -580,6 +587,7 @@ window.RECIPES["massas"] = [
   },
   {
     name: "Tortellini",
+    nature: "prato",
     subgroup: "Massas Recheadas",
     desc: "Massa recheada com presunto, mortadela e lombo, dobrada em forma de pequeno anel — tradicionalmente servida na sopa ('in brodo').",
     origin: "Itália (Bolonha/Modena)",
@@ -674,6 +682,7 @@ window.RECIPES["massas"] = [
   },
   {
     name: "Agnolotti",
+    nature: "prato",
     subgroup: "Massas Recheadas",
     desc: "Massa recheada com sobras de carne assada e espinafre, em formato de pequenos retângulos — prato piemontês de aproveitamento.",
     origin: "Itália (Piemonte)",
@@ -756,6 +765,7 @@ window.RECIPES["massas"] = [
   // ===================== MASSAS LONGAS FRESCAS =====================
   {
     name: "Tagliatelle",
+    nature: "prato",
     subgroup: "Massas Longas Frescas",
     desc: "Massa fresca de ovos cortada em fitas, a acompanhante clássica do ragù à bolonhesa em Bolonha.",
     origin: "Itália (Emília-Romanha)",
@@ -825,6 +835,7 @@ window.RECIPES["massas"] = [
   },
   {
     name: "Pappardelle",
+    nature: "prato",
     subgroup: "Massas Longas Frescas",
     desc: "Massa fresca de ovos cortada em fitas bem largas, feita para segurar ragùs encorpados de caça ou cogumelos silvestres.",
     origin: "Itália (Toscana)",
@@ -894,6 +905,7 @@ window.RECIPES["massas"] = [
   // ===================== MASSAS ESPECIAIS =====================
   {
     name: "Gnocchi",
+    nature: "prato",
     subgroup: "Massas Especiais",
     desc: "Pequenos nhoques macios de batata amassada e farinha, cozidos em água e servidos com manteiga e sálvia ou molho de tomate.",
     origin: "Itália",
@@ -982,6 +994,7 @@ window.RECIPES["massas"] = [
   },
   {
     name: "Spätzle",
+    nature: "prato",
     subgroup: "Massas Especiais",
     desc: "Pequenos pedaços de massa de ovo mole, passados direto para a água fervente e depois salteados na manteiga — acompanhamento clássico do Goulash.",
     origin: "Alemanha / Áustria",

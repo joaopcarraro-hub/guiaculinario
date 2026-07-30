@@ -5,6 +5,7 @@ window.RECIPES["austria"] = [
 
   {
     name: "Wiener Schnitzel",
+    nature: "prato",
     subgroup: "Principais",
     desc: "Filé de vitela batido fino, empanado e frito na manteiga até formar uma crosta dourada e ondulada — servido só com limão.",
     origin: "Áustria (Viena)",
@@ -75,6 +76,7 @@ window.RECIPES["austria"] = [
   },
   {
     name: "Strudel de Maçã",
+    nature: "prato",
     subgroup: "Sobremesas",
     desc: "Rolo de massa filo fina recheado com maçã fatiada, canela, passas e nozes, assado até dourar — sobremesa clássica austríaca.",
     origin: "Áustria",
@@ -177,6 +179,7 @@ window.RECIPES["austria"] = [
   },
   {
     name: "Kaiserschmarrn",
+    nature: "prato",
     subgroup: "Sobremesas",
     desc: "Panqueca fofa e grossa, rasgada em pedaços e caramelizada na manteiga, polvilhada com açúcar e servida com compota de frutas.",
     origin: "Áustria",

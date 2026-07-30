@@ -388,15 +388,24 @@ function main() {
   // protein:X/contains:X — 17 é o número CORRETO da nova semântica; 104 era o comportamento
   // antigo, específico de Ovos, que este item aposenta de propósito (regra única, sem exceção
   // por coleção).
+  // Literais recalibrados 2026-07-29 (Ato 3b, eixo nature + 12 correções de identidade aprovadas
+  // pela auditoria, incluindo Paella recategorizada de frutos-do-mar pra arrozes — ver relatório
+  // do Ato 3b/3b-cont). frango/ave/boi/peixe/ovo mudam pelos downgrades protein:X->contains:X
+  // (Entrevero, Cura de Peixes e Carnes, Maturação Seca, Braseados Longos, Crosta de Especiarias,
+  // Glace de Carne, Leite de Tigre, Gravlax, Confit de Gema, Gema Curada); frutos-do-mar muda
+  // especificamente pela Paella (só ela: 30/13 -> 29/14, a diferença de exatamente 1 receita em
+  // cada lado); suino e cordeiro ficam INALTERADOS (nenhuma receita dessas duas proteínas foi
+  // tocada nesta rodada). Todos os 8 medidos e conferidos contra o gabarito da auditoria antes
+  // de editar — ver protocolo do Ato 3b (PARAR se qualquer um divergisse; nenhum divergiu).
   const LITERAL_COUNTS = [
-    { label: "frango", ids: ["protein:frango"], primary: 30, secondary: 7 },
-    { label: "ave", ids: ["protein:ave"], primary: 14, secondary: 1 },
-    { label: "boi", ids: ["protein:boi"], primary: 50, secondary: 18 },
+    { label: "frango", ids: ["protein:frango"], primary: 29, secondary: 7 },
+    { label: "ave", ids: ["protein:ave"], primary: 13, secondary: 2 },
+    { label: "boi", ids: ["protein:boi"], primary: 46, secondary: 22 },
     { label: "suino", ids: ["protein:suino"], primary: 27, secondary: 43 },
     { label: "cordeiro", ids: ["protein:cordeiro"], primary: 10, secondary: 1 },
-    { label: "peixe", ids: ["protein:peixe"], primary: 32, secondary: 8 },
-    { label: "frutos-do-mar", ids: ["protein:frutos-do-mar"], primary: 30, secondary: 13 },
-    { label: "ovo", ids: ["protein:ovo"], primary: 33, secondary: 17 },
+    { label: "peixe", ids: ["protein:peixe"], primary: 29, secondary: 11 },
+    { label: "frutos-do-mar", ids: ["protein:frutos-do-mar"], primary: 29, secondary: 14 },
+    { label: "ovo", ids: ["protein:ovo"], primary: 31, secondary: 19 },
   ];
   LITERAL_COUNTS.forEach((c) => {
     const split = TagModel.splitByProteinRole(allRecipes, c.ids);
@@ -426,21 +435,29 @@ function main() {
   {
     const oldOvo = TagModel.getRecipesByCollection("col-ovo");
     const genOvo = TagModel.splitByProteinRole(oldOvo.allRecipes, ["protein:ovo"]);
+    // Recalibrado 2026-07-29 (Ato 3b): Confit de Gema/Gema Curada perderam protein:ovo (viraram
+    // contains:ovo, já tinham ingredient:ovo manual) — Principal 33->31, Secundário (contains:ovo
+    // + ingredient:ovo) 104->106. Sem relação com a Paella (Paella nunca teve tag de ovo).
     assert(
-      oldOvo.primaryRecipes.length === 33 && oldOvo.relatedRecipes.length === 104,
-      "col-ovo ANTES desta rodada: Principal=33/Secundário=104 (o 104 inclui ingredient:ovo solto — qualquer receita com ovo como ingrediente comum, não como proteína secundária de verdade)"
+      oldOvo.primaryRecipes.length === 31 && oldOvo.relatedRecipes.length === 106,
+      "col-ovo ANTES desta rodada: Principal=31/Secundário=106 (o 106 inclui ingredient:ovo solto — qualquer receita com ovo como ingrediente comum, não como proteína secundária de verdade)"
     );
     assert(
-      genOvo.primary.length === 33 && genOvo.secondary.length === 17,
-      "col-ovo DEPOIS (regra única protein:X/contains:X, sem exceção): Principal=33 (igual), Secundário=17 (era 104) — mudança DELIBERADA, reportada explicitamente, não uma regressão"
+      genOvo.primary.length === 31 && genOvo.secondary.length === 19,
+      "col-ovo DEPOIS (regra única protein:X/contains:X, sem exceção): Principal=31, Secundário=19 (era 104 antes da regra nova) — mudança de regra DELIBERADA (já reportada), mais o recálculo de 2026-07-29"
     );
   }
   // Teste negativo: soma ingênua por tag individual NÃO é igual ao OR de verdade (Aves tem
   // sobreposição real — receitas com protein:ave E protein:frango ao mesmo tempo).
+  // Recalibrado 2026-07-29 (Ato 3b): 40->38, DUAS causas independentes, nenhuma delas a Paella
+  // (Paella não tem protein:ave nem protein:frango): Entrevero perdeu protein:frango (não tinha
+  // protein:ave de reserva, então sai do combinado inteiro) e Cura de Peixes e Carnes perdeu
+  // protein:ave (não tinha protein:frango de reserva, mesma lógica) — cada uma tira 1 do
+  // combinado, 40-1-1=38.
   const avesGen = TagModel.splitByProteinRole(allRecipes, ["protein:ave", "protein:frango"]);
-  const naiveSum = 14 + 30; // ave isolado + frango isolado
-  assert(avesGen.primary.length === 40, "Aves (ave+frango combinados): Principal=40 — o número da COLEÇÃO, não a soma ingênua");
-  assert(avesGen.primary.length < naiveSum, "TESTE NEGATIVO: 40 < " + naiveSum + " (14+30) — confirma que existe sobreposição real (receita com as duas tags) e o OR não conta 2x, soma ingênua por tag estaria ERRADA");
+  const naiveSum = 13 + 29; // ave isolado + frango isolado
+  assert(avesGen.primary.length === 38, "Aves (ave+frango combinados): Principal=38 — o número da COLEÇÃO, não a soma ingênua");
+  assert(avesGen.primary.length < naiveSum, "TESTE NEGATIVO: 38 < " + naiveSum + " (13+29) — confirma que existe sobreposição real (receita com as duas tags) e o OR não conta 2x, soma ingênua por tag estaria ERRADA");
 
   console.log("");
   console.log("-- 4. Teste negativo — proteína sem par contains:X definido (leguminosa/laticínio) não quebra --");

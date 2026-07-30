@@ -5,6 +5,7 @@ window.RECIPES["japao"] = [
   // ===================== SUSHI E CRUS =====================
   {
     name: "Arroz de Sushi (Shari) e Nigiri",
+    nature: "prato",
     subgroup: "Sushi e Crus",
     desc: "Bolinhos de arroz temperado com vinagre, cobertos com uma fatia de peixe cru fresco (salmão ou atum) — a base do sushi tradicional.",
     origin: "Japão",
@@ -91,6 +92,7 @@ window.RECIPES["japao"] = [
   },
   {
     name: "Sashimi",
+    nature: "prato",
     subgroup: "Sushi e Crus",
     desc: "Fatias finas de peixe cru fresco (salmão, atum ou robalo), cortadas à faca e servidas com daikon ralado, wasabi e shoyu — sem arroz.",
     origin: "Japão",
@@ -151,6 +153,7 @@ window.RECIPES["japao"] = [
   },
   {
     name: "Temaki",
+    nature: "prato",
     subgroup: "Sushi e Crus",
     desc: "Cone de alga nori recheado à mão com arroz de sushi, peixe cru, pepino e abacate — servido e comido na hora, antes que a alga amoleça.",
     origin: "Japão",
@@ -237,6 +240,7 @@ window.RECIPES["japao"] = [
   },
   {
     name: "Chirashi",
+    nature: "prato",
     subgroup: "Sushi e Crus",
     desc: "Tigela de arroz de sushi coberta com sashimi variado, tamagoyaki, pepino e ovas de peixe — um sushi 'desmontado', servido em camadas.",
     origin: "Japão",
@@ -322,6 +326,7 @@ window.RECIPES["japao"] = [
   },
   {
     name: "Aburi e Tataki",
+    nature: "prato",
     subgroup: "Sushi e Crus",
     desc: "Peixe cru com a superfície levemente selada ou queimada com maçarico, mantendo o interior cru — servido fatiado com molho ponzu.",
     origin: "Japão (técnica contemporânea)",
@@ -391,6 +396,7 @@ window.RECIPES["japao"] = [
   // ===================== PRATOS QUENTES =====================
   {
     name: "Tonkatsu",
+    nature: "prato",
     subgroup: "Pratos Quentes",
     desc: "Filé de lombo de porco empanado em farinha panko e frito até crocante, fatiado e servido com repolho cru e molho tonkatsu.",
     origin: "Japão",
@@ -477,6 +483,7 @@ window.RECIPES["japao"] = [
   },
   {
     name: "Katsudon",
+    nature: "prato",
     subgroup: "Pratos Quentes",
     desc: "Tonkatsu fatiado, cozido em cebola e caldo de shoyu com ovo cremoso por cima, servido sobre uma tigela de arroz japonês.",
     origin: "Japão",
@@ -578,6 +585,7 @@ window.RECIPES["japao"] = [
   },
   {
     name: "Yakitori",
+    nature: "prato",
     subgroup: "Pratos Quentes",
     desc: "Espetinhos de coxa de frango e cebolinha grelhados, pincelados com molho tare (shoyu, mirin e sake) caramelizado.",
     origin: "Japão",
@@ -639,6 +647,7 @@ window.RECIPES["japao"] = [
   },
   {
     name: "Sukiyaki",
+    nature: "prato",
     subgroup: "Pratos Quentes",
     desc: "Fondue japonês de carne bovina fatiada fina, tofu, cogumelos e legumes cozidos aos poucos numa panela com molho doce de shoyu, mergulhados em gema crua antes de comer.",
     origin: "Japão",
@@ -744,6 +753,7 @@ window.RECIPES["japao"] = [
   },
   {
     name: "Shabu-Shabu",
+    nature: "prato",
     subgroup: "Pratos Quentes",
     desc: "Fondue japonês de carne bovina fatiada bem fina, cozida rapidamente em caldo dashi e mergulhada em molho ponzu ou de gergelim, junto com tofu e legumes.",
     origin: "Japão",
@@ -834,6 +844,7 @@ window.RECIPES["japao"] = [
   },
   {
     name: "Tempurá",
+    nature: "prato",
     subgroup: "Pratos Quentes",
     desc: "Camarões e legumes envolvidos numa massa leve de farinha e água gelada, fritos até crocantes e claros — servidos com molho tentsuyu e daikon ralado.",
     origin: "Japão",
@@ -925,6 +936,7 @@ window.RECIPES["japao"] = [
   },
   {
     name: "Chawanmushi",
+    nature: "prato",
     subgroup: "Pratos Quentes",
     desc: "Flan salgado japonês de ovo e dashi, cozido no vapor com camarão, shiitake e espinafre — textura extremamente lisa e macia, comido de colher.",
     origin: "Japão",
@@ -1028,6 +1040,7 @@ window.RECIPES["japao"] = [
   // ===================== CALDOS E MACARRÃO =====================
   {
     name: "Ramen",
+    nature: "prato",
     subgroup: "Caldos e Macarrão",
     desc: "Sopa de macarrão japonês em caldo turvo e encorpado de ossos de porco fervidos por horas, com fatias de chashu (porco braseado), ovo marinado e nori.",
     origin: "Japão",
@@ -1127,6 +1140,7 @@ window.RECIPES["japao"] = [
   },
   {
     name: "Udon",
+    nature: "prato",
     subgroup: "Caldos e Macarrão",
     desc: "Sopa de macarrão japonês grosso e elástico em caldo claro de dashi e shoyu, finalizada com kamaboko (bolinho de peixe) e cebolinha.",
     origin: "Japão",
@@ -1218,6 +1232,7 @@ window.RECIPES["japao"] = [
   },
   {
     name: "Soba",
+    nature: "prato",
     subgroup: "Caldos e Macarrão",
     desc: "Macarrão japonês de trigo sarraceno, servido frio com molho tsuyu para mergulhar ou quente em caldo de dashi, como uma sopa.",
     origin: "Japão",

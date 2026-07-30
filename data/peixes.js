@@ -5,6 +5,7 @@ window.RECIPES["peixes"] = [
   // ===================== TÉCNICA MEUNIÈRE =====================
   {
     name: "Linguado à Meunière Clássica",
+    nature: "prato",
     subgroup: "Técnica Meunière",
     desc: "Filé de linguado empanado em farinha fina, dourado na manteiga e finalizado com manteiga avelã e limão.",
     origin: "França",
@@ -101,6 +102,7 @@ window.RECIPES["peixes"] = [
   },
   {
     name: "Linguado à Belle Meunière",
+    nature: "prato",
     subgroup: "Técnica Meunière",
     desc: "Versão elaborada da meunière — linguado na manteiga dourada, coroado com camarão, cogumelo e tomate.",
     origin: "França",
@@ -212,6 +214,7 @@ window.RECIPES["peixes"] = [
   // ===================== ASSADOS E CURADOS =====================
   {
     name: "Peixe en Papillote",
+    nature: "prato",
     subgroup: "Assados e Curados",
     desc: "Filé de peixe branco assado num pacote selado de papel com legumes, limão e ervas, cozinhando no próprio vapor.",
     origin: "França",
@@ -329,6 +332,7 @@ window.RECIPES["peixes"] = [
   },
   {
     name: "Salmão Gravlax (para servir)",
+    nature: "prato",
     subgroup: "Assados e Curados",
     desc: "Salmão curado (sem cozimento) fatiado fino, servido com molho de mostarda e endro, à moda escandinava.",
     origin: "Escandinávia",
@@ -397,6 +401,7 @@ window.RECIPES["peixes"] = [
   // ===================== BACALHAU =====================
   {
     name: "Bacalhau à Brás",
+    nature: "prato",
     subgroup: "Bacalhau",
     desc: "Bacalhau desfiado refogado com cebola, batata palha e ovos mexidos cremosos — clássico português.",
     origin: "Portugal",
@@ -499,6 +504,7 @@ window.RECIPES["peixes"] = [
   },
   {
     name: "Bacalhau Gomes de Sá",
+    nature: "prato",
     subgroup: "Bacalhau",
     desc: "Bacalhau desfiado montado em camadas com batata e cebola, gratinado e coberto com ovo cozido e azeitonas.",
     origin: "Portugal (Porto)",

@@ -4,6 +4,7 @@ window.RECIPES["marrocos"] = [
 
   {
     name: "Tajine de Cordeiro com Damasco",
+    nature: "prato",
     subgroup: "Principais",
     desc: "Cordeiro cozido lentamente com especiarias doces, damasco seco, mel e amêndoas — o clássico doce-salgado marroquino, servido com cuscuz.",
     origin: "Marrocos",
@@ -139,6 +140,7 @@ window.RECIPES["marrocos"] = [
   },
   {
     name: "Cuscuz Marroquino",
+    nature: "prato",
     subgroup: "Acompanhamentos",
     desc: "Sêmola hidratada em caldo fervente, soltada com garfo e misturada com amêndoas tostadas e passas — acompanhamento de tajines.",
     origin: "Marrocos",
@@ -223,6 +225,7 @@ window.RECIPES["marrocos"] = [
   },
   {
     name: "Pastilla",
+    nature: "prato",
     subgroup: "Principais",
     desc: "Torta de massa filo crocante recheada com frango desfiado, creme de ovo especiado e amêndoas, polvilhada com açúcar e canela.",
     origin: "Marrocos",
@@ -351,6 +354,7 @@ window.RECIPES["marrocos"] = [
   },
   {
     name: "Harira",
+    nature: "prato",
     subgroup: "Sopas",
     desc: "Sopa encorpada de carne, lentilha, grão-de-bico e tomate com especiarias e limão — tradicional para quebrar o jejum do Ramadã.",
     origin: "Marrocos",

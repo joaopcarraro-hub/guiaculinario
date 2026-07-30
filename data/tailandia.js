@@ -5,6 +5,7 @@ window.RECIPES["tailandia"] = [
   // ===================== CURRIES =====================
   {
     name: "Curry Verde (Gaeng Keow Wan)",
+    nature: "prato",
     subgroup: "Curries",
     desc: "Curry tailandês verde e picante de frango, cozido em leite de coco com pasta de pimenta verde, berinjela e vagem — servido com arroz jasmim.",
     origin: "Tailândia",
@@ -132,6 +133,7 @@ window.RECIPES["tailandia"] = [
   },
   {
     name: "Curry Vermelho (Gaeng Phed)",
+    nature: "prato",
     subgroup: "Curries",
     desc: "Curry tailandês vermelho de carne ou frango (ou camarão), cozido em leite de coco com pasta de pimentas vermelhas, pimentão e vagem — servido com arroz jasmim.",
     origin: "Tailândia",
@@ -249,6 +251,7 @@ window.RECIPES["tailandia"] = [
   },
   {
     name: "Massaman Curry",
+    nature: "prato",
     subgroup: "Curries",
     desc: "Curry tailandês suave e encorpado de carne bovina, batata e amendoim, cozido lentamente em leite de coco com especiarias tipo canela e cardamomo e um toque azedo de tamarindo.",
     origin: "Tailândia (influência persa/indiana)",
@@ -376,6 +379,7 @@ window.RECIPES["tailandia"] = [
   // ===================== SOPAS =====================
   {
     name: "Tom Yum",
+    nature: "prato",
     subgroup: "Sopas",
     desc: "Sopa tailandesa quente de camarão em caldo claro e picante, com capim-limão, galanga e cogumelos — equilíbrio intenso entre azedo, picante e salgado.",
     origin: "Tailândia",
@@ -483,6 +487,7 @@ window.RECIPES["tailandia"] = [
   },
   {
     name: "Tom Kha Gai",
+    nature: "prato",
     subgroup: "Sopas",
     desc: "Sopa tailandesa cremosa de frango em leite de coco, com capim-limão, galanga e cogumelos — como um Tom Yum mais suave e encorpado.",
     origin: "Tailândia",
@@ -600,6 +605,7 @@ window.RECIPES["tailandia"] = [
   // ===================== SALTEADOS E SALADAS =====================
   {
     name: "Pad Thai",
+    nature: "prato",
     subgroup: "Salteados e Saladas",
     desc: "Macarrão de arroz salteado na wok com camarão (ou tofu), ovo, broto de feijão e amendoim, num molho agridoce de molho de peixe, açúcar de palma e tamarindo.",
     origin: "Tailândia",
@@ -712,6 +718,7 @@ window.RECIPES["tailandia"] = [
   },
   {
     name: "Larb",
+    nature: "prato",
     subgroup: "Salteados e Saladas",
     desc: "Salada tailandesa/laociana de carne suína ou frango moído temperada com limão e molho de peixe, misturada com pó de arroz tostado — servida em folhas de alface ou com arroz.",
     origin: "Tailândia / Laos",
@@ -813,6 +820,7 @@ window.RECIPES["tailandia"] = [
   },
   {
     name: "Som Tam",
+    nature: "prato",
     subgroup: "Salteados e Saladas",
     desc: "Salada tailandesa crua de mamão verde ralado, socada em pilão com pimenta, alho, limão, molho de peixe e amendoim — picante, ácida e crocante.",
     origin: "Tailândia",

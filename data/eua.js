@@ -7,6 +7,7 @@ window.RECIPES["eua"] = [
   // ===================== SANDUÍCHES E FRITURAS =====================
   {
     name: "Lobster Roll",
+    nature: "prato",
     subgroup: "Sanduíches e Frituras",
     desc: "Sanduíche de Nova Inglaterra com salada de lagosta e maionese, servido num pão tipo hot dog tostado na manteiga.",
     origin: "EUA (Nova Inglaterra)",
@@ -107,6 +108,7 @@ window.RECIPES["eua"] = [
   },
   {
     name: "Frango Frito Americano",
+    nature: "prato",
     subgroup: "Sanduíches e Frituras",
     desc: "Frango marinado em leitelho, empanado numa crosta grossa de farinha temperada e frito — o clássico frango frito sulista.",
     origin: "EUA (Sul)",
@@ -202,6 +204,7 @@ window.RECIPES["eua"] = [
   },
   {
     name: "Asinhas de Frango Buffalo",
+    nature: "prato",
     subgroup: "Sanduíches e Frituras",
     desc: "Asas de frango fritas ou assadas, mergulhadas em molho picante de manteiga e pimenta — servidas com aipo e molho ranch.",
     origin: "EUA (Buffalo, Nova York)",
@@ -275,6 +278,7 @@ window.RECIPES["eua"] = [
   // ===================== PRATOS DE PANELA E FORNO =====================
   {
     name: "Chowder de Amêijoas",
+    nature: "prato",
     subgroup: "Pratos de Panela e Forno",
     desc: "Sopa cremosa de Nova Inglaterra com amêijoas, batata e bacon, engrossada com creme de leite.",
     origin: "EUA (Nova Inglaterra)",
@@ -405,6 +409,7 @@ window.RECIPES["eua"] = [
   },
   {
     name: "Mac and Cheese",
+    nature: "prato",
     subgroup: "Pratos de Panela e Forno",
     desc: "Macarrão em molho cremoso de queijo cheddar e gruyère, opcionalmente gratinado no forno com farinha de rosca.",
     origin: "EUA",
@@ -523,6 +528,7 @@ window.RECIPES["eua"] = [
   },
   {
     name: "Beef Brisket",
+    nature: "prato",
     subgroup: "Pratos de Panela e Forno",
     desc: "Peito bovino temperado com rub seco e cozido lentamente por horas (defumado ou no forno) até ficar extremamente macio.",
     origin: "EUA (Texas)",
@@ -601,6 +607,7 @@ window.RECIPES["eua"] = [
   // ===================== SOBREMESAS =====================
   {
     name: "Torta de Maçã",
+    nature: "prato",
     subgroup: "Sobremesas",
     desc: "Torta clássica americana de massa amanteigada com recheio de maçã fatiada, canela e noz-moscada.",
     origin: "EUA",

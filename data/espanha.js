@@ -7,6 +7,7 @@ window.RECIPES["espanha"] = [
   // ===================== ARROZ E MASSA =====================
   {
     name: "Arroz Negro",
+    nature: "prato",
     subgroup: "Arroz e Massa",
     desc: "Arroz de frutos do mar cozido com tinta de lula, que deixa o grão preto, finalizado com uma colherada de aioli.",
     origin: "Espanha (Catalunha)",
@@ -126,6 +127,7 @@ window.RECIPES["espanha"] = [
   },
   {
     name: "Fideuà",
+    nature: "prato",
     subgroup: "Arroz e Massa",
     desc: "A 'paella de massa' valenciana — macarrão fino torrado e cozinhado com frutos do mar, servido com aioli.",
     origin: "Espanha (Valência)",
@@ -247,6 +249,7 @@ window.RECIPES["espanha"] = [
   // ===================== TAPAS CLÁSSICAS =====================
   {
     name: "Camarão ao Alho",
+    nature: "prato",
     subgroup: "Tapas Clássicas",
     desc: "Camarões salteados em azeite abundante com alho e pimenta, servidos borbulhando com pão para molhar.",
     origin: "Espanha",
@@ -338,6 +341,7 @@ window.RECIPES["espanha"] = [
   },
   {
     name: "Polvo à Galega",
+    nature: "prato",
     subgroup: "Tapas Clássicas",
     desc: "Polvo cozido e fatiado sobre rodelas de batata, temperado só com azeite, sal grosso e páprica — tapa clássica galega.",
     origin: "Espanha (Galícia)",
@@ -416,6 +420,7 @@ window.RECIPES["espanha"] = [
   },
   {
     name: "Patatas Bravas",
+    nature: "prato",
     subgroup: "Tapas Clássicas",
     desc: "Batatas fritas crocantes cobertas com molho bravas picante de páprica e um fio de aioli.",
     origin: "Espanha (Madrid)",
@@ -489,6 +494,7 @@ window.RECIPES["espanha"] = [
   },
   {
     name: "Jamón Ibérico (como servir)",
+    nature: "prato",
     subgroup: "Tapas Clássicas",
     desc: "Guia para fatiar e servir o presunto cru espanhol de bolota em temperatura ambiente, puro ou sobre pão com tomate.",
     origin: "Espanha",
@@ -549,6 +555,7 @@ window.RECIPES["espanha"] = [
   // ===================== SOPAS FRIAS E GUISADOS =====================
   {
     name: "Salmorejo",
+    nature: "prato",
     subgroup: "Sopas Frias e Guisados",
     desc: "Creme frio e espesso de tomate batido com pão, mais encorpado que o gaspacho, servido com ovo cozido e presunto.",
     origin: "Espanha (Córdoba)",
@@ -649,6 +656,7 @@ window.RECIPES["espanha"] = [
   },
   {
     name: "Fabada Asturiana",
+    nature: "prato",
     subgroup: "Sopas Frias e Guisados",
     desc: "Ensopado espesso de feijão branco com chouriço, morcela e toucinho, prato de inverno das Astúrias.",
     origin: "Espanha (Astúrias)",

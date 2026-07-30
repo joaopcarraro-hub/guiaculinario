@@ -6,13 +6,14 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   // ===================== CRUS E MARINADOS =====================
   {
     name: "Leite de Tigre",
+    nature: "tecnica",
     subgroup: "Crus e Marinados",
     desc: "Líquido ácido peruano batido com limão, aparas de peixe cru e pimenta — a marinada do ceviche servida por si só, como um 'shot' de abertura.",
     origin: "Peru",
     time: { prep: "15 min", cook: "0 min", total: "15 min" },
     yield: "≈300 ml",
     difficulty: "Fácil",
-    tags: ["protein:peixe", "ingredient:limao"],
+    tags: ["contains:peixe", "ingredient:limao"],
     ingredients: [
       "150 ml de suco de limão-tahiti espremido na hora",
       "100 g de aparas de peixe branco fresco (do mesmo peixe usado no ceviche)",
@@ -112,13 +113,14 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   },
   {
     name: "Gravlax",
+    nature: "tecnica",
     subgroup: "Crus e Marinados",
     desc: "Salmão curado por dias em sal, açúcar e endro, sem cozimento, fatiado bem fino e servido com pão escuro e mostarda.",
     origin: "Escandinávia",
     time: { prep: "15 min + 48-72h cura", cook: "0 min", total: "2-3 dias" },
     yield: "≈600 g",
     difficulty: "Fácil (exige tempo)",
-    tags: ["protein:peixe"],
+    tags: ["contains:peixe"],
     ingredients: [
       "600 g de salmão fresco, em posta com pele, sem espinhas",
       "100 g de sal grosso",
@@ -207,13 +209,14 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   },
   {
     name: "Cura de Peixes e Carnes",
+    nature: "tecnica",
     subgroup: "Crus e Marinados",
     desc: "Técnica de curar peixe ou carne em sal e açúcar por horas, concentrando sabor e firmando a textura para servir como carpaccio ou crudo.",
     origin: "Técnica internacional",
     time: { prep: "10 min + 1-24h cura (varia)", cook: "0 min", total: "1-24h" },
     yield: "Conforme a peça",
     difficulty: "Fácil",
-    tags: ["protein:peixe", "protein:ave"],
+    tags: ["contains:peixe", "contains:ave"],
     ingredients: [
       "1 peça de peixe (robalo, salmão) ou carne (lombo, peito de pato), fresca e de procedência confiável",
       "Sal grosso e açúcar, em partes iguais (proporção base: 1:1)",
@@ -262,6 +265,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   // ===================== COZIMENTOS DE PRECISÃO =====================
   {
     name: "Sous-vide (Técnica Geral)",
+    nature: "tecnica",
     subgroup: "Cozimentos de Precisão",
     desc: "Técnica de cozinhar a peça selada a vácuo em banho de água com temperatura controlada, garantindo o ponto interno exato antes de selar rapidamente.",
     origin: "Técnica moderna (França)",
@@ -331,13 +335,14 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   },
   {
     name: "Maturação Seca (Dry Aging)",
+    nature: "tecnica",
     subgroup: "Cozimentos de Precisão",
     desc: "Técnica de maturar carne bovina por semanas em câmara com temperatura e umidade controladas, concentrando sabor e maciez antes de aparar a crosta seca.",
     origin: "Técnica internacional",
     time: { prep: "10 min", cook: "14-45 dias de maturação", total: "Semanas" },
     yield: "Conforme a peça",
     difficulty: "Alta (exige equipamento e controle)",
-    tags: ["protein:boi"],
+    tags: ["contains:boi"],
     ingredients: [
       "1 peça grande de carne bovina com osso (contrafilé/costela, em peça, não porcionada)",
       "Câmara ou geladeira dedicada com controle de temperatura (1-3°C) e umidade (75-85%)",
@@ -382,6 +387,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   },
   {
     name: "Defumação Caseira",
+    nature: "tecnica",
     subgroup: "Cozimentos de Precisão",
     desc: "Técnica de dar sabor defumado a carnes, peixes ou queijos usando lascas de madeira em fogo baixo, com equipamento próprio ou uma panela adaptada.",
     origin: "Técnica internacional",
@@ -444,6 +450,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   // ===================== ESFERIFICAÇÃO E TEXTURAS MOLECULARES =====================
   {
     name: "Esferificação de Frutas",
+    nature: "tecnica",
     subgroup: "Esferificação e Texturas Moleculares",
     desc: "Técnica de gastronomia molecular que transforma suco de fruta em pequenas esferas com membrana fina e interior líquido, que 'explodem' ao morder.",
     origin: "Espanha (elBulli, gastronomia molecular)",
@@ -503,6 +510,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   },
   {
     name: "Aires (Espumas de Ar)",
+    nature: "tecnica",
     subgroup: "Esferificação e Texturas Moleculares",
     desc: "Camada extremamente leve e efêmera de bolhas de ar batidas com lecitina sobre um líquido saboroso, mais sutil que uma espuma comum.",
     origin: "Espanha (elBulli, gastronomia molecular)",
@@ -556,13 +564,14 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   // ===================== BRASEADOS E CONFITS =====================
   {
     name: "Braseados Longos",
+    nature: "tecnica",
     subgroup: "Braseados e Confits",
     desc: "Técnica de selar e cozinhar lentamente cortes duros de carne em vinho e caldo por horas, até ficarem extremamente macios, servidos com o molho reduzido.",
     origin: "Técnica clássica internacional",
     time: { prep: "20 min", cook: "3-4h", total: "≈4h" },
     yield: "4-6 porções",
     difficulty: "Média",
-    tags: ["protein:boi", "ingredient:vinho"],
+    tags: ["contains:boi", "ingredient:vinho"],
     ingredients: [
       "1,5 kg de corte de carne para braseado (paleta, acém, ossobuco, bochecha)",
       "2 colheres (sopa) de óleo ou banha",
@@ -660,6 +669,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   },
   {
     name: "Confit (Alho, Tomate e Cebola)",
+    nature: "tecnica",
     subgroup: "Braseados e Confits",
     desc: "Técnica de cozinhar alho, tomate ou cebola submersos em azeite morno até ficarem extremamente macios e suaves, guardados no próprio azeite aromatizado.",
     origin: "Técnica clássica francesa",
@@ -721,6 +731,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   // ===================== PÓS E CROCANTES =====================
   {
     name: "Pó de Vegetais",
+    nature: "preparo",
     subgroup: "Pós e Crocantes",
     desc: "Cascas e aparas de vegetais desidratadas e trituradas em pó fino, usadas para polvilhar cor e sabor concentrado sobre os pratos.",
     origin: "Gastronomia contemporânea",
@@ -764,6 +775,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   },
   {
     name: "Pó de Azeitona",
+    nature: "preparo",
     subgroup: "Pós e Crocantes",
     desc: "Azeitonas pretas desidratadas e trituradas em pó escuro e umami, polvilhado sobre saladas, peixes grelhados ou risotos.",
     origin: "Gastronomia contemporânea (Espanha)",
@@ -807,6 +819,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   },
   {
     name: "Crocante de Arroz",
+    nature: "preparo",
     subgroup: "Pós e Crocantes",
     desc: "Discos finos de creme de arroz secos e depois fritos rapidamente, que incham e ficam crocantes como um cracker decorativo.",
     origin: "Ásia / Gastronomia contemporânea",
@@ -874,13 +887,14 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   },
   {
     name: "Crosta de Especiarias",
+    nature: "tecnica",
     subgroup: "Pós e Crocantes",
     desc: "Mistura de especiarias tostadas e moídas grosseiramente, pressionada sobre a carne antes de selar, formando uma crosta aromática crocante.",
     origin: "Técnica internacional",
     time: { prep: "10 min", cook: "3 min (tostar)", total: "13 min" },
     yield: "Para cobrir 1 peça de carne média",
     difficulty: "Fácil",
-    tags: ["protein:boi"],
+    tags: ["contains:boi"],
     ingredients: [
       "2 colheres (sopa) de grãos de coentro",
       "1 colher (sopa) de grãos de cominho",
@@ -950,6 +964,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   // ===================== MOLHOS E MANTEIGAS AVANÇADOS =====================
   {
     name: "Manteiga Composta",
+    nature: "preparo",
     subgroup: "Molhos e Manteigas Avançados",
     desc: "Manteiga amolecida misturada com ervas, alho assado ou limão, moldada em cilindro e fatiada para derreter sobre carnes, peixes ou vegetais quentes.",
     origin: "Técnica clássica francesa",
@@ -1002,6 +1017,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   },
   {
     name: "Velouté Moderno",
+    nature: "preparo",
     subgroup: "Molhos e Manteigas Avançados",
     desc: "Releitura do molho clássico de caldo reduzido com creme, engrossado sem farinha (com goma xantana), resultando num molho mais leve e brilhante.",
     origin: "Gastronomia contemporânea (releitura do clássico)",
@@ -1079,6 +1095,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   },
   {
     name: "Espelho de Molho",
+    nature: "tecnica",
     subgroup: "Molhos e Manteigas Avançados",
     desc: "Técnica de emplatamento que espalha um molho encorpado no prato em camada fina e uniforme, como base visual para os demais componentes.",
     origin: "Gastronomia contemporânea (técnica de emplatamento)",
@@ -1121,13 +1138,14 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   },
   {
     name: "Glace de Carne",
+    nature: "preparo",
     subgroup: "Molhos e Manteigas Avançados",
     desc: "Fundo escuro de carne reduzido por horas até virar um xarope concentrado e gelatinoso, usado em pequenas doses para intensificar molhos.",
     origin: "França",
     time: { prep: "5 min", cook: "2-3h (redução)", total: "≈3h" },
     yield: "≈150 ml (bem concentrado)",
     difficulty: "Média",
-    tags: ["protein:boi"],
+    tags: ["contains:boi"],
     ingredients: [
       "2 L de fundo escuro de carne, bem feito e já coado (ver receita Caldos e Fundos)"
     ],
@@ -1158,6 +1176,7 @@ window.RECIPES["tecnicas-contemporaneas-2"] = [
   // ===================== FERMENTAÇÃO =====================
   {
     name: "Legumes Fermentados",
+    nature: "prato",
     subgroup: "Fermentação",
     desc: "Vegetais salgados e fermentados naturalmente por dias em seu próprio líquido, desenvolvendo acidez complexa e benefícios probióticos.",
     origin: "Técnica internacional (fermentação lática)",

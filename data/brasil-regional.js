@@ -8,6 +8,7 @@ window.RECIPES["brasil-regional"] = [
   // ===================== NORTE =====================
   {
     name: "Pato no Tucupi",
+    nature: "prato",
     subgroup: "Norte",
     desc: "Pato cozido no caldo amarelo de mandioca (tucupi) com folhas de jambu — prato de festa típico do Pará.",
     origin: "Brasil (Pará)",
@@ -101,6 +102,7 @@ window.RECIPES["brasil-regional"] = [
   },
   {
     name: "Maniçoba",
+    nature: "prato",
     subgroup: "Norte",
     desc: "A 'feijoada preta' do Pará — folha de mandioca cozida por dias com várias carnes de porco, até perder a toxicidade.",
     origin: "Brasil (Pará)",
@@ -203,6 +205,7 @@ window.RECIPES["brasil-regional"] = [
   },
   {
     name: "Pirarucu de Casaca",
+    nature: "prato",
     subgroup: "Norte",
     desc: "Camadas de peixe amazônico desfiado, purê de mandioca e banana frita, gratinadas no forno — o 'shepherd's pie' amazônico.",
     origin: "Brasil (Amazônia)",
@@ -316,6 +319,7 @@ window.RECIPES["brasil-regional"] = [
   // ===================== NORDESTE =====================
   {
     name: "Sarapatel",
+    nature: "prato",
     subgroup: "Nordeste",
     desc: "Guisado de miúdos de porco (fígado, coração, rim, bucho) em molho apurado, tradicionalmente engrossado com sangue.",
     origin: "Brasil (Pernambuco)",
@@ -430,6 +434,7 @@ window.RECIPES["brasil-regional"] = [
   },
   {
     name: "Carne de Sol com Macaxeira",
+    nature: "prato",
     subgroup: "Nordeste",
     desc: "Carne salgada e curada, selada na manteiga de garrafa e servida sobre mandioca cozida.",
     origin: "Brasil (Nordeste)",
@@ -517,6 +522,7 @@ window.RECIPES["brasil-regional"] = [
   // ===================== CENTRO-OESTE =====================
   {
     name: "Arroz com Pequi",
+    nature: "prato",
     subgroup: "Centro-Oeste",
     desc: "Arroz refogado com pequi, fruto aromático do Cerrado de caroço espinhoso — clássico goiano.",
     origin: "Brasil (Goiás)",
@@ -593,6 +599,7 @@ window.RECIPES["brasil-regional"] = [
   },
   {
     name: "Pintado na Brasa",
+    nature: "prato",
     subgroup: "Centro-Oeste",
     desc: "Postas de peixe pintado marinadas em limão e alho, grelhadas com páprica defumada — prato do Pantanal.",
     origin: "Brasil (Pantanal)",
@@ -676,6 +683,7 @@ window.RECIPES["brasil-regional"] = [
   },
   {
     name: "Mojica",
+    nature: "prato",
     subgroup: "Centro-Oeste",
     desc: "Caldo pantaneiro de peixe de água doce engrossado com mandioca amassada, receita tradicional de pescadores.",
     origin: "Brasil (Pantanal / Mato Grosso)",
@@ -775,6 +783,7 @@ window.RECIPES["brasil-regional"] = [
   // ===================== SUDESTE =====================
   {
     name: "Frango com Quiabo",
+    nature: "prato",
     subgroup: "Sudeste",
     desc: "Frango caipira ensopado com quiabo salteado à parte para reduzir a baba — clássico mineiro de domingo.",
     origin: "Brasil (Minas Gerais)",
@@ -869,6 +878,7 @@ window.RECIPES["brasil-regional"] = [
   },
   {
     name: "Picadinho",
+    nature: "prato",
     subgroup: "Sudeste",
     desc: "Cubos de carne bovina refogados com tomate e pimentão, servidos com arroz, feijão, farofa e ovo frito por cima.",
     origin: "Brasil",
@@ -982,13 +992,14 @@ window.RECIPES["brasil-regional"] = [
   // ===================== SUL =====================
   {
     name: "Entrevero",
+    nature: "prato",
     subgroup: "Sul",
     desc: "Mistura de carne, linguiça e miúdos grelhados com ovos mexidos — jeito gaúcho de aproveitar sobras de churrasco.",
     origin: "Brasil (Rio Grande do Sul)",
     time: { prep: "15 min", cook: "20 min", total: "35 min" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["protein:boi", "contains:suino", "protein:frango", "ingredient:ovo"],
+    tags: ["protein:boi", "contains:suino", "ingredient:ovo"],
     ingredients: [
       "300 g de carne bovina grelhada (sobras de churrasco ou carne fresca), em cubos ou tiras",
       "200 g de linguiça, em rodelas",
@@ -1084,6 +1095,7 @@ window.RECIPES["brasil-regional"] = [
   },
   {
     name: "Galeto Al Primo Canto",
+    nature: "prato",
     subgroup: "Sul",
     desc: "Frango jovem aberto em borboleta, marinado e assado, servido com polenta e molho de campanha — herança italiana da Serra Gaúcha.",
     origin: "Brasil (Serra Gaúcha, imigração italiana)",

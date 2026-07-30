@@ -5,6 +5,7 @@ window.RECIPES["padaria"] = [
   // ===================== PÃES FRANCESES CLÁSSICOS =====================
   {
     name: "Baguete",
+    nature: "prato",
     subgroup: "Pães Franceses Clássicos",
     desc: "Pão francês longo e fino, com casca crocante gerada por vapor no forno e miolo macio e alveolado.",
     origin: "França",
@@ -67,6 +68,7 @@ window.RECIPES["padaria"] = [
   },
   {
     name: "Brioche",
+    nature: "prato",
     subgroup: "Pães Franceses Clássicos",
     desc: "Pão francês rico e macio, levado por muita manteiga e ovo, com fermentação longa na geladeira — base para pão de hambúrguer gourmet.",
     origin: "França",
@@ -161,6 +163,7 @@ window.RECIPES["padaria"] = [
   },
   {
     name: "Croissant",
+    nature: "prato",
     subgroup: "Pães Franceses Clássicos",
     desc: "Pão folhado em formato de crescente, com camadas amanteigadas criadas por dobras sucessivas de massa e manteiga (laminação).",
     origin: "França / Áustria",
@@ -257,6 +260,7 @@ window.RECIPES["padaria"] = [
   },
   {
     name: "Pão Rústico",
+    nature: "prato",
     subgroup: "Pães Franceses Clássicos",
     desc: "Pão rústico francês de casca grossa e escura, feito com farinha branca e integral, assado dentro de panela para gerar vapor.",
     origin: "França",
@@ -336,6 +340,7 @@ window.RECIPES["padaria"] = [
   // ===================== PÃES ITALIANOS =====================
   {
     name: "Focaccia",
+    nature: "prato",
     subgroup: "Pães Italianos",
     desc: "Pão italiano achatado e macio, generosamente regado com azeite, com furos característicos e coberturas como tomate e alecrim.",
     origin: "Itália (Ligúria)",
@@ -431,6 +436,7 @@ window.RECIPES["padaria"] = [
   },
   {
     name: "Ciabatta",
+    nature: "prato",
     subgroup: "Pães Italianos",
     desc: "Pão italiano de casca crocante e miolo bem alveolado, feito com massa de alta hidratação e fermento prévio (poolish).",
     origin: "Itália",
@@ -492,6 +498,7 @@ window.RECIPES["padaria"] = [
   // ===================== FERMENTAÇÃO NATURAL =====================
   {
     name: "Pão de Fermentação Natural",
+    nature: "prato",
     subgroup: "Fermentação Natural",
     desc: "Pão rústico (sourdough) fermentado só com levain, sem fermento comercial, de casca escura e crocante e miolo irregular.",
     origin: "Tradição mundial (sourdough)",
@@ -565,6 +572,7 @@ window.RECIPES["padaria"] = [
   // ===================== PÃES DO DIA A DIA =====================
   {
     name: "Pão de Leite",
+    nature: "prato",
     subgroup: "Pães do Dia a Dia",
     desc: "Pãezinhos macios e levemente adocicados, assados grudados um no outro para ficarem com laterais fofas — ótimos para mini-sanduíches.",
     origin: "Brasil / Internacional",
@@ -660,6 +668,7 @@ window.RECIPES["padaria"] = [
   },
   {
     name: "Pretzel",
+    nature: "prato",
     subgroup: "Pães do Dia a Dia",
     desc: "Pão alemão torcido característico, mergulhado em banho de bicarbonato antes de assar — dá a casca escura, brilhante e o sabor alcalino.",
     origin: "Alemanha",

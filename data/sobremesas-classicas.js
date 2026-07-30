@@ -5,6 +5,7 @@ window.RECIPES["sobremesas-classicas"] = [
   // ===================== CREMES E FLANS =====================
   {
     name: "Crème Brûlée",
+    nature: "prato",
     subgroup: "Cremes e Flans",
     desc: "Creme de baunilha assado em banho-maria, gelado e coberto com uma fina camada de açúcar caramelizado crocante na hora de servir.",
     origin: "França",
@@ -75,6 +76,7 @@ window.RECIPES["sobremesas-classicas"] = [
   },
   {
     name: "Pudim de Caramelo",
+    nature: "prato",
     subgroup: "Cremes e Flans",
     desc: "Flan de leite e ovos assado sobre caramelo, que vira calda líquida ao desenformar de cabeça para baixo.",
     origin: "França / Espanha (flan)",
@@ -147,6 +149,7 @@ window.RECIPES["sobremesas-classicas"] = [
   },
   {
     name: "Panna Cotta",
+    nature: "prato",
     subgroup: "Cremes e Flans",
     desc: "Sobremesa italiana de creme de leite e gelatina firmado na geladeira, com textura tremulante, servida com calda de frutas ou caramelo.",
     origin: "Itália (Piemonte)",
@@ -225,6 +228,7 @@ window.RECIPES["sobremesas-classicas"] = [
   // ===================== MASSA CHOUX =====================
   {
     name: "Éclair",
+    nature: "prato",
     subgroup: "Massa Choux",
     desc: "Bastão de massa choux assada, oco por dentro, recheado com creme de confeiteiro e coberto com chocolate.",
     origin: "França",
@@ -284,6 +288,7 @@ window.RECIPES["sobremesas-classicas"] = [
   },
   {
     name: "Profiteroles",
+    nature: "prato",
     subgroup: "Massa Choux",
     desc: "Bolinhas de massa choux assadas, recheadas com sorvete e regadas com ganache de chocolate quente na hora de servir.",
     origin: "França",
@@ -352,6 +357,7 @@ window.RECIPES["sobremesas-classicas"] = [
   },
   {
     name: "Paris-Brest",
+    nature: "prato",
     subgroup: "Massa Choux",
     desc: "Anel de massa choux com amêndoas, recheado com creme mousseline de praliné — criado em homenagem a uma corrida de bicicleta.",
     origin: "França",
@@ -414,6 +420,7 @@ window.RECIPES["sobremesas-classicas"] = [
   },
   {
     name: "Saint-Honoré",
+    nature: "prato",
     subgroup: "Massa Choux",
     desc: "Torta francesa elaborada com base de massa folhada, anel de massa choux, bolinhas caramelizadas e creme chantilly ou Chiboust.",
     origin: "França",
@@ -485,6 +492,7 @@ window.RECIPES["sobremesas-classicas"] = [
   // ===================== TORTAS E TARTES =====================
   {
     name: "Tarte Tatin",
+    nature: "prato",
     subgroup: "Tortas e Tartes",
     desc: "Torta francesa de maçãs caramelizadas cozidas sob a massa folhada e depois desenformada de cabeça para baixo, revelando as frutas por cima.",
     origin: "França",
@@ -554,6 +562,7 @@ window.RECIPES["sobremesas-classicas"] = [
   },
   {
     name: "Torta de Limão",
+    nature: "prato",
     subgroup: "Tortas e Tartes",
     desc: "Torta de massa amanteigada assada às cegas, recheada com creme ácido de limão (lemon curd), podendo levar merengue maçaricado por cima.",
     origin: "França / Reino Unido",
@@ -617,6 +626,7 @@ window.RECIPES["sobremesas-classicas"] = [
   },
   {
     name: "Cheesecake",
+    nature: "prato",
     subgroup: "Tortas e Tartes",
     desc: "Torta cremosa de cream cheese sobre base de biscoito triturado, assada em banho-maria no estilo Nova York.",
     origin: "EUA (estilo Nova York)",
@@ -671,6 +681,7 @@ window.RECIPES["sobremesas-classicas"] = [
   },
   {
     name: "Torta Sacher",
+    nature: "prato",
     subgroup: "Tortas e Tartes",
     desc: "Bolo de chocolate austríaco recheado com geleia de damasco e coberto por ganache brilhante — criado no Hotel Sacher em Viena.",
     origin: "Áustria (Viena)",
@@ -743,6 +754,7 @@ window.RECIPES["sobremesas-classicas"] = [
   },
   {
     name: "Torta Ópera",
+    nature: "prato",
     subgroup: "Tortas e Tartes",
     desc: "Sobremesa francesa em camadas finas de bolo de amêndoas embebido em café, creme de manteiga de café e ganache, com glaçagem de chocolate.",
     origin: "França",
@@ -825,6 +837,7 @@ window.RECIPES["sobremesas-classicas"] = [
   // ===================== FOLHADOS =====================
   {
     name: "Mil-Folhas",
+    nature: "prato",
     subgroup: "Folhados",
     desc: "Sobremesa francesa de camadas de massa folhada crocante intercaladas com creme de confeiteiro, geralmente decorada com fondant marmorizado.",
     origin: "França",
@@ -889,6 +902,7 @@ window.RECIPES["sobremesas-classicas"] = [
   // ===================== CLÁSSICAS ITALIANAS =====================
   {
     name: "Tiramisù",
+    nature: "prato",
     subgroup: "Clássicas Italianas",
     desc: "Sobremesa italiana em camadas de biscoito champanhe embebido em café e creme de mascarpone, polvilhada com cacau — sem levar ao forno.",
     origin: "Itália (Vêneto)",
@@ -996,6 +1010,7 @@ window.RECIPES["sobremesas-classicas"] = [
   },
   {
     name: "Cannoli",
+    nature: "prato",
     subgroup: "Clássicas Italianas",
     desc: "Casquinhas fritas e crocantes da Sicília, recheadas na hora com creme de ricota doce, chocolate e raspas de laranja.",
     origin: "Itália (Sicília)",
@@ -1068,6 +1083,7 @@ window.RECIPES["sobremesas-classicas"] = [
   // ===================== OUTRAS SOBREMESAS CLÁSSICAS =====================
   {
     name: "Pavlova",
+    nature: "prato",
     subgroup: "Outras Sobremesas",
     desc: "Base de merengue assado, crocante por fora e macia como marshmallow por dentro, coberta com chantilly e frutas frescas.",
     origin: "Austrália / Nova Zelândia",
@@ -1144,6 +1160,7 @@ window.RECIPES["sobremesas-classicas"] = [
   },
   {
     name: "Baba au Rhum",
+    nature: "prato",
     subgroup: "Outras Sobremesas",
     desc: "Bolinho de massa fermentada levemente doce, encharcado numa calda quente de açúcar, laranja e rum até ficar bem úmido.",
     origin: "França / Polônia",
@@ -1208,6 +1225,7 @@ window.RECIPES["sobremesas-classicas"] = [
   },
   {
     name: "Brownie",
+    nature: "prato",
     subgroup: "Outras Sobremesas",
     desc: "Bolo denso e úmido de chocolate, com pouca farinha e mistura mínima para garantir a textura 'fudgy' característica.",
     origin: "EUA",
@@ -1302,6 +1320,7 @@ window.RECIPES["sobremesas-classicas"] = [
   },
   {
     name: "Petit Gâteau",
+    nature: "prato",
     subgroup: "Outras Sobremesas",
     desc: "Bolinho individual de chocolate assado rapidamente para manter o centro líquido, servido quente com sorvete de creme.",
     origin: "França",

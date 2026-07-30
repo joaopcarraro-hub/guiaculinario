@@ -5,6 +5,7 @@ window.RECIPES["molhos"] = [
   // ===================== MOLHOS-MÃE =====================
   {
     name: "Béchamel",
+    nature: "preparo",
     subgroup: "Molhos-mãe",
     desc: "Molho branco cremoso de manteiga, farinha e leite — a base de gratinados, lasanhas e croquetes.",
     origin: "França",
@@ -90,6 +91,7 @@ window.RECIPES["molhos"] = [
   },
   {
     name: "Velouté",
+    nature: "preparo",
     subgroup: "Molhos-mãe",
     desc: "Molho claro feito com roux de manteiga e farinha diluído em caldo (frango, peixe ou vitela) — a base de molhos como Suprême e Vin Blanc.",
     origin: "França",
@@ -166,6 +168,7 @@ window.RECIPES["molhos"] = [
   },
   {
     name: "Espagnole (Molho Espanhol)",
+    nature: "preparo",
     subgroup: "Molhos-mãe",
     desc: "Molho escuro e encorpado de roux tostado, mirepoix e fundo escuro de carne, cozido por horas — a base do Demi-glace e de molhos para carnes vermelhas.",
     origin: "França",
@@ -291,6 +294,7 @@ window.RECIPES["molhos"] = [
   },
   {
     name: "Molho de Tomate",
+    nature: "preparo",
     subgroup: "Molhos-mãe",
     desc: "Molho de tomate refogado com mirepoix, ervas e fundo claro, cozido até apurar — a versão francesa clássica do molho de tomate.",
     origin: "França",
@@ -418,6 +422,7 @@ window.RECIPES["molhos"] = [
   },
   {
     name: "Hollandaise",
+    nature: "preparo",
     subgroup: "Molhos-mãe",
     desc: "Molho quente e cremoso de gemas emulsionadas com manteiga clarificada e limão — clássico sobre ovos poché e aspargos.",
     origin: "França",
@@ -495,6 +500,7 @@ window.RECIPES["molhos"] = [
   // ===================== DERIVADOS DA BÉCHAMEL =====================
   {
     name: "Mornay",
+    nature: "preparo",
     subgroup: "Derivados da Béchamel",
     desc: "Béchamel enriquecida com queijo gruyère, parmesão e gema — usada para gratinar pratos como Croque Monsieur e legumes.",
     origin: "França",
@@ -577,6 +583,7 @@ window.RECIPES["molhos"] = [
   },
   {
     name: "Nantua",
+    nature: "preparo",
     subgroup: "Derivados da Béchamel",
     desc: "Béchamel rosada com manteiga de cascas de camarão ou lagostim e creme de leite — molho francês clássico para peixes e frutos do mar.",
     origin: "França (Nantua)",
@@ -671,6 +678,7 @@ window.RECIPES["molhos"] = [
   // ===================== DERIVADOS DO VELOUTÉ =====================
   {
     name: "Suprême",
+    nature: "preparo",
     subgroup: "Derivados do Velouté",
     desc: "Velouté de frango enriquecido com creme de leite, manteiga e limão — molho aveludado clássico para frango poché.",
     origin: "França",
@@ -746,6 +754,7 @@ window.RECIPES["molhos"] = [
   },
   {
     name: "Molho de Vinho Branco",
+    nature: "preparo",
     subgroup: "Derivados do Velouté",
     desc: "Velouté de peixe com redução de vinho branco e échalotes, finalizado com creme e manteiga — para cobrir peixes brancos escalfados.",
     origin: "França",
@@ -832,6 +841,7 @@ window.RECIPES["molhos"] = [
   // ===================== DERIVADOS DA ESPAGNOLE =====================
   {
     name: "Demi-glace",
+    nature: "preparo",
     subgroup: "Derivados da Espagnole",
     desc: "Espagnole reduzida pela metade com mais fundo escuro de carne — molho concentrado e brilhante, base de vários molhos clássicos de carne.",
     origin: "França",
@@ -892,6 +902,7 @@ window.RECIPES["molhos"] = [
   },
   {
     name: "Bordelaise",
+    nature: "preparo",
     subgroup: "Derivados da Espagnole",
     desc: "Demi-glace com redução de vinho tinto, échalotes e ervas, finalizada com manteiga — clássica para acompanhar carnes bovinas grelhadas.",
     origin: "França (Bordeaux)",
@@ -986,6 +997,7 @@ window.RECIPES["molhos"] = [
   },
   {
     name: "Molho Robert",
+    nature: "preparo",
     subgroup: "Derivados da Espagnole",
     desc: "Demi-glace com cebola refogada, vinho branco e mostarda Dijon — molho picante clássico para acompanhar carne de porco.",
     origin: "França",
@@ -1071,6 +1083,7 @@ window.RECIPES["molhos"] = [
   // ===================== DERIVADOS DA HOLLANDAISE =====================
   {
     name: "Béarnaise",
+    nature: "preparo",
     subgroup: "Derivados da Hollandaise",
     desc: "Hollandaise aromatizada com redução de vinho, vinagre e estragão — a dupla clássica de filé com batata frita.",
     origin: "França",
@@ -1180,6 +1193,7 @@ window.RECIPES["molhos"] = [
   },
   {
     name: "Choron",
+    nature: "preparo",
     subgroup: "Derivados da Hollandaise",
     desc: "Béarnaise misturada com purê de tomate concentrado — versão mais frutada para acompanhar carnes grelhadas.",
     origin: "França",
@@ -1231,6 +1245,7 @@ window.RECIPES["molhos"] = [
   // ===================== MANTEIGAS EMULSIONADAS =====================
   {
     name: "Beurre Blanc",
+    nature: "preparo",
     subgroup: "Manteigas Emulsionadas",
     desc: "Emulsão leve de manteiga gelada com redução de vinho branco, vinagre e échalotes, sem gema — para peixes escalfados como sole e salmão.",
     origin: "França (Vale do Loire)",
@@ -1318,6 +1333,7 @@ window.RECIPES["molhos"] = [
   // ===================== FUNDOS E REDUÇÕES =====================
   {
     name: "Caldo de Carne",
+    nature: "preparo",
     subgroup: "Fundos e Reduções",
     desc: "Molho de carne 'limpo', sem farinha, feito reduzindo ossos e aparas dourados com mirepoix e vinho — sabor direto de assado.",
     origin: "França",
@@ -1407,6 +1423,7 @@ window.RECIPES["molhos"] = [
   },
   {
     name: "Gastrique",
+    nature: "preparo",
     subgroup: "Fundos e Reduções",
     desc: "Xarope agridoce de caramelo dissolvido em vinagre, às vezes com frutas — usado para equilibrar molhos escuros de pato, porco e caça.",
     origin: "França",

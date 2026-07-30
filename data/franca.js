@@ -8,6 +8,7 @@ window.RECIPES["franca"] = [
   // ===================== ENTRADAS =====================
   {
     name: "Foie Gras Poêlé",
+    nature: "prato",
     subgroup: "Entradas",
     desc: "Fígado de pato ou ganso selado rapidamente na própria gordura, servido sobre torrada com frutas e redução de Porto.",
     origin: "França",
@@ -77,6 +78,7 @@ window.RECIPES["franca"] = [
   },
   {
     name: "Salada Niçoise",
+    nature: "prato",
     subgroup: "Entradas",
     desc: "Salada fria de Nice com atum, ovo mollet, vagem, tomate, azeitonas e anchova — sem batata, na receita clássica.",
     origin: "França (Nice)",
@@ -182,6 +184,7 @@ window.RECIPES["franca"] = [
   // ===================== PRINCIPAIS =====================
   {
     name: "Cassoulet",
+    nature: "prato",
     subgroup: "Principais",
     desc: "Ensopado francês de feijão branco com confit de pato, linguiça e bacon, gratinado no forno em camadas de crosta.",
     origin: "França (Languedoc)",
@@ -309,6 +312,7 @@ window.RECIPES["franca"] = [
   },
   {
     name: "Blanquette de Vitela",
+    nature: "prato",
     subgroup: "Principais",
     desc: "Guisado branco de vitela cozida sem dourar, com cogumelos e cebolinhas em molho aveludado de creme e gemas.",
     origin: "França",
@@ -446,6 +450,7 @@ window.RECIPES["franca"] = [
   },
   {
     name: "Navarin de Cordeiro",
+    nature: "prato",
     subgroup: "Principais",
     desc: "Guisado francês de cordeiro com legumes de primavera (cenoura baby, nabo, batatinha) em molho encorpado de tomate.",
     origin: "França",

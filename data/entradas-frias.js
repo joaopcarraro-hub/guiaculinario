@@ -5,6 +5,7 @@ window.RECIPES["entradas-frias"] = [
   // ===================== CRUS CLÁSSICOS =====================
   {
     name: "Tartar de Carne",
+    nature: "prato",
     subgroup: "Crus Clássicos",
     desc: "Filé mignon cru picado em cubos e temperado com mostarda, alcaparras e molho inglês, coroado com gema crua.",
     origin: "França",
@@ -121,6 +122,7 @@ window.RECIPES["entradas-frias"] = [
   },
   {
     name: "Carpaccio",
+    nature: "prato",
     subgroup: "Crus Clássicos",
     desc: "Fatias finíssimas de filé mignon cru, regadas com azeite e limão e finalizadas com parmesão e rúcula.",
     origin: "Itália",
@@ -205,6 +207,7 @@ window.RECIPES["entradas-frias"] = [
   },
   {
     name: "Ceviche",
+    nature: "prato",
     subgroup: "Crus Clássicos",
     desc: "Cubos de peixe branco 'cozidos' no suco de limão, com cebola roxa, pimenta e coentro — prato peruano fresco e ácido.",
     origin: "Peru",
@@ -297,6 +300,7 @@ window.RECIPES["entradas-frias"] = [
   },
   {
     name: "Crudo",
+    nature: "prato",
     subgroup: "Crus Clássicos",
     desc: "Fatias de peixe branco cru servidas puras, temperadas na hora com azeite, limão-siciliano e ervas frescas.",
     origin: "Itália",
@@ -379,6 +383,7 @@ window.RECIPES["entradas-frias"] = [
   },
   {
     name: "Tartar de Salmão",
+    nature: "prato",
     subgroup: "Crus Clássicos",
     desc: "Cubos de salmão cru temperados com shoyu, gengibre e óleo de gergelim, ao estilo oriental.",
     origin: "Contemporâneo",
@@ -480,6 +485,7 @@ window.RECIPES["entradas-frias"] = [
   // ===================== FRIOS COMPOSTOS =====================
   {
     name: "Vitello Tonnato",
+    nature: "prato",
     subgroup: "Frios Compostos",
     desc: "Fatias finas de vitela cozida e resfriada, cobertas com um molho cremoso de atum, anchova e maionese.",
     origin: "Itália (Piemonte)",
@@ -601,6 +607,7 @@ window.RECIPES["entradas-frias"] = [
   },
   {
     name: "Terrine",
+    nature: "prato",
     subgroup: "Frios Compostos",
     desc: "Pâté compacto de fígado de frango e carne de porco moída, forrado com toucinho, assado em forma e servido frio fatiado.",
     origin: "França",
@@ -713,6 +720,7 @@ window.RECIPES["entradas-frias"] = [
   },
   {
     name: "Galantine",
+    nature: "prato",
     subgroup: "Frios Compostos",
     desc: "Frango desossado, recheado com carne de porco, presunto e pistache, enrolado na própria pele, cozido e servido frio em fatias.",
     origin: "França",

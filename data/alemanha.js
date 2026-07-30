@@ -5,6 +5,7 @@ window.RECIPES["alemanha"] = [
 
   {
     name: "Sauerbraten",
+    nature: "prato",
     subgroup: "Carnes de Panela",
     desc: "Carne bovina marinada por dias em vinagre e especiarias, cozida lentamente em molho agridoce engrossado com pão de gengibre.",
     origin: "Alemanha",
@@ -110,6 +111,7 @@ window.RECIPES["alemanha"] = [
   },
   {
     name: "Eisbein",
+    nature: "prato",
     subgroup: "Carnes de Panela",
     desc: "Joelho de porco cozido lentamente em caldo temperado até ficar macio, com a pele finalizada crocante no forno, servido com chucrute.",
     origin: "Alemanha",
@@ -197,6 +199,7 @@ window.RECIPES["alemanha"] = [
   },
   {
     name: "Salada de Batata",
+    nature: "prato",
     subgroup: "Acompanhamentos",
     desc: "Salada de batata morna com bacon, cebola e molho de vinagre e mostarda — versão alemã sem maionese.",
     origin: "Alemanha",

@@ -5,6 +5,7 @@ window.RECIPES["china"] = [
   // ===================== CARNES E AVES =====================
   {
     name: "Pato Laqueado (Pequim)",
+    nature: "prato",
     subgroup: "Carnes e Aves",
     desc: "Pato assado inteiro com glacê de mel, vinagre e shoyu, de pele bem crocante — fatiado e servido em panquecas com molho hoisin e pepino.",
     origin: "China (Pequim)",
@@ -100,6 +101,7 @@ window.RECIPES["china"] = [
   },
   {
     name: "Char Siu (Porco Assado à Moda Cantonesa)",
+    nature: "prato",
     subgroup: "Carnes e Aves",
     desc: "Tiras de lombo ou paleta de porco marinadas em hoisin, mel e cinco-especiarias e assadas até dourar — clássico cantonês servido com arroz branco.",
     origin: "China (Cantão)",
@@ -201,6 +203,7 @@ window.RECIPES["china"] = [
   },
   {
     name: "Frango Kung Pao",
+    nature: "prato",
     subgroup: "Carnes e Aves",
     desc: "Frango em cubos salteado com pimentas secas, amendoim torrado e molho agridoce de shoyu e vinagre — prato picante típico de Sichuan.",
     origin: "China (Sichuan)",
@@ -317,6 +320,7 @@ window.RECIPES["china"] = [
   // ===================== PRATOS SALTEADOS =====================
   {
     name: "Mapo Tofu",
+    nature: "prato",
     subgroup: "Pratos Salteados",
     desc: "Cubos de tofu macio cozidos em molho picante de carne moída e pasta de feijão fermentado (doubanjiang), finalizado com pimenta de Sichuan.",
     origin: "China (Sichuan)",
@@ -435,6 +439,7 @@ window.RECIPES["china"] = [
   },
   {
     name: "Chow Mein",
+    nature: "prato",
     subgroup: "Pratos Salteados",
     desc: "Macarrão de ovo salteado na wok em fogo alto com frango (ou carne/camarão), legumes crocantes e molho de shoyu e ostra.",
     origin: "China",
@@ -538,6 +543,7 @@ window.RECIPES["china"] = [
   // ===================== MASSAS RECHEADAS =====================
   {
     name: "Xiaolongbao",
+    nature: "prato",
     subgroup: "Massas Recheadas",
     desc: "Trouxinha de massa fina cozida no vapor, recheada com carne suína e uma gelatina de caldo que derrete e vira sopa quente dentro do pastel.",
     origin: "China (Xangai)",
@@ -622,6 +628,7 @@ window.RECIPES["china"] = [
   },
   {
     name: "Dumplings (Jiaozi)",
+    nature: "prato",
     subgroup: "Massas Recheadas",
     desc: "Pastelzinho de massa fina recheado com carne suína e repolho, cozido no vapor ou frito na frigideira (potsticker) com fundo crocante.",
     origin: "China",
@@ -713,6 +720,7 @@ window.RECIPES["china"] = [
   // ===================== SOPAS E CALDEIRÕES =====================
   {
     name: "Fondue Chinês",
+    nature: "prato",
     subgroup: "Sopas e Caldeirões",
     desc: "Panela de caldo fervente na mesa onde cada um cozinha carne fatiada fina, camarão, tofu, legumes e macarrão, mergulhando em molhos individuais.",
     origin: "China",
@@ -800,6 +808,7 @@ window.RECIPES["china"] = [
   },
   {
     name: "Sopa de Wonton",
+    nature: "prato",
     subgroup: "Sopas e Caldeirões",
     desc: "Sopa de caldo de galinha com pequenos pastéis de massa recheados de camarão e porco, finalizada com folhas verdes e cebolinha.",
     origin: "China (Cantão)",

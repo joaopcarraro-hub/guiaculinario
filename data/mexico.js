@@ -6,6 +6,7 @@ window.RECIPES["mexico"] = [
   // ===================== CARNES DE PANELA =====================
   {
     name: "Birria",
+    nature: "prato",
     subgroup: "Carnes de Panela",
     desc: "Carne bovina cozida lentamente num molho de pimentas secas tostadas, servida desfiada em tacos com o caldo (consomê) para mergulhar.",
     origin: "México (Jalisco)",
@@ -122,6 +123,7 @@ window.RECIPES["mexico"] = [
   },
   {
     name: "Mole Poblano",
+    nature: "prato",
     subgroup: "Carnes de Panela",
     desc: "Frango em molho escuro e encorpado de pimentas secas, especiarias, oleaginosas e um toque de chocolate amargo.",
     origin: "México (Puebla)",
@@ -269,6 +271,7 @@ window.RECIPES["mexico"] = [
   },
   {
     name: "Pozole",
+    nature: "prato",
     subgroup: "Carnes de Panela",
     desc: "Sopa/caldo de porco com milho pozole (hominy) em molho de pimentas, servida com repolho, rabanete e limão à parte.",
     origin: "México",
@@ -386,6 +389,7 @@ window.RECIPES["mexico"] = [
   // ===================== TORTILLAS RECHEADAS =====================
   {
     name: "Tacos al Pastor",
+    nature: "prato",
     subgroup: "Tortillas Recheadas",
     desc: "Tortillas de milho com porco marinado em pimentas e grelhado, finalizadas com abacaxi caramelizado, cebola e coentro.",
     origin: "México (Cidade do México)",
@@ -501,6 +505,7 @@ window.RECIPES["mexico"] = [
   },
   {
     name: "Enchiladas",
+    nature: "prato",
     subgroup: "Tortillas Recheadas",
     desc: "Tortillas de milho recheadas com frango desfiado, mergulhadas em molho de pimenta e gratinadas com queijo no forno.",
     origin: "México",
@@ -598,6 +603,7 @@ window.RECIPES["mexico"] = [
   },
   {
     name: "Quesadillas",
+    nature: "prato",
     subgroup: "Tortillas Recheadas",
     desc: "Tortilla dobrada recheada com queijo derretido (e recheio opcional), selada na frigideira até dourar por fora.",
     origin: "México",
@@ -665,6 +671,7 @@ window.RECIPES["mexico"] = [
   },
   {
     name: "Chiles Rellenos",
+    nature: "prato",
     subgroup: "Tortillas Recheadas",
     desc: "Pimentão poblano assado e descascado, recheado com queijo, empanado em massa de ovo aerada e frito, servido com molho de tomate.",
     origin: "México (Puebla)",
@@ -760,6 +767,7 @@ window.RECIPES["mexico"] = [
   },
   {
     name: "Tamales",
+    nature: "prato",
     subgroup: "Tortillas Recheadas",
     desc: "Massa de milho fofa recheada com frango ou porco em molho, embrulhada em folha de milho e cozida no vapor.",
     origin: "México",
@@ -840,6 +848,7 @@ window.RECIPES["mexico"] = [
   // ===================== MOLHOS E ACOMPANHAMENTOS =====================
   {
     name: "Guacamole",
+    nature: "prato",
     subgroup: "Molhos e Acompanhamentos",
     desc: "Pasta cremosa de abacate amassado com cebola, pimenta, tomate, coentro e limão, servida com totopos ou tacos.",
     origin: "México",

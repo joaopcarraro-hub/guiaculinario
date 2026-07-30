@@ -5,6 +5,7 @@ window.RECIPES["coreia"] = [
   // ===================== CARNES GRELHADAS =====================
   {
     name: "Bulgogi",
+    nature: "prato",
     subgroup: "Carnes Grelhadas",
     desc: "Fatias finas de carne bovina marinadas em shoyu, pera ralada e óleo de gergelim, grelhadas rapidamente — servidas com arroz e kimchi.",
     origin: "Coreia",
@@ -105,6 +106,7 @@ window.RECIPES["coreia"] = [
   },
   {
     name: "Galbi",
+    nature: "prato",
     subgroup: "Carnes Grelhadas",
     desc: "Costela bovina cortada fina, marinada em shoyu, pera e cebola ralada, e grelhada — tradicionalmente enrolada em folha de alface com arroz.",
     origin: "Coreia",
@@ -208,6 +210,7 @@ window.RECIPES["coreia"] = [
   // ===================== ARROZ E MACARRÃO =====================
   {
     name: "Bibimbap",
+    nature: "prato",
     subgroup: "Arroz e Macarrão",
     desc: "Tigela de arroz coberta com legumes temperados separadamente, carne salteada e ovo frito — tudo misturado à mesa com pasta de pimenta gochujang.",
     origin: "Coreia",
@@ -318,6 +321,7 @@ window.RECIPES["coreia"] = [
   },
   {
     name: "Japchae",
+    nature: "prato",
     subgroup: "Arroz e Macarrão",
     desc: "Macarrão de batata-doce salteado com carne, cogumelo e legumes coloridos, temperado com shoyu e óleo de gergelim.",
     origin: "Coreia",
@@ -427,6 +431,7 @@ window.RECIPES["coreia"] = [
   },
   {
     name: "Tteokbokki",
+    nature: "prato",
     subgroup: "Arroz e Macarrão",
     desc: "Bolinhos de arroz cilíndricos cozidos em molho picante e adocicado de gochujang — o street food coreano mais popular.",
     origin: "Coreia",
@@ -526,6 +531,7 @@ window.RECIPES["coreia"] = [
   },
   {
     name: "Arroz Frito com Kimchi (Kimchi Bokkeumbap)",
+    nature: "prato",
     subgroup: "Arroz e Macarrão",
     desc: "Arroz frito com kimchi fermentado, bacon e gochujang, coroado com ovo frito — prato coreano de aproveitamento do kimchi maduro.",
     origin: "Coreia",
@@ -622,6 +628,7 @@ window.RECIPES["coreia"] = [
   // ===================== FERMENTADOS E SOPAS =====================
   {
     name: "Kimchi",
+    nature: "prato",
     subgroup: "Fermentados e Sopas",
     desc: "Repolho napa salgado e fermentado com pasta de pimenta coreana (gochugaru), alho e gengibre — a base picante e ácida de vários pratos coreanos.",
     origin: "Coreia",
@@ -703,6 +710,7 @@ window.RECIPES["coreia"] = [
   },
   {
     name: "Sundubu Jjigae",
+    nature: "prato",
     subgroup: "Fermentados e Sopas",
     desc: "Sopa borbulhante e picante de tofu macio (sedoso, quebrado em pedaços) com carne, kimchi e ovo cru cozido na própria sopa quente.",
     origin: "Coreia",

@@ -6,6 +6,7 @@ window.RECIPES["contemporaneos"] = [
   // ===================== ÁGUAS E CONSOMMÉS =====================
   {
     name: "Água de Tomate",
+    nature: "preparo",
     subgroup: "Águas e Consommés",
     desc: "Técnica de coar polpa de tomate crua por gravidade, sem espremer, obtendo um líquido translúcido e puro para consommês e caldos elegantes.",
     origin: "Gastronomia contemporânea",
@@ -56,6 +57,7 @@ window.RECIPES["contemporaneos"] = [
   },
   {
     name: "Consommé Gelificado",
+    nature: "preparo",
     subgroup: "Águas e Consommés",
     desc: "Técnica que transforma um consommê ou água de tomate em cubos ou blocos gelatinosos translúcidos, para dar textura surpresa a pratos frios.",
     origin: "Gastronomia contemporânea",
@@ -117,6 +119,7 @@ window.RECIPES["contemporaneos"] = [
   // ===================== ESPUMAS =====================
   {
     name: "Espuma com Sifão",
+    nature: "tecnica",
     subgroup: "Espumas",
     desc: "Técnica de gastronomia molecular que transforma um líquido saborizado em espuma leve e aerada usando sifão e gás, para finalizar pratos.",
     origin: "Gastronomia contemporânea (elBulli)",
@@ -193,6 +196,7 @@ window.RECIPES["contemporaneos"] = [
   },
   {
     name: "Espuma sem Sifão",
+    nature: "tecnica",
     subgroup: "Espumas",
     desc: "Versão caseira da espuma culinária, feita batendo um líquido com lecitina de soja e um mixer de mão, para uso imediato.",
     origin: "Gastronomia contemporânea",
@@ -245,6 +249,7 @@ window.RECIPES["contemporaneos"] = [
   // ===================== PURÊS E CREMES =====================
   {
     name: "Purê Ultra Liso",
+    nature: "preparo",
     subgroup: "Purês e Cremes",
     desc: "Técnica francesa de bater um vegetal cozido com manteiga gelada e passar por peneira fina, resultando num purê de textura aveludada.",
     origin: "Gastronomia contemporânea (técnica francesa refinada)",
@@ -307,6 +312,7 @@ window.RECIPES["contemporaneos"] = [
   // ===================== GÉIS =====================
   {
     name: "Gel de Frutas Cítricas",
+    nature: "preparo",
     subgroup: "Géis",
     desc: "Suco cítrico gelificado com ágar-ágar e batido até virar um gel liso e brilhante, usado em pontos decorativos ácidos sobre o prato.",
     origin: "Gastronomia contemporânea",
@@ -357,6 +363,7 @@ window.RECIPES["contemporaneos"] = [
   },
   {
     name: "Gel de Vinho",
+    nature: "preparo",
     subgroup: "Géis",
     desc: "Vinho reduzido e gelificado com ágar-ágar, batido até virar um gel liso e brilhante, usado como acompanhamento de carnes e queijos.",
     origin: "Gastronomia contemporânea",
@@ -408,6 +415,7 @@ window.RECIPES["contemporaneos"] = [
   },
   {
     name: "Gel de Ervas",
+    nature: "preparo",
     subgroup: "Géis",
     desc: "Ervas frescas branqueadas, batidas e gelificadas com ágar-ágar, formando um gel verde vibrante para dar frescor herbáceo a pratos de peixe e carne.",
     origin: "Gastronomia contemporânea",
@@ -469,6 +477,7 @@ window.RECIPES["contemporaneos"] = [
   // ===================== CROCANTES =====================
   {
     name: "Tuile",
+    nature: "preparo",
     subgroup: "Crocantes",
     desc: "Massa fina (doce ou de parmesão) assada até dourar e moldada ainda quente, criando um crocante decorativo fino e quebradiço.",
     origin: "França",
@@ -528,6 +537,7 @@ window.RECIPES["contemporaneos"] = [
   },
   {
     name: "Chips de Vegetais",
+    nature: "preparo",
     subgroup: "Crocantes",
     desc: "Fatias finíssimas de vegetal assadas ou fritas até crocantes, usadas para dar altura e textura a saladas, purês e pratos de carne.",
     origin: "Gastronomia contemporânea",
@@ -579,6 +589,7 @@ window.RECIPES["contemporaneos"] = [
   },
   {
     name: "Crosta de Ervas",
+    nature: "preparo",
     subgroup: "Crocantes",
     desc: "Pasta de farinha de rosca, manteiga e ervas, congelada e cortada sob medida para gratinar em cima de carnes e peixes nos minutos finais de forno.",
     origin: "Gastronomia contemporânea",
@@ -654,6 +665,7 @@ window.RECIPES["contemporaneos"] = [
   },
   {
     name: "Farofa de Castanhas",
+    nature: "preparo",
     subgroup: "Crocantes",
     desc: "Farofa de mandioca tostada com manteiga, échalote e castanhas picadas, usada para dar crocância e um toque brasileiro a carnes e peixes.",
     origin: "Brasil (técnica contemporânea)",
@@ -728,6 +740,7 @@ window.RECIPES["contemporaneos"] = [
   },
   {
     name: "Crumble Salgado",
+    nature: "preparo",
     subgroup: "Crocantes",
     desc: "Farofa quebradiça de farinha, manteiga gelada e queijo curado assada no forno, usada para dar crocância a saladas, sopas e purês.",
     origin: "Gastronomia contemporânea",
@@ -797,6 +810,7 @@ window.RECIPES["contemporaneos"] = [
   // ===================== ÓLEOS, MOLHOS E EMULSÕES =====================
   {
     name: "Óleo Aromático",
+    nature: "preparo",
     subgroup: "Óleos, Molhos e Emulsões",
     desc: "Óleo batido com ervas frescas ou especiarias e coado até ficar limpo e vibrante, usado para 'pintar' traços de cor e sabor nos pratos.",
     origin: "Gastronomia contemporânea",
@@ -847,6 +861,7 @@ window.RECIPES["contemporaneos"] = [
   },
   {
     name: "Vinagrete Moderno",
+    nature: "preparo",
     subgroup: "Óleos, Molhos e Emulsões",
     desc: "Emulsão de azeite, ácido e mostarda em proporções ajustáveis, batida até engrossar levemente — a base flexível para molhos de salada contemporâneos.",
     origin: "Gastronomia contemporânea",
@@ -923,6 +938,7 @@ window.RECIPES["contemporaneos"] = [
   },
   {
     name: "Maionese de Leite",
+    nature: "preparo",
     subgroup: "Óleos, Molhos e Emulsões",
     desc: "Maionese sem ovo, emulsionada com leite e óleo batidos — mais leve e estável que a versão tradicional com gema.",
     origin: "Gastronomia contemporânea",
@@ -989,6 +1005,7 @@ window.RECIPES["contemporaneos"] = [
   },
   {
     name: "Aioli",
+    nature: "preparo",
     subgroup: "Óleos, Molhos e Emulsões",
     desc: "Molho emulsionado de alho amassado, gema e azeite, típico do Mediterrâneo, servido com peixes grelhados, legumes assados ou batatas.",
     origin: "Espanha / França (Mediterrâneo)",
@@ -1063,6 +1080,7 @@ window.RECIPES["contemporaneos"] = [
   },
   {
     name: "Emulsão Cítrica",
+    nature: "preparo",
     subgroup: "Óleos, Molhos e Emulsões",
     desc: "Suco cítrico e gema emulsionados com azeite, formando um molho encorpado e ácido para peixe cru, saladas ou vieiras grelhadas.",
     origin: "Gastronomia contemporânea",
@@ -1128,6 +1146,7 @@ window.RECIPES["contemporaneos"] = [
   },
   {
     name: "Manteiga Montada",
+    nature: "preparo",
     subgroup: "Óleos, Molhos e Emulsões",
     desc: "Manteiga emulsionada com água em fogo baixo, que fica cremosa e estável sem separar — usada para escalfar peixes e legumes ou finalizar molhos.",
     origin: "França",
@@ -1172,13 +1191,14 @@ window.RECIPES["contemporaneos"] = [
   // ===================== OVOS TÉCNICOS =====================
   {
     name: "Confit de Gema",
+    nature: "preparo",
     subgroup: "Ovos Técnicos",
     desc: "Gema de ovo cozida lentamente em azeite morno até firmar por fora e ficar cremosa por dentro, servida sobre risotos, purês ou saladas quentes.",
     origin: "Gastronomia contemporânea",
     time: { prep: "5 min", cook: "20 min", total: "25 min" },
     yield: "4 unidades",
     difficulty: "Média",
-    tags: ["format:componente", "protein:ovo", "ingredient:ovo"],
+    tags: ["format:componente", "contains:ovo", "ingredient:ovo"],
     ingredients: [
       "4 gemas bem frescas",
       "300 ml de azeite de oliva (ou óleo neutro)",
@@ -1222,13 +1242,14 @@ window.RECIPES["contemporaneos"] = [
   },
   {
     name: "Gema Curada",
+    nature: "preparo",
     subgroup: "Ovos Técnicos",
     desc: "Gema de ovo curada em sal e açúcar por dias até firmar como um queijo mole, ralada sobre massas e risotos como um 'parmesão de ovo'.",
     origin: "Gastronomia contemporânea (inspirado em técnicas asiáticas)",
     time: { prep: "10 min + 24-48h geladeira", cook: "0 min", total: "24-48h" },
     yield: "4-6 unidades",
     difficulty: "Fácil (exige tempo)",
-    tags: ["format:componente", "protein:ovo", "ingredient:ovo"],
+    tags: ["format:componente", "contains:ovo", "ingredient:ovo"],
     ingredients: [
       "6 gemas bem frescas",
       "300 g de sal grosso",
@@ -1293,6 +1314,7 @@ window.RECIPES["contemporaneos"] = [
   // ===================== CONSERVAS E VEGETAIS =====================
   {
     name: "Pickles Rápidos",
+    nature: "preparo",
     subgroup: "Conservas e Vegetais",
     desc: "Vegetais fatiados finos, marinados em salmoura de vinagre e açúcar por apenas 1 hora, ficando ácidos e crocantes — sem fermentação longa.",
     origin: "Técnica internacional (quick pickle)",
@@ -1368,6 +1390,7 @@ window.RECIPES["contemporaneos"] = [
   },
   {
     name: "Legumes Glaceados",
+    nature: "prato",
     subgroup: "Conservas e Vegetais",
     desc: "Legumes cozidos em água, manteiga e açúcar até o líquido reduzir a um glacê brilhante e levemente adocicado — acompanhamento clássico francês.",
     origin: "Técnica clássica francesa",
@@ -1434,6 +1457,7 @@ window.RECIPES["contemporaneos"] = [
   },
   {
     name: "Legumes Torneados",
+    nature: "tecnica",
     subgroup: "Conservas e Vegetais",
     desc: "Técnica de faca francesa para esculpir legumes em formato oval uniforme de 7 facetas, garantindo cozimento parelho e apresentação refinada.",
     origin: "Técnica clássica francesa",
@@ -1476,6 +1500,7 @@ window.RECIPES["contemporaneos"] = [
   },
   {
     name: "Vegetais Assados em Diferentes Texturas",
+    nature: "prato",
     subgroup: "Conservas e Vegetais",
     desc: "Técnica de preparar o mesmo vegetal de três formas (assado, purê e cru/chips) e montá-las juntas no prato, explorando texturas contrastantes.",
     origin: "Gastronomia contemporânea",
@@ -1538,6 +1563,7 @@ window.RECIPES["contemporaneos"] = [
   // ===================== BASES =====================
   {
     name: "Duxelles",
+    nature: "preparo",
     subgroup: "Bases",
     desc: "Cogumelos picados bem fino e refogados até ficarem secos e concentrados, usados como recheio (base do Beef Wellington) ou em molhos.",
     origin: "França",
@@ -1607,6 +1633,7 @@ window.RECIPES["contemporaneos"] = [
   },
   {
     name: "Caldos e Fundos (Claro e Escuro)",
+    nature: "preparo",
     subgroup: "Bases",
     desc: "Caldo concentrado feito cozinhando ossos e legumes por horas — claro (escaldado) ou escuro (assado) — que serve de base para molhos clássicos.",
     origin: "França",
