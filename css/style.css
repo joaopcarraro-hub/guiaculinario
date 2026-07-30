@@ -247,7 +247,9 @@ body {
 .shopping-list__recipe-row,
 .recent-card,
 .momento-card,
-.text-link {
+.text-link,
+.preparo-timer-chip__body,
+.preparo-timer-chip__cancel {
   transition: transform var(--motion-base) var(--motion-easing), opacity var(--motion-base) var(--motion-easing);
 }
 .primary-cta:active,
@@ -284,7 +286,9 @@ body {
 .shopping-list__recipe-row:active,
 .recent-card:active,
 .momento-card:active,
-.text-link:active {
+.text-link:active,
+.preparo-timer-chip__body:active,
+.preparo-timer-chip__cancel:active {
   transform: scale(0.97);
   opacity: 0.85;
 }
@@ -379,7 +383,7 @@ body {
    pointer-events normal pro body) — avaliado nesta correção e descartado por ora: mudança de
    arquitetura maior que o escopo de um hotfix, registrada como recomendação de acompanhamento. */
 body { pointer-events: none; }
-#bottom-nav, #category-header, #recipes-content, .filter-modal-overlay, .update-toast, .sort-sheet-overlay, .shopping-undo-toast { pointer-events: auto; }
+#bottom-nav, #category-header, #recipes-content, .filter-modal-overlay, .update-toast, .sort-sheet-overlay, .shopping-undo-toast, .preparo-timer-undo-toast { pointer-events: auto; }
 
 /* padding-top: var(--chrome-clearance) (hotfix 2026-07-26) — só renderCategory de fato popula
    #category-header (back-float + h2 + desc); toda outra tela faz header.innerHTML = "" (fica
@@ -2886,11 +2890,62 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
   font-size: var(--text-xs);
   color: var(--color-text-secondary);
 }
-.preparo-card__timer {
-  font-size: var(--text-xs);
-  color: var(--color-accent);
-  font-variant-numeric: tabular-nums;
+/* Pilha de timers do card de Preparos (Fase multi-timer, 2026-07-30) — substitui o
+   .preparo-card__timer antigo (mm:ss, só o passo atual da sessão, sem tick ao vivo). 1 chip por
+   timer ATIVO, empilhado verticalmente (não lado a lado — card estreito da lista, quantidade
+   variável). Mesmo padrão de 2 botões IRMÃOS do .busca-recente-chip (nunca aninhados — botão
+   dentro de botão é HTML inválido): __body (abre o modo cozinhar naquele passo) e __cancel
+   (cancela só aquele timer), lado a lado dentro do wrapper .preparo-timer-chip — o wrapper em
+   si não é um controle, só o pill visual. */
+.preparo-timer-chips { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-1); }
+.preparo-timer-chip {
+  display: inline-flex;
+  align-items: stretch;
+  border-radius: 999px;
+  background: var(--color-surface-elevated);
+  overflow: hidden;
 }
+/* Zerado (Storage.endsAt <= agora) vira estado "Pronto!" — mesmo fundo sólido de
+   --color-accent-deep que .tag-chip--selected/.busca-recente-chip já usam pra "chip
+   selecionado/em destaque", com --color-text-primary em cima (par calibrado, ver
+   DESIGN-TOKENS.md). Continua sendo "Pronto!" até o × dispensar (mesmo × que cancela). */
+.preparo-timer-chip.is-done { background: var(--color-accent-deep); }
+.preparo-timer-chip__body,
+.preparo-timer-chip__cancel {
+  position: relative; /* âncora pro ::after de hit-padding abaixo */
+  background: transparent;
+  border: none;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+.preparo-timer-chip__body {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  padding: 0 var(--space-2) 0 var(--space-3);
+  min-height: 32px;
+}
+.preparo-timer-chip__time { color: var(--color-accent); font-variant-numeric: tabular-nums; margin-left: 0.3em; }
+.preparo-timer-chip.is-done .preparo-timer-chip__body,
+.preparo-timer-chip.is-done .preparo-timer-chip__time { color: var(--color-text-primary); }
+/* Hit-padding só vertical no corpo (nunca horizontal, pra não invadir o × vizinho — mesmo
+   cuidado documentado em DESIGN-TOKENS.md pro par +/- do portion-stepper, já usado em
+   .busca-recente-chip__label): 32->44px. */
+.preparo-timer-chip__body::after { content: ""; position: absolute; inset: -6px 0; }
+.preparo-timer-chip__cancel {
+  color: var(--color-text-secondary);
+  opacity: 0.85;
+  padding: 0 var(--space-2) 0 var(--space-1);
+  min-height: 32px;
+}
+.preparo-timer-chip.is-done .preparo-timer-chip__cancel { color: var(--color-text-primary); }
+.preparo-timer-chip__cancel:hover { color: var(--color-error); }
+.preparo-timer-chip__cancel svg { width: 12px; height: 12px; }
+/* Ícone estreito — hit-padding nas 3 bordas LIVRES (topo/baixo/direita); ZERO à esquerda, a
+   borda compartilhada com o corpo (mesma técnica assimétrica do .busca-recente-chip__remove,
+   pra não ambiguar o toque no meio dos 2 alvos). */
+.preparo-timer-chip__cancel::after { content: ""; position: absolute; inset: -6px -6px -6px 0; }
 .preparo-card__delete {
   position: relative;
   flex-shrink: 0;
@@ -3001,11 +3056,14 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
   .shopping-list__recipe-row:active,
   .recent-card:active,
   .momento-card:active,
-  .text-link:active {
+  .text-link:active,
+  .preparo-timer-chip__body:active,
+  .preparo-timer-chip__cancel:active {
     transform: none;
   } /* Fase 0a: lista estendida junto com o bloco de :active acima — reduced-motion continua
-       suprimindo só a escala (sobra opacidade), mesmo princípio original, agora nos 34 (F1b
-       acrescentou momento-card e os 2 botões do chip de busca recente). */
+       suprimindo só a escala (sobra opacidade), mesmo princípio original, agora nos 36 (F1b
+       acrescentou momento-card e os 2 botões do chip de busca recente; Fase multi-timer
+       acrescenta os 2 botões do chip de timer de Preparos). */
   .filter-modal {
     animation: none;
   }
@@ -3100,7 +3158,9 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
 .preparo-card__delete:focus-visible,
 .recent-card:focus-visible,
 .momento-card:focus-visible,
-.update-toast__btn:focus-visible {
+.update-toast__btn:focus-visible,
+.preparo-timer-chip__body:focus-visible,
+.preparo-timer-chip__cancel:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);
 }

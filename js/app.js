@@ -3294,6 +3294,8 @@
   // Só "em-andamento" (getActivePreparoSessions já filtra) — "concluido" nunca aparece aqui.
   // Tocar no card retoma (#/cozinhar/:id, mesma sessão); o botão de remover apaga a sessão do
   // localStorage por completo (Storage.deletePreparoSession), não só esconde da lista.
+  let preparosTickInterval = null;
+
   function renderPreparosList() {
     activeCat = null;
     refreshActiveCounts = null;
@@ -3302,6 +3304,13 @@
     header.innerHTML = "";
     content.innerHTML = "";
     progressEl.textContent = "";
+
+    // Ticker da tela (Fase multi-timer, 2026-07-30): parado aqui de forma idempotente (também
+    // parado em handleRoute ao trocar de rota, ver abaixo) — chamar renderPreparosList() de novo
+    // com a tela já aberta (ex.: depois de cancelar 1 timer) nunca empilha um 2º interval sobre
+    // o 1º.
+    clearInterval(preparosTickInterval);
+    preparosTickInterval = null;
 
     const sessions = Storage.getActivePreparoSessions();
     if (!sessions.length) {
@@ -3314,6 +3323,7 @@
 
     const list = document.createElement("div");
     list.className = "preparo-list";
+    let anyActiveTimer = false;
 
     sessions
       .slice()
@@ -3334,25 +3344,77 @@
         else loadRecipeImage(recipe, thumb);
         card.appendChild(thumb);
 
-        // Tempo restante é uma FOTO no momento de renderizar a lista, não fica contando ao
-        // vivo aqui (evita mais um setInterval de fundo pra gerenciar — o timer de verdade só
-        // roda dentro do próprio modo de preparo).
-        let timerHtml = "";
-        const timerState = session.stepTimers && session.stepTimers[session.currentStep];
-        if (timerState && timerState.running && timerState.endsAt) {
-          const secs = Math.max(0, Math.round((timerState.endsAt - Date.now()) / 1000));
-          const mm = String(Math.floor(secs / 60)).padStart(2, "0");
-          const ss = String(secs % 60).padStart(2, "0");
-          timerHtml = '<span class="preparo-card__timer">' + mm + ":" + ss + "</span>";
-        }
-
         const info = document.createElement("div");
         info.className = "preparo-card__info";
         info.innerHTML =
           "<strong>" + recipe.name + "</strong>" +
-          '<span class="preparo-card__step">Passo ' + (session.currentStep + 1) + " de " + totalSteps + "</span>" +
-          timerHtml;
+          '<span class="preparo-card__step">Passo ' + (session.currentStep + 1) + " de " + totalSteps + "</span>";
         card.appendChild(info);
+
+        // Pilha de timers (Fase multi-timer, 2026-07-30): 1 chip por timer ATIVO da sessão —
+        // não só o do passo atual (session.currentStep), uma sessão pode ter 2+ passos
+        // diferentes rodando ao mesmo tempo (ver getActiveStepTimers) — ordenados por quem
+        // termina primeiro. endsAt (Storage) é a única fonte de verdade — o texto do chip é só
+        // uma PROJEÇÃO dele, atualizada ao vivo pelo ticker da tela logo abaixo, nunca um
+        // contador preso a este render.
+        const activeTimers = getActiveStepTimers(session.stepTimers, Date.now());
+        if (activeTimers.length) {
+          anyActiveTimer = true;
+          const chipsWrap = document.createElement("div");
+          chipsWrap.className = "preparo-timer-chips";
+          activeTimers.forEach(({ stepIndex, endsAt, remainingSeconds, isDone }) => {
+            // 2 botões IRMÃOS dentro do wrapper, nunca aninhados (mesmo padrão de
+            // .busca-recente-chip — botão dentro de botão é HTML inválido): __body abre o modo
+            // cozinhar naquele passo, __cancel cancela só aquele timer. O wrapper em si não é
+            // um controle, só o pill visual.
+            const chip = document.createElement("div");
+            chip.className = "preparo-timer-chip" + (isDone ? " is-done" : "");
+            chip.dataset.endsAt = String(endsAt);
+            chip.innerHTML =
+              '<button type="button" class="preparo-timer-chip__body">Passo ' +
+              (stepIndex + 1) +
+              ' · <span class="preparo-timer-chip__time">' +
+              (isDone ? "Pronto!" : formatBigTime(remainingSeconds)) +
+              "</span></button>" +
+              '<button type="button" class="preparo-timer-chip__cancel" aria-label="Cancelar timer do passo ' +
+              (stepIndex + 1) +
+              '">' +
+              iconSvg("close", "preparo-timer-chip__cancel-icon") +
+              "</button>";
+
+            // Corpo: grava o passo alvo (mesmo helper público que o próprio modo cozinhar usa
+            // ao trocar de passo) ANTES de navegar, pra abrir direto NAQUELE passo, não no
+            // currentStep da sessão. stopPropagation: o chip vive dentro do card, que tem seu
+            // próprio onclick (retomar de onde parou) — sem isso o clique vazaria pro card.
+            chip.querySelector(".preparo-timer-chip__body").addEventListener("click", (e) => {
+              e.stopPropagation();
+              Storage.savePreparoStep(session.recipeId, stepIndex);
+              Router.toCozinhar(session.recipeId, "preparos");
+            });
+
+            // ×: cancela SÓ este timer — mesma semântica do "Cancelar" do modo cozinhar (volta
+            // pro estado PARADO guardando o restante, nunca reseta pra duração original) — com
+            // desfazer. snapshot é o objeto ORIGINAL (antes do cancelamento), restaurado
+            // verbatim no desfazer: endsAt volta IDÊNTICO, nenhum tempo "perdido" no vaivém.
+            chip.querySelector(".preparo-timer-chip__cancel").addEventListener("click", (e) => {
+              e.stopPropagation();
+              const originalState = session.stepTimers[stepIndex];
+              const snapshot = Object.assign({}, originalState);
+              const secsLeft = Math.max(0, Math.round((originalState.endsAt - Date.now()) / 1000));
+              Storage.savePreparoStepTimer(session.recipeId, stepIndex, {
+                endsAt: null,
+                remainingSeconds: secsLeft,
+                running: false,
+                started: false,
+              });
+              renderPreparosList();
+              showPreparoTimerUndoToast(session.recipeId, stepIndex, snapshot);
+            });
+
+            chipsWrap.appendChild(chip);
+          });
+          card.appendChild(chipsWrap);
+        }
 
         const deleteBtn = document.createElement("button");
         deleteBtn.type = "button";
@@ -3373,6 +3435,54 @@
       });
 
     content.appendChild(list);
+
+    // Ticker de tela: só existe enquanto houver ao menos 1 chip pra atualizar (sem interval
+    // órfão rodando à toa quando não há nada pra contar). 1s — atualiza SÓ texto/classe dos
+    // chips já no DOM, nunca reconstrói a lista (senão recarregaria foto/Wikipedia de cada
+    // sessão a cada segundo). Ordem dos chips não muda com o tick: endsAt é absoluto, a ordem
+    // relativa entre 2 timers nunca se inverte com o tempo — só recalculada quando a lista é
+    // reconstruída de verdade (novo timer, cancelamento, navegação de volta pra cá).
+    if (anyActiveTimer) {
+      preparosTickInterval = setInterval(() => {
+        const now = Date.now();
+        content.querySelectorAll(".preparo-timer-chip").forEach((chipEl) => {
+          const endsAt = parseInt(chipEl.dataset.endsAt, 10);
+          const isDone = endsAt <= now;
+          chipEl.classList.toggle("is-done", isDone);
+          const timeEl = chipEl.querySelector(".preparo-timer-chip__time");
+          if (!timeEl) return;
+          timeEl.textContent = isDone ? "Pronto!" : formatBigTime(Math.max(0, Math.round((endsAt - now) / 1000)));
+        });
+      }, 1000);
+    }
+  }
+
+  let preparoTimerUndoTimer = null;
+  // Desfazer pro × de cada chip de timer (Fase multi-timer, 2026-07-30) — mesmo mecanismo de
+  // showShoppingUndoToast (F1c): reusa .update-toast (visual) + marcador próprio
+  // (.preparo-timer-undo-toast) na whitelist de pointer-events do body (ver css/style.css).
+  // originalState é o {endsAt, remainingSeconds, running, started} de ANTES do cancelamento,
+  // restaurado verbatim — nunca recalculado — então o endsAt volta EXATAMENTE igual.
+  function showPreparoTimerUndoToast(recipeId, stepIndex, originalState) {
+    const existing = document.querySelector(".preparo-timer-undo-toast");
+    if (existing) existing.remove(); // troca pelo mais recente antes do 1º expirar
+    clearTimeout(preparoTimerUndoTimer);
+    const toast = document.createElement("div");
+    toast.className = "update-toast preparo-timer-undo-toast";
+    toast.innerHTML = "<span>Timer cancelado</span>" + '<button type="button" class="update-toast__btn">Desfazer</button>';
+    document.body.appendChild(toast);
+    toast.querySelector(".update-toast__btn").addEventListener("click", () => {
+      clearTimeout(preparoTimerUndoTimer);
+      toast.remove();
+      Storage.savePreparoStepTimer(recipeId, stepIndex, originalState);
+      // Só re-renderiza se o usuário ainda estiver na tela de Preparos — nunca troca o
+      // conteúdo de uma tela diferente por baixo dele (mesmo princípio de
+      // showShoppingUndoToast).
+      if (Router.current().name === "preparos") renderPreparosList();
+    });
+    preparoTimerUndoTimer = setTimeout(() => {
+      toast.remove();
+    }, 6000);
   }
 
   // ---------- Tela "Lista de Compras" (aba da barra inferior) ----------
@@ -4648,6 +4758,33 @@
     return { h: pad2(h), m: pad2(m), s: pad2(s) };
   }
 
+  // Deriva, a partir do stepTimers bruto de uma sessão (Storage), a lista de timers ATIVOS
+  // (running && endsAt) pra exibir em pilha no card de Preparos (Fase multi-timer, 2026-07-30) —
+  // ver renderPreparosList. `now` é PARÂMETRO (não Date.now() direto) pra ficar testável com
+  // relógio injetado (scripts/verify-preparos-multitimer-2026-07-30.js). Ordenado por endsAt
+  // ASCENDENTE (quem termina primeiro vem primeiro) — ordem estável pra sempre (endsAt é
+  // timestamp absoluto, a ordem relativa entre 2 nunca se inverte com o tempo), por isso só
+  // recalculada quando a lista é reconstruída de verdade, nunca a cada tick do ticker de tela.
+  function getActiveStepTimers(stepTimers, now) {
+    if (!stepTimers || typeof stepTimers !== "object") return [];
+    return Object.keys(stepTimers)
+      .map((key) => parseInt(key, 10))
+      .filter((stepIndex) => {
+        const t = stepTimers[stepIndex];
+        return !!(t && t.running && t.endsAt);
+      })
+      .map((stepIndex) => {
+        const t = stepTimers[stepIndex];
+        return {
+          stepIndex: stepIndex,
+          endsAt: t.endsAt,
+          remainingSeconds: Math.max(0, Math.round((t.endsAt - now) / 1000)),
+          isDone: t.endsAt <= now,
+        };
+      })
+      .sort((a, b) => a.endsAt - b.endsAt);
+  }
+
   function renderCookMode(id, fromHash, portionMultiplier) {
     const item = TagModel.findRecipeById(id);
     const recipe = item && item.recipe;
@@ -5387,6 +5524,12 @@
     // de closeActiveFilterModal) — fecha à força antes de renderizar a rota nova, senão fica
     // preso na tela por cima do conteúdo trocado (ex.: botão/gesto voltar do celular).
     if (closeActiveFilterModal) closeActiveFilterModal();
+    // Ticker da tela de Preparos (Fase multi-timer, 2026-07-30): parado incondicionalmente
+    // aqui, ANTES de decidir a rota nova — sair de #/preparos por qualquer caminho (troca de
+    // aba, abrir uma receita, gesto de voltar) nunca deixa o interval de 1s rodando escondido.
+    // renderPreparosList() religa sozinho se a rota nova for "preparos" de novo.
+    clearInterval(preparosTickInterval);
+    preparosTickInterval = null;
     if (route.name === "busca") {
       renderBusca(route.tags || [], route.textFilters || [], route.ingredientMode || "or", route.query || "", route.role || null, route.origin || null);
     } else if (route.name === "grupo") {

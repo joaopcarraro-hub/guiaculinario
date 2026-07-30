@@ -71,7 +71,10 @@ function main() {
   assert(nToGrupo === 4, "Router.toGrupo( aparece exatamente 4x");
   assert(nToCategoria === 4, "Router.toCategoria( aparece exatamente 4x — premissa de caminho único por coleção");
   assert(nToReceita === 7, "Router.toReceita( aparece exatamente 7x");
-  assert(nToCozinhar === 2, "Router.toCozinhar( aparece exatamente 2x");
+  assert(
+    nToCozinhar === 3,
+    "Router.toCozinhar( aparece exatamente 3x (Fase multi-timer, 2026-07-30: 3º call site = tocar o CORPO de um chip de timer no card de Preparos — grava Storage.savePreparoStep(recipeId, stepIndex) pro passo DAQUELE chip antes de navegar, mas usa o MESMO fromHash \"preparos\" do 2º call site já existente [tocar o card]; não é um mecanismo de volta novo, é uma 2ª porta de entrada pro mesmo destino-e-origem já coberto pelas regras abaixo — decisão consciente, não só o número ajustado pra passar)"
+  );
   assert(
     nCreateBackFloat === 5,
     "createBackFloat( aparece exatamente 5x (1 declaração + hub/categoria/receita/busca-condicional — F1b acabamento, 2026-07-30, ver seção 8 abaixo pro mecanismo de volta decidido conscientemente, não só o número atualizado)"

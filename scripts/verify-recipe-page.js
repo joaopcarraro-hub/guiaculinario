@@ -313,7 +313,7 @@ function main() {
   // mudou de novo, mesma regra de sempre (todo push que toca APP_SHELL bumpa CACHE_NAME).
   // v32 -> v33: item final do redesenho visual. v33 -> v34: rumo novo de Países. v34 -> v35:
   // calibração final do banner de hub (blur/scale removidos) — todos fora desta feature.
-  assert(/const CACHE_NAME = "cardapio-v53";/.test(swJs), "CACHE_NAME v33 -> ... -> v52 -> v53 (F1c 2026-07-30: mais um bump de feature externa, atualizado pro valor vigente)");
+  assert(/const CACHE_NAME = "cardapio-v54";/.test(swJs), "CACHE_NAME v33 -> ... -> v53 -> v54 (Fase multi-timer 2026-07-30: mais um bump de feature externa, atualizado pro valor vigente)");
 
   console.log("");
   console.log("==================================================");

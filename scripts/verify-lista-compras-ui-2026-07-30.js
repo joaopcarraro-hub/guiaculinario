@@ -195,8 +195,8 @@ function main() {
   assert(toastBody.includes('Router.current().name === "lista-compras"') , "TESTE DE REGRESSAO: Desfazer clicado de OUTRA tela restaura o DADO mas so re-renderiza se Lista de Compras ainda estiver aberta — nunca troca o conteudo visivel de uma tela diferente por baixo do usuario");
   assert(toastBody.includes("Storage.restoreShoppingListSnapshot(snapshot)"), "Desfazer chama restoreShoppingListSnapshot com o snapshot capturado no momento do clique em Limpar");
   assert(
-    /#bottom-nav, #category-header, #recipes-content, \.filter-modal-overlay, \.update-toast, \.sort-sheet-overlay, \.shopping-undo-toast \{ pointer-events: auto; \}/.test(styleCss),
-    ".shopping-undo-toast entrou na whitelist de pointer-events do body (causa conhecida — sem isso o toast novo renderiza mas fica com clique morto)"
+    /#bottom-nav, #category-header, #recipes-content, \.filter-modal-overlay, \.update-toast, \.sort-sheet-overlay, \.shopping-undo-toast(?:, \.[\w-]+)* \{ pointer-events: auto; \}/.test(styleCss),
+    ".shopping-undo-toast entrou na whitelist de pointer-events do body (causa conhecida — sem isso o toast novo renderiza mas fica com clique morto). Regex aceita classes extras DEPOIS dela (grupo opcional não-capturante) — Fase multi-timer, 2026-07-30, acrescentou .preparo-timer-undo-toast na mesma linha; esta suíte não é a dona dessa classe, só confirma que .shopping-undo-toast (a dela) continua coberta"
   );
 
   console.log("");

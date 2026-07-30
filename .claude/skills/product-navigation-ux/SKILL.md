@@ -245,6 +245,17 @@ Compras) leva pra tela da RECEITA especificamente (`Router.toReceita`), não é 
 genérico por histórico. Limpa `timerInterval` antes de navegar (mesma proteção contra o "timer
 fantasma" que o `exitBtn` já tinha) — sem isso o timer continuaria rodando escondido.
 
+**Entrada em `#/cozinhar` por um passo específico (Fase multi-timer, 2026-07-30).** O corpo do
+card de Preparos continua abrindo a sessão em `session.currentStep` (retomar de onde parou, sem
+mudança). Um chip de timer dentro do card (`.preparo-timer-chip__body`, ver mobile-recipe-ui/
+SKILL.md "Preparos — pilha de timers") é uma 2ª porta de entrada pro MESMO `#/cozinhar/:id`: grava
+`Storage.savePreparoStep(recipeId, stepIndex)` — o stepIndex DAQUELE chip, não necessariamente o
+currentStep — ANTES de chamar `Router.toCozinhar(recipeId, "preparos")` (mesmo fromHash "preparos"
+de sempre, nenhum argumento novo no Router). `renderCookMode` sempre resume em
+`session.currentStep`, então gravar o passo alvo primeiro é o que faz a tela abrir exatamente
+nele, sem precisar de um mecanismo de navegação novo. stopPropagation no chip evita que o clique
+vaze pro onclick do card (que abriria em currentStep por cima).
+
 ## Páginas intermediárias
 
 Cada grupo tem sua própria página (independente de estar linkada na home ou não).

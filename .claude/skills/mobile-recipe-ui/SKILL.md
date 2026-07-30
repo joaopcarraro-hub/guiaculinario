@@ -1200,6 +1200,56 @@ referência, iFood como régua de calha, ver `docs/DESIGN-TOKENS.md` pros númer
    visível do 4º card passa de 9,83px pra 17,83px (medido, `getBoundingClientRect`) — a "fatia
    de convite" cresce, não desaparece.
 
+## Preparos — pilha de timers em tempo real (Fase multi-timer, 2026-07-30)
+
+3 problemas reais reportados pelo dono no card de Preparos (`renderPreparosList`, `.preparo-card`,
+não confundir com `.recipe-page-section`/ingredientes): (1) mostrava `mm:ss`, divergindo do
+mostrador `hh:mm:ss` do modo cozinhar; (2) não contava ao vivo — era uma FOTO tirada no momento do
+render, congelada até a lista ser reconstruída por outro motivo; (3) com 2+ timers ativos em
+passos DIFERENTES da mesma sessão, o card só lia `session.stepTimers[session.currentStep]` — o
+timer do passo não-atual ficava rodando de verdade no Storage, mas invisível no card.
+
+**Investigação prévia importante:** o MODELO já era `{endsAt, remainingSeconds, running,
+started}` por `stepIndex` (`Storage.savePreparoStepTimer`, `gusta-preparos-v1`), `endsAt` já um
+timestamp ABSOLUTO, e nada no código impedia 2+ `stepIndex` distintos com `running: true` ao
+mesmo tempo — o storage já suportava múltiplos timers simultâneos, o bug inteiro era na LEITURA
+(card só olhava 1 chave) e na EXIBIÇÃO (sem ticker, formatação ad-hoc). Por isso esta fase não
+mudou o schema nem precisou de migração (`PREPARO_SCHEMA_VERSION` continua `1`).
+
+- **`getActiveStepTimers(stepTimers, now)`** (`js/app.js`, função pura, sem DOM) — deriva do
+  `stepTimers` bruto da sessão a lista de timers ativos (`running && endsAt`), com
+  `remainingSeconds`/`isDone` calculados a partir de `now` (PARÂMETRO, não `Date.now()` direto —
+  testável com relógio injetado, ver `scripts/verify-preparos-multitimer-2026-07-30.js`),
+  ordenada por `endsAt` ASCENDENTE. Ordem nunca precisa ser recalculada a cada tick — `endsAt` é
+  absoluto, a ordem relativa entre 2 timers não se inverte com o tempo.
+- **Pilha de chips** (`.preparo-timer-chips` > `.preparo-timer-chip`, 1 por timer ativo): "Passo N
+  · hh:mm:ss" (reaproveita `formatBigTime`, o MESMO formatador do modo cozinhar — nenhum
+  formatador duplicado sobrevive; a regra é SEMPRE `hh:mm:ss`, nunca cair pra `mm:ss` mesmo com 0
+  horas, igual ao contador grande). Zerado (`endsAt <= now`) vira "Pronto!" com fundo
+  `--color-accent-deep` (`.is-done`) até ser dispensado pelo mesmo ×.
+- **2 botões IRMÃOS por chip, nunca aninhados** (mesmo padrão de `.busca-recente-chip__label`/
+  `__remove` — botão dentro de botão é HTML inválido, por isso não é o truque de
+  `e.stopPropagation()` num alvo aninhado que `.preparo-card__delete`/`.recipe-hero__heart` usam
+  em outros pontos): `.preparo-timer-chip__body` (grava `Storage.savePreparoStep` pro stepIndex
+  DAQUELE chip e abre o modo cozinhar nele — não no `currentStep` da sessão) e
+  `.preparo-timer-chip__cancel` (cancela só aquele timer, mesma semântica do "Cancelar" do modo
+  cozinhar — volta pro estado PARADO guardando o restante, nunca reseta a duração original — com
+  desfazer). Os 2 fazem `stopPropagation()` porque vivem dentro do `.preparo-card`, que tem seu
+  próprio onclick (retomar de onde parou) — tocar no CORPO do card fora dos chips continua
+  intocado.
+- **Desfazer do cancelamento** (`showPreparoTimerUndoToast`) reusa a MESMA infraestrutura de
+  `showShoppingUndoToast` (F1c): `.update-toast` (visual) + `.preparo-timer-undo-toast` (marcador
+  próprio na whitelist de `pointer-events` do body, `css/style.css`). Snapshot é o objeto
+  `{endsAt, remainingSeconds, running, started}` de ANTES do cancelamento, restaurado verbatim —
+  `endsAt` volta idêntico, nenhum tempo "perdido" no vaivém de cancelar+desfazer. Só re-renderiza
+  se `Router.current().name === "preparos"` ainda.
+- **Ticker único por tela** (`preparosTickInterval`, 1s): atualiza SÓ texto/classe dos chips já no
+  DOM (nunca reconstrói a lista — evitaria recarregar foto/Wikipedia de cada sessão a cada
+  segundo). Parado de forma idempotente no topo de `renderPreparosList` (re-render pelo próprio
+  cancelamento não empilha um 2º interval) E no topo de `handleRoute` (sair de `#/preparos` por
+  qualquer caminho nunca deixa o interval órfão rodando escondido) — mesmo princípio de
+  `closeActiveFilterModal()` já chamado ali. Só é criado se houver ao menos 1 chip pra atualizar.
+
 ## Critérios de aceite
 
 - A home deve parecer limpa em telas de 360px a 430px.
