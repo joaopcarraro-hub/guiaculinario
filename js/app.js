@@ -1946,7 +1946,7 @@
     content.innerHTML = "";
     progressEl.textContent = "";
 
-    const { primaryRecipes: basePrimary, relatedRecipes: baseRelated, allRecipes: baseAll, preparos: basePreparos } = TagModel.getRecipesByCollection(collection.id);
+    const { primaryRecipes: basePrimary, relatedRecipes: baseRelated, allRecipes: baseAll, preparos: basePreparos, padrao: basePadrao } = TagModel.getRecipesByCollection(collection.id);
 
     if (!baseAll.length) {
       content.innerHTML = '<div class="empty-state">Essa coleção ainda não tem receitas — em breve.</div>';
@@ -2094,6 +2094,23 @@
       basePreparos.forEach((item) => preparosListEl.appendChild(renderRecipeCard(item, { fromHash: preparosFromHash })));
     }
 
+    // 3b-UI (2026-07-30): seção fixa "Pratos com estas técnicas" — espelho exato da seção acima,
+    // pro sentido inverso: a coleção tecnicas separa os 3 pratos (nature:prato) da lista principal
+    // de preparos/técnicas (ver ramo ADITIVO de applyRoleAndNature) e mostra-os fixos aqui. Fixa:
+    // usa basePadrao (partição canônica, TagModel.getRecipesByCollection) — NÃO reage a
+    // facetas/busca/papel, mesmo padrão da seção irmã; reusa .subgroup-title e renderRecipeCard
+    // sem CSS novo.
+    if (collection.collectionType === "technique" && basePadrao.length) {
+      const pratosTitle = document.createElement("div");
+      pratosTitle.className = "subgroup-title";
+      pratosTitle.textContent = "Pratos com estas técnicas";
+      content.appendChild(pratosTitle);
+      const pratosListEl = document.createElement("div");
+      content.appendChild(pratosListEl);
+      const pratosFromHash = currentHashPath();
+      basePadrao.forEach((item) => pratosListEl.appendChild(renderRecipeCard(item, { fromHash: pratosFromHash })));
+    }
+
     // 3b-UI (2026-07-30): um único ponto que aplica papel (focus/secondary, ação explícita do
     // usuário — sempre exclui preparo/técnica) OU a vista padrão (nature:prato ∧ identidade,
     // quando não há papel selecionado) — reusado por currentItems()/getUniverse()/
@@ -2106,6 +2123,13 @@
         const split = TagModel.splitByProteinRole(items, S);
         const roleItems = role === "focus" ? split.primary : split.secondary;
         return isIdentityCollection(identityCollection) ? roleItems.filter((item) => item.recipe.nature === "prato") : roleItems;
+      }
+      // 3b-UI (2026-07-30): ramo ADITIVO — coleção technique (tecnicas) esconde os pratos
+      // (nature:prato) da lista principal quando não há papel de proteína ativo; eles ficam só na
+      // seção fixa "Pratos com estas técnicas" (ver abaixo). Não é identity (proteína/país) — por
+      // isso checado ANTES do early-return genérico de isIdentityCollection.
+      if (identityCollection && identityCollection.collectionType === "technique") {
+        return items.filter((item) => item.recipe.nature !== "prato");
       }
       if (!isIdentityCollection(identityCollection)) return items;
       const identityItems = S.length ? TagModel.splitByProteinRole(items, S).primary : items;
