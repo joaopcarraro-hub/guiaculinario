@@ -4565,17 +4565,21 @@
         updateTimerDisplay();
       }
       // "settle" = a roleta parou de rolar (scroll-snap encaixou um item, dedo do usuário OU
-      // scrollTo suave de positionWheelColumn(..., animate=true) terminou). Se wheelEl tem
-      // dataset.progTarget (uma animação PROGRAMÁTICA está em curso — ver positionWheelColumn),
-      // o settle só pode ler/commitar a roleta quando o scroll de fato ALCANÇOU esse alvo;
-      // enquanto não alcançar, re-arma o mesmo timeout e retorna, nunca lê um valor
-      // intermediário (era exatamente isso que revertia a digitação — settle disparando antes
-      // de a animação chegar ao fim). Interação manual (pointerdown/touchstart/wheel) limpa
-      // progTarget na hora, então o dedo do usuário sempre retoma o controle, nunca fica preso
-      // num re-arme eterno.
+      // scrollTo suave de positionWheelColumn(..., animate=true) terminou). Guarda isConnected
+      // primeiro: se a coluna já saiu do DOM (ex.: usuário tocou Iniciar durante a animação
+      // programática, renderTimer trocou a tela pra RODANDO), o settle morre ali — nunca re-arma
+      // timeout nem lê getBoundingClientRect de elemento desanexado (rect zerado, commit de
+      // lixo). Se wheelEl tem dataset.progTarget (uma animação PROGRAMÁTICA está em curso — ver
+      // positionWheelColumn), o settle só pode ler/commitar a roleta quando o scroll de fato
+      // ALCANÇOU esse alvo; enquanto não alcançar, re-arma o mesmo timeout e retorna, nunca lê
+      // um valor intermediário (era exatamente isso que revertia a digitação — settle disparando
+      // antes de a animação chegar ao fim). Interação manual (pointerdown/touchstart/wheel)
+      // limpa progTarget na hora, então o dedo do usuário sempre retoma o controle, nunca fica
+      // preso num re-arme eterno.
       function bindColumnScroll(wheelEl, onSettle) {
         let scrollSettleTimeout = null;
         function settle() {
+          if (!wheelEl.isConnected) return;
           if (wheelEl.dataset.progTarget !== undefined) {
             if (Math.abs(wheelEl.scrollTop - parseFloat(wheelEl.dataset.progTarget)) > 2) {
               scrollSettleTimeout = setTimeout(settle, 150);

@@ -126,6 +126,14 @@ function main() {
   const bindBody = extractFunctionByName(appJs, "bindColumnScroll") || "";
   assert(bindBody.length > 0, "bindColumnScroll encontrada e isolada por casamento de chaves");
 
+  const idxIsConnected = bindBody.indexOf("wheelEl.isConnected");
+  const idxProgTargetCheck = bindBody.indexOf("wheelEl.dataset.progTarget !== undefined");
+  assert(idxIsConnected !== -1, "settle guarda !wheelEl.isConnected — coluna desanexada (Iniciar tocado durante a animação programática, renderTimer trocou o DOM) nunca re-arma timeout nem commita leitura de elemento morto");
+  assert(
+    idxIsConnected !== -1 && idxProgTargetCheck !== -1 && idxIsConnected < idxProgTargetCheck,
+    "ORDEM (indexOf): a guarda isConnected roda ANTES da checagem de progTarget — elemento desanexado nunca chega a ler dataset/scrollTop de um rect zerado"
+  );
+
   assert(/wheelEl\.dataset\.progTarget\s*!==\s*undefined/.test(bindBody), "settle checa wheelEl.dataset.progTarget !== undefined antes de decidir commitar");
   assert(
     /Math\.abs\(wheelEl\.scrollTop\s*-\s*parseFloat\(wheelEl\.dataset\.progTarget\)\)\s*>\s*2/.test(bindBody),
