@@ -217,6 +217,7 @@ body {
 .filter-modal__apply,
 .action-btn,
 .filter-trigger,
+.sort-trigger,
 .bottom-nav__tab,
 .recipe-card,
 .category-card,
@@ -250,6 +251,7 @@ body {
 .filter-modal__apply:active,
 .action-btn:active,
 .filter-trigger:active,
+.sort-trigger:active,
 .bottom-nav__tab:active,
 .recipe-card:active,
 .category-card:active,
@@ -371,7 +373,7 @@ body {
    pointer-events normal pro body) — avaliado nesta correção e descartado por ora: mudança de
    arquitetura maior que o escopo de um hotfix, registrada como recomendação de acompanhamento. */
 body { pointer-events: none; }
-#bottom-nav, #category-header, #recipes-content, .filter-modal-overlay, .update-toast { pointer-events: auto; }
+#bottom-nav, #category-header, #recipes-content, .filter-modal-overlay, .update-toast, .sort-sheet-overlay { pointer-events: auto; }
 
 /* padding-top: var(--chrome-clearance) (hotfix 2026-07-26) — só renderCategory de fato popula
    #category-header (back-float + h2 + desc); toda outra tela faz header.innerHTML = "" (fica
@@ -966,21 +968,19 @@ body { pointer-events: none; }
 /* fundo era --gold-soft: tom de --gold (=--color-accent) em baixa opacidade, mesma decisão
    registrada no Bloco 4 pra todo fundo tingido suave. */
 .collection-tabs button.active { border-color: var(--color-accent); border-width: 2px; font-weight: 600; background: var(--color-accent-soft); }
-.sort-control {
-  display: grid;
-  gap: var(--space-2);
-  font-size: var(--text-xs);
-  color: var(--color-text-secondary);
+/* Ordenar (pill "Ordenar: X" + mini-sheet inferior) — substitui o antigo <select> nativo
+   (.sort-control, removido). Vive ao lado da pill "Filtros" dentro de .toolbar-pills, mesma
+   família visual (border/altura/família), hierarquia igual entre as duas — por isso
+   .sort-trigger compartilha a regra base de .filter-trigger em vez de duplicar valores. */
+.toolbar-pills {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
 }
-.sort-control select {
-  min-height: 44px;
-  border-radius: 10px;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  padding: 0 var(--space-3);
-  font-size: var(--text-sm);
-  font-family: inherit;
-  color: var(--color-text-primary);
+.toolbar-pills .filter-trigger-wrap,
+.toolbar-pills .sort-trigger-wrap {
+  margin-bottom: 0;
 }
 .collection-refine { margin-bottom: var(--space-5); }
 .collection-refine:empty { margin-bottom: 0; }
@@ -992,7 +992,8 @@ body { pointer-events: none; }
    modal, então ganham um override de cor escopado a .filter-modal logo abaixo. */
 .filter-trigger-wrap { margin-bottom: var(--space-5); }
 .filter-trigger-wrap:empty { margin-bottom: 0; }
-.filter-trigger {
+.filter-trigger,
+.sort-trigger {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
@@ -1007,8 +1008,16 @@ body { pointer-events: none; }
   font-weight: 600;
   cursor: pointer;
 }
-.filter-trigger__icon { width: 18px; height: 18px; }
-.filter-trigger__badge {
+.filter-trigger__icon,
+.sort-trigger__icon {
+  width: 18px;
+  height: 18px;
+}
+/* Badge do Ordenar (ajuste do dono, 2026-07-30) — MESMO componente visual do badge de contagem
+   de Filtros, só que vazio (sem número: seleção única não tem o que contar) — a presença do
+   círculo já é o indicador discreto de "ordenação customizada", sem abrir o sheet. */
+.filter-trigger__badge,
+.sort-trigger__badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1057,6 +1066,52 @@ body.filter-modal-open { overflow: hidden; }
 }
 .filter-modal.filter-modal--closing {
   animation: filter-modal-out 220ms ease-out forwards;
+}
+
+/* Ordenar — mini-sheet inferior (reusa z-token/mecânica de fechamento do modal acima, ver
+   openSortSheet em js/app.js). Direção de slide própria (translateY 100%->0, não os 16px do
+   modal cheio) — é um bottom sheet, não um modal de tela inteira, mas segue a MESMA convenção
+   já usada em .grupo-sheet/.recipe-page (canto superior arredondado --radius-sheet). */
+@keyframes sort-sheet-in {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+@keyframes sort-sheet-out {
+  from { transform: translateY(0); }
+  to { transform: translateY(100%); }
+}
+.sort-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background: rgba(15, 15, 14, 0.55); /* mesmo véu de .chrome-float/.recipe-card__heart */
+  display: flex;
+  align-items: flex-end;
+}
+body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-modal-open — evita colisão de estado se os 2 mecanismos coexistissem */
+.sort-sheet {
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-bottom: none;
+  border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+  padding: var(--space-5) var(--space-5) calc(var(--space-6) + env(safe-area-inset-bottom));
+  color: var(--color-text-primary);
+  animation: sort-sheet-in 220ms ease-out;
+}
+.sort-sheet.sort-sheet--closing {
+  animation: sort-sheet-out 220ms ease-out forwards;
+}
+.sort-sheet__title {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-base);
+}
+.sort-sheet__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 .filter-modal__header {
   display: flex;
@@ -1280,6 +1335,19 @@ body.filter-modal-open { overflow: hidden; }
   font-family: inherit;
   font-size: var(--text-sm);
   cursor: pointer;
+}
+/* AVISO — scripts/verify-filter-redesign-2026-07-27.js lê o PRIMEIRO ".filter-chip {" que achar
+   no arquivo inteiro (regex sem âncora, `css.match(/\.filter-chip\s*\{[^}]*\}/)`) pra extrair
+   "a regra base" e checar borda/cor/altura. Qualquer nova regra cujo seletor TERMINE em
+   ".filter-chip {" (ex. ".sort-sheet__list .filter-chip {", logo abaixo) precisa continuar
+   depois desta, nunca antes — colocá-la antes faria o teste capturar a regra errada e falhar
+   por fragilidade de teste, não por bug real (acontecido uma vez, 2026-07-30, corrigido
+   reordenando). Especificidade não muda com a ordem (descendente sempre vence sobre a classe
+   solta), então mover é seguro — só a ORDEM no arquivo importa pra esse teste específico. */
+.sort-sheet__list .filter-chip {
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
 }
 /* Alvo de toque efetivo: 36px visual + hit-padding invisível via ::after — mesma fórmula já
    calibrada na Fase 0a pra .recipe-page-tags .tag-chip-link (border:1px "come" 1px do inset
@@ -2742,6 +2810,7 @@ body.filter-modal-open { overflow: hidden; }
   .filter-modal__apply:active,
   .action-btn:active,
   .filter-trigger:active,
+  .sort-trigger:active,
   .bottom-nav__tab:active,
   .recipe-card:active,
   .category-card:active,
@@ -2776,6 +2845,14 @@ body.filter-modal-open { overflow: hidden; }
     animation: none;
   }
   .filter-modal.filter-modal--closing {
+    animation: none;
+    opacity: 0;
+    transition: opacity var(--motion-base) ease;
+  }
+  .sort-sheet {
+    animation: none;
+  }
+  .sort-sheet.sort-sheet--closing {
     animation: none;
     opacity: 0;
     transition: opacity var(--motion-base) ease;
@@ -2826,6 +2903,7 @@ body.filter-modal-open { overflow: hidden; }
 .recipe-card__heart:focus-visible,
 .collection-tabs button:focus-visible,
 .filter-trigger:focus-visible,
+.sort-trigger:focus-visible,
 .filter-modal__cancel:focus-visible,
 .filter-modal .btn-clear-filters:focus-visible,
 .filter-modal__apply:focus-visible,

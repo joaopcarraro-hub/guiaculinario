@@ -31,6 +31,7 @@
     cupcake: '<path d="M7 11h10l-1.2 7.5A2 2 0 0 1 13.8 20h-3.6a2 2 0 0 1-2-1.5L7 11Z"/><path d="M6 11a6 4 0 0 1 12 0Z"/><path d="M12 3v2.2"/>',
     dots: '<circle cx="6" cy="6" r="1.6"/><circle cx="12" cy="6" r="1.6"/><circle cx="18" cy="6" r="1.6"/><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/>',
     filter: '<path d="M4 5h16l-6.5 7.5V19l-3 1.6v-8.1Z"/>',
+    sort: '<path d="M8 6v13"/><path d="M5 9l3-3 3 3"/><path d="M16 18V5"/><path d="M13 15l3 3 3-3"/>',
     chevronDown: '<path d="M6 9l6 6 6-6"/>',
     chevronLeft: '<path d="M15 6l-6 6 6 6"/>',
     clock: '<circle cx="12" cy="12" r="8"/><path d="M12 7.5v4.5l3 2"/>',
@@ -1904,6 +1905,94 @@
     }
   }
 
+  // ---------- Ordenar (mini-sheet inferior) ----------
+  // Substitui o antigo <select> nativo (.sort-control) das 2 telas que ordenam
+  // (renderCategory/renderBusca) por uma pill "Ordenar: X" ao lado da pill "Filtros". Reusa a
+  // infra do modal de filtros acima: mesmo slot global closeActiveFilterModal (só 1 overlay
+  // "fora de #recipes-content" aberto por vez, handleRoute já força fechamento na troca de
+  // rota), mesmo z-token (--z-modal) e o mesmo padrão de saída simétrica (classe --closing +
+  // setTimeout antes de remover o nó). Opções/comparador continuam vindo de
+  // TagModel.SORT_OPTIONS/sortRecipeItems, intocados — só a apresentação muda. Cada opção reusa
+  // .filter-chip/.is-selected (mesmo "chip-radio" já calibrado — 36px, hit-area ::after,
+  // :active/:focus-visible já cobertos pelas listas compartilhadas), só reempacotado num
+  // radiogroup vertical (role="radio", seleção única, em vez de "checkbox").
+  function renderSortTrigger(wrapEl, currentKey, defaultKey, onSelect) {
+    // Ajuste do dono (2026-07-30, ainda antes do push): rótulo fixo "Ordenar" (não mostra mais a
+    // escolha atual, gêmeo do rótulo fixo "Filtros") + ícone (mesmo padrão do iconSvg("filter",
+    // ...) da pill Filtros) + badge condicional quando a ordenação ativa não é a default —
+    // mesmo componente visual de .filter-trigger__badge, sem número (não há o que contar numa
+    // seleção única): só a presença do círculo já avisa "customizado" sem abrir o sheet. 2ª
+    // correção do dono (mesmo dia): o badge sinaliza "o usuário mudou a ordenação DESTA TELA",
+    // então a comparação é contra o default DA PRÓPRIA TELA (defaultKey, parâmetro — cada
+    // caller passa o seu: renderCategory = "relevance", renderBusca = "recipe-az", a mesma
+    // assimetria já documentada), nunca contra o literal "relevance" fixo — senão a busca
+    // global mostraria o badge sempre ligado por padrão, já que seu default não é relevance. A
+    // escolha atual continua visível DENTRO do sheet (chip selecionado + foco nela ao abrir) —
+    // só o TRIGGER parou de exibir o texto.
+    const current = TagModel.SORT_OPTIONS.find((o) => o.key === currentKey);
+    const isCustom = currentKey !== defaultKey;
+    wrapEl.innerHTML =
+      '<button type="button" class="sort-trigger" aria-label="Ordenar: ' +
+      (current ? current.label : "") +
+      '">' +
+      iconSvg("sort", "sort-trigger__icon") +
+      "<span>Ordenar</span>" +
+      (isCustom ? '<span class="sort-trigger__badge" aria-hidden="true"></span>' : "") +
+      "</button>";
+    wrapEl.querySelector(".sort-trigger").addEventListener("click", () => openSortSheet(currentKey, onSelect));
+  }
+
+  function openSortSheet(currentKey, onSelect) {
+    const overlay = document.createElement("div");
+    overlay.className = "sort-sheet-overlay";
+    overlay.innerHTML =
+      '<div class="sort-sheet" role="dialog" aria-modal="true" aria-label="Ordenar">' +
+      '<h3 class="sort-sheet__title">Ordenar por</h3>' +
+      '<div class="sort-sheet__list" role="radiogroup" aria-label="Ordenar por">' +
+      TagModel.SORT_OPTIONS.map((o) => {
+        const selected = o.key === currentKey;
+        return (
+          '<button type="button" class="filter-chip' +
+          (selected ? " is-selected" : "") +
+          '" role="radio" aria-checked="' +
+          (selected ? "true" : "false") +
+          '" data-key="' +
+          o.key +
+          '">' +
+          o.label +
+          "</button>"
+        );
+      }).join("") +
+      "</div></div>";
+    document.body.appendChild(overlay);
+    document.body.classList.add("sort-sheet-open");
+
+    function closeSheet() {
+      overlay.style.pointerEvents = "none";
+      overlay.querySelector(".sort-sheet").classList.add("sort-sheet--closing");
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.setTimeout(() => {
+        overlay.remove();
+        document.body.classList.remove("sort-sheet-open");
+        if (closeActiveFilterModal === closeSheet) closeActiveFilterModal = null;
+      }, reducedMotion ? 200 : 220);
+    }
+    closeActiveFilterModal = closeSheet;
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) closeSheet();
+    });
+    overlay.querySelectorAll(".sort-sheet__list .filter-chip").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const key = btn.dataset.key;
+        closeSheet();
+        onSelect(key);
+      });
+    });
+
+    const firstFocus = overlay.querySelector(".filter-chip.is-selected") || overlay.querySelector(".filter-chip");
+    if (firstFocus) firstFocus.focus();
+  }
+
   // ---------- Categoria (coleção) ----------
   let refreshActiveCounts = null; // atualiza contadores/toolbar sem re-renderizar os cards (chamado ao marcar feito/favorito)
 
@@ -2043,20 +2132,19 @@
     countEl.className = "collection-count";
     toolbar.appendChild(countEl);
 
-    const sortWrap = document.createElement("label");
-    sortWrap.className = "sort-control";
-    sortWrap.innerHTML =
-      "<span>Ordenar por</span><select>" +
-      TagModel.SORT_OPTIONS.map((o) => '<option value="' + o.key + '">' + o.label + "</option>").join("") +
-      "</select>";
-    toolbar.appendChild(sortWrap);
-    const sortSelect = sortWrap.querySelector("select");
-    sortSelect.value = sortKey;
     content.appendChild(toolbar);
+
+    const pillsRow = document.createElement("div");
+    pillsRow.className = "toolbar-pills";
+    content.appendChild(pillsRow);
 
     const facetBarEl = document.createElement("div");
     facetBarEl.className = "filter-trigger-wrap";
-    content.appendChild(facetBarEl);
+    pillsRow.appendChild(facetBarEl);
+
+    const sortBarEl = document.createElement("div");
+    sortBarEl.className = "sort-trigger-wrap";
+    pillsRow.appendChild(sortBarEl);
 
     // S1: chips ATIVOS (commitados, com ×) + chips SUGERIDOS pelo parser — mesmos componentes
     // visuais do hub (.tagsearch-chips/.tagsearch-suggestions), sem CSS novo.
@@ -2253,11 +2341,14 @@
       sortedItems.forEach((item) => listEl.appendChild(renderRecipeCard(item, { fromHash: fromHash, countryOverride: countryOverride })));
     }
 
-    sortSelect.addEventListener("change", () => {
-      sortKey = sortSelect.value;
-      TagModel.setCollectionSort(collection.id, sortKey);
-      renderList();
-    });
+    function renderSort() {
+      renderSortTrigger(sortBarEl, sortKey, "relevance", (newKey) => {
+        sortKey = newKey;
+        TagModel.setCollectionSort(collection.id, sortKey);
+        renderSort();
+        renderList();
+      });
+    }
 
     // S1: chip sugerido pelo parser — tocar COMMITA a tag no MESMO selectedFacetTags que o modal
     // já usa (uma lógica, duas portas — padrão idêntico ao renderGrupo) e remove do texto
@@ -2409,6 +2500,7 @@
 
     renderActiveChips();
     renderFacets();
+    renderSort();
     runSearch(search.value.trim());
   }
 
@@ -2465,25 +2557,24 @@
     textChipsEl.className = "tagsearch-chips";
     wrap.appendChild(textChipsEl);
 
+    const pillsRow = document.createElement("div");
+    pillsRow.className = "toolbar-pills";
+    wrap.appendChild(pillsRow);
+
     const facetBarEl = document.createElement("div");
     facetBarEl.className = "filter-trigger-wrap";
-    wrap.appendChild(facetBarEl);
+    pillsRow.appendChild(facetBarEl);
+
+    const sortBarEl = document.createElement("div");
+    sortBarEl.className = "sort-trigger-wrap";
+    pillsRow.appendChild(sortBarEl);
 
     const countRow = document.createElement("div");
     countRow.className = "tagsearch-count-row";
     const countEl = document.createElement("div");
     countEl.className = "tagsearch-count";
     countRow.appendChild(countEl);
-    const sortWrap = document.createElement("label");
-    sortWrap.className = "sort-control";
-    sortWrap.innerHTML =
-      "<span>Ordenar por</span><select>" +
-      TagModel.SORT_OPTIONS.map((o) => '<option value="' + o.key + '">' + o.label + "</option>").join("") +
-      "</select>";
-    countRow.appendChild(sortWrap);
-    const sortSelect = sortWrap.querySelector("select");
     let sortKey = "recipe-az";
-    sortSelect.value = sortKey;
     wrap.appendChild(countRow);
 
     content.appendChild(wrap);
@@ -2677,10 +2768,13 @@
       });
     }
 
-    sortSelect.addEventListener("change", () => {
-      sortKey = sortSelect.value;
-      renderResults();
-    });
+    function renderSort() {
+      renderSortTrigger(sortBarEl, sortKey, "recipe-az", (newKey) => {
+        sortKey = newKey;
+        renderSort();
+        renderResults();
+      });
+    }
 
     // ---------- preview: texto digitado, ainda não commitado ----------
     // Tocar QUALQUER chip do preview (auto × ou opcional +) É o commit — não existe um estado
@@ -2822,6 +2916,7 @@
     renderChips();
     renderTextChips();
     renderFacets();
+    renderSort();
     if (initialQuery && initialQuery.trim()) {
       renderPreviewResults(initialQuery.trim());
     } else {
