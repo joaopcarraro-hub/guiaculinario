@@ -4324,10 +4324,13 @@
         // clique). RODANDO/PAUSADO não tem esses spans -> cai no textContent plano de sempre.
         const parts = displayEl.querySelectorAll(".cook-timer-display__part");
         if (parts.length === 3) {
+          // Se alguma part tem um <input> de edição aberto (enableDisplayTapToEdit), pula ela —
+          // textContent destruiria o input em digitação; as outras 2 seguem atualizando normal.
           const p = formatBigTimeParts(currentRemainingSeconds());
-          parts[0].textContent = p.h;
-          parts[1].textContent = p.m;
-          parts[2].textContent = p.s;
+          const vals = [p.h, p.m, p.s];
+          for (let i = 0; i < 3; i++) {
+            if (!parts[i].querySelector("input")) parts[i].textContent = vals[i];
+          }
         } else {
           displayEl.textContent = formatBigTime(currentRemainingSeconds());
         }
@@ -4364,17 +4367,23 @@
     // Posiciona UMA coluna no valor mais próximo do atual e marca selecionado — reaproveitado
     // pelas 3 colunas. Um valor salvo que não bate exato (ex.: sessão antiga da Fase A) só
     // encosta no mais próximo, sem sobrescrever nada até o usuário mexer de novo. animate=true
-    // (usado só pela confirmação de digitação, ver enableDisplayTapToEdit) rola suave até a
-    // posição em vez de saltar direto — o scroll-snap nativo dispara o MESMO listener de
-    // "settle" (bindColumnScroll) ao terminar, então commitCombined() acontece sozinho, sem
-    // caminho de persistência duplicado.
+    // (usado só pela confirmação de digitação, ver enableDisplayTapToEdit) grava o alvo em
+    // wheelEl.dataset.progTarget ANTES de disparar o scrollTo suave — bindColumnScroll usa esse
+    // marcador pra saber que o settle em andamento é PROGRAMÁTICO (não dedo do usuário) e não
+    // deve ler/commitar a roleta enquanto a animação não alcançou o alvo (ver bindColumnScroll).
+    // O valor em si já foi commitado antes disso (onCommitValue, ver enableDisplayTapToEdit) —
+    // esta função é só o visual da roleta acompanhando.
     function positionWheelColumn(wheelEl, values, currentValue, animate) {
       const nearest = values.reduce((a, b) => (Math.abs(b - currentValue) < Math.abs(a - currentValue) ? b : a));
       const targetItem = wheelEl.querySelector('.cook-timer-wheel__item[data-value="' + nearest + '"]');
       if (targetItem) {
         const targetTop = targetItem.offsetTop - (wheelEl.clientHeight - targetItem.offsetHeight) / 2;
-        if (animate) wheelEl.scrollTo({ top: targetTop, behavior: "smooth" });
-        else wheelEl.scrollTop = targetTop;
+        if (animate) {
+          wheelEl.dataset.progTarget = String(targetTop);
+          wheelEl.scrollTo({ top: targetTop, behavior: "smooth" });
+        } else {
+          wheelEl.scrollTop = targetTop;
+        }
         markSelectedWheelItem(wheelEl, nearest);
       }
       return nearest;
@@ -4384,12 +4393,14 @@
     // roleta (.cook-timer-display__part, h/min/s — não a roleta em si) troca aquele número por
     // um <input inputmode="numeric"> ali mesmo, no lugar do texto — teclado numérico no
     // celular, nunca QWERTY completo. Confirma com Enter/blur, cancela com Esc (descarta, volta
-    // ao valor anterior). Valor válido -> atualiza o texto na hora E chama
-    // positionWheelColumn(..., animate=true), que rola a roleta suavemente até a posição nova; o
-    // scroll-snap nativo dispara o MESMO listener de "settle" (bindColumnScroll) ao terminar,
-    // então commitCombined() persiste sozinho — nenhum caminho de commit duplicado. min/max vêm
-    // do próprio array de valores (contíguo desde que Segundos passou a ser 0-59 também).
-    function enableDisplayTapToEdit(spanEl, wheelEl, values, getCurrentValue) {
+    // ao valor anterior). Valor válido -> atualiza o texto na hora, chama onCommitValue(parsed)
+    // (o chamador atribui a variável da coluna e persiste via commitCombined — o valor digitado
+    // É a fonte de verdade no ato, nunca refém do settle do scroll) e só DEPOIS chama
+    // positionWheelColumn(..., animate=true), que passa a ser puramente visual: a roleta rola
+    // suave até a posição nova, mas o settle que a animação dispara (bindColumnScroll) é
+    // idempotente — o valor já está persistido. min/max vêm do próprio array de valores
+    // (contíguo desde que Segundos passou a ser 0-59 também).
+    function enableDisplayTapToEdit(spanEl, wheelEl, values, getCurrentValue, onCommitValue) {
       const min = values[0];
       const max = values[values.length - 1];
 
@@ -4418,6 +4429,7 @@
           const parsed = parseInt(input.value, 10);
           if (!cancel && Number.isInteger(parsed) && parsed >= min && parsed <= max) {
             spanEl.textContent = pad2(parsed);
+            onCommitValue(parsed);
             positionWheelColumn(wheelEl, values, parsed, true);
           } else {
             // Esc ou valor inválido (fora do intervalo, vazio, não-numérico): descarta, volta
@@ -4552,18 +4564,44 @@
         persistStepTimer({ endsAt: null, remainingSeconds: total, running: false });
         updateTimerDisplay();
       }
+      // "settle" = a roleta parou de rolar (scroll-snap encaixou um item, dedo do usuário OU
+      // scrollTo suave de positionWheelColumn(..., animate=true) terminou). Se wheelEl tem
+      // dataset.progTarget (uma animação PROGRAMÁTICA está em curso — ver positionWheelColumn),
+      // o settle só pode ler/commitar a roleta quando o scroll de fato ALCANÇOU esse alvo;
+      // enquanto não alcançar, re-arma o mesmo timeout e retorna, nunca lê um valor
+      // intermediário (era exatamente isso que revertia a digitação — settle disparando antes
+      // de a animação chegar ao fim). Interação manual (pointerdown/touchstart/wheel) limpa
+      // progTarget na hora, então o dedo do usuário sempre retoma o controle, nunca fica preso
+      // num re-arme eterno.
       function bindColumnScroll(wheelEl, onSettle) {
         let scrollSettleTimeout = null;
+        function settle() {
+          if (wheelEl.dataset.progTarget !== undefined) {
+            if (Math.abs(wheelEl.scrollTop - parseFloat(wheelEl.dataset.progTarget)) > 2) {
+              scrollSettleTimeout = setTimeout(settle, 150);
+              return;
+            }
+            delete wheelEl.dataset.progTarget;
+          }
+          const centered = findCenteredWheelItem(wheelEl);
+          if (!centered) return;
+          const newValue = parseInt(centered.dataset.value, 10);
+          markSelectedWheelItem(wheelEl, newValue);
+          onSettle(newValue);
+          commitCombined();
+        }
         wheelEl.addEventListener("scroll", () => {
           clearTimeout(scrollSettleTimeout);
-          scrollSettleTimeout = setTimeout(() => {
-            const centered = findCenteredWheelItem(wheelEl);
-            if (!centered) return;
-            const newValue = parseInt(centered.dataset.value, 10);
-            markSelectedWheelItem(wheelEl, newValue);
-            onSettle(newValue);
-            commitCombined();
-          }, 150);
+          scrollSettleTimeout = setTimeout(settle, 150);
+        });
+        ["pointerdown", "touchstart", "wheel"].forEach((evt) => {
+          wheelEl.addEventListener(
+            evt,
+            () => {
+              delete wheelEl.dataset.progTarget;
+            },
+            { passive: true }
+          );
         });
       }
       bindColumnScroll(hoursWheel, (v) => (hVal = v));
@@ -4574,9 +4612,9 @@
       // digitação — segunda forma de definir valor, não substitui o arrasto manual na roleta
       // (ver comentário em enableDisplayTapToEdit).
       const displayEl = timerBox.querySelector(".cook-timer-display");
-      enableDisplayTapToEdit(displayEl.querySelector('[data-unit="h"]'), hoursWheel, TIMER_WHEEL_HOURS, () => hVal);
-      enableDisplayTapToEdit(displayEl.querySelector('[data-unit="m"]'), minutesWheel, TIMER_WHEEL_MINUTES, () => mVal);
-      enableDisplayTapToEdit(displayEl.querySelector('[data-unit="s"]'), secondsWheel, TIMER_WHEEL_SECONDS, () => sVal);
+      enableDisplayTapToEdit(displayEl.querySelector('[data-unit="h"]'), hoursWheel, TIMER_WHEEL_HOURS, () => hVal, (v) => { hVal = v; commitCombined(); });
+      enableDisplayTapToEdit(displayEl.querySelector('[data-unit="m"]'), minutesWheel, TIMER_WHEEL_MINUTES, () => mVal, (v) => { mVal = v; commitCombined(); });
+      enableDisplayTapToEdit(displayEl.querySelector('[data-unit="s"]'), secondsWheel, TIMER_WHEEL_SECONDS, () => sVal, (v) => { sVal = v; commitCombined(); });
 
       timerBox.querySelector(".timer-toggle").addEventListener("click", () => {
         // Iniciar (parado -> rodando): persiste JÁ (endsAt correto, sem atraso de animação) —
