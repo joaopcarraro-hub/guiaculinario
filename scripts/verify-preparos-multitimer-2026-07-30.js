@@ -312,8 +312,8 @@ function main() {
   );
   assert(toastBody.includes("Storage.savePreparoStepTimer(recipeId, stepIndex, originalState)"), "Desfazer restaura o originalState (objeto INTEIRO capturado no momento do cancelamento), nunca recalcula um endsAt novo");
   assert(
-    /#bottom-nav, #category-header, #recipes-content, \.filter-modal-overlay, \.update-toast, \.sort-sheet-overlay, \.shopping-undo-toast, \.preparo-timer-undo-toast \{ pointer-events: auto; \}/.test(styleCss),
-    ".preparo-timer-undo-toast entrou na whitelist de pointer-events do body — sem isso o toast novo renderiza mas fica com clique morto (mesma causa raiz já documentada pra .shopping-undo-toast/.filter-modal-overlay)"
+    /#bottom-nav, #category-header, #recipes-content, \.filter-modal-overlay, \.update-toast, \.sort-sheet-overlay, \.shopping-undo-toast, \.preparo-timer-undo-toast(?:, \.[\w-]+)* \{ pointer-events: auto; \}/.test(styleCss),
+    ".preparo-timer-undo-toast entrou na whitelist de pointer-events do body — sem isso o toast novo renderiza mas fica com clique morto (mesma causa raiz já documentada pra .shopping-undo-toast/.filter-modal-overlay). Regex aceita classes extras DEPOIS dela (grupo opcional não-capturante, mesmo tratamento que verify-lista-compras-ui-2026-07-30.js já deu à dela) — Fase indicadores, 2026-07-30, acrescentou .preparo-completion-toast na mesma linha; esta suíte não é a dona dessa classe, só confirma que .preparo-timer-undo-toast (a dela) continua coberta"
   );
 
   console.log("");
@@ -326,7 +326,7 @@ function main() {
   section("10", "NEGATIVOS gerais e SERVICE WORKER");
   const inputCount = (appJs.match(/document\.createElement\("input"\)/g) || []).length;
   assert(inputCount === 4, "TESTE NEGATIVO: esta fase não cria nenhum <input> novo em app.js — continua em 4 (mesmo invariante travado por verify-timer-tap-edit-2026-07-30.js)");
-  assert(/const CACHE_NAME = "cardapio-v54";/.test(swJs), "CACHE_NAME v53 -> v54 (Fase multi-timer 2026-07-30: card de Preparos muda via js/app.js e css/style.css, ambos no APP_SHELL)");
+  assert(/const CACHE_NAME = "cardapio-v55";/.test(swJs), "CACHE_NAME v53 -> v54 -> v55 (Fase indicadores 2026-07-30: mais um bump de feature externa, atualizado pro valor vigente)");
 
   console.log("");
   console.log("==================================================");

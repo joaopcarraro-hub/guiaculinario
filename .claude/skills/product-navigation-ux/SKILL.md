@@ -256,6 +256,19 @@ de sempre, nenhum argumento novo no Router). `renderCookMode` sempre resume em
 nele, sem precisar de um mecanismo de navegação novo. stopPropagation no chip evita que o clique
 vaze pro onclick do card (que abriria em currentStep por cima).
 
+**Mais uma porta de entrada: toast de conclusão (Fase indicadores, 2026-07-30).** O corpo do
+toast global que avisa quando um timer vence fora da tela de Preparos (ver mobile-recipe-ui/
+SKILL.md "Preparos — indicadores de conclusão") é uma 3ª porta pro MESMO `#/cozinhar/:id`, MESMO
+mecanismo do chip acima: grava `Storage.savePreparoStep(recipeId, stepIndex)` antes de
+`Router.toCozinhar(recipeId, "preparos")`, mesmo fromHash "preparos" de sempre. Não é um
+mecanismo de volta novo — `Router.toCozinhar(` agora aparece 4x no código (censo travado em
+`scripts/verify-nav-graph-2026-07-30.js`), e qualquer 5ª chamada futura precisa atualizar esse
+censo conscientemente, nunca só ajustar o número. Esta é a ÚNICA navegação disparada por um
+elemento que vive fora de `#recipes-content`/`#bottom-nav` (o toast é `document.body.appendChild`
+direto, mesma família do `.filter-modal-overlay`/`.update-toast` — ver whitelist de
+`pointer-events` no CSS) — mas o destino e a regra de origem (fromHash) são idênticos às outras
+portas, nenhuma exceção nova na tabela de Voltar.
+
 ## Páginas intermediárias
 
 Cada grupo tem sua própria página (independente de estar linkada na home ou não).

@@ -249,7 +249,8 @@ body {
 .momento-card,
 .text-link,
 .preparo-timer-chip__body,
-.preparo-timer-chip__cancel {
+.preparo-timer-chip__cancel,
+.preparo-completion-toast__body {
   transition: transform var(--motion-base) var(--motion-easing), opacity var(--motion-base) var(--motion-easing);
 }
 .primary-cta:active,
@@ -288,7 +289,8 @@ body {
 .momento-card:active,
 .text-link:active,
 .preparo-timer-chip__body:active,
-.preparo-timer-chip__cancel:active {
+.preparo-timer-chip__cancel:active,
+.preparo-completion-toast__body:active {
   transform: scale(0.97);
   opacity: 0.85;
 }
@@ -323,6 +325,25 @@ body {
   cursor: pointer;
 }
 .bottom-nav__icon { width: 22px; height: 22px; flex-shrink: 0; }
+/* Bolinha de conclusão pendente (Fase indicadores, 2026-07-30) — só na aba Preparos. Wrapper
+   dedicado (não o .bottom-nav__tab inteiro) porque a âncora precisa ser o CANTO DO ÍCONE
+   (22x22px, fixo) — se a marca absoluta fosse relativa ao botão inteiro (flex:1, largura varia
+   por viewport/label), o deslocamento certo pra "canto do ícone" mudaria por aba/tela. Menor
+   que .filter-trigger__badge/.sort-trigger__badge (20px, badge inline ao lado de texto) porque
+   aqui é "ponto pequeno" sobre um ícone de 22px — mesma linguagem visual (cor, 100% redondo),
+   escala reduzida pro contexto. */
+.bottom-nav__icon-wrap { position: relative; display: inline-flex; }
+.bottom-nav__badge {
+  display: none;
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--color-accent-deep);
+}
+.bottom-nav__tab.has-badge .bottom-nav__badge { display: block; }
 /* Altura reservada pra SEMPRE 2 linhas (1.15 é o line-height do próprio rótulo, ver
    .bottom-nav__tab acima) — sem isso, "Minhas Receitas" (quebra em 2 linhas) empurrava seu
    próprio ícone mais pra cima que os das outras abas (1 linha só), já que justify-content:
@@ -383,7 +404,7 @@ body {
    pointer-events normal pro body) — avaliado nesta correção e descartado por ora: mudança de
    arquitetura maior que o escopo de um hotfix, registrada como recomendação de acompanhamento. */
 body { pointer-events: none; }
-#bottom-nav, #category-header, #recipes-content, .filter-modal-overlay, .update-toast, .sort-sheet-overlay, .shopping-undo-toast, .preparo-timer-undo-toast { pointer-events: auto; }
+#bottom-nav, #category-header, #recipes-content, .filter-modal-overlay, .update-toast, .sort-sheet-overlay, .shopping-undo-toast, .preparo-timer-undo-toast, .preparo-completion-toast { pointer-events: auto; }
 
 /* padding-top: var(--chrome-clearance) (hotfix 2026-07-26) — só renderCategory de fato popula
    #category-header (back-float + h2 + desc); toda outra tela faz header.innerHTML = "" (fica
@@ -3018,6 +3039,23 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
 }
 .update-toast__btn:hover { background: var(--color-accent-hover); }
 
+/* Toast de conclusão de timer (Fase indicadores, 2026-07-30) — reusa .update-toast (visual) +
+   marcador .preparo-completion-toast (whitelist de pointer-events abaixo). Sem ação separada
+   (nunca teve um "Desfazer" aqui): o CORPO INTEIRO é o clique, por isso ocupa o espaço que
+   .update-toast normalmente reparte entre <span> texto e .update-toast__btn — nenhum visual de
+   botão próprio (sem fundo/borda), só a affordance de clique (cursor + estados :active/
+   :focus-visible, mesma lista compartilhada de .preparo-timer-chip__body). */
+.preparo-completion-toast__body {
+  flex: 1;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
 /* ---------- Acessibilidade: reduced motion e contraste (apple-design skill) ----------
    prefers-reduced-motion não é "sem feedback nenhum" — troca escala/slide por um equivalente
    estático ou um cross-fade curto de opacidade (guia da skill), nunca remove a informação. */
@@ -3058,12 +3096,14 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
   .momento-card:active,
   .text-link:active,
   .preparo-timer-chip__body:active,
-  .preparo-timer-chip__cancel:active {
+  .preparo-timer-chip__cancel:active,
+  .preparo-completion-toast__body:active {
     transform: none;
   } /* Fase 0a: lista estendida junto com o bloco de :active acima — reduced-motion continua
-       suprimindo só a escala (sobra opacidade), mesmo princípio original, agora nos 36 (F1b
+       suprimindo só a escala (sobra opacidade), mesmo princípio original, agora nos 37 (F1b
        acrescentou momento-card e os 2 botões do chip de busca recente; Fase multi-timer
-       acrescenta os 2 botões do chip de timer de Preparos). */
+       acrescentou os 2 botões do chip de timer de Preparos; Fase indicadores acrescenta o
+       corpo do toast de conclusão). */
   .filter-modal {
     animation: none;
   }
@@ -3160,7 +3200,8 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
 .momento-card:focus-visible,
 .update-toast__btn:focus-visible,
 .preparo-timer-chip__body:focus-visible,
-.preparo-timer-chip__cancel:focus-visible {
+.preparo-timer-chip__cancel:focus-visible,
+.preparo-completion-toast__body:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);
 }

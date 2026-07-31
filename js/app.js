@@ -297,7 +297,16 @@
         '" aria-label="' +
         tab.label +
         '">' +
-        (tab.iconHtml || iconSvg(tab.icon, "bottom-nav__icon")) +
+        // Bolinha de conclusão pendente (Fase indicadores, 2026-07-30) só existe na aba
+        // Preparos — envolve o ícone num wrapper próprio (não o botão inteiro) pra a marca
+        // absoluta ancorar no CANTO DO ÍCONE, não num ponto arbitrário da largura da aba (que
+        // varia por viewport). Marcação sempre presente no DOM; visibilidade é 100% CSS via
+        // .has-badge (mesmo padrão de toggle que .is-active já usa, ver updateBottomNav).
+        (tab.id === "preparos"
+          ? '<span class="bottom-nav__icon-wrap">' +
+            (tab.iconHtml || iconSvg(tab.icon, "bottom-nav__icon")) +
+            '<span class="bottom-nav__badge" aria-hidden="true"></span></span>'
+          : tab.iconHtml || iconSvg(tab.icon, "bottom-nav__icon")) +
         '<span class="bottom-nav__label">' + tab.label + "</span></button>"
     ).join("");
     Array.prototype.forEach.call(bottomNavEl.querySelectorAll(".bottom-nav__tab"), (btn, i) => {
@@ -3407,6 +3416,10 @@
                 running: false,
                 started: false,
               });
+              // Fase indicadores, 2026-07-30: este × é o mesmo caminho que dispensa um "Pronto!"
+              // (não existe uma ação de "dispensar" separada — ver investigação da tarefa), por
+              // isso rearma a sentinela/bolinha aqui, antes até do re-render da lista.
+              armCompletionSentinel();
               renderPreparosList();
               showPreparoTimerUndoToast(session.recipeId, stepIndex, snapshot);
             });
@@ -3424,6 +3437,12 @@
         deleteBtn.addEventListener("click", (e) => {
           e.stopPropagation();
           Storage.deletePreparoSession(session.recipeId);
+          // Fase indicadores, 2026-07-30: excluir a sessão inteira pode levar embora o timer
+          // que sustentava a bolinha/o próximo agendamento — não listado nos 4 gatilhos da
+          // tarefa (iniciar/cancelar/desfazer/dispensar), mas necessário pra regra DERIVADA do
+          // estado continuar correta (senão a bolinha ficaria presa acesa após excluir a
+          // sessão que tinha o "Pronto!" pendente).
+          armCompletionSentinel();
           renderPreparosList();
         });
         card.appendChild(deleteBtn);
@@ -3475,6 +3494,8 @@
       clearTimeout(preparoTimerUndoTimer);
       toast.remove();
       Storage.savePreparoStepTimer(recipeId, stepIndex, originalState);
+      // Fase indicadores, 2026-07-30: desfazer é um dos 4 gatilhos explícitos de rearme.
+      armCompletionSentinel();
       // Só re-renderiza se o usuário ainda estiver na tela de Preparos — nunca troca o
       // conteúdo de uma tela diferente por baixo dele (mesmo princípio de
       // showShoppingUndoToast).
@@ -4785,6 +4806,127 @@
       .sort((a, b) => a.endsAt - b.endsAt);
   }
 
+  // ---------- Sentinela global de conclusão de timers (Fase indicadores, 2026-07-30) ----------
+  // Substitui QUALQUER forma de polling por tela: em vez de um setInterval varrendo o storage a
+  // cada segundo (só rodaria enquanto uma tela específica estivesse aberta), UM único setTimeout
+  // agendado pro PRÓXIMO endsAt entre TODOS os timers ativos de TODAS as sessões em-andamento —
+  // dispara na hora certa independente de qual tela o usuário está vendo, e rearma pro seguinte.
+  // O ticker de 1s de renderPreparosList (preparosTickInterval, Fase multi-timer) continua
+  // existindo, intocado: aquele é só o refresh visual do contador enquanto Preparos está aberta;
+  // este sentinela é o evento discreto de conclusão (bolinha da barra inferior + toast).
+  //
+  // Puras (só leem Storage, nunca tocam DOM/setTimeout) — `now` é PARÂMETRO, nunca Date.now()
+  // direto, testável com relógio injetado (mesmo princípio de getActiveStepTimers acima, ver
+  // scripts/verify-preparos-indicadores-2026-07-30.js).
+  function collectAllRunningTimers(now) {
+    const out = [];
+    Storage.getActivePreparoSessions().forEach((session) => {
+      getActiveStepTimers(session.stepTimers, now).forEach((t) => {
+        out.push({ recipeId: session.recipeId, stepIndex: t.stepIndex, endsAt: t.endsAt, isDone: t.isDone });
+      });
+    });
+    return out;
+  }
+  function computeSentinelPlan(now) {
+    const all = collectAllRunningTimers(now);
+    const done = all.filter((t) => t.isDone);
+    const future = all.filter((t) => !t.isDone);
+    const nextEndsAt = future.length ? future.reduce((min, t) => Math.min(min, t.endsAt), future[0].endsAt) : null;
+    return { done: done, hasPending: done.length > 0, nextEndsAt: nextEndsAt };
+  }
+
+  // Bolinha do ícone Preparos: regra DERIVADA do estado (sem flag nova) — reflete só o booleano
+  // recebido numa classe CSS (mesmo mecanismo de toggle que updateBottomNav já usa pra is-active,
+  // nunca reconstrói o innerHTML). Quem decide o booleano é sempre computeSentinelPlan.
+  function updatePreparosNavBadge(hasPending) {
+    if (!bottomNavEl) return;
+    const tab = bottomNavEl.querySelector('.bottom-nav__tab[data-route="preparos"]');
+    if (!tab) return;
+    tab.classList.toggle("has-badge", hasPending);
+  }
+
+  let completionSentinelTimeout = null;
+  // Marca d'água de "até quando já processei" — sem isso, um timer que já virou toast num
+  // disparo apareceria de novo em TODO disparo seguinte enquanto não for dispensado (plan.done
+  // é sempre "tudo que está vencido AGORA", não só "o que venceu desde a última checada"; a
+  // bolinha QUER esse estado cumulativo, o toast NÃO). null até o 1º arme: nesse momento vira o
+  // `now` de baseline sem tostar nada (senão um timer que já estava vencido ANTES do boot
+  // apareceria como toast retroativo).
+  let completionSentinelLastProcessedAt = null;
+  // Rearma: limpa qualquer timeout pendente antes de tudo (nunca 2 agendados ao mesmo tempo —
+  // sem timeout órfão), recalcula a bolinha pro estado ATUAL, e agenda 1 setTimeout pro próximo
+  // endsAt futuro (se não houver nenhum, só isso — nada pra esperar). Chamada em toda mutação de
+  // timer (persistStepTimer no modo cozinhar cobre iniciar/pausar/continuar/zerar/editar;
+  // cancelar/desfazer/excluir sessão no card de Preparos) e no boot do app (Inicialização, fim
+  // do arquivo) — nenhuma depende de estar numa tela específica.
+  function armCompletionSentinel() {
+    clearTimeout(completionSentinelTimeout);
+    completionSentinelTimeout = null;
+    const now = Date.now();
+    if (completionSentinelLastProcessedAt == null) completionSentinelLastProcessedAt = now;
+    const plan = computeSentinelPlan(now);
+    updatePreparosNavBadge(plan.hasPending);
+    if (plan.nextEndsAt == null) return;
+    completionSentinelTimeout = setTimeout(fireCompletionSentinel, Math.max(0, plan.nextEndsAt - now));
+  }
+  // Dispara na hora exata do endsAt mais próximo agendado: mostra o toast de conclusão (se a
+  // tela atual não for Preparos — lá os chips já comunicam) só pra quem venceu DESDE o último
+  // processamento (nunca reexibe o mesmo timer a cada disparo seguinte enquanto ele continuar
+  // "Pronto!" sem ser dispensado — isso é trabalho da bolinha, não do toast), então avança a
+  // marca d'água e rearma pro próximo (cobre também o caso de 2+ vencendo no mesmo instante, ou
+  // o processo tendo ficado suspenso — ex. aba em background — e mais de 1 já estar vencido ao
+  // acordar: todos os recém-vencidos entram, um de cada vez, na mesma leva).
+  function fireCompletionSentinel() {
+    completionSentinelTimeout = null;
+    const now = Date.now();
+    const plan = computeSentinelPlan(now);
+    if (Router.current().name !== "preparos") {
+      plan.done.filter((t) => t.endsAt > completionSentinelLastProcessedAt).forEach((t) => showPreparoCompletionToast(t));
+    }
+    completionSentinelLastProcessedAt = now;
+    armCompletionSentinel();
+  }
+
+  let preparoCompletionToastEl = null;
+  let preparoCompletionToastTimer = null;
+  // Toast de conclusão (Fase indicadores, 2026-07-30): 1 linha seca "Pronto: <Receita> · Passo
+  // N", corpo INTEIRO clicável — mesmo destino do chip da Fase multi-timer (grava
+  // Storage.savePreparoStep pro stepIndex DESTE timer antes de navegar, pra abrir o modo cozinhar
+  // exatamente nele). Conclusões simultâneas/sobrepostas NUNCA enfileiram: o toast novo remove o
+  // anterior (se ainda estiver na tela) antes de aparecer — a bolinha (sempre recalculada do
+  // estado real, nunca de um contador de toasts perdidos) é quem guarda o que ele não comunicou.
+  function showPreparoCompletionToast(doneTimer) {
+    const recipeItem = TagModel.findRecipeById(doneTimer.recipeId);
+    if (!recipeItem) return; // defensivo: receita renomeada/removida entre o agendamento e o disparo
+    if (preparoCompletionToastEl) {
+      clearTimeout(preparoCompletionToastTimer);
+      preparoCompletionToastEl.remove();
+    }
+    const recipeId = doneTimer.recipeId;
+    const stepIndex = doneTimer.stepIndex;
+    const toast = document.createElement("div");
+    toast.className = "update-toast preparo-completion-toast";
+    toast.innerHTML =
+      '<button type="button" class="preparo-completion-toast__body">Pronto: ' +
+      recipeItem.recipe.name +
+      " · Passo " +
+      (stepIndex + 1) +
+      "</button>";
+    toast.querySelector(".preparo-completion-toast__body").addEventListener("click", () => {
+      clearTimeout(preparoCompletionToastTimer);
+      toast.remove();
+      preparoCompletionToastEl = null;
+      Storage.savePreparoStep(recipeId, stepIndex);
+      Router.toCozinhar(recipeId, "preparos");
+    });
+    document.body.appendChild(toast);
+    preparoCompletionToastEl = toast;
+    preparoCompletionToastTimer = setTimeout(() => {
+      toast.remove();
+      preparoCompletionToastEl = null;
+    }, 8000);
+  }
+
   function renderCookMode(id, fromHash, portionMultiplier) {
     const item = TagModel.findRecipeById(id);
     const recipe = item && item.recipe;
@@ -4918,6 +5060,10 @@
     function persistStepTimer(partial) {
       const merged = Object.assign({}, getStepTimerState(), partial);
       Storage.savePreparoStepTimer(id, stepIndex, merged);
+      // Único ponto de escrita de timer no modo cozinhar — cobre iniciar/pausar/continuar/
+      // zerar/editar/auto-completar num só lugar, sem precisar caçar cada chamador (Fase
+      // indicadores, 2026-07-30: rearma a sentinela global de conclusão a cada mutação).
+      armCompletionSentinel();
     }
     function startTicking() {
       clearInterval(timerInterval);
@@ -5574,6 +5720,11 @@
   // ---------- Inicialização ----------
   renderBottomNav();
   handleRoute(Router.current());
+  // Fase indicadores, 2026-07-30: acende a bolinha se algo já venceu com o app fechado (nenhum
+  // toast retroativo — só a sentinela seguinte, ver comentário de armCompletionSentinel acima)
+  // e agenda o primeiro disparo. Depois de renderBottomNav (precisa do botão de Preparos já no
+  // DOM pra achar o alvo da bolinha) e não antes.
+  armCompletionSentinel();
 
   // Toast simples de "nova versão disponível" — o sw.js já chama self.skipWaiting() sozinho no
   // install (nunca fica parado em "waiting"), então isso NÃO ativa nada manualmente, só avisa

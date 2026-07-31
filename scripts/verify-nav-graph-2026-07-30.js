@@ -72,8 +72,8 @@ function main() {
   assert(nToCategoria === 4, "Router.toCategoria( aparece exatamente 4x — premissa de caminho único por coleção");
   assert(nToReceita === 7, "Router.toReceita( aparece exatamente 7x");
   assert(
-    nToCozinhar === 3,
-    "Router.toCozinhar( aparece exatamente 3x (Fase multi-timer, 2026-07-30: 3º call site = tocar o CORPO de um chip de timer no card de Preparos — grava Storage.savePreparoStep(recipeId, stepIndex) pro passo DAQUELE chip antes de navegar, mas usa o MESMO fromHash \"preparos\" do 2º call site já existente [tocar o card]; não é um mecanismo de volta novo, é uma 2ª porta de entrada pro mesmo destino-e-origem já coberto pelas regras abaixo — decisão consciente, não só o número ajustado pra passar)"
+    nToCozinhar === 4,
+    "Router.toCozinhar( aparece exatamente 4x (Fase indicadores, 2026-07-30: 4º call site = tocar o CORPO do toast de conclusão global — mesmo mecanismo do chip da Fase multi-timer, 3º call site: grava Storage.savePreparoStep(recipeId, stepIndex) pro passo DAQUELE timer antes de navegar, mesmo fromHash \"preparos\" de sempre; não é um mecanismo de volta novo, é mais uma porta de entrada pro mesmo destino-e-origem já coberto pelas regras abaixo — decisão consciente, não só o número ajustado pra passar)"
   );
   assert(
     nCreateBackFloat === 5,

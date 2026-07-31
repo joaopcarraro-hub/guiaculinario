@@ -1250,6 +1250,53 @@ mudou o schema nem precisou de migração (`PREPARO_SCHEMA_VERSION` continua `1`
   qualquer caminho nunca deixa o interval órfão rodando escondido) — mesmo princípio de
   `closeActiveFilterModal()` já chamado ali. Só é criado se houver ao menos 1 chip pra atualizar.
 
+## Preparos — indicadores de conclusão (Fase indicadores, 2026-07-30)
+
+Rodada 2 sobre a pilha de timers acima: um timer que vence FORA da tela de Preparos (em
+qualquer outra tela, ou com o app fechado) precisava de um jeito de comunicar isso sem depender
+de polling nem de o usuário voltar por conta própria pra ver o "Pronto!" do chip.
+
+- **Sentinela global (`js/app.js`)** — singleton independente de tela: `armCompletionSentinel()`
+  agenda UM `setTimeout` pro MENOR `endsAt` entre TODOS os timers ativos de TODAS as sessões
+  `em-andamento` (`collectAllRunningTimers`/`computeSentinelPlan`, puras, `now` como parâmetro —
+  mesmo princípio de `getActiveStepTimers`). Rearmado em toda mutação de timer — `persistStepTimer`
+  (modo cozinhar: 1 função cobre iniciar/pausar/continuar/zerar/editar/auto-completar), × do chip
+  de Preparos (cancelar É dispensar, mesmo caminho — não existe uma ação de "dispensar"
+  separada), Desfazer, excluir a sessão inteira (extensão além dos 4 gatilhos nomeados na
+  tarefa, necessária pra bolinha não ficar presa acesa) — e no boot do app. `fireCompletionSentinel`
+  dispara na hora exata, mostra o toast (ver abaixo) só pra quem venceu DESDE o último
+  processamento (`completionSentinelLastProcessedAt`, marca d'água — sem ela um "Pronto!" ainda
+  de pé reapareceria como toast em TODO disparo seguinte) e rearma pro próximo. Substitui
+  qualquer forma de polling por tela — não depende de `preparosTickInterval` (que continua
+  existindo, intocado: aquele é só o refresh visual do contador enquanto Preparos está aberta).
+- **Bolinha no ícone Preparos da barra inferior** (`.bottom-nav__icon-wrap` > `.bottom-nav__badge`,
+  só na aba Preparos) — regra DERIVADA do estado, sem flag nova: acesa sse existir >=1 timer com
+  `endsAt <= now` ainda presente (`running:true`, não dispensado) em QUALQUER sessão. Ponto
+  pequeno (8px, `--color-accent-deep`) — mesma linguagem visual dos badges de Filtros/Ordenar
+  (`.filter-trigger__badge`/`.sort-trigger__badge`, 20px), escala reduzida por sentar sobre um
+  ícone de 22px em vez de ao lado de texto. Toggle via classe `has-badge` no botão da aba (mesmo
+  mecanismo que `.is-active` já usa em `updateBottomNav`, nunca reconstrução de innerHTML) —
+  atualizada por `updatePreparosNavBadge(hasPending)` a cada `armCompletionSentinel()`. Acende no
+  boot se algo já tinha vencido com o app fechado (sem toast retroativo).
+- **Toast de conclusão** (`showPreparoCompletionToast`) — reusa `.update-toast` (visual) +
+  `.preparo-completion-toast` (marcador, whitelist de `pointer-events` do body). 1 linha seca
+  "Pronto: `<Receita>` · Passo N", corpo INTEIRO é 1 `<button class="preparo-completion-toast__body">`
+  clicável (sem ação separada tipo "Desfazer") — grava `Storage.savePreparoStep` pro stepIndex
+  DAQUELE timer antes de `Router.toCozinhar(recipeId, "preparos")`, mesmo destino/mesma ordem do
+  chip acima. Só aparece se a tela atual NÃO for Preparos (lá os chips já comunicam). Auto-dismiss
+  8s (diferente dos 6s do toast de desfazer). Conclusões simultâneas/sobrepostas NUNCA
+  enfileiram: o toast novo remove o anterior (se ainda estiver na tela) antes de aparecer — a
+  bolinha (sempre recalculada do estado real) é quem guarda o que um toast substituído não
+  comunicou.
+- **Escopo negativo, decisão registrada:** nenhuma Notification API / notificação de SO — in-app
+  only. Modo cozinhar intocado (só ganhou 1 chamada de `armCompletionSentinel()` dentro de
+  `persistStepTimer`, plumbing invisível à UI). Chips da Fase multi-timer intocados, salvo o ×
+  agora também rearmar a sentinela.
+- Suíte `scripts/verify-preparos-indicadores-2026-07-30.js`: relógio + `setTimeout`/`clearTimeout`
+  falsos injetados via `compileWithDeps` (factory com dependências como parâmetros — necessário
+  porque a sentinela fecha sobre `Storage`/`Router`/`bottomNavEl`, que um `eval` direto não
+  alcançaria vindos de fora do escopo léxico do arquivo de teste).
+
 ## Critérios de aceite
 
 - A home deve parecer limpa em telas de 360px a 430px.
