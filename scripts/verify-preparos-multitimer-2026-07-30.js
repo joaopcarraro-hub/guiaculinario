@@ -326,7 +326,7 @@ function main() {
   section("10", "NEGATIVOS gerais e SERVICE WORKER");
   const inputCount = (appJs.match(/document\.createElement\("input"\)/g) || []).length;
   assert(inputCount === 4, "TESTE NEGATIVO: esta fase não cria nenhum <input> novo em app.js — continua em 4 (mesmo invariante travado por verify-timer-tap-edit-2026-07-30.js)");
-  assert(/const CACHE_NAME = "cardapio-v55";/.test(swJs), "CACHE_NAME v53 -> v54 -> v55 (Fase indicadores 2026-07-30: mais um bump de feature externa, atualizado pro valor vigente)");
+  assert(/const CACHE_NAME = "cardapio-v56";/.test(swJs), "CACHE_NAME v53 -> v54 -> v55 -> v56 (hotfix timer-lifecycle 2026-07-31: mais um bump de feature externa, atualizado pro valor vigente)");
 
   console.log("");
   console.log("==================================================");

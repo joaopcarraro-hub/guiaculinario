@@ -2703,6 +2703,16 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
   margin-bottom: var(--space-3);
   font-variant-numeric: tabular-nums;
 }
+/* Marca breve de conclusão ao vivo (hotfix timer-lifecycle, 2026-07-31) — MESMA linguagem
+   visual de .preparo-timer-chip.is-done (--color-accent-deep de fundo, texto em
+   --color-text-primary), nunca uma cor nova. Vive só durante a transição diferida de volta ao
+   PARADO (renderTimerJustFinished), nunca junto do par Continuar/Cancelar. */
+.cook-timer-display--done {
+  background: var(--color-accent-deep);
+  color: var(--color-text-primary);
+  border-radius: var(--radius);
+  padding: var(--space-3) 0;
+}
 /* PARADO renderiza cada parte (h/min/s) como <span data-unit> tocável (ver
    enableDisplayTapToEdit em app.js) — tocar troca o número por um input inline, teclado
    numérico no celular. RODANDO/PAUSADO não usa esses spans (texto plano, sem edição). */

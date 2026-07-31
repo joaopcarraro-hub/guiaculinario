@@ -1289,13 +1289,63 @@ de polling nem de o usuário voltar por conta própria pra ver o "Pronto!" do ch
   bolinha (sempre recalculada do estado real) é quem guarda o que um toast substituído não
   comunicou.
 - **Escopo negativo, decisão registrada:** nenhuma Notification API / notificação de SO — in-app
-  only. Modo cozinhar intocado (só ganhou 1 chamada de `armCompletionSentinel()` dentro de
-  `persistStepTimer`, plumbing invisível à UI). Chips da Fase multi-timer intocados, salvo o ×
-  agora também rearmar a sentinela.
+  only. Modo cozinhar só ganhou 1 chamada de `armCompletionSentinel()` dentro de
+  `persistStepTimer` nesta fase (plumbing invisível à UI) — ver hotfix 2026-07-31 abaixo pra 2
+  bugs reais do ciclo de vida do timer do modo cozinhar encontrados DEPOIS desta fase. Chips da
+  Fase multi-timer intocados, salvo o × agora também rearmar a sentinela.
 - Suíte `scripts/verify-preparos-indicadores-2026-07-30.js`: relógio + `setTimeout`/`clearTimeout`
   falsos injetados via `compileWithDeps` (factory com dependências como parâmetros — necessário
   porque a sentinela fecha sobre `Storage`/`Router`/`bottomNavEl`, que um `eval` direto não
   alcançaria vindos de fora do escopo léxico do arquivo de teste).
+
+## Modo cozinhar — ciclo de vida do timer (hotfix 2026-07-31)
+
+2 bugs reais de produção reportados pelo dono em uso ao vivo, ambos no timer por passo do modo
+cozinhar (`renderCookMode`, `js/app.js`) — nenhum dos dois na pilha de chips/sentinela acima,
+que ficaram intocadas.
+
+**Bug 1 (causa-raiz já diagnosticada) — ticker órfão.** `startTicking` (o `setInterval` de 1s do
+timer em tela) só era parado pelos handlers próprios da tela (Sair, nome da receita, Cancelar,
+Pausar, Zerar) — sair pela BARRA INFERIOR não passava por nenhum deles, deixando o interval
+órfão rodando escondido (mesma classe de bug documentada como pré-existente/fora de escopo na
+Fase indicadores acima). Ao chegar no zero enquanto órfão, ele persistia
+`running:false/endsAt:null` por conta própria — `getActiveStepTimers` (a mesma função pura da
+pilha de chips) para de reportar esse timer como ativo, apagando a bolinha e o "Pronto!" do chip
+mesmo o timer tendo terminado de verdade (o toast global escapava, já que a sentinela dispara
+antes num `setTimeout` preciso — só o estado PERSISTIDO que bolinha/chips leem é que sumia
+depois). Fix: `timerInterval` promovido de variável local (dentro de `renderCookMode`) pra
+escopo de módulo — MESMO padrão de `preparosTickInterval` — e parado incondicionalmente no topo
+de `handleRoute`, logo depois da parada de `preparosTickInterval`. `renderCookMode`/`renderStep`
+religam o ticker sozinhos (mesma lógica de sempre) se a rota nova for `#/cozinhar` de novo com o
+timer daquele passo `running`.
+
+**Bug 2 — estado de zero DENTRO da tela.** Ao concluir com a tela aberta (interval não órfão,
+disparando normalmente), o branch de conclusão só persistia `running:false` e chamava o patch
+genérico de texto (`updateTimerDisplay`) — a UI ficava presa no visual RODANDO/PAUSADO
+(`renderTimerActive`, botões Continuar/Cancelar) mostrando `00:00:00`, e "Continuar" virava um
+no-op silencioso (`if (secs <= 0) return;`, já que `currentRemainingSeconds()` já é 0). Fix
+(design fechado): timer concluído NUNCA oferece Continuar. A conclusão agora persiste também
+`started:false` (além de `running:false`/`endsAt:null`, que já existiam) e chama uma função nova,
+`renderTimerJustFinished` — troca o mostrador por uma marca breve "Pronto!" (mesma cor
+`--color-accent-deep`/`.cook-timer-display--done` do chip `.preparo-timer-chip.is-done`, mesma
+palavra, nenhum botão nesse meio-tempo) e, depois de ~1,5s, chama `renderTimer()` — que, com
+`started:false` já persistido, cai sozinho no ramo PARADO (roleta), pronto pra um novo timer.
+Guarda `!timerBox.isConnected` antes desse `renderTimer()` diferido (mesmo princípio já usado
+pelo settle de `bindColumnScroll`, ver `verify-timer-tap-edit-2026-07-30.js`) — se o usuário
+navegar embora antes do `setTimeout` disparar, a transição vira no-op inofensivo em vez de mexer
+num `timerBox` desanexado. Guarda extra, defensiva: o branch "Continuar" de `renderTimerActive`
+também passou a resetar pro PARADO (mesmo payload) em vez de um `return` silencioso, cobrindo
+qualquer outro caminho que por algum motivo chegue lá com 0 restante.
+
+Nenhuma das 5 funções travadas por `verify-timer-tap-edit-2026-07-30.js`
+(`enableDisplayTapToEdit`, `positionWheelColumn`, `bindColumnScroll`, `updateTimerDisplay`,
+`renderTimerStopped`) foi tocada — suíte roda sem edição nenhuma, 34/34. Suíte nova
+`scripts/verify-timer-lifecycle-2026-07-31.js` (38 assertions): Seção 1 prova estruturalmente a
+promoção de escopo + parada incondicional (texto-fonte, sem depender de timing real); Seção 2
+prova o MECANISMO com a própria `getActiveStepTimers` (por que apagar running/endsAt derruba a
+bolinha); Seções 3-4 executam `startTicking`/`renderTimerJustFinished` de verdade via
+`compileWithDeps` com interval/timeout 100% falsos (sem esperar nenhum ms real); Seção 5 prova a
+guarda do Continuar por texto-fonte.
 
 ## Critérios de aceite
 

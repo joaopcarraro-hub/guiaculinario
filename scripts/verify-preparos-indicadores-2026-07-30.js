@@ -446,7 +446,7 @@ function main() {
 
   console.log("");
   section("9", "SERVICE WORKER");
-  assert(/const CACHE_NAME = "cardapio-v55";/.test(swJs), "CACHE_NAME v54 -> v55 (Fase indicadores 2026-07-30: card de Preparos/bottom-nav mudam via js/app.js e css/style.css, ambos no APP_SHELL)");
+  assert(/const CACHE_NAME = "cardapio-v56";/.test(swJs), "CACHE_NAME v54 -> v55 -> v56 (hotfix timer-lifecycle 2026-07-31: mais um bump de feature externa — modo cozinhar, não Preparos — atualizado pro valor vigente)");
 
   console.log("");
   console.log("==================================================");

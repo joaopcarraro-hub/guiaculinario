@@ -111,7 +111,7 @@ function main() {
   // header, css/style.css) — mesmo padrão, também externo a este hotfix.
   // v32 -> v33 -> v34 -> v35: item final do redesenho visual, rumo novo de Países, calibração
   // final do banner de hub — todos externos a este hotfix, mesmo padrão de sempre.
-  assert(/const CACHE_NAME = "cardapio-v55";/.test(swJs), "CACHE_NAME v29 -> ... -> v54 -> v55 (Fase indicadores 2026-07-30: mais um bump de feature externa, atualizado pro valor vigente)");
+  assert(/const CACHE_NAME = "cardapio-v56";/.test(swJs), "CACHE_NAME v29 -> ... -> v55 -> v56 (hotfix timer-lifecycle 2026-07-31: mais um bump de feature externa, atualizado pro valor vigente)");
 
   console.log("");
   console.log("==================================================");

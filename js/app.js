@@ -4927,6 +4927,16 @@
     }, 8000);
   }
 
+  // Interval do ticker de 1s do modo cozinhar (hotfix timer-lifecycle, 2026-07-31): promovido de
+  // variável local (dentro de renderCookMode) pra escopo de módulo, MESMO padrão de
+  // preparosTickInterval (Fase multi-timer) — precisa ser alcançável por handleRoute pra ser
+  // parado incondicionalmente ao sair da tela, não só pelos handlers próprios (Sair/nome da
+  // receita/Cancelar/Pausar/Zerar). Causa-raiz do bug real (dono, produção): sair do modo
+  // cozinhar pela barra inferior deixava o setInterval de startTicking órfão — ao zerar, ele
+  // persistia running:false/endsAt:null por conta própria, apagando o "Pronto!" que a
+  // bolinha/chips de Preparos dependiam pra continuar acesos (ver handleRoute abaixo).
+  let timerInterval = null;
+
   function renderCookMode(id, fromHash, portionMultiplier) {
     const item = TagModel.findRecipeById(id);
     const recipe = item && item.recipe;
@@ -4959,7 +4969,6 @@
         : Storage.startPreparoSession(id, portionMultiplier || 1);
 
     let stepIndex = Math.min(Math.max(initialSession.currentStep || 0, 0), totalSteps - 1);
-    let timerInterval = null;
 
     const page = document.createElement("div");
     page.className = "cook-page";
@@ -5071,11 +5080,31 @@
         if (currentRemainingSeconds() <= 0) {
           clearInterval(timerInterval);
           timerInterval = null;
-          persistStepTimer({ endsAt: null, remainingSeconds: 0, running: false });
           playBeep();
+          // Bug 2 (hotfix 2026-07-31): concluir NUNCA deixa o par Continuar/Cancelar em pé sobre
+          // um timer zerado — "Continuar" seria beco sem saída (currentRemainingSeconds() já é
+          // 0). started:false aqui é o que faz renderTimer() (chamado dentro de
+          // renderTimerJustFinished, depois da marca breve) cair no ramo PARADO de novo.
+          persistStepTimer({ endsAt: null, remainingSeconds: 0, running: false, started: false });
+          renderTimerJustFinished();
+          return;
         }
         updateTimerDisplay(); // só mostrador+botão — nunca redesenha as colunas (ver comentário abaixo)
       }, 1000);
+    }
+
+    // Marca a conclusão brevemente (mesmo texto/cor "Pronto!" do chip de Preparos — já
+    // reconhecida ao vivo pelo usuário, não precisa ficar pendente pra bolinha/toast fora da
+    // tela) e depois volta sozinho pro PARADO (roleta), pronto pra um novo timer. Sem
+    // Continuar/Cancelar nesse meio-tempo — a única saída é esperar a transição automática.
+    // Guarda isConnected (mesmo princípio do settle em bindColumnScroll, ver
+    // verify-timer-tap-edit): se o usuário navegar embora antes do setTimeout disparar,
+    // timerBox já está desanexado e a transição diferida vira no-op inofensivo.
+    function renderTimerJustFinished() {
+      timerBox.innerHTML = '<div class="cook-timer-display cook-timer-display--done">Pronto!</div>';
+      setTimeout(() => {
+        if (timerBox.isConnected) renderTimer();
+      }, 1500);
     }
 
     // Só atualiza o mostrador digital e o texto Iniciar/Pausar — chamado a cada tick do
@@ -5253,7 +5282,14 @@
         }
         // Continuar (retomar de pausado): roleta segue escondida, só a contagem retoma.
         const secs = currentRemainingSeconds();
-        if (secs <= 0) return;
+        if (secs <= 0) {
+          // Guarda defensiva (hotfix 2026-07-31): nenhum caminho deve deixar "Continuar" virar
+          // no-op silencioso sobre um timer zerado — reseta pro PARADO, mesma saída da conclusão
+          // ao vivo (ver startTicking/renderTimerJustFinished).
+          persistStepTimer({ endsAt: null, remainingSeconds: 0, running: false, started: false });
+          renderTimer();
+          return;
+        }
         persistStepTimer({ endsAt: Date.now() + secs * 1000, remainingSeconds: secs, running: true });
         startTicking();
         renderTimer();
@@ -5676,6 +5712,14 @@
     // renderPreparosList() religa sozinho se a rota nova for "preparos" de novo.
     clearInterval(preparosTickInterval);
     preparosTickInterval = null;
+    // Ticker do timer do modo cozinhar (hotfix timer-lifecycle, 2026-07-31): mesmo princípio do
+    // preparosTickInterval logo acima — parado incondicionalmente ANTES de decidir a rota nova,
+    // pra sair de #/cozinhar por QUALQUER caminho (barra inferior incluída, não só os handlers
+    // próprios de Sair/nome da receita/Cancelar/Pausar/Zerar) nunca deixar o interval órfão
+    // rodando escondido. renderCookMode() religa sozinho (startTicking, dentro de renderStep) se
+    // a rota nova for "cozinhar" de novo com o timer daquele passo rodando.
+    clearInterval(timerInterval);
+    timerInterval = null;
     if (route.name === "busca") {
       renderBusca(route.tags || [], route.textFilters || [], route.ingredientMode || "or", route.query || "", route.role || null, route.origin || null);
     } else if (route.name === "grupo") {

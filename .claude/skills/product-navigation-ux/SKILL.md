@@ -245,6 +245,20 @@ Compras) leva pra tela da RECEITA especificamente (`Router.toReceita`), não é 
 genérico por histórico. Limpa `timerInterval` antes de navegar (mesma proteção contra o "timer
 fantasma" que o `exitBtn` já tinha) — sem isso o timer continuaria rodando escondido.
 
+**Correção do "timer fantasma", hotfix 2026-07-31 (bug real de produção, reportado pelo dono):**
+os handlers acima (Sair/nome da receita/Cancelar/Pausar/Zerar) sempre pararam `timerInterval`
+explicitamente, mas sair do modo cozinhar pela BARRA INFERIOR (trocar de aba) não passava por
+nenhum deles — o interval ficava órfão rodando escondido, e ao chegar no zero persistia
+`running:false/endsAt:null` por conta própria, apagando o "Pronto!" que a bolinha/chips de
+Preparos (ver `mobile-recipe-ui/SKILL.md` "Preparos — indicadores de conclusão") dependiam pra
+continuar acesos — o toast global escapava (sentinela dispara antes, `setTimeout` preciso), mas
+o estado persistido que bolinha/chips leem era apagado logo depois. Fechado promovendo
+`timerInterval` pra escopo de módulo (mesmo padrão de `preparosTickInterval`) e parando
+incondicionalmente no topo de `handleRoute` — sair de `#/cozinhar` por QUALQUER caminho agora
+nunca deixa o interval órfão, não só os handlers próprios da tela. Ver `mobile-recipe-ui/SKILL.md`
+"Modo cozinhar — ciclo de vida do timer" pro detalhe completo (inclui também o 2º bug do mesmo
+hotfix, sobre o estado de zero DENTRO da tela).
+
 **Entrada em `#/cozinhar` por um passo específico (Fase multi-timer, 2026-07-30).** O corpo do
 card de Preparos continua abrindo a sessão em `session.currentStep` (retomar de onde parou, sem
 mudança). Um chip de timer dentro do card (`.preparo-timer-chip__body`, ver mobile-recipe-ui/
