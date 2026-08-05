@@ -446,7 +446,7 @@ function main() {
 
   console.log("");
   section("9", "SERVICE WORKER");
-  assert(/const CACHE_NAME = "cardapio-v56";/.test(swJs), "CACHE_NAME v54 -> v55 -> v56 (hotfix timer-lifecycle 2026-07-31: mais um bump de feature externa — modo cozinhar, não Preparos — atualizado pro valor vigente)");
+  assert(/const CACHE_NAME = "cardapio-v57";/.test(swJs), "CACHE_NAME v54 -> v55 -> v56 -> v57 (coleções abstratas de tempo/dificuldade ilustradas, 2026-07-31: mais um bump de feature externa — grade de categorias, não Preparos — atualizado pro valor vigente)");
 
   console.log("");
   console.log("==================================================");

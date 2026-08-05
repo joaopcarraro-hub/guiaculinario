@@ -180,7 +180,7 @@ function main() {
   // ingredientes, css/style.css mudou de novo, também fora desta feature.
   // v32 -> v33: item final do redesenho visual. v33 -> v34: rumo novo de Países. v34 -> v35:
   // calibração final do banner de hub (blur/scale removidos) — todos fora desta feature.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v56";'), "CACHE_NAME v36 -> ... -> v54 -> v55 -> v56 (higiene F1b 2026-07-30: buildMiniRecipeCard extraído pra virar helper compartilhado com Sugestões de hoje — e mais bumps de CACHE_NAME de features externas em v51/v52/v53/v54/v55, agora incl. o hotfix timer-lifecycle 2026-07-31 (v56); atualizado pro valor vigente)");
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v57";'), "CACHE_NAME v36 -> ... -> v55 -> v56 -> v57 (higiene F1b 2026-07-30: buildMiniRecipeCard extraído pra virar helper compartilhado com Sugestões de hoje — e mais bumps de CACHE_NAME de features externas em v51-v56, agora incl. as coleções abstratas de tempo/dificuldade ilustradas 2026-07-31 (v57); atualizado pro valor vigente)");
   assert(!swJs.includes('const CACHE_NAME = "cardapio-v25";'), "v25 não sobrevive — teste negativo (a versão desta tarefa foi sucedida, não deixada presa)");
   assert(swJs.includes('"css/style.css"') && swJs.includes('"js/app.js"'), "css/style.css e js/app.js seguem no APP_SHELL precache");
 

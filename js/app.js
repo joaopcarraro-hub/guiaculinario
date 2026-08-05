@@ -482,9 +482,15 @@
   // este acervo: usa a foto da receita-assinatura (imagens/receitas/, resolvida por
   // countrySignatureRecipe + loadRecipeImage) — ver collectionTileImageSrc logo abaixo. O acervo
   // de categoria tem ainda paises.webp, mas só como imagem-conceito de HUB (banner + tile da
-  // Home, GRUPO_BANNER_IMAGE/HOME_MAIN_TILES), nunca como tile de coleção. Por tempo/Por
-  // dificuldade (7 coleções, rotas órfãs sem link nenhum no app) não têm imagem — fallback
-  // tipográfico limpo (faixa + nome, sem buraco).
+  // Home, GRUPO_BANNER_IMAGE/HOME_MAIN_TILES), nunca como tile de coleção.
+  //
+  // Por tempo/Por dificuldade (7 coleções, antes 100% fallback tipográfico) ganharam ilustração
+  // em 2026-07-31 — extensão curada do rumo de Países, CONTRATO-IMAGENS-REDESIGN.md §4 "Coleções
+  // abstratas de tempo/dificuldade". Nenhuma das 7 entra NESTE Set (o id da coleção nunca bate
+  // com um arquivo imagens/categorias/<id>.webp gerado por gerar-categorias.js): 2 delas
+  // (col-rapidas/col-preparo-longo) têm collection.tileImage literal, checado logo abaixo ANTES
+  // do fallback deste Set; as 5 restantes têm collection.signatureRecipe curada, resolvida por
+  // collectionSignatureRecipe (perto de countrySignatureRecipe abaixo) — ver js/collections.js.
   const CATEGORY_TILE_IMAGE_IDS = new Set([
     "molhos", "sopas", "entradas", "massas", "risotos-arroz", "padaria", "sobremesas-classicas", "tecnicas",
     "aves", "carnes-bovinas", "suinos", "peixes", "frutos-do-mar", "col-ovo", "cordeiro", "col-vegetariana",
@@ -497,8 +503,15 @@
   // ver countrySignatureRecipe abaixo e renderCollectionCard. Bandeira sobreviveu só na faceta
   // País do modal de Filtros (renderCountryTileSectionBody/.filter-tile--photo), que continua
   // lendo o iso2 de window.COUNTRIES. null = sem imagem mapeada, tile cai no fallback tipográfico.
+  //
+  // collection.tileImage (2026-07-31): override literal — reuso de asset já existente (não é
+  // imagem NOVA, não é foto de receita). Checado ANTES do Set acima: col-rapidas/col-preparo-longo
+  // reusam momento-rapidas.webp/momento-fim-de-semana.webp (mesma identidade visual dos Momentos
+  // equivalentes da vitrine da Busca, js/app.js PESQUISAR_MOMENTOS), e esses nomes de arquivo
+  // nunca batem com o id da coleção — por isso o override precisa ser explícito, não derivável.
   function collectionTileImageSrc(collection) {
     if (collection.collectionType === "country") return null;
+    if (collection.tileImage) return collection.tileImage;
     return CATEGORY_TILE_IMAGE_IDS.has(collection.id) ? "imagens/categorias/" + collection.id + ".webp" : null;
   }
 
@@ -522,6 +535,21 @@
     return item ? item.recipe : null;
   }
 
+  // Receita-assinatura de uma coleção ABSTRATA de tempo/dificuldade (extensão do rumo de Países,
+  // 2026-07-31 — CONTRATO-IMAGENS-REDESIGN.md §4 "Coleções abstratas de tempo/dificuldade"):
+  // 5 das 7 coleções de Por tempo/Por dificuldade ganharam um `signatureRecipe` curado à mão em
+  // js/collections.js (mesmo princípio de window.COUNTRIES[].signatureRecipe — nome exato,
+  // resolvido contra TagModel.getAllRecipesFlat(), o acervo INTEIRO, nunca uma fatia por
+  // catId/coleção, pela mesma razão do §4: a receita pode morar fora da própria coleção-critério).
+  // Função PRÓPRIA, não uma generalização de countrySignatureRecipe — o mecanismo de Países já
+  // está testado e ao vivo (scripts/verify-categoria-tiles-2026-07-26.js §7), então esta extensão
+  // não muda a assinatura dele nem arrisca regredi-lo.
+  function collectionSignatureRecipe(collection) {
+    if (!collection.signatureRecipe) return null;
+    const item = TagModel.getAllRecipesFlat().find((i) => i.recipe.name === collection.signatureRecipe);
+    return item ? item.recipe : null;
+  }
+
   // Card compartilhado por TODOS os hubs (Fundamentos/Proteínas/Países/Tempo/
   // Dificuldade) via renderGrupo — sem split "X de foco · Y no total" (resíduo do antigo
   // sistema de Foco/Também leva, redundante com o dropdown "Papel da proteína" já disponível
@@ -541,12 +569,19 @@
   // é a MESMA cascata foto própria -> Wikipedia -> placeholder das outras superfícies de
   // receita, então um país cuja receita-assinatura ainda não tem .webp cai no mesmo placeholder
   // conhecido em vez de num <img> quebrado.
+  //
+  // .category-card--signature (2026-07-31): MESMO tratamento visual de .category-card--country
+  // (4:3 + centralização flex do placeholder + foto nítida, sem blur/véu) aplicado às 5 coleções
+  // abstratas com signatureRecipe — classe PRÓPRIA (não reusa --country) para não misturar dois
+  // conceitos de coleção diferentes numa mesma classe nem arriscar o CSS já testado do país; ver
+  // css/style.css, regra logo depois de .category-card--country.
   function renderCollectionCard(collection) {
     const { allRecipes } = TagModel.getRecipesByCollection(collection.id);
     const isCountry = collection.collectionType === "country";
+    const hasSignatureRecipe = !isCountry && !!collection.signatureRecipe;
     const imgSrc = collectionTileImageSrc(collection);
     const card = document.createElement("button");
-    card.className = "category-card" + (isCountry ? " category-card--country" : "");
+    card.className = "category-card" + (isCountry ? " category-card--country" : "") + (hasSignatureRecipe ? " category-card--signature" : "");
     card.innerHTML =
       '<span class="category-card__media">' +
       (imgSrc ? '<img class="category-card__img" src="' + imgSrc + '" alt="" loading="lazy">' : "") +
@@ -557,6 +592,9 @@
       "</span>";
     if (isCountry) {
       const signature = countrySignatureRecipe(collection.id);
+      if (signature) loadRecipeImage(signature, card.querySelector(".category-card__media"));
+    } else if (hasSignatureRecipe) {
+      const signature = collectionSignatureRecipe(collection);
       if (signature) loadRecipeImage(signature, card.querySelector(".category-card__media"));
     }
     card.addEventListener("click", () => Router.toCategoria(collection.id));

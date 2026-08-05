@@ -558,9 +558,11 @@ diretamente. Remoção dos alias fica pra uma rodada futura.
   estende a mesma gramática a categoria, hub e país. Investigação prévia (slug de
   `scripts/gerar-categorias.js` ↔ `id` de `window.COLLECTIONS`): **zero tile órfão** nas 16
   coleções de Fundamentos+Proteínas (paridade 1:1 confirmada, executando a função real contra o
-  acervo, não só lendo o literal) e nas 20 de País (via `iso2`). Os únicos 7 sem imagem são
-  Por tempo (4) e Por dificuldade (3) — rotas órfãs, sem link nenhum no app hoje — que recebem o
-  fallback tipográfico limpo (faixa + nome, sem buraco, sem ícone).
+  acervo, não só lendo o literal) e nas 20 de País (via `iso2`). Os únicos 7 sem imagem eram
+  Por tempo (4) e Por dificuldade (3) — rotas sem link na Home, alcançáveis pelos próprios hubs e
+  pela vitrine "Todas as categorias" (F1b) — que caíam no fallback tipográfico limpo (faixa +
+  nome, sem buraco, sem ícone). Ilustradas em 2026-07-31, ver bullet "Coleções abstratas de
+  tempo/dificuldade" mais abaixo — zero coleção em fallback tipográfico desde então.
   - **Tile de categoria (`.category-card`, grade "Mais Categorias" + grade de qualquer hub,
     inclusive Países)** — `renderCollectionCard` (app.js) constrói SEMPRE a mesma estrutura de 2
     partes: `.category-card__media` (a foto, `object-fit: cover`, SEM blur — blur é só do banner
@@ -577,11 +579,13 @@ diretamente. Remoção dos alias fica pra uma rodada futura.
     `--color-bg` escolhido em vez de `--color-surface` (que também passaria, 13,98:1/8,62:1) por
     CONSISTÊNCIA: é a mesma cor da folha (`.recipe-page`/`.grupo-sheet`) que já carrega texto
     sobre mídia em outro lugar do app — um só tom de "superfície que carrega texto sobre imagem"
-    em vez de dois. Sem imagem mapeada (as 7 órfãs): `.category-card__media` fica vazio, cor de
+    em vez de dois. Sem imagem mapeada: `.category-card__media` fica vazio, cor de
     fundo do PRÓPRIO `.category-card` (`--color-surface-elevated`, mesmo tom do placeholder
     "sem foto" já usado em outras superfícies) aparece atrás — faixa + nome, sem buraco, sem
-    ícone. Emoji de ícone (`collection.icon`) morreu — campo removido de `collections.js`
-    inteiro (nenhuma coleção usa mais ícone próprio, dado morto depois do redesenho).
+    ícone. Nenhuma coleção cai mais nesse estado desde 2026-07-31 (ver bullet "Coleções
+    abstratas de tempo/dificuldade" mais abaixo). Emoji de ícone (`collection.icon`) morreu —
+    campo removido de `collections.js` inteiro (nenhuma coleção usa mais ícone próprio, dado
+    morto depois do redesenho).
   - **Tile grande da Home (`.home-tile`, os 4 tiles de `HOME_MAIN_TILES`)** — MESMA estrutura de
     2 partes (`.home-tile__media`/`.home-tile__band`/`.home-tile__label`), `aspect-ratio: 4/3`
     (mais alto que o 1:1 da grade — "tile grande" também na proporção). Nome MAIOR que
@@ -791,6 +795,26 @@ diretamente. Remoção dos alias fica pra uma rodada futura.
   decapita o prato — ver relatório da tarefa pros números por tile. `.category-card--country`
   já vivia em 4:3 desde o rumo novo de Países (rodada anterior) — deixa de ser um caso isolado
   e vira o primeiro precedente desta exceção.
+
+- **Coleções abstratas de tempo/dificuldade ganham ilustração — extensão do rumo de Países
+  (2026-07-31, ver `CONTRATO-IMAGENS-REDESIGN.md` §4 "Coleções abstratas de tempo/dificuldade"
+  pra curadoria completa).** As 7 coleções de Por tempo/Por dificuldade (únicas ainda em fallback
+  tipográfico) ganham imagem por 2 caminhos, os dois curados à mão em `js/collections.js`, nenhum
+  computado: Rápidas/Preparo Longo REUSAM `imagens/categorias/momento-rapidas.webp`/
+  `momento-fim-de-semana.webp` (`collection.tileImage`, mesmo caminho de resolução do tile de
+  categoria comum — `<img>` direto no innerHTML, sem `loadRecipeImage`); as 5 restantes (Até 1
+  Hora/Mais de 1 Hora/Fáceis/Intermediárias/Avançadas) ganham `collection.signatureRecipe`
+  (Yakitori/Cassoulet/Guacamole/Ossobuco/Pato Laqueado (Pequim)), resolvida em runtime por
+  `loadRecipeImage()` — MESMO pipeline/MESMOS tokens do tile de país, classe
+  `.category-card--signature` (regra CSS própria, não reusa `--country`, mas byte a byte a mesma
+  receita: 4:3, `display:flex` só pra centralizar o ícone de placeholder, `object-fit:cover`, SEM
+  blur/véu — foto de prato não precisa de muleta de bandeira). `.category-card__band` (faixa +
+  contraste) não muda nada aqui — os números 17,03:1/10,50:1 já medidos acima pro tile de
+  categoria comum valem idênticos, já que `--signature` só sobrescreve `__media`. As 4 restrições
+  que curaram as 5 receitas-assinatura (pertence à coleção de verdade, nunca uma das 20
+  assinaturas de país já em uso, sem gêmea visual de um tile do acervo GERADO, `nature:"prato"` +
+  legível em tile) e o achado de curadoria (um candidato inicial pra Até 1 Hora foi descartado
+  por duplicar visualmente `cordeiro.webp`) estão detalhados no CONTRATO, não repetidos aqui.
 
 - **Redesenho do modal de Filtros — sistema de chip de seleção, bug do tile de país, tiles de
   Equipamento normalizados (Fase F1a, 2026-07-27).** Investigação prévia (como sempre neste

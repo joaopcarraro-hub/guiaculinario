@@ -72,14 +72,25 @@
     { id: "dinamarca", group: "Países", collectionType: "country", label: window.COUNTRIES.dinamarca.nome, primaryFilterTags: ["country:dinamarca"] },
 
     // ---------- Por tempo ----------
-    { id: "col-rapidas", group: "Por tempo", collectionType: "time", label: "Rápidas", desc: "Receitas prontas em até 30 minutos.", primaryFilterTags: ["time:ate-30-min"] },
-    { id: "col-ate-1h", group: "Por tempo", collectionType: "time", label: "Até 1 Hora", desc: "Receitas prontas em até 1 hora.", primaryFilterTags: ["time:ate-1h"] },
-    { id: "col-mais-de-1h", group: "Por tempo", collectionType: "time", label: "Mais de 1 Hora", desc: "Receitas que passam de 1 hora de preparo.", primaryFilterTags: ["time:mais-de-1h"] },
-    { id: "col-preparo-longo", group: "Por tempo", collectionType: "time", label: "Preparo Longo", desc: "Receitas que exigem várias horas (ou dias) de preparo.", primaryFilterTags: ["time:preparo-longo"] },
+    // Tile ilustrado (2026-07-31, extensão do rumo de Países — ver CONTRATO-IMAGENS-REDESIGN.md
+    // §4 "Coleções abstratas de tempo/dificuldade"): as 7 coleções órfãs deste grupo+dificuldade
+    // eram fallback tipográfico puro. Rápidas/Preparo Longo REUSAM o asset de Momento equivalente
+    // da vitrine da Busca (mesma identidade visual, consistência deliberada) via `tileImage`
+    // (caminho literal, resolvido por collectionTileImageSrc em app.js — NÃO passa por
+    // loadRecipeImage, é reuso de imagem de categoria, não foto de receita).
+    { id: "col-rapidas", group: "Por tempo", collectionType: "time", label: "Rápidas", desc: "Receitas prontas em até 30 minutos.", primaryFilterTags: ["time:ate-30-min"], tileImage: "imagens/categorias/momento-rapidas.webp" },
+    // signatureRecipe: curada à mão (mesmo mecanismo/mesmas restrições de window.COUNTRIES.*.signatureRecipe
+    // — nome exato, resolvido contra o acervo INTEIRO por collectionSignatureRecipe em app.js, nunca
+    // contra RECIPES[catId]). Yakitori pertence de fato a time:ate-1h, nature:prato, não colide com
+    // nenhuma das 20 receitas-assinatura de país, e não duplica nenhum tile do acervo gerado (ver
+    // relatório da tarefa 2026-07-31 para a curadoria completa e as alternativas descartadas).
+    { id: "col-ate-1h", group: "Por tempo", collectionType: "time", label: "Até 1 Hora", desc: "Receitas prontas em até 1 hora.", primaryFilterTags: ["time:ate-1h"], signatureRecipe: "Yakitori" },
+    { id: "col-mais-de-1h", group: "Por tempo", collectionType: "time", label: "Mais de 1 Hora", desc: "Receitas que passam de 1 hora de preparo.", primaryFilterTags: ["time:mais-de-1h"], signatureRecipe: "Cassoulet" },
+    { id: "col-preparo-longo", group: "Por tempo", collectionType: "time", label: "Preparo Longo", desc: "Receitas que exigem várias horas (ou dias) de preparo.", primaryFilterTags: ["time:preparo-longo"], tileImage: "imagens/categorias/momento-fim-de-semana.webp" },
 
     // ---------- Por dificuldade ----------
-    { id: "col-faceis", group: "Por dificuldade", collectionType: "difficulty", label: "Fáceis", desc: "Receitas simples, boas para começar.", primaryFilterTags: ["difficulty:facil"] },
-    { id: "col-intermediarias", group: "Por dificuldade", collectionType: "difficulty", label: "Intermediárias", desc: "Receitas com mais etapas ou técnicas.", primaryFilterTags: ["difficulty:media"] },
-    { id: "col-avancadas", group: "Por dificuldade", collectionType: "difficulty", label: "Avançadas", desc: "Receitas técnicas, para quem já tem experiência.", primaryFilterTags: ["difficulty:dificil"] },
+    { id: "col-faceis", group: "Por dificuldade", collectionType: "difficulty", label: "Fáceis", desc: "Receitas simples, boas para começar.", primaryFilterTags: ["difficulty:facil"], signatureRecipe: "Guacamole" },
+    { id: "col-intermediarias", group: "Por dificuldade", collectionType: "difficulty", label: "Intermediárias", desc: "Receitas com mais etapas ou técnicas.", primaryFilterTags: ["difficulty:media"], signatureRecipe: "Ossobuco" },
+    { id: "col-avancadas", group: "Por dificuldade", collectionType: "difficulty", label: "Avançadas", desc: "Receitas técnicas, para quem já tem experiência.", primaryFilterTags: ["difficulty:dificil"], signatureRecipe: "Pato Laqueado (Pequim)" },
   ];
 })();

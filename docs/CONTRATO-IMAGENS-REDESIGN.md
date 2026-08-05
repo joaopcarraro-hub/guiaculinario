@@ -131,8 +131,9 @@ camada 1 responde de disco e a 2 nunca é alcançada.
 | 3 | Mini card de histórico/preparo | `.preparo-card__thumb img` | 48×48 (1:1) | default (`center`) | `app.js:1841` |
 | 4 | Tile de categoria | `.category-card` | **não usa foto de receita** | — | — |
 | 5 | Tile de **país** (hub Países) | `.category-card--country .category-card__media img` | `aspect-ratio: 4/3` | default (`center`) | `renderCollectionCard` |
+| 6 | Tile de **coleção abstrata com receita-assinatura** (Por tempo/Por dificuldade, 5 das 7) | `.category-card--signature .category-card__media img` | `aspect-ratio: 4/3` | default (`center`) | `renderCollectionCard` |
 
-As superfícies 1–3 e 5 usam `object-fit: cover`.
+As superfícies 1–3, 5 e 6 usam `object-fit: cover`.
 
 ### A #4 NÃO consome foto de receita — decisão fechada
 
@@ -193,6 +194,69 @@ por ser curada; o dia em que alguém quiser computá-la, ela vira exatamente o q
 
 **Trocar é barato:** muda-se o nome em `js/countries.js` e pronto — as candidatas-reserva já
 avaliadas ficam anotadas linha a linha, para a próxima troca não recomeçar a análise.
+
+### COLEÇÕES ABSTRATAS DE TEMPO/DIFICULDADE — 2ª exceção documentada (31/07/2026)
+
+A regra "nenhuma receita representa categoria" e o limite que a exceção de Países acima declarava
+("não autoriza... transformar `signatureRecipe` em campo genérico de coleção") seguem valendo para
+**todo o resto do acervo**. As 7 coleções de **Por tempo** e **Por dificuldade** (Rápidas, Até 1
+Hora, Mais de 1 Hora, Preparo Longo, Fáceis, Intermediárias, Avançadas) são uma **segunda
+exceção**, tão explícita, curada e fechada quanto a primeira — não uma generalização do mecanismo.
+
+**Por que estas 7 podem e o resto não.** São coleções **abstratas** (um corte de tempo/
+dificuldade, não uma cozinha nem um ingrediente): não têm, e não podem ter, uma imagem-conceito
+própria do jeito que Molhos/Massas/Risotos têm — o que uma foto de "menos de 1 hora" mostraria?
+Sem ilustração, essas 7 eram as únicas coleções ainda 100% fallback tipográfico no grid "Todas as
+categorias" (item novo da vitrine da Busca, F1b). É o mesmo problema estrutural que justificou a
+exceção de Países — pergunta sem resposta derivável automaticamente, com resposta estável só por
+curadoria — aplicado a um corte abstrato em vez de geográfico.
+
+**Duas soluções, não uma:**
+
+| Coleção | Solução | Fonte |
+|---|---|---|
+| Rápidas (`col-rapidas`) | reuso de asset — `imagens/categorias/momento-rapidas.webp` | `collection.tileImage` |
+| Preparo Longo (`col-preparo-longo`) | reuso de asset — `imagens/categorias/momento-fim-de-semana.webp` | `collection.tileImage` |
+| Até 1 Hora (`col-ate-1h`) | receita-assinatura — Yakitori | `collection.signatureRecipe` |
+| Mais de 1 Hora (`col-mais-de-1h`) | receita-assinatura — Cassoulet | `collection.signatureRecipe` |
+| Fáceis (`col-faceis`) | receita-assinatura — Guacamole | `collection.signatureRecipe` |
+| Intermediárias (`col-intermediarias`) | receita-assinatura — Ossobuco | `collection.signatureRecipe` |
+| Avançadas (`col-avancadas`) | receita-assinatura — Pato Laqueado (Pequim) | `collection.signatureRecipe` |
+
+Os dois campos vivem em `js/collections.js`, direto no objeto de cada uma das 7 coleções (nunca um
+mapa à parte tipo `window.COUNTRIES` — não há um 2º acervo de dados por trás destas, só o valor
+curado no próprio objeto). Rápidas/Preparo Longo **reusam** a MESMA imagem já usada pelo Momento
+equivalente da vitrine da Busca (`js/app.js`, seção de Momentos) — mesma identidade visual,
+consistência deliberada, zero foto nova, resolvida por `collectionTileImageSrc()` (mesma função do
+acervo de categoria, checando `tileImage` antes do mapa derivado). As outras 5 seguem o padrão de
+Países ponto a ponto: nome exato curado à mão, resolvido por `collectionSignatureRecipe()` (função
+própria, ao lado de `countrySignatureRecipe()` em `js/app.js` — não uma generalização dela, pra não
+arriscar o mecanismo de país já testado e ao vivo) contra `TagModel.getAllRecipesFlat()` — o
+acervo INTEIRO, nunca `RECIPES[catId]`, pela mesma razão do parágrafo de Países acima — pelo MESMO
+pipeline `loadRecipeImage()` (foto própria → Wikipedia → placeholder), NÍTIDA, sem blur/véu
+(`.category-card--signature` no CSS, regra própria, mesma receita visual de
+`.category-card--country` sem reusar a classe).
+
+**As 4 restrições que curaram as 5 receitas-assinatura** (validadas com execução real contra
+`TagModel.getRecipesByCollection`, não por leitura de tag solta — ver
+`scripts/verify-categoria-tiles-2026-07-26.js`):
+(a) a receita pertence de fato à coleção pelo critério tempo/dificuldade real (membership
+executada, não presumida);
+(b) nunca uma das 20 receitas-assinatura de país já em uso (checado por nome — as 25, 20 países +
+5 novas, são mutuamente exclusivas);
+(c) sem gêmea visual de um tile do acervo de categoria GERADO (as 16 imagens de
+`scripts/gerar-categorias.js`) — verificado olhando a imagem de verdade, não só a tag: um candidato
+inicial para Até 1 Hora (Carré de Cordeiro) foi descartado nesta rodada exatamente por isso, era
+visualmente quase idêntico ao tile já existente de `cordeiro.webp` (a mesma peça — carré com crosta
+de ervas, fatiado, mesmo ângulo — nos dois);
+(d) `nature: "prato"` e foto legível em tamanho de tile.
+
+**O que isto AINDA NÃO autoriza.** A extensão é, de novo, explícita e fechada — cobre estas 7
+coleções e mais nenhuma. Não autoriza derivar ou curar representante para nenhuma outra categoria
+do acervo (Fundamentos/Proteínas seguem 100% na imagem-conceito dedicada do §4 original), nem
+tratar `tileImage`/`signatureRecipe` como campo automático — os dois só existem hoje nos 7 objetos
+de `js/collections.js` que os declaram à mão. Trocar qualquer uma das 7 é igualmente barato:
+muda-se o valor no objeto da própria coleção.
 
 ### Proporção por acervo — deliberada, não inconsistência
 

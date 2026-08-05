@@ -99,7 +99,7 @@
 // TagModel.isNamingTagSet (js/tagmodel.js) + corte seco nas 8 coleções vazadas, motor de busca
 // (commit + preview) e válvula (hub + categoria) consistentes; mundo-próprio (Molhos/Técnicas)
 // e identidade (proteína/país) intactos. js/app.js é o único arquivo do APP_SHELL que mudou.
-const CACHE_NAME = "cardapio-v56";
+const CACHE_NAME = "cardapio-v57";
 
 const APP_SHELL = [
   "./",

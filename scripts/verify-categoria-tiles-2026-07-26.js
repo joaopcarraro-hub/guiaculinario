@@ -151,18 +151,28 @@ function main() {
 
   const EXPECTED_CATEGORY_IDS = ["molhos", "sopas", "entradas", "massas", "risotos-arroz", "padaria", "sobremesas-classicas", "tecnicas", "aves", "carnes-bovinas", "suinos", "peixes", "frutos-do-mar", "col-ovo", "cordeiro", "col-vegetariana"];
   const EXPECTED_COUNTRY_IDS = ["brasil", "franca", "italia", "espanha", "portugal", "japao", "china", "coreia", "tailandia", "india", "mexico", "peru", "alemanha", "austria", "hungria", "grecia", "marrocos", "libano", "eua", "dinamarca"];
-  const EXPECTED_TIME_DIFF_ORPHANS = ["col-rapidas", "col-ate-1h", "col-mais-de-1h", "col-preparo-longo", "col-faceis", "col-intermediarias", "col-avancadas"];
+  // Extensão do rumo de Países (31/07/2026, ver CONTRATO-IMAGENS-REDESIGN.md §4 "Coleções
+  // abstratas de tempo/dificuldade"): das 7 órfãs originais, 2 (col-rapidas/col-preparo-longo)
+  // ganharam collection.tileImage — resolvem por ESTE MESMO mapa agora (collectionTileImageSrc
+  // devolve o caminho literal), então saem da lista de órfãos. As 5 restantes continuam "órfãs
+  // POR ESTE MAPA especificamente" — resolvem por collectionSignatureRecipe (seção 7c), não por
+  // collectionTileImageSrc.
+  const EXPECTED_TILEIMAGE_IDS = ["col-rapidas", "col-preparo-longo"];
+  const EXPECTED_SIGNATURE_ORPHANS = ["col-ate-1h", "col-mais-de-1h", "col-faceis", "col-intermediarias", "col-avancadas"];
   // Rumo novo de Países (26/07/2026): collectionTileImageSrc devolve null pra TODA coleção de
   // país — o tile de país não sai mais deste mapa estático, sai de countrySignatureRecipe +
   // loadRecipeImage (seção 7). "Órfão" aqui passou a significar só "não resolvido por este
   // mapa", o que inclui os 20 países DE PROPÓSITO; quem garante que país tem foto é a seção 7.
-  const EXPECTED_ORPHANS = EXPECTED_TIME_DIFF_ORPHANS.concat(EXPECTED_COUNTRY_IDS);
+  const EXPECTED_ORPHANS = EXPECTED_SIGNATURE_ORPHANS.concat(EXPECTED_COUNTRY_IDS);
 
-  assert(imaged.length === EXPECTED_CATEGORY_IDS.length, "total de tiles COM imagem por este mapa: " + imaged.length + " (esperado " + EXPECTED_CATEGORY_IDS.length + " = 16 categoria; país saiu daqui)");
-  assert(orphan.length === EXPECTED_ORPHANS.length, "total de tiles fora deste mapa: " + orphan.length + " (esperado " + EXPECTED_ORPHANS.length + " = 7 tempo/dificuldade + 20 país)");
+  assert(
+    imaged.length === EXPECTED_CATEGORY_IDS.length + EXPECTED_TILEIMAGE_IDS.length,
+    "total de tiles COM imagem por este mapa: " + imaged.length + " (esperado " + (EXPECTED_CATEGORY_IDS.length + EXPECTED_TILEIMAGE_IDS.length) + " = 16 categoria + 2 reuso de Momento; país e as 5 receita-assinatura saem daqui)"
+  );
+  assert(orphan.length === EXPECTED_ORPHANS.length, "total de tiles fora deste mapa: " + orphan.length + " (esperado " + EXPECTED_ORPHANS.length + " = 5 receita-assinatura + 20 país)");
   assert(
     EXPECTED_ORPHANS.every((id) => orphan.indexOf(id) !== -1) && orphan.every((id) => EXPECTED_ORPHANS.indexOf(id) !== -1),
-    "lista fora do mapa bate EXATAMENTE com a esperada (Por tempo x4 + Por dificuldade x3 + 20 países)"
+    "lista fora do mapa bate EXATAMENTE com a esperada (Até 1h/Mais de 1h/Fáceis/Intermediárias/Avançadas + 20 países)"
   );
   assert(
     EXPECTED_COUNTRY_IDS.every((id) => {
@@ -180,9 +190,43 @@ function main() {
   assert(missing.length === 0, "TODOS os " + imaged.length + " caminhos resolvidos por collectionTileImageSrc existem de fato em disco" + (missing.length ? " (faltando: " + missing.join("; ") + ")" : ""));
 
   const countryImaged = imaged.filter((i) => i.src.indexOf("imagens/bandeiras/") === 0);
-  const categoryImaged = imaged.filter((i) => i.src.indexOf("imagens/categorias/") === 0);
+  const categoryImaged = imaged.filter((i) => i.src.indexOf("imagens/categorias/") === 0 && EXPECTED_CATEGORY_IDS.indexOf(i.id) !== -1);
+  const tileImageReused = imaged.filter((i) => EXPECTED_TILEIMAGE_IDS.indexOf(i.id) !== -1);
   assert(countryImaged.length === 0, "TESTE NEGATIVO: ZERO coleções resolvem pra imagens/bandeiras/ por este mapa (achado " + countryImaged.length + ")");
-  assert(categoryImaged.length === 16, "16 coleções (8 Fundamentos + 8 Proteínas) resolvem pra imagens/categorias/<id>.webp");
+  assert(categoryImaged.length === 16, "16 coleções (8 Fundamentos + 8 Proteínas) resolvem pra imagens/categorias/<id>.webp (caminho DERIVADO do próprio id)");
+  assert(tileImageReused.length === 2, "2 coleções (col-rapidas/col-preparo-longo) resolvem por tileImage LITERAL (achado " + tileImageReused.length + ")");
+
+  console.log("");
+  console.log("==================================================");
+  console.log("1b. REUSO DE MOMENTO (col-rapidas/col-preparo-longo) — mesmo asset EXATO do Momento equivalente, não uma coincidência de nome");
+  console.log("==================================================");
+  // PESQUISAR_MOMENTOS (vitrine da Busca, F1b) é a fonte da identidade visual que os 2 tiles
+  // devem reusar — extrai e EXECUTA de verdade (mesmo padrão de GRUPO_BANNER_IMAGE acima), pra
+  // provar que o caminho bate byte a byte com o Momento certo, não só "parece o nome certo".
+  const momentosStart = appJs.indexOf("const PESQUISAR_MOMENTOS = [");
+  const momentosEnd = appJs.indexOf("];", momentosStart) + 2;
+  assert(momentosStart > 0 && momentosEnd > momentosStart, "PESQUISAR_MOMENTOS encontrado em app.js");
+  vm.runInContext(
+    appJs.slice(momentosStart, momentosEnd).replace("const PESQUISAR_MOMENTOS", "var PESQUISAR_MOMENTOS"),
+    sandbox,
+    { filename: "extracted-PESQUISAR_MOMENTOS" }
+  );
+  assert(Array.isArray(sandbox.PESQUISAR_MOMENTOS) && sandbox.PESQUISAR_MOMENTOS.length === 5, "PESQUISAR_MOMENTOS carregado no sandbox (5 Momentos)");
+  const momentoRapidas = sandbox.PESQUISAR_MOMENTOS.find((m) => m.tagId === "time:ate-30-min");
+  const momentoFimDeSemana = sandbox.PESQUISAR_MOMENTOS.find((m) => m.tagId === "time:preparo-longo");
+  assert(momentoRapidas && momentoFimDeSemana, "os 2 Momentos de tempo (Rápidas/Fim de Semana) existem em PESQUISAR_MOMENTOS");
+  const tileRapidas = sandbox.COLLECTIONS.find((c) => c.id === "col-rapidas");
+  const tilePreparoLongo = sandbox.COLLECTIONS.find((c) => c.id === "col-preparo-longo");
+  assert(
+    sandbox.collectionTileImageSrc(tileRapidas) === momentoRapidas.img,
+    "col-rapidas.tileImage === PESQUISAR_MOMENTOS[rapidas].img byte a byte (achado: " + sandbox.collectionTileImageSrc(tileRapidas) + " vs " + momentoRapidas.img + ")"
+  );
+  assert(
+    sandbox.collectionTileImageSrc(tilePreparoLongo) === momentoFimDeSemana.img,
+    "col-preparo-longo.tileImage === PESQUISAR_MOMENTOS[fim-de-semana].img byte a byte (achado: " + sandbox.collectionTileImageSrc(tilePreparoLongo) + " vs " + momentoFimDeSemana.img + ")"
+  );
+  assert(tileRapidas.tileImage === "imagens/categorias/momento-rapidas.webp", "col-rapidas.tileImage é o literal esperado (achado " + tileRapidas.tileImage + ")");
+  assert(tilePreparoLongo.tileImage === "imagens/categorias/momento-fim-de-semana.webp", "col-preparo-longo.tileImage é o literal esperado (achado " + tilePreparoLongo.tileImage + ")");
 
   console.log("");
   console.log("==================================================");
@@ -279,6 +323,17 @@ function main() {
   assert(
     cardFnBody.includes("countrySignatureRecipe(collection.id)") && cardFnBody.includes("loadRecipeImage(signature,"),
     "tile de país carrega a foto por countrySignatureRecipe + loadRecipeImage (mesma cascata foto própria -> Wikipedia -> placeholder das outras superfícies de receita)"
+  );
+  // Extensão 31/07/2026 (CONTRATO-IMAGENS-REDESIGN.md §4 "Coleções abstratas de tempo/
+  // dificuldade"): as 5 coleções abstratas com signatureRecipe ganham a MESMA cascata do país
+  // (loadRecipeImage), classe PRÓPRIA (category-card--signature, não reusa --country).
+  assert(
+    cardFnBody.includes("!isCountry && !!collection.signatureRecipe") && cardFnBody.includes("category-card--signature"),
+    "coleção abstrata com signatureRecipe ganha classe category-card--signature (foto de prato NÍTIDA, 4:3 — ver seção 6d)"
+  );
+  assert(
+    cardFnBody.includes("collectionSignatureRecipe(collection)") && (cardFnBody.match(/loadRecipeImage\(signature,/g) || []).length === 2,
+    "coleção abstrata carrega a foto por collectionSignatureRecipe + loadRecipeImage (MESMA cascata do país) — loadRecipeImage(signature, aparece 2x (país + coleção abstrata), não uma reimplementação paralela"
   );
 
   const homeMainTilesStart = appJs.indexOf("const HOME_MAIN_TILES = [");
@@ -455,6 +510,29 @@ function main() {
 
   console.log("");
   console.log("==================================================");
+  console.log("6d. CSS — TILE DE COLEÇÃO ABSTRATA COM RECEITA-ASSINATURA = MESMA receita visual do país, regra PRÓPRIA (não reusa --country)");
+  console.log("==================================================");
+  const signatureMediaRule = ruleBody(css, ".category-card--signature .category-card__media {", ".category-card--signature .category-card__media");
+  assert(/aspect-ratio:\s*4 \/ 3;/.test(signatureMediaRule), "mídia do tile de coleção abstrata é 4:3 — mesma proporção de .category-card--country .category-card__media");
+  assert(/display:\s*flex;/.test(signatureMediaRule), "mídia é flex (centra o ícone de placeholder quando não há foto)");
+  const signatureImgRule = ruleBody(css, ".category-card--signature .category-card__media img {", ".category-card--signature .category-card__media img");
+  assert(/object-fit:\s*cover;/.test(signatureImgRule) && /width:\s*100%;/.test(signatureImgRule) && /height:\s*100%;/.test(signatureImgRule), "o <img> injetado por applyImage (SEM classe) é dimensionado por seletor de TAG — cover + 100%/100%, mesma regra do país");
+  assert(css.includes(".category-card--signature .category-card__media.placeholder svg"), "estado placeholder tem regra própria, mesma gramática do país");
+  assert(!signatureImgRule.includes("blur("), "TESTE NEGATIVO: foto da coleção abstrata é NÍTIDA — sem blur, mesma regra do país");
+  assert(!css.includes(".category-card--signature .category-card__media::after"), "TESTE NEGATIVO: sem véu sobre a foto da coleção abstrata, mesma regra do país");
+  // As 2 classes vivem em blocos SEPARADOS (não um seletor combinado) — checagem estrutural de
+  // que a extensão não reescreveu a regra de país já testada, só ADICIONOU uma nova ao lado.
+  // Compara só as DECLARAÇÕES (depois do primeiro "{"), nunca o seletor — os seletores diferem
+  // de propósito (--country vs --signature), só o corpo precisa ser idêntico.
+  const countryMediaDecls = countryMediaRule.slice(countryMediaRule.indexOf("{") + 1).replace(/\s+/g, " ").trim();
+  const signatureMediaDecls = signatureMediaRule.slice(signatureMediaRule.indexOf("{") + 1).replace(/\s+/g, " ").trim();
+  assert(
+    countryMediaDecls.length > 0 && countryMediaDecls === signatureMediaDecls,
+    "TESTE NEGATIVO/POSITIVO: as DECLARAÇÕES da regra de --signature são IDÊNTICAS às de --country (mesma receita visual, byte a byte, ignorando espaço e seletor) — confirma que é uma extensão aditiva, não uma reescrita"
+  );
+
+  console.log("");
+  console.log("==================================================");
   console.log("7. RECEITA-ASSINATURA — os 20 países resolvem contra o ACERVO INTEIRO e têm foto em disco");
   console.log("==================================================");
   // ESTE É O PORTÃO CARO DESTA FRENTE. O modo de falha que ele existe pra impedir não dá erro
@@ -523,6 +601,130 @@ function main() {
 
   console.log("");
   console.log("==================================================");
+  console.log("7c. RECEITA-ASSINATURA DAS 5 COLEÇÕES ABSTRATAS — resolve único, PERTENCE à coleção de verdade, nature:prato, sem colisão com país");
+  console.log("==================================================");
+  // Extensão do rumo de Países (31/07/2026, CONTRATO-IMAGENS-REDESIGN.md §4 "Coleções abstratas
+  // de tempo/dificuldade"). Completa o MESMO sandbox `acervo` do §7 (já tem window.COUNTRIES + os
+  // 40 data/*.js reais) com categories/tags/collections/tagmodel — só assim dá pra chamar
+  // TagModel.getRecipesByCollection de VERDADE e provar a restrição (a) do §4 ("a receita
+  // PERTENCE à coleção") por execução real, não por tag solta lida do objeto da receita.
+  ["js/categories.js", "js/tags.js", "js/collections.js", "js/tagmodel.js"].forEach((f) => {
+    vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), acervo, { filename: f });
+  });
+  assert(acervo.TagModel && typeof acervo.TagModel.getRecipesByCollection === "function", "TagModel.getRecipesByCollection carregado no sandbox do acervo completo");
+
+  const EXPECTED_SIGNATURE_MAP = {
+    "col-ate-1h": "Yakitori",
+    "col-mais-de-1h": "Cassoulet",
+    "col-faceis": "Guacamole",
+    "col-intermediarias": "Ossobuco",
+    "col-avancadas": "Pato Laqueado (Pequim)",
+  };
+  const signatureIds = Object.keys(EXPECTED_SIGNATURE_MAP);
+  assert(signatureIds.length === 5, "5 coleções abstratas têm signatureRecipe curada (achado " + signatureIds.length + ")");
+  signatureIds.forEach((id) => {
+    const c = acervo.COLLECTIONS.find((x) => x.id === id);
+    assert(
+      c && c.signatureRecipe === EXPECTED_SIGNATURE_MAP[id],
+      id + '.signatureRecipe é exatamente "' + EXPECTED_SIGNATURE_MAP[id] + '" (achado ' + (c && c.signatureRecipe) + ")"
+    );
+  });
+
+  const sigNaoResolve = [];
+  const sigAmbiguo = [];
+  const sigSemFoto = [];
+  const sigForaDaColecao = [];
+  const sigNaoPrato = [];
+  signatureIds.forEach((id) => {
+    const nome = EXPECTED_SIGNATURE_MAP[id];
+    const hits = flat.filter((r) => r.name === nome);
+    if (hits.length === 0) {
+      sigNaoResolve.push(id + ' -> "' + nome + '"');
+      return;
+    }
+    if (hits.length > 1) sigAmbiguo.push(id + ' -> "' + nome + '" em ' + hits.map((h) => h.catId).join("/"));
+    if (!fs.existsSync(path.join(ROOT, "imagens", "receitas", slugFoto(nome) + ".webp"))) sigSemFoto.push(id + ' -> "' + nome + '"');
+
+    const result = acervo.TagModel.getRecipesByCollection(id);
+    const recipeItem = result.allRecipes.find((item) => item.recipe.name === nome);
+    if (!recipeItem) sigForaDaColecao.push(id + ' -> "' + nome + '" NÃO está em getRecipesByCollection("' + id + '").allRecipes');
+    else if (recipeItem.recipe.nature !== "prato") sigNaoPrato.push(id + ' -> "' + nome + '" nature=' + recipeItem.recipe.nature);
+  });
+  assert(sigNaoResolve.length === 0, "as 5 signatureRecipe RESOLVEM pra uma receita existente no acervo" + (sigNaoResolve.length ? " — NÃO RESOLVEM: " + sigNaoResolve.join("; ") : ""));
+  assert(sigAmbiguo.length === 0, "nenhuma das 5 resolve de forma AMBÍGUA (2+ receitas com o mesmo nome)" + (sigAmbiguo.length ? " — ambíguas: " + sigAmbiguo.join("; ") : ""));
+  assert(sigSemFoto.length === 0, "as 5 receitas-assinatura têm .webp em imagens/receitas/ (slug idêntico ao do gerador)" + (sigSemFoto.length ? " — SEM FOTO: " + sigSemFoto.join("; ") : ""));
+  assert(
+    sigForaDaColecao.length === 0,
+    "RESTRIÇÃO (a) do CONTRATO §4 — as 5 PERTENCEM de fato à própria coleção (TagModel.getRecipesByCollection real, não tag solta)" + (sigForaDaColecao.length ? " — FORA: " + sigForaDaColecao.join("; ") : "")
+  );
+  assert(sigNaoPrato.length === 0, 'RESTRIÇÃO (d) do CONTRATO §4 — as 5 são nature:"prato"' + (sigNaoPrato.length ? " — NÃO-PRATO: " + sigNaoPrato.join("; ") : ""));
+
+  const countrySignatureNames = countryIds.map((id) => acervo.COUNTRIES[id].signatureRecipe);
+  const colisaoComPais = signatureIds.filter((id) => countrySignatureNames.indexOf(EXPECTED_SIGNATURE_MAP[id]) !== -1);
+  assert(
+    colisaoComPais.length === 0,
+    "RESTRIÇÃO (b) do CONTRATO §4 — TESTE NEGATIVO: nenhuma das 5 receitas-assinatura abstratas colide com as 20 de país (achado " + colisaoComPais.length + ")"
+  );
+
+  // RESTRIÇÃO (c) do CONTRATO §4 — checagem OBJETIVA parcial (a checagem visual completa foi
+  // feita olhando a imagem de verdade, ver relatório da tarefa e o achado documentado no
+  // CONTRATO sobre Carré de Cordeiro/cordeiro.webp): nenhuma das 5 carrega um dish_type que por
+  // si só já duplicaria um dos 8 tiles do acervo GERADO cuja identidade é o próprio dish_type
+  // (sopa/entrada/massa/risoto/arroz/pão/sobremesa/ovo). Não substitui o juízo visual — é uma
+  // trava de regressão pra um swap futuro óbvio (ex.: trocarem Guacamole por uma sopa).
+  const DISH_TYPE_TILE_TWINS = ["dish_type:sopa", "dish_type:entrada-fria", "dish_type:entrada-quente", "dish_type:massa", "dish_type:risoto", "dish_type:arroz", "dish_type:pao", "dish_type:sobremesa", "dish_type:ovo"];
+  const sigDishTypeTwin = [];
+  signatureIds.forEach((id) => {
+    const nome = EXPECTED_SIGNATURE_MAP[id];
+    const item = acervo.TagModel.getAllRecipesFlat().find((i) => i.recipe.name === nome);
+    const badTag = item && item.tags.find((t) => DISH_TYPE_TILE_TWINS.indexOf(t) !== -1);
+    if (badTag) sigDishTypeTwin.push(id + ' -> "' + nome + '" tem ' + badTag);
+  });
+  assert(
+    sigDishTypeTwin.length === 0,
+    "RESTRIÇÃO (c) do CONTRATO §4 (checagem objetiva parcial) — nenhuma das 5 carrega um dish_type que duplicaria um tile do acervo gerado" + (sigDishTypeTwin.length ? " — CONFLITO: " + sigDishTypeTwin.join("; ") : "")
+  );
+
+  signatureIds.forEach((id) => {
+    console.log("       " + id.padEnd(20) + ' "' + EXPECTED_SIGNATURE_MAP[id] + '"');
+  });
+
+  console.log("");
+  console.log("==================================================");
+  console.log("7d. PORTAO FINAL — as 43 coleções resolvem imagem REAL, ZERO fallback tipográfico (grade Todas as Categorias 43/43)");
+  console.log("==================================================");
+  const todasCategoriasFnBody = sliceFn(appJs, "function buildTodasCategoriasSection() {", "buildTodasCategoriasSection");
+  assert(todasCategoriasFnBody.includes("(window.COLLECTIONS || []).forEach"), 'buildTodasCategoriasSection itera TODAS as window.COLLECTIONS, sem filtro por grupo/hideFromGrupoGrid — "todas" é literal');
+
+  assert(acervo.COLLECTIONS.length === 43, "window.COLLECTIONS tem 43 coleções — 8 Fundamentos + 8 Proteínas + 20 Países + 4 Por tempo + 3 Por dificuldade (achado " + acervo.COLLECTIONS.length + ")");
+  const semImagem = [];
+  acervo.COLLECTIONS.forEach((c) => {
+    const isCountryC = c.collectionType === "country";
+    const staticSrc = sandbox.collectionTileImageSrc(c);
+    if (staticSrc) {
+      if (!fs.existsSync(path.join(ROOT, staticSrc.split("/").join(path.sep)))) semImagem.push(c.id + " -> " + staticSrc + " (caminho estático não existe em disco)");
+      return;
+    }
+    if (isCountryC) {
+      const nome = acervo.COUNTRIES[c.id] && acervo.COUNTRIES[c.id].signatureRecipe;
+      const hit = nome && flat.find((r) => r.name === nome);
+      if (!hit || !fs.existsSync(path.join(ROOT, "imagens", "receitas", slugFoto(nome) + ".webp"))) semImagem.push(c.id + " (país) -> receita-assinatura não resolve/sem foto");
+      return;
+    }
+    if (c.signatureRecipe) {
+      const hit = flat.find((r) => r.name === c.signatureRecipe);
+      if (!hit || !fs.existsSync(path.join(ROOT, "imagens", "receitas", slugFoto(c.signatureRecipe) + ".webp"))) semImagem.push(c.id + ' -> signatureRecipe "' + c.signatureRecipe + '" não resolve/sem foto');
+      return;
+    }
+    semImagem.push(c.id + " -> SEM NENHUM caminho de imagem (cairia no fallback tipográfico)");
+  });
+  assert(
+    semImagem.length === 0,
+    "ASSERÇÃO-ALVO — as 43 coleções resolvem imagem REAL, ZERO fallback tipográfico restante (grade Todas as Categorias 43/43 com imagem)" + (semImagem.length ? " — SEM IMAGEM (" + semImagem.length + "): " + semImagem.join("; ") : "")
+  );
+
+  console.log("");
+  console.log("==================================================");
   console.log("8. CHROME-CLEARANCE — exceção 'float sobre mídia' ampliada (recipe-page + grupo-view.has-banner)");
   console.log("==================================================");
   const grupoViewRule = ruleBody(css, ".grupo-view {", ".grupo-view (base)");
@@ -546,7 +748,7 @@ function main() {
   console.log("9. SERVICE WORKER — v35 (calibração final do banner de hub, sem blur) + APP_SHELL completo");
   console.log("==================================================");
   const swJs = fs.readFileSync(path.join(ROOT, "sw.js"), "utf8");
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v56";'), "CACHE_NAME v36 -> ... -> v55 -> v56 (hotfix timer-lifecycle 2026-07-31: mais um bump de feature externa, atualizado pro valor vigente)");
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v57";'), "CACHE_NAME v36 -> ... -> v56 -> v57 (coleções abstratas de tempo/dificuldade ilustradas, 2026-07-31: css/style.css + js/app.js mudam, bump obrigatório, atualizado pro valor vigente)");
   // Regressão que passou despercebida desde que js/countries.js foi criado: o arquivo é
   // pré-requisito duro de js/categories.js e js/collections.js (os dois leem window.COUNTRIES
   // no topo, fora de função) e não estava no APP_SHELL. Ficava no cache só de carona, pelo

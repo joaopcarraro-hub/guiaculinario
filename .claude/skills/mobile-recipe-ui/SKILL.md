@@ -302,8 +302,10 @@ pequeno/uppercase já usado pelos grupos de tags populares) — zero CSS novo pr
   receita específica): mídia em `aspect-ratio: 4/3` — a mesma proporção de `.category-card__media`,
   não o 16:9 do mini-card de receita — + nome serif ABAIXO da foto (nunca sobre ela, regra-mãe do
   item 6 do roadmap-mestre). Sem foto mapeada = `.momento-card__media` vazio, fundo
-  `--color-surface-elevated`, mesmo fallback tipográfico limpo das 7 coleções órfãs de tempo/
-  dificuldade — guarda defensiva pra um Momento futuro sem asset pronto; os 5 atuais têm foto
+  `--color-surface-elevated`, mesmo fallback tipográfico limpo já usado em qualquer
+  `.category-card`/`.home-tile` sem imagem — guarda defensiva pra um Momento futuro sem asset
+  pronto (não é mais o estado das 7 coleções de tempo/dificuldade, todas ilustradas desde
+  2026-07-31); os 5 atuais têm foto
   (Sobremesas/Vegetarianas reaproveitam o asset que já existia; os outros 3, mini-lote novo,
   `momento-cafe-da-manha.webp`/`momento-rapidas.webp`/`momento-fim-de-semana.webp`).
 - **Sugestões de hoje** — reusa `.recent-views__rail`/`.recent-card` (mesmo mini-card, mesma
@@ -315,6 +317,28 @@ pequeno/uppercase já usado pelos grupos de tags populares) — zero CSS novo pr
   lugar do `repeat(auto-fill, minmax(150px, 1fr))` padrão, que só cabe 2 colunas em ~350px
   úteis). Mesmo `.category-card`/`renderCollectionCard` de sempre, `__title` ganha
   `-webkit-line-clamp: 2` só dentro deste modificador (nomes mais longos, coluna mais estreita).
+  **43/43 tiles com imagem desde 2026-07-31** (zero fallback tipográfico) — ver seção "Coleções
+  abstratas de tempo/dificuldade" abaixo pras 7 que faltavam.
+
+**Coleções abstratas de tempo/dificuldade — ilustração por reuso/receita-assinatura (2026-07-31,
+extensão do rumo de Países).** As 7 coleções de Por tempo/Por dificuldade eram as únicas ainda em
+fallback tipográfico na grade acima (e nos próprios hubs `#/grupo/tempo`/`#/grupo/dificuldade`).
+Curadoria completa e as 4 restrições aplicadas (pertence à coleção de verdade, nunca uma
+receita-assinatura de país já em uso, sem gêmea visual de um tile do acervo GERADO, `nature:
+"prato"` + legível em tile) estão em `docs/CONTRATO-IMAGENS-REDESIGN.md` §4 — aqui só o resumo de
+UI. Dois caminhos, os dois curados à mão em `js/collections.js` (`collection.tileImage`/
+`collection.signatureRecipe`), nenhum computado:
+- **Rápidas/Preparo Longo** — REUSAM o asset de Momento equivalente desta mesma vitrine
+  (`momento-rapidas.webp`/`momento-fim-de-semana.webp`, mesma identidade visual, zero foto nova).
+  Resolvido por `collectionTileImageSrc()` (mesmo caminho do tile de categoria comum — `<img>`
+  direto no innerHTML, sem `loadRecipeImage`).
+- **Até 1 Hora/Mais de 1 Hora/Fáceis/Intermediárias/Avançadas** — receita-assinatura própria
+  (Yakitori/Cassoulet/Guacamole/Ossobuco/Pato Laqueado (Pequim)), resolvida em runtime por
+  `loadRecipeImage()` — MESMO pipeline/MESMOS tokens do tile de país (foto própria → Wikipedia →
+  placeholder), classe `.category-card--signature` (regra CSS própria, não reusa `--country`,
+  mas a mesma receita visual: 4:3, `display:flex` só pra centralizar o placeholder,
+  `object-fit:cover`, SEM blur/véu). `.category-card__band` não muda — os mesmos tokens/contraste
+  do tile de categoria comum valem aqui, `--signature` só sobrescreve `__media`.
 
 Estados `:active`/`:focus-visible`/`prefers-reduced-motion` de `.momento-card` e dos 2 botões do
 chip de busca recente entram nas MESMAS listas compartilhadas que todo o resto do app já usa
@@ -1081,10 +1105,13 @@ não por falha técnica (ver `docs/CONTRATO-IMAGENS-REDESIGN.md` §8.1.1).
 **Investigação de mapeamento (feita ANTES de qualquer CSS/JS, como sempre neste projeto):** slug
 de cada imagem de `scripts/gerar-categorias.js` (19 itens: 8 Fundamentos + 8 Proteínas + 3 hubs)
 cruzado com `id` de `window.COLLECTIONS` — **zero tile órfão** nas 16 coleções de
-Fundamentos/Proteínas e nas 20 de País (via `iso2`, não este acervo). Os únicos 7 sem imagem são
-Por tempo (4) e Por dificuldade (3) — coleções de rotas ÓRFÃS (`#/grupo/tempo`,
-`#/grupo/dificuldade`, sem link nenhum hoje no app, só URL direta) — recebem fallback tipográfico
-limpo (faixa + nome sobre fundo neutro, sem ícone, sem buraco). Verificado por
+Fundamentos/Proteínas e nas 20 de País (via `iso2`, não este acervo). Os únicos 7 sem imagem
+eram Por tempo (4) e Por dificuldade (3) — coleções de rotas sem link na Home, alcançáveis pelos
+próprios hubs e pela vitrine "Todas as categorias" (F1b) — que caíam no fallback tipográfico
+limpo (faixa + nome sobre fundo neutro, sem ícone, sem buraco). **Ilustradas em 2026-07-31**
+(extensão do rumo de Países, ver seção "Coleções abstratas de tempo/dificuldade" mais abaixo) —
+zero coleção em fallback tipográfico desde então, grade "Todas as categorias" 43/43 com imagem.
+Verificado por
 `scripts/verify-categoria-tiles-2026-07-26.js`, que EXTRAI e EXECUTA `collectionTileImageSrc`/
 `GRUPO_BANNER_IMAGE` de verdade contra os dados reais (não só grep do literal), inclusive
 confirmando que cada caminho resolvido existe de fato em disco.
