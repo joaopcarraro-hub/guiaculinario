@@ -1861,12 +1861,23 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
    full-bleed) — sem classe própria, zero diferença visual da versão da Home. */
 
 /* Todas as categorias — mesma .category-card de sempre, grade mais compacta (3 colunas fixas em
-   vez do auto-fill de 150px mínimo da grade padrão, que só cabe 2 em ~350px úteis). */
-.category-grid--compact {
+   vez do auto-fill de 150px mínimo da grade padrão, que só cabe 2 em ~350px úteis).
+   BUG DE ESPECIFICIDADE (item 8, tier largo, 2026-08-05 — 3ª ocorrência deste padrão no projeto,
+   ver histórico de .filter-tile-grid.filter-tile-grid--dense acima): o elemento leva as 2
+   classes juntas (grid.className = "category-grid category-grid--compact", js/app.js) mas
+   ".category-grid--compact" (seletor de 1 classe, especificidade 0-1-0) e ".category-grid"
+   (idem, MESMA especificidade — a única diferença era a ordem no arquivo) empatam; a regra
+   ".category-grid" vinha DEPOIS no arquivo, então vencia por ordem, e a grade compacta
+   renderizava auto-fill(150px) — medido ao vivo em 390px ANTES desta correção: 2 colunas de
+   173px, não as 3 pretendidas (repeat(3,1fr) nunca chegava a aplicar de verdade). Fix: seletor
+   composto ".category-grid.category-grid--compact" (especificidade 0-2-0) — passa a vencer por
+   ESPECIFICIDADE, não mais por sorte de posição no arquivo, e funciona nos 2 tiers (a única
+   mudança desta rodada fora de @media, por afetar mobile e desktop igualmente). */
+.category-grid.category-grid--compact {
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-2);
 }
-.category-grid--compact .category-card__title { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.category-grid.category-grid--compact .category-card__title { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
 /* ---------- Tags clicáveis (cards e página da receita) ----------
    Pente-fino 2026-07-30 (pós-Busca): o padrão calibrado de chip (36px, hit-area -6px = 48px
@@ -3326,5 +3337,71 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
   .recent-card:last-child,
   .momento-card:last-child {
     margin-right: 0;
+  }
+
+  /* Item 5 — listas de receita (categoria/renderCategory, resultados de busca/renderBusca,
+     Minhas Receitas/renderMinhasReceitas): coluna única vira grade, mesmo .recipe-card de
+     sempre (foto 2:1, nome serif, desc 2 linhas, chip, coração) entrando na célula sem mudança
+     de componente. .recipe-grid é classe NOVA (js/app.js) nos 3 containers — inerte abaixo de
+     900px (sem regra fora deste media query), então o comportamento mobile de hoje (bloco
+     simples, cards empilhados com margin-bottom) sobrevive intacto. minmax(320px,1fr): ~3
+     colunas em 1024/1366 (menos a calha), 4 em 1920 — números conferidos ao vivo no relatório.
+     .recipe-card__heart é position:absolute dentro do card (não fixed) e .tag-chip-link já tem
+     hit-area própria — nenhum dos dois depende da largura do container pai, sobrevivem à grade
+     sem ajuste. margin-bottom do card (--space-5, useful em coluna única) vira redundante com o
+     gap da grade — zerado só aqui dentro, não na regra base (mobile continua com o espaçamento
+     de sempre). .tagsearch-group-label/.empty-state (rótulos de grupo do preview de busca e
+     estado vazio) não são cards — precisam ocupar a LARGURA TOTAL da grade, não uma célula. */
+  .recipe-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    align-items: start;
+    gap: var(--space-5);
+  }
+  .recipe-grid .recipe-card {
+    margin-bottom: 0;
+  }
+  .recipe-grid .tagsearch-group-label,
+  .recipe-grid .empty-state {
+    grid-column: 1 / -1;
+  }
+  /* Achado ao vivo (verificação desta rodada): .tagsearch-results é o MESMO resultsEl usado
+     pra 2 conteúdos bem diferentes — lista de cards (renderResults/renderPreviewSection, o
+     caso que a grade acima resolve) E, no estado de query/tags vazios, a vitrine inteira da
+     Pesquisar (buildPesquisarVitrine — Buscas recentes/Momentos/Sugestões/Todas as categorias,
+     nenhum deles um recipe-card solto). Sem esta regra, virar .recipe-grid um container grid
+     espremia a vitrine INTEIRA numa única célula de ~320-410px (herda o grid do pai mesmo sem
+     ser card nenhum). grid-column:1/-1 devolve a largura total do container pro wrapper da
+     vitrine — o conteúdo dela é bloco/flex normal por dentro, intocado. */
+  .recipe-grid > .pesquisar-vitrine {
+    grid-column: 1 / -1;
+  }
+
+  /* Item 6 — grades de tile (hubs/.category-grid em renderGrupo, Todas as Categorias/
+     .category-grid--compact — ver fix de especificidade acima, fora deste media query). Base
+     200-240px (auto-fill): o vazio de 27,4% medido em 1920px com o antigo minmax(150px,1fr) cai
+     pro normal de fim-de-linha de uma grade bem dimensionada. .home-tiles (os 4 tiles grandes da
+     Home) e .filter-tile-grid (Equipamento/País no modal de Filtros) NÃO entram aqui de
+     propósito — não fazem parte do pedido ("hubs, Todas as Categorias" só), e mudar os 4 tiles
+     grandes da Home pra auto-fill os encolheria sem necessidade. */
+  .category-grid,
+  .category-grid.category-grid--compact {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+  /* Tile de bandeira (país, modal de Filtros): asset nativo 600x400 — max-width:300px trava o
+     tamanho de EXIBIÇÃO no nativo (2x), nunca ampliando além dele mesmo se a célula da grade
+     ficar mais larga (queixa medida no modal, "bandeira borrada de tão esticada"). */
+  .filter-tile--photo .filter-tile__media {
+    max-width: 300px;
+  }
+
+  /* Item 7 — Preparos/Lista de Compras: telas de trabalho, não de vitrine — conteúdo acompanha
+     o container 1320 (calha normal), mas com coluna de conteúdo confortável, mais estreita que
+     os 1320 inteiros pra não esticar demais uma lista de texto/checkbox. .comfortable-view é
+     wrapper NOVO (js/app.js, renderPreparosList/renderListaCompras) — inerte abaixo de 900px. */
+  .comfortable-view {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
   }
 }

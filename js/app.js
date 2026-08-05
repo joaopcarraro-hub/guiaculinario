@@ -2239,6 +2239,7 @@
     content.appendChild(chipsWrap);
 
     const listEl = document.createElement("div");
+    listEl.className = "recipe-grid";
     content.appendChild(listEl);
 
     // S2: válvula de escape anti-decepção — container próprio, depois da lista; o empty-state
@@ -2947,7 +2948,7 @@
     content.appendChild(wrap);
 
     const resultsEl = document.createElement("div");
-    resultsEl.className = "tagsearch-results";
+    resultsEl.className = "tagsearch-results recipe-grid";
     content.appendChild(resultsEl);
 
     function goTo(newTagIds, newTextFilters) {
@@ -3352,6 +3353,13 @@
     content.innerHTML = "";
     progressEl.textContent = "";
 
+    // Wrapper de largura confortável (item 7, tier largo, 2026-08-05) — .comfortable-view (CSS,
+    // tier largo >=900px) centra o conteúdo numa coluna de leitura, mesma convenção de
+    // .recipe-grid acima: classe inerte abaixo de 900px, sem efeito em mobile.
+    const wrap = document.createElement("div");
+    wrap.className = "comfortable-view";
+    content.appendChild(wrap);
+
     // Ticker da tela (Fase multi-timer, 2026-07-30): parado aqui de forma idempotente (também
     // parado em handleRoute ao trocar de rota, ver abaixo) — chamar renderPreparosList() de novo
     // com a tela já aberta (ex.: depois de cancelar 1 timer) nunca empilha um 2º interval sobre
@@ -3364,7 +3372,7 @@
       const empty = document.createElement("div");
       empty.className = "empty-state";
       empty.textContent = "Nenhum preparo em andamento. Comece pela tela de uma receita.";
-      content.appendChild(empty);
+      wrap.appendChild(empty);
       return;
     }
 
@@ -3491,7 +3499,7 @@
         list.appendChild(card);
       });
 
-    content.appendChild(list);
+    wrap.appendChild(list);
 
     // Ticker de tela: só existe enquanto houver ao menos 1 chip pra atualizar (sem interval
     // órfão rodando à toa quando não há nada pra contar). 1s — atualiza SÓ texto/classe dos
@@ -3862,6 +3870,12 @@
     content.innerHTML = "";
     progressEl.textContent = "";
 
+    // Wrapper de largura confortável (item 7, tier largo, 2026-08-05) — mesmo padrão/classe de
+    // renderPreparosList (.comfortable-view), inerte abaixo de 900px.
+    const wrap = document.createElement("div");
+    wrap.className = "comfortable-view";
+    content.appendChild(wrap);
+
     const recipeEntries = Storage.getShoppingListRecipes();
 
     // Cabeçalho da tela (F1c, 2026-07-30): abas + "Limpar lista" no canto, lado a lado — antes
@@ -3914,13 +3928,13 @@
       headerRow.appendChild(clearBtn);
     }
 
-    content.appendChild(headerRow);
+    wrap.appendChild(headerRow);
 
     if (!recipeEntries.length) {
       const empty = document.createElement("div");
       empty.className = "empty-state";
       empty.textContent = "Sua lista de compras está vazia. Adicione receitas pela tela de cada receita.";
-      content.appendChild(empty);
+      wrap.appendChild(empty);
       return;
     }
 
@@ -4063,7 +4077,7 @@
       });
 
       section.appendChild(ul);
-      content.appendChild(section);
+      wrap.appendChild(section);
     });
   }
 
@@ -4096,7 +4110,7 @@
       });
       ul.appendChild(li);
     });
-    content.appendChild(ul);
+    wrap.appendChild(ul);
 
     // Despensa (Fase 2): itens do PANTRY_SET fora da soma — só nome + em quantas receitas
     // aparece, SEM número de quantidade. O CABEÇALHO é o que sinaliza a intenção (sem ele,
@@ -4106,7 +4120,7 @@
       const pantryTitle = document.createElement("div");
       pantryTitle.className = "shopping-list__pantry-title";
       pantryTitle.textContent = "Despensa — confira se já tem";
-      content.appendChild(pantryTitle);
+      wrap.appendChild(pantryTitle);
 
       const pantryUl = document.createElement("ul");
       pantryUl.className = "ingredients-list checklist";
@@ -4133,7 +4147,7 @@
         });
         pantryUl.appendChild(li);
       });
-      content.appendChild(pantryUl);
+      wrap.appendChild(pantryUl);
     }
 
     // Items isReference não são compra ("1 receita de hollandaise" não vai pro carrinho),
@@ -4143,7 +4157,7 @@
       const title = document.createElement("div");
       title.className = "shopping-list__preparos-title";
       title.textContent = "Preparos que você precisa fazer antes";
-      content.appendChild(title);
+      wrap.appendChild(title);
 
       const pul = document.createElement("ul");
       pul.className = "ingredients-list shopping-list__preparos";
@@ -4154,7 +4168,7 @@
           '<span class="shopping-list__preparos-recipes"> — ' + p.recipeNames.join(", ") + "</span>";
         pul.appendChild(li);
       });
-      content.appendChild(pul);
+      wrap.appendChild(pul);
     }
   }
 
@@ -4194,6 +4208,13 @@
     });
     content.appendChild(tabsEl);
 
+    // Wrapper próprio pra lista (item 5, tier largo, 2026-08-05): content também guarda tabsEl
+    // acima, que não pode entrar na grade — .recipe-grid (CSS, tier largo >=900px) vira grid só
+    // aqui dentro, tabsEl fica de fora por não ser filho deste wrapper.
+    const listEl = document.createElement("div");
+    listEl.className = "recipe-grid";
+    content.appendChild(listEl);
+
     const cfg = MINHAS_RECEITAS_TABS.find((t) => t.id === minhasReceitasTab);
     const ids = cfg.getIds();
     const items = ids.map((id) => TagModel.findRecipeById(id)).filter(Boolean);
@@ -4202,14 +4223,14 @@
       const empty = document.createElement("div");
       empty.className = "empty-state";
       empty.textContent = cfg.empty;
-      content.appendChild(empty);
+      listEl.appendChild(empty);
     } else {
       // fromHash aqui é só "minhas-receitas" (rota sem query) — a aba ativa (minhasReceitasTab)
       // já é estado de módulo, sobrevive sozinha a sair/voltar sem precisar ir pra URL; só
       // precisamos que "Voltar" pare AQUI em vez de cair na categoria própria da receita.
       const fromHash = currentHashPath();
       items.forEach((item) => {
-        content.appendChild(renderRecipeCard(item, { fromHash: fromHash }));
+        listEl.appendChild(renderRecipeCard(item, { fromHash: fromHash }));
       });
     }
   }
