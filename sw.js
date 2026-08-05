@@ -109,7 +109,13 @@
 // Defumação, Legumes Fermentados) deixam de ficar sem tag time: e entram em
 // mais-de-1h/preparo-longo; 4 time.total textuais normalizados em data/*.js (data/ não é
 // precache, mas js/tagmodel.js é).
-const CACHE_NAME = "cardapio-v59";
+// v59 -> v60 (2026-08-05, ENCAIXE-1): 60 tags course: manuais aprovadas pelo dono a partir de
+// docs/RELATORIO-DRYRUN-COURSE-2026-08-05.md — 21 cafe-da-manha (ovos-basicos/ovos-classicos/
+// dinamarca + Croque Monsieur), 17 sobremesa, 13 entrada, 9 acompanhamento; cafe-da-manha
+// 9->30, sobremesa 19->36, entrada 25->38, acompanhamento 24->33, sem course: 237->194.
+// Mudaram 16 data/*.js, todos no APP_SHELL abaixo (nota: o changelog do v59 dizia "data/ não
+// é precache", mas data/*.js estão SIM na lista do APP_SHELL desde sempre — corrigido aqui).
+const CACHE_NAME = "cardapio-v60";
 
 const APP_SHELL = [
   "./",

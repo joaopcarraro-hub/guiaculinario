@@ -206,7 +206,7 @@ window.RECIPES["alemanha"] = [
     time: { prep: "15 min", cook: "20 min", total: "35 min" },
     yield: "6 porções",
     difficulty: "Fácil",
-    tags: ["contains:suino", "ingredient:batata"],
+    tags: ["contains:suino", "ingredient:batata", "course:acompanhamento"],
     ingredients: [
       "1 kg de batata, com casca",
       "150 g de bacon em cubos",

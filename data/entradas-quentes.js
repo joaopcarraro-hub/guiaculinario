@@ -115,7 +115,7 @@ window.RECIPES["entradas-quentes"] = [
     time: { prep: "15 min", cook: "15 min", total: "30 min" },
     yield: "2 porções",
     difficulty: "Fácil",
-    tags: ["contains:suino", "ingredient:queijo"],
+    tags: ["contains:suino", "ingredient:queijo", "course:cafe-da-manha"],
     ingredients: [
       "4 fatias de pão de forma (tipo brioche ou pão de fôrma grosso)",
       "4 fatias de presunto de boa qualidade",

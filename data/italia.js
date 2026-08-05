@@ -423,7 +423,7 @@ window.RECIPES["italia"] = [
     time: { prep: "5 min", cook: "10 min", total: "15 min" },
     yield: "4 porções",
     difficulty: "Média",
-    tags: ["protein:ovo", "ingredient:ovo", "ingredient:vinho"],
+    tags: ["protein:ovo", "ingredient:ovo", "ingredient:vinho", "course:sobremesa"],
     ingredients: [
       "4 gemas",
       "60 g de açúcar",
@@ -482,7 +482,7 @@ window.RECIPES["italia"] = [
     time: { prep: "30 min + 6h congelador", cook: "5 min", total: "≈6h30" },
     yield: "6-8 porções",
     difficulty: "Média",
-    tags: ["diet:vegetariana", "ingredient:ovo"],
+    tags: ["diet:vegetariana", "ingredient:ovo", "course:sobremesa"],
     ingredients: [
       "4 gemas",
       "100 g de açúcar (dividido)",
@@ -578,7 +578,7 @@ window.RECIPES["italia"] = [
     time: { prep: "5 min", cook: "0 min", total: "5 min" },
     yield: "1 porção",
     difficulty: "Fácil",
-    tags: ["diet:vegetariana", "ingredient:cafe"],
+    tags: ["diet:vegetariana", "ingredient:cafe", "course:sobremesa"],
     ingredients: [
       "2 bolas de sorvete de creme (ou baunilha) de boa qualidade",
       "1 dose de café espresso, bem quente e recém-tirado",

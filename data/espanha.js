@@ -427,7 +427,7 @@ window.RECIPES["espanha"] = [
     time: { prep: "15 min", cook: "30 min", total: "45 min" },
     yield: "4 porções (tapa)",
     difficulty: "Fácil",
-    tags: ["diet:vegetariana", "ingredient:batata"],
+    tags: ["diet:vegetariana", "ingredient:batata", "course:entrada"],
     ingredients: [
       "800 g de batata, descascada e em cubos grandes",
       "Óleo, o suficiente para fritar",
@@ -562,7 +562,7 @@ window.RECIPES["espanha"] = [
     time: { prep: "15 min", cook: "0 min", total: "15 min + gelar" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["contains:suino", "ingredient:tomate", "ingredient:ovo"],
+    tags: ["contains:suino", "ingredient:tomate", "ingredient:ovo", "course:entrada"],
     ingredients: [
       "1 kg de tomate bem maduro, picado",
       "150 g de pão amanhecido, sem casca, picado",

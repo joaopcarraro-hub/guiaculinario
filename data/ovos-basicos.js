@@ -12,7 +12,7 @@ window.RECIPES["ovos-basicos"] = [
     time: { prep: "1 min", cook: "4 a 10 min", total: "5 a 11 min" },
     yield: "por ovo",
     difficulty: "Fácil",
-    tags: ["protein:ovo", "ingredient:ovo"],
+    tags: ["protein:ovo", "ingredient:ovo", "course:cafe-da-manha"],
     ingredients: [
       "Ovos em temperatura ambiente (saem da geladeira 20-30 min antes)",
       "Água suficiente para cobrir os ovos",
@@ -63,7 +63,7 @@ window.RECIPES["ovos-basicos"] = [
     time: { prep: "2 min", cook: "3 min", total: "5 min" },
     yield: "por ovo",
     difficulty: "Média",
-    tags: ["protein:ovo", "ingredient:ovo"],
+    tags: ["protein:ovo", "ingredient:ovo", "course:cafe-da-manha"],
     ingredients: [
       "1 ovo bem fresco por porção",
       "1 L de água",
@@ -220,7 +220,7 @@ window.RECIPES["ovos-basicos"] = [
     time: { prep: "1 min", cook: "3 min", total: "4 min" },
     yield: "por ovo",
     difficulty: "Fácil",
-    tags: ["protein:ovo", "ingredient:ovo"],
+    tags: ["protein:ovo", "ingredient:ovo", "course:cafe-da-manha"],
     ingredients: [
       "1 ovo",
       "1 colher (chá) de manteiga ou óleo neutro",
@@ -334,7 +334,7 @@ window.RECIPES["ovos-basicos"] = [
     time: { prep: "5 min", cook: "12 min", total: "17 min" },
     yield: "por porção",
     difficulty: "Fácil",
-    tags: ["protein:ovo", "ingredient:ovo"],
+    tags: ["protein:ovo", "ingredient:ovo", "course:cafe-da-manha"],
     ingredients: [
       "1-2 ovos por ramequim",
       "1 colher (sopa) de creme de leite fresco por ramequim",
@@ -405,7 +405,7 @@ window.RECIPES["ovos-basicos"] = [
     time: { prep: "3 min", cook: "10 min", total: "13 min" },
     yield: "por porção",
     difficulty: "Fácil",
-    tags: ["protein:ovo", "ingredient:ovo"],
+    tags: ["protein:ovo", "ingredient:ovo", "course:cafe-da-manha"],
     ingredients: [
       "1-2 ovos por ramequim",
       "1 colher (chá) de manteiga",
@@ -467,7 +467,7 @@ window.RECIPES["ovos-basicos"] = [
     time: { prep: "2 min", cook: "6 min", total: "8 min" },
     yield: "1 porção (3 ovos)",
     difficulty: "Média",
-    tags: ["protein:ovo", "ingredient:ovo"],
+    tags: ["protein:ovo", "ingredient:ovo", "course:cafe-da-manha"],
     ingredients: [
       "3 ovos",
       "20 g de manteiga gelada, em cubos (dividida)",
@@ -546,7 +546,7 @@ window.RECIPES["ovos-basicos"] = [
     time: { prep: "2 min", cook: "4 min", total: "6 min" },
     yield: "1 porção (3 ovos)",
     difficulty: "Fácil",
-    tags: ["protein:ovo", "ingredient:ovo"],
+    tags: ["protein:ovo", "ingredient:ovo", "course:cafe-da-manha"],
     ingredients: [
       "3 ovos",
       "2 colheres (sopa) de leite ou creme de leite",
@@ -607,7 +607,7 @@ window.RECIPES["ovos-basicos"] = [
     time: { prep: "2 min", cook: "3 min", total: "5 min" },
     yield: "1 porção (3 ovos)",
     difficulty: "Média-alta",
-    tags: ["protein:ovo", "ingredient:ovo"],
+    tags: ["protein:ovo", "ingredient:ovo", "course:cafe-da-manha"],
     ingredients: [
       "3 ovos",
       "1 colher (sopa) de água ou leite (opcional)",

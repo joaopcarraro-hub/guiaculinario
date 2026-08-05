@@ -254,6 +254,37 @@ function main() {
       reason: "dbd733b: ganhou format:molho (tag nova da leva de derivação, aditiva — resto preservado)",
     },
   };
+  // Higiene 2026-08-05 (fase ENCAIXE-1): o dono aprovou course: manual ADITIVO para 60
+  // receitas (docs/RELATORIO-DRYRUN-COURSE-2026-08-05.md, desfecho no topo) — 20 delas estão
+  // entre os renomes da leva 2, e cada uma ganhou EXATAMENTE 1 tag course: sobre o "antes"
+  // fixo de dece1cb. Mesmo espírito do mapa acima, mas documentando o DELTA aprovado em vez
+  // de repetir as duas listas inteiras: a checagem exige after == before + added, então
+  // qualquer outra tag mudando nestas receitas continua derrubando a suíte de propósito.
+  // O contrato fino de conjunto fechado dos course: manuais vive em
+  // scripts/verify-encaixe-course-2026-08-05.js.
+  const ENCAIXE1_REASON = "ENCAIXE-1 2026-08-05: course: manual aprovado pelo dono, puramente aditivo — resto preservado";
+  const KNOWN_ADDITIVE_TAGS_POST_BASE = {
+    "dinamarca|Pão de Centeio": ["course:cafe-da-manha"],
+    "dinamarca|Pão Branco Dinamarquês": ["course:cafe-da-manha"],
+    "dinamarca|Pãezinhos Redondos": ["course:cafe-da-manha"],
+    "dinamarca|Pãezinhos": ["course:cafe-da-manha"],
+    "dinamarca|Rolinho de Canela": ["course:cafe-da-manha"],
+    "dinamarca|Bolo dos Sonhos": ["course:sobremesa"],
+    "dinamarca|Fatias de Framboesa": ["course:sobremesa"],
+    "dinamarca|Bolo de Camadas": ["course:sobremesa"],
+    "dinamarca|Rødgrød com Creme": ["course:sobremesa"],
+    "dinamarca|Torta de Limão Dinamarquesa": ["course:sobremesa"],
+    "dinamarca|Bolo Coroa": ["course:sobremesa"],
+    "dinamarca|Leitelho Gelado": ["course:sobremesa"],
+    "dinamarca|Batatas Caramelizadas": ["course:acompanhamento"],
+    "dinamarca|Repolho Roxo": ["course:acompanhamento"],
+    "dinamarca|Salada de Pepino": ["course:acompanhamento"],
+    "dinamarca|Beterraba em Conserva": ["course:acompanhamento"],
+    "dinamarca|Pepino em Conserva": ["course:acompanhamento"],
+    "dinamarca|Cebola em Conserva": ["course:acompanhamento"],
+    "alemanha|Salada de Batata": ["course:acompanhamento"],
+    "ovos-classicos|Ovos com Maionese": ["course:entrada"],
+  };
   RENAMES.forEach(([catId, oldName, newName]) => {
     const beforeItem = beforeFlat.find((it) => it.catId === catId && it.recipe.name === oldName);
     const afterItem = afterFlat.find((it) => it.catId === catId && it.recipe.name === newName);
@@ -269,6 +300,14 @@ function main() {
         JSON.stringify(beforeTags) === JSON.stringify(knownChange.before.slice().sort()) &&
           JSON.stringify(afterTags) === JSON.stringify(knownChange.after.slice().sort()),
         catId + "/" + newName + ": tag mudou por razão aprovada e já documentada (" + knownChange.reason + ") — " + afterTags.length + " tags"
+      );
+      return;
+    }
+    const knownAdditive = KNOWN_ADDITIVE_TAGS_POST_BASE[catId + "|" + newName];
+    if (knownAdditive) {
+      assert(
+        JSON.stringify(afterTags) === JSON.stringify(beforeTags.concat(knownAdditive).sort()),
+        catId + "/" + newName + ": tags = antes + " + knownAdditive.join("+") + " (" + ENCAIXE1_REASON + ") — " + afterTags.length + " tags"
       );
       return;
     }

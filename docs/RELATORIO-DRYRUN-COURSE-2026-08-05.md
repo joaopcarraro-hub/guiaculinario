@@ -1,5 +1,17 @@
 # Relatório dry-run — re-encaixe de `course:` nas 398 receitas (fase ESTEIRA-1)
 
+> **DESFECHO 2026-08-05 (fase ENCAIXE-1) — APLICADO.** O dono aprovou e as 60 tags foram
+> escritas em `data/*.js` no mesmo dia: as 20 ALTA de cafe-da-manha (§2) + Croque Monsieur,
+> as 17 de sobremesa (§5.2), as 13 de entrada (§5.3) e as 9 de acompanhamento (§5.4).
+> Contagens finais medidas: cafe-da-manha 9→30, sobremesa 19→36, entrada 25→38,
+> acompanhamento 24→33, principal 84 (inalterado), receitas sem course: 237→194.
+> Das 11 DUVIDOSAS de cafe-da-manha (§3), o dono aprovou SOMENTE Croque Monsieur; as outras
+> 10 NÃO receberam a tag: Ovo Mollet, Ovo a Baixa Temperatura (63°C), Ovo Confitado,
+> Frittata, Tamagoyaki, Ovos en Cocotte à la Forestière, Pastel de Nata, Kaiserschmarrn,
+> Æbleskiver e Leitelho Gelado (as 4 últimas seguem com a sobremesa da §5.2, só sem café).
+> Suíte que trava o desfecho: `scripts/verify-encaixe-course-2026-08-05.js`. A varredura
+> exaustiva das 194 restantes sem course: segue PENDENTE como fase própria (E2, ver §5.1).
+
 > **2026-08-05 — RELATÓRIO PARA APROVAÇÃO, ZERO ESCRITA EM `data/*.js`.** Nenhuma tag foi
 > adicionada: este documento é a proposta. Depois do aval do dono, a aplicação vira uma tarefa
 > própria (e cada adição passa pelo validador novo, `scripts/validar-lote.js`).

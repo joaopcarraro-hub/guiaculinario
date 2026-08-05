@@ -635,7 +635,7 @@ window.RECIPES["coreia"] = [
     time: { prep: "40 min + 2h salga", cook: "0 min", total: "≈3h + fermentação" },
     yield: "≈1,5 kg",
     difficulty: "Média",
-    tags: ["diet:vegetariana"],
+    tags: ["diet:vegetariana", "course:acompanhamento"],
     ingredients: [
       "1 repolho napa grande, cortado em quartos ou tiras grandes",
       "100 g de sal grosso",

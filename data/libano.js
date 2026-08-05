@@ -12,7 +12,7 @@ window.RECIPES["libano"] = [
     time: { prep: "15 min", cook: "0 min", total: "15 min" },
     yield: "≈500 ml",
     difficulty: "Fácil",
-    tags: ["diet:vegetariana", "ingredient:grao-de-bico", "ingredient:limao"],
+    tags: ["diet:vegetariana", "ingredient:grao-de-bico", "ingredient:limao", "course:entrada"],
     ingredients: [
       "400 g de grão-de-bico cozido (ou 2 latas, escorridas, reservando o líquido)",
       "80 g de tahine (pasta de gergelim)",
@@ -113,7 +113,7 @@ window.RECIPES["libano"] = [
     time: { prep: "15 min", cook: "35 min", total: "50 min" },
     yield: "≈400 ml",
     difficulty: "Fácil",
-    tags: ["diet:vegetariana", "ingredient:berinjela", "ingredient:limao"],
+    tags: ["diet:vegetariana", "ingredient:berinjela", "ingredient:limao", "course:entrada"],
     ingredients: [
       "2 berinjelas grandes",
       "60 g de tahine",
@@ -422,7 +422,7 @@ window.RECIPES["libano"] = [
     time: { prep: "25 min", cook: "0 min", total: "25 min" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["diet:vegetariana", "ingredient:tomate", "ingredient:limao"],
+    tags: ["diet:vegetariana", "ingredient:tomate", "ingredient:limao", "course:entrada"],
     ingredients: [
       "60 g de trigo para quibe (bulgur fino), hidratado em água fria por 15 minutos e bem escorrido",
       "2 maços grandes de salsinha, picada bem fina",
@@ -515,7 +515,7 @@ window.RECIPES["libano"] = [
     time: { prep: "20 min", cook: "10 min", total: "30 min" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["diet:vegetariana", "ingredient:tomate", "ingredient:limao"],
+    tags: ["diet:vegetariana", "ingredient:tomate", "ingredient:limao", "course:entrada"],
     ingredients: [
       "2 pães pita, cortados em pedaços e tostados/fritos até crocantes",
       "2 tomates, em cubos",

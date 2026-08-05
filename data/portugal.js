@@ -444,7 +444,7 @@ window.RECIPES["portugal"] = [
     time: { prep: "40 min", cook: "20 min", total: "1h" },
     yield: "12 unidades",
     difficulty: "Média-alta",
-    tags: ["diet:vegetariana", "ingredient:ovo"],
+    tags: ["diet:vegetariana", "ingredient:ovo", "course:sobremesa"],
     ingredients: [
       "1 disco de massa folhada (ou massa folhada caseira enrolada em cilindro, técnica tradicional)",
       "500 ml de leite integral",

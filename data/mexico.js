@@ -855,7 +855,7 @@ window.RECIPES["mexico"] = [
     time: { prep: "15 min", cook: "0 min", total: "15 min" },
     yield: "4 porções",
     difficulty: "Fácil",
-    tags: ["diet:vegetariana", "ingredient:tomate", "ingredient:limao"],
+    tags: ["diet:vegetariana", "ingredient:tomate", "ingredient:limao", "course:entrada"],
     ingredients: [
       "3 abacates maduros",
       "1/2 cebola roxa picada bem fina",

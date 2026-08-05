@@ -777,7 +777,7 @@ window.RECIPES["india"] = [
     time: { prep: "45 min", cook: "20 min", total: "1h05" },
     yield: "16 unidades",
     difficulty: "Média",
-    tags: ["diet:vegetariana", "ingredient:batata", "ingredient:ervilha"],
+    tags: ["diet:vegetariana", "ingredient:batata", "ingredient:ervilha", "course:entrada"],
     ingredients: [
       "Para a massa: 300 g de farinha de trigo, 60 ml de óleo, 1 pitada de sal, água morna o suficiente para formar a massa",
       "Para o recheio: 3 batatas médias, cozidas e amassadas grosseiramente",
@@ -886,7 +886,7 @@ window.RECIPES["india"] = [
     time: { prep: "20 min + 1h fermentação", cook: "10 min", total: "1h30" },
     yield: "8 unidades",
     difficulty: "Fácil",
-    tags: ["diet:vegetariana", "ingredient:iogurte"],
+    tags: ["diet:vegetariana", "ingredient:iogurte", "course:acompanhamento"],
     ingredients: [
       "500 g de farinha de trigo",
       "7 g de fermento biológico seco",

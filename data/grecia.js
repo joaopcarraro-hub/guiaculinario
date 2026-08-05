@@ -452,7 +452,7 @@ window.RECIPES["grecia"] = [
     time: { prep: "45 min", cook: "45 min", total: "1h30" },
     yield: "≈30 unidades",
     difficulty: "Média",
-    tags: ["diet:vegetariana", "ingredient:arroz", "ingredient:limao", "ingredient:iogurte"],
+    tags: ["diet:vegetariana", "ingredient:arroz", "ingredient:limao", "ingredient:iogurte", "course:entrada"],
     ingredients: [
       "40 folhas de parreira (uva) em conserva, enxaguadas",
       "1 xícara de arroz",
@@ -568,7 +568,7 @@ window.RECIPES["grecia"] = [
     time: { prep: "15 min", cook: "0 min", total: "15 min" },
     yield: "≈400 ml",
     difficulty: "Fácil",
-    tags: ["diet:vegetariana", "ingredient:iogurte"],
+    tags: ["diet:vegetariana", "ingredient:iogurte", "course:entrada"],
     ingredients: [
       "1 pepino grande, ralado",
       "500 g de iogurte grego bem espesso",

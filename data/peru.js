@@ -13,7 +13,7 @@ window.RECIPES["peru"] = [
     time: { prep: "20 min", cook: "0 min", total: "20 min" },
     yield: "2 porções",
     difficulty: "Fácil",
-    tags: ["protein:peixe", "ingredient:limao"],
+    tags: ["protein:peixe", "ingredient:limao", "course:entrada"],
     ingredients: [
       "300 g de peixe branco bem fresco (robalo ou linguado), em fatias finas (estilo sashimi)",
       "100 ml de suco de limão-tahiti, espremido na hora",

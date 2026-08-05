@@ -83,7 +83,7 @@ window.RECIPES["austria"] = [
     time: { prep: "40 min", cook: "35 min", total: "1h15" },
     yield: "8 porções",
     difficulty: "Alta",
-    tags: ["diet:vegetariana", "ingredient:castanha"],
+    tags: ["diet:vegetariana", "ingredient:castanha", "course:sobremesa"],
     ingredients: [
       "1 disco de massa filo (ou massa strudel pronta, ou massa folhada na falta de outra opção)",
       "1 kg de maçã (tipo ácida, como Granny Smith), descascada e fatiada fina",
@@ -186,7 +186,7 @@ window.RECIPES["austria"] = [
     time: { prep: "15 min", cook: "15 min", total: "30 min" },
     yield: "2-3 porções",
     difficulty: "Média",
-    tags: ["diet:vegetariana", "contains:ovo"],
+    tags: ["diet:vegetariana", "contains:ovo", "course:sobremesa"],
     ingredients: [
       "4 ovos (claras e gemas separadas)",
       "60 g de açúcar (dividido)",
