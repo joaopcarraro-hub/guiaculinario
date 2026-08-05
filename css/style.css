@@ -3261,3 +3261,70 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
    PADDING-BOX do ancestral posicionado, então qualquer border no elemento come esse tanto do
    inset silenciosamente. Os valores acima foram recalculados e RE-VERIFICADOS ao vivo
    (elementFromPoint nos 4 lados, ver relatório da Fase 0a) — não são só teoria. */
+
+/* ==========================================================================
+   TIER LARGO — passada desktop (2026-08-05), passo 2+3 do prompt do dono.
+   Media query ÚNICA pra todo o tier largo (exceção: o fix de especificidade de
+   .category-grid--compact, ver comentário na própria regra — afeta os 2 tiers, por isso vive
+   FORA de qualquer media query). Mobile intocado abaixo de 900px — teste negativo em
+   scripts/verify-desktop-tier-2026-08-05.js confirma byte a byte contra o antes. Bloco colocado
+   no fim do arquivo de propósito: várias regras aqui reabrem seletores de especificidade igual
+   à da regra base (.chrome-float, .recipe-page, .category-grid etc.) e dependem de vir DEPOIS
+   na cascata pra vencer — mesmo padrão já usado pelos 2 @media (max-width:700px) existentes.
+   ========================================================================== */
+@media (min-width: 900px) {
+  /* Item 1 — container: 980px -> 1320px. Calha lateral --space-6 substitui --space-12 (a folga
+     generosa fazia sentido nos 980px antigos; no container maior, --space-6 já é confortável e
+     devolve largura útil pra grade). Top/bottom continuam vindo da regra base (--space-10 e
+     --bottom-nav-height) — não fazem parte deste pedido. */
+  #main {
+    max-width: 1320px;
+    padding-left: var(--space-6);
+    padding-right: var(--space-6);
+  }
+
+  /* Item 2 — chrome floats ancorados no CONTAINER (1320px), não no canto físico do viewport
+     (hoje derivam até 455px do conteúdo em telas bem largas). max() preserva o mesmo inset de
+     sempre enquanto o viewport ainda não abriu espaço extra além do container, e passa a
+     acompanhar a borda dele assim que abrir. */
+  .chrome-float {
+    left: max(var(--space-3), calc((100vw - 1320px) / 2 + var(--space-3)));
+  }
+  /* Exceção mantida (item 2): float sobre mídia full-bleed (banner de hub — Mais Categorias/
+     Proteínas/Países) continua no canto físico, já que o banner ainda sangra o viewport inteiro
+     nesta rodada (só o hero da receita virou capa contida, ver item 9 mais abaixo). */
+  .grupo-view.has-banner .chrome-float {
+    left: calc(env(safe-area-inset-left) + var(--space-3));
+  }
+
+  /* Item 3 — bottom nav: a barra continua de ponta a ponta (paridade de PWA, memória
+     muscular) — só as ABAS deixam de esticar até a borda. 640px / 5 abas = 128px cada; trocar
+     flex:1 (cada aba ocupando ~384px em 1920px, medido ~379px no inventário) por flex:0 1 128px
+     + justify-content:center no container fecha o tamanho sem precisar de wrapper novo no HTML
+     (index.html/app.js intocados — puramente CSS). Dock flutuante centralizado fica REGISTRADO
+     como experimento futuro (CHECKLIST-GERAL.md), não implementado aqui. */
+  .bottom-nav {
+    justify-content: center;
+  }
+  .bottom-nav__tab {
+    flex: 0 1 128px;
+  }
+
+  /* Item 4 — carrosséis (Home "Vistas recentemente"/Sugestões de hoje, Pesquisar "Momentos"):
+     o trilho full-bleed é técnica de mobile, onde a calha do #main era estreita demais pro
+     próximo card espiar fora da tela. No tier largo o container já tem 1320px de sobra — sem
+     esta correção sobraria um trilho vazio de ~1000px de bleed além do container. O trilho
+     volta a respeitar a calha normal (herda o padding de #main, mesma convenção de
+     .home-tiles/.category-grid). */
+  .recent-views__rail,
+  .pesquisar-momentos__rail {
+    width: 100%;
+    margin-left: 0;
+    padding-left: 0;
+    scroll-padding-left: 0;
+  }
+  .recent-card:last-child,
+  .momento-card:last-child {
+    margin-right: 0;
+  }
+}
