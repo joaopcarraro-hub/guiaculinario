@@ -198,6 +198,19 @@ Usar:
 - format:molho
 - format:preparo-basico
 
+### course: manual (liberado 2026-08-05, fase ESTEIRA-1)
+
+Tag manual de `course:` no campo `tags` de `data/*.js` é PERMITIDA (até 2026-08-05 era
+proibida por convenção — o doc de categorização mandava não adicionar). É sempre ADITIVA ao
+`course:` automático da categoria (`CATEGORY_BASE_TAGS`, js/tagmodel.js) — nunca substitui:
+uma receita pode ser `course:principal` (da categoria) E `course:cafe-da-manha` (manual) ao
+mesmo tempo. Critério: o momento em que o prato é de fato consumido no Brasil, quando
+diferente/adicional ao que a categoria já dá. Valores válidos: os 5 `course:*` de js/tags.js.
+Não repetir o course: que a categoria já gera. Lote novo passa por
+`scripts/validar-lote.js` (tag precisa existir em js/tags.js e usar prefixo permitido).
+Regras completas em `docs/prompt-categorizar-receita.md`; proposta de re-encaixe do acervo em
+`docs/RELATORIO-DRYRUN-COURSE-2026-08-05.md`.
+
 ### Vegetariana
 
 Não usar protein:vegetariana.

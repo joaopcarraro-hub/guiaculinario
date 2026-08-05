@@ -7,6 +7,12 @@
 >
 > Este arquivo é atualizado sempre que a lista de categorias ou de tags mudar — sempre use a
 > versão mais recente dele (`docs/prompt-categorizar-receita.md` no repositório).
+>
+> **Mudança 2026-08-05 (fase ESTEIRA-1):** (1) `ingredientsStructured` virou campo OBRIGATÓRIO
+> de receita nova, com `stepIngredients` documentado como opcional — ver a seção
+> "ingredientsStructured e stepIngredients"; (2) tag manual de `course:` passou a ser PERMITIDA
+> no campo `tags` (era proibida até então) — ver as regras de tags e a taxonomia; (3) regra nova
+> de air fryer: modo air fryer legítimo precisa de passo explícito em `steps`.
 
 ---
 
@@ -38,16 +44,40 @@ você deve:
   time: { prep: "X min", cook: "Y min", total: "Z min" },
   yield: "N porções",
   difficulty: "Fácil" | "Média" | "Média-alta" | "Difícil",
-  tags: ["protein:xxx", "ingredient:yyy"],
+  tags: ["protein:xxx", "ingredient:yyy"], // course: manual também é permitido — ver regras abaixo
   ingredients: [
     "quantidade + ingrediente",
     "..."
+  ],
+  ingredientsStructured: [
+    // OBRIGATÓRIO desde 2026-08-05 — versão estruturada de `ingredients`, uma entrada por
+    // linha, na MESMA ordem e mesma quantidade de entradas. É o que alimenta o multiplicador
+    // de porções e a Lista de Compras: receita sem este campo entra capenga no app, sem
+    // nenhum erro visível. Estrutura exata e exemplo real na seção
+    // "ingredientsStructured e stepIngredients" abaixo.
+    {
+      raw: "a linha correspondente de `ingredients`, idêntica",
+      group: null, // ou o nome do bloco quando a receita agrupa ingredientes (ex.: "recheio (vatapá e caruru)")
+      items: [
+        {
+          qty: 200,          // número; null quando não há quantidade ("a gosto")
+          qtyRange: null,    // [min, max] quando a linha traz faixa ("8-10 pequis" -> [8, 10]); senão null
+          unit: "grama",     // null quando a unidade é implícita ("2 ovos")
+          item: "spaghetti", // o ingrediente em si, sem quantidade nem preparo
+          prep: null,        // preparo da linha ("em tiras", "ralado (+ extra para servir)") ou null
+          alt: "rigatoni",   // alternativa citada com "ou" na linha; senão null
+          optional: false,   // true quando a linha marca "(opcional)"
+          isReference: false // true quando o item referencia outra receita do acervo (ex.: "1 receita de Béchamel")
+        },
+      ],
+    },
   ],
   steps: [
     "Passo 1 detalhado.",
     "Passo 2 detalhado.",
     "..."
   ],
+  stepIngredients: [ /* OPCIONAL — ver seção abaixo */ ],
   tips: [
     "Dica útil 1.",
     "Dica útil 2."
@@ -81,9 +111,66 @@ Regras de conteúdo:
 - `desc` é UMA frase, apetitosa, sem repetir o nome do prato.
 - `ingredients` e `steps` devem ser completos, detalhados e fiéis à fonte pesquisada — nada de
   "modo de preparo resumido" nem passos inventados.
-- NÃO adicione tags de `country:`, `dish_type:`, `course:`, `time:` ou `difficulty:` — essas são
-  geradas automaticamente pelo site a partir da categoria e dos campos acima. Só adicione
-  `protein:`, `contains:`, `ingredient:` e `diet:` (ver taxonomia abaixo).
+- NÃO adicione tags de `country:`, `dish_type:`, `time:` ou `difficulty:` — essas são geradas
+  automaticamente pelo site a partir da categoria e dos campos acima. Só adicione `protein:`,
+  `contains:`, `ingredient:`, `diet:` e (quando fizer sentido) `course:` — ver taxonomia abaixo.
+- `course:` manual é PERMITIDO desde 2026-08-05 (antes era proibido) e é ADITIVO: nunca
+  substitui o `course:` automático da categoria — uma receita pode ser `course:principal` (da
+  categoria) E `course:cafe-da-manha` (manual) ao mesmo tempo. Critério e valores válidos na
+  taxonomia abaixo. Não repita o `course:` que a categoria já gera.
+- Air fryer: se a receita tem um modo air fryer legítimo, ele precisa aparecer como PASSO
+  explícito em `steps` citando "air fryer" — é esse passo que faz a tag `equipment:air-fryer`
+  derivar (`data/derivation-dict.js` deriva equipamento de `steps`; termo direto sempre conta,
+  verbos genéricos de assar só contam com yield pequeno). Modo air fryer que só existe em
+  `tips` não vira filtro.
+
+## ingredientsStructured e stepIngredients
+
+`ingredientsStructured` é OBRIGATÓRIO (398/398 receitas do acervo têm) — uma entrada por linha
+de `ingredients`, na mesma ordem, com `raw` idêntico ao texto da linha. Exemplo real, copiado de
+`data/massas.js` (Carbonara, 3 primeiras entradas):
+
+```js
+ingredientsStructured: [
+  {
+    raw: "200 g de spaghetti ou rigatoni",
+    group: null,
+    items: [
+      { qty: 200, qtyRange: null, unit: "grama", item: "spaghetti", prep: null, alt: "rigatoni", optional: false, isReference: false },
+    ],
+  },
+  {
+    raw: "120 g de guanciale (ou pancetta), em tiras",
+    group: null,
+    items: [
+      { qty: 120, qtyRange: null, unit: "grama", item: "guanciale", prep: "em tiras", alt: "pancetta", optional: false, isReference: false },
+    ],
+  },
+  {
+    raw: "2 ovos inteiros + 2 gemas",
+    group: null,
+    items: [
+      { qty: 2, qtyRange: null, unit: null, item: "ovos inteiros", prep: null, alt: null, optional: false, isReference: false },
+      { qty: 2, qtyRange: null, unit: null, item: "gemas", prep: null, alt: null, optional: false, isReference: false },
+    ],
+  },
+],
+```
+
+Observações:
+- Uma linha com dois ingredientes ("2 ovos inteiros + 2 gemas") vira UMA entrada com DOIS
+  `items` — o número de entradas continua igual ao de linhas de `ingredients`.
+- `group` nomeia blocos quando a receita separa ingredientes por etapa (ex.: Acarajé usa
+  `group: "recheio (vatapá e caruru)"`); receita sem blocos usa `group: null` em tudo.
+- `qtyRange` usa array `[min, max]` (ex.: "8-10 pequis" → `qtyRange: [8, 10]`, com `qty: null`).
+
+`stepIngredients` é OPCIONAL — liga passos a ingredientes pro modo cozinhar: um array paralelo a
+`steps` (mesmo comprimento), onde cada posição é `null` (passo sem destaque de ingrediente) ou
+uma lista de `{ entryIndex, itemIndex, fraction }` apontando pra
+`ingredientsStructured[entryIndex].items[itemIndex]` e a fração daquela quantidade usada no
+passo (ex. real em `data/massas.js`: `[{ entryIndex: 1, itemIndex: 0, fraction: 0.5 }]` — metade
+do guanciale nesse passo). Se não tiver certeza das ligações, omita o campo — errado é pior que
+ausente.
 
 ## Em qual categoria colocar
 
@@ -125,7 +212,7 @@ ovo já leva `protein:ovo`, então aparece em "Ovos" (Proteínas) automaticament
 Se a receita não se encaixar em nenhuma categoria existente, me avise — pode ser hora de criar
 uma nova (isso exige uma etapa extra de código, então sinalize em vez de forçar um encaixe ruim).
 
-## Taxonomia de tags (protein:, contains:, ingredient: e diet:)
+## Taxonomia de tags (protein:, contains:, ingredient:, diet: e course:)
 
 **protein:** — a proteína **protagonista** do prato, não qualquer proteína presente. Regra
 importante (fonte de um bug já corrigido no site): se a carne/proteína é só um componente
@@ -181,6 +268,16 @@ NÃO marque `seasoning:alho`, `seasoning:cebola`, `seasoning:gengibre` nem `seas
 essas quatro tags existem, mas o site já deriva elas automaticamente a partir do texto de
 `ingredients` (procurando "alho"/"cebola"/"gengibre"/"curry" como palavra inteira na lista de
 ingredientes). Taguear à mão é redundante e não muda nada.
+
+**course:** — momento da refeição (PERMITIDO como tag manual desde 2026-08-05; antes só a
+categoria gerava). A tag manual é sempre ADITIVA à automática da categoria — nunca a substitui.
+Critério: o momento em que o prato é **de fato consumido no Brasil**, quando
+diferente/adicional ao que a categoria já dá. Valores válidos (os `course:*` de `js/tags.js`):
+`course:entrada` `course:principal` `course:sobremesa` `course:acompanhamento`
+`course:cafe-da-manha`
+- ex.: Shakshuka mora em `ovos-classicos` (que já gera `course:principal` automático), mas é
+  café da manhã clássico → adicionar `course:cafe-da-manha` manual. Não repita o `course:` que
+  a categoria já gera (redundante, não muda nada).
 
 Não invente tags novas fora dessas listas. Se nenhuma tag decisiva se aplicar, devolva `tags: []`.
 

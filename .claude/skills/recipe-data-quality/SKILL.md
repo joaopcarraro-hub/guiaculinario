@@ -60,6 +60,25 @@ Substituir por:
 - format:componente
 - format:molho
 
+Nota (2026-08-05, fase ESTEIRA-1): tag manual de `course:` passou a ser PERMITIDA e é sempre
+ADITIVA ao automático da categoria — ver
+`.claude/skills/cooking-taxonomy-architect/SKILL.md` e `docs/prompt-categorizar-receita.md`.
+
+### Receita nova / lote novo (fase ESTEIRA-1, 2026-08-05)
+
+- `ingredientsStructured` é OBRIGATÓRIO em receita nova (398/398 do acervo têm; alimenta o
+  multiplicador de porções e a Lista de Compras — receita sem ele entra capenga, sem erro
+  visível). Mesmo número de entradas (`raw`) que linhas de `ingredients`, na mesma ordem.
+  `stepIngredients` é opcional. Formato exato e exemplo real em
+  `docs/prompt-categorizar-receita.md`.
+- Modo air fryer legítimo exige passo explícito de air fryer em `steps` — é o que faz
+  `equipment:air-fryer` derivar (data/derivation-dict.js deriva equipamento de steps).
+- Validador de lote: `node scripts/validar-lote.js <arquivo-do-lote>` (sem argumento valida o
+  acervo inteiro; `--self-test` roda a fixture negativa embutida). Usa o TagModel REAL via
+  sandbox, checa schema, dificuldade/tempo parseáveis, colisão de nome e slug contra o acervo,
+  tags manuais válidas, contagem de ingredientsStructured, origin sem país (warning) e foto
+  faltando (warning). Erros derrubam (exit != 0); warnings não.
+
 ### Categorias duplicadas
 
 Verificar duplicidade entre:
