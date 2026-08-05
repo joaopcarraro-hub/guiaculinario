@@ -176,13 +176,17 @@ function main() {
   const site2 = 'sortedItems.forEach((item) => listEl.appendChild(renderRecipeCard(item, { fromHash: fromHash, countryOverride: countryOverride })));';
   const site3 = 'resultsEl.appendChild(renderRecipeCard(item, { fromHash: fromHash, countryOverride: countryOverride }));';
   const site4 = 'resultsEl.appendChild(renderRecipeCard(r.item, { fromHash: fromHash, countryOverride: countryOverride }));';
-  const site6 = 'content.appendChild(renderRecipeCard(item, { fromHash: fromHash }));';
+  // Higiene 2026-08-05 (passada desktop, tier largo, item 5): renderMinhasReceitas ganhou um
+  // wrapper próprio (.recipe-grid) pra isolar a lista de cards de tabsEl (que não deve entrar na
+  // grade) — o container do loop passou de `content` (a tela inteira) pra `listEl` (só a lista).
+  // Mesmo card, mesmo contrato, zero catLabel — só o nome do container mudou.
+  const site6 = 'listEl.appendChild(renderRecipeCard(item, { fromHash: fromHash }));';
   assert(appJs.includes(site1), "renderGrupo (busca por ingrediente dentro de hub): call site sem catLabel");
   assert(appJs.includes(site2), "renderCategory: call site com countryOverride calculado (hasMultiCountryFilter dos filtros ativos da coleção)");
   assert(appJs.includes(site3), "renderBusca (renderResults): call site com countryOverride dos filtros ativos da busca");
   const site4Count = appJs.split(site4).length - 1;
   assert(site4Count === 2, "renderBusca (renderPreviewSection + fallback parcial): as outras 2 call sites, texto idêntico entre si (mesma construção de opts)");
-  assert(appJs.includes(site6), "renderMinhasReceitas: call site sem catLabel");
+  assert(appJs.includes(site6), "renderMinhasReceitas: call site sem catLabel (container renomeado pra listEl, tier largo 2026-08-05)");
   assert(!appJs.includes("catLabel"), "teste NEGATIVO GLOBAL: 'catLabel' não sobrevive em nenhum lugar do arquivo");
   assert(!appJs.includes("cat-chip"), "teste NEGATIVO GLOBAL: 'cat-chip' não sobrevive em nenhum lugar do app.js");
   const countryOverrideKeyCount = appJs.split("countryOverride:").length - 1;
@@ -271,7 +275,7 @@ function main() {
   // vira foto de receita-assinatura, css/style.css e js/app.js mudaram de novo, fora desta
   // feature. v34 -> v35: calibração final do banner de hub (2026-07-26) — blur/scale removidos
   // de .grupo-banner__img, só css/style.css, também fora desta feature.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v57";'), "CACHE_NAME v36 -> ... -> v56 -> v57 (coleções abstratas de tempo/dificuldade ilustradas, 2026-07-31: mais um bump de feature externa, atualizado pro valor vigente)");
+  assert(swJs.includes('const CACHE_NAME = "cardapio-v58";'), "CACHE_NAME v36 -> ... -> v56 -> v57 -> v58 (coleções abstratas de tempo/dificuldade ilustradas, 2026-07-31: mais um bump de feature externa, atualizado pro valor vigente; +v58 passada desktop tier largo 2026-08-05, css/style.css+js/app.js)");
   assert(!swJs.includes('const CACHE_NAME = "cardapio-v25";'), "v25 não sobrevive — teste negativo");
 
   console.log("");

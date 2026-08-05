@@ -96,7 +96,10 @@ function main() {
   assert(renderListaBody.includes('headerRow.className = "shopping-list__header";'), "headerRow (.shopping-list__header) criado");
   assert(renderListaBody.includes("headerRow.appendChild(toggleEl);"), "abas entram no headerRow");
   assert(renderListaBody.includes("headerRow.appendChild(clearBtn);"), "Limpar lista entra no MESMO headerRow (corner do cabecalho, nao mais bloco solto)");
-  assert(renderListaBody.includes("content.appendChild(headerRow);"), "headerRow (unico) e o que vai pro content — nao mais 2 appendChild separados");
+  // wrap.appendChild (não mais content direto) desde a passada desktop (tier largo, 2026-08-05,
+  // item 7 — .comfortable-view centraliza a tela inteira); ainda 1 appendChild só, sem mudança
+  // de estrutura no cabeçalho em si.
+  assert(renderListaBody.includes("wrap.appendChild(headerRow);"), "headerRow (unico) e o que vai pro wrap — nao mais 2 appendChild separados");
   const headerRuleMatch = styleCss.match(/\.shopping-list__header \{[\s\S]*?\n\}/);
   const headerRule = headerRuleMatch ? headerRuleMatch[0] : "";
   assert(/display:\s*flex/.test(headerRule), ".shopping-list__header e flex (abas + botao lado a lado)");

@@ -99,7 +99,12 @@
 // TagModel.isNamingTagSet (js/tagmodel.js) + corte seco nas 8 coleções vazadas, motor de busca
 // (commit + preview) e válvula (hub + categoria) consistentes; mundo-próprio (Molhos/Técnicas)
 // e identidade (proteína/país) intactos. js/app.js é o único arquivo do APP_SHELL que mudou.
-const CACHE_NAME = "cardapio-v57";
+// v57 -> v58 (2026-08-05): passada desktop, tier largo (@media min-width:900px) — container
+// 1320px, chrome floats ancorados no container, bottom-nav/carrosséis/grades/listas/página de
+// receita/modo cozinhar/modal de filtros/sheet do Ordenar ganham layout próprio >=900px; fix de
+// especificidade em .category-grid--compact (afeta os 2 tiers). css/style.css e js/app.js
+// mudaram nos 3 commits desta rodada.
+const CACHE_NAME = "cardapio-v58";
 
 const APP_SHELL = [
   "./",

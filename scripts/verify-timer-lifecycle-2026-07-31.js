@@ -378,7 +378,7 @@ function main() {
 
   console.log("");
   section("8", "SERVICE WORKER");
-  assert(/const CACHE_NAME = "cardapio-v57";/.test(swJs), "CACHE_NAME v55 -> v56 -> v57 (coleções abstratas de tempo/dificuldade ilustradas, 2026-07-31: mais um bump de feature externa, atualizado pro valor vigente)");
+  assert(/const CACHE_NAME = "cardapio-v58";/.test(swJs), "CACHE_NAME v55 -> v56 -> v57 -> v58 (coleções abstratas de tempo/dificuldade ilustradas, 2026-07-31: mais um bump de feature externa, atualizado pro valor vigente; +v58 passada desktop tier largo 2026-08-05, css/style.css+js/app.js)");
 
   console.log("");
   console.log("==================================================");

@@ -144,7 +144,7 @@ function main() {
   // spec da tarefa — este commit (1) não alterava sw.js sozinho, mas o literal aqui precisa
   // acompanhar o valor FINAL depois dos 2 commits (mesmo padrão de literal-encadeado de sempre:
   // toda suíte pina a versão vigente, não a de quando foi escrita).
-  assert(/const CACHE_NAME = "cardapio-v57";/.test(swJs), "CACHE_NAME v49 -> ... -> v56 -> v57 (coleções abstratas de tempo/dificuldade ilustradas, 2026-07-31: mais um bump de feature externa, atualizado pro valor vigente)");
+  assert(/const CACHE_NAME = "cardapio-v58";/.test(swJs), "CACHE_NAME v49 -> ... -> v56 -> v57 -> v58 (coleções abstratas de tempo/dificuldade ilustradas, 2026-07-31: mais um bump de feature externa, atualizado pro valor vigente; +v58 passada desktop tier largo 2026-08-05, css/style.css+js/app.js)");
 
   console.log("");
   console.log("==================================================");

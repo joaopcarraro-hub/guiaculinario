@@ -207,8 +207,17 @@ function main() {
   // antes de comparar — qualquer OUTRA divergência continua pegando.
   const normalizeKnownDivida3FromHash = (s) =>
     s.replace(/Router\.toReceita\(entry\.recipeId(?:, "lista-compras")?\);/g, "Router.toReceita(entry.recipeId)/*__FROMHASH_NORMALIZADO__*/;");
-  const appJsBefore = normalizeKnownDivida3FromHash(normalizeKnownFase0cIconChange(norm(execSync("git show " + BASE_COMMIT + ":js/app.js", { cwd: ROOT, encoding: "utf8" }))));
-  const appJsNormalized = normalizeKnownDivida3FromHash(normalizeKnownFase0cIconChange(norm(appJs)));
+  // 3ª exceção legítima e já documentada (mesmo padrão dos 2 normalizadores acima) — passada
+  // desktop (tier largo, 2026-08-05, item 7): renderListaCompras ganhou um wrapper novo
+  // (.comfortable-view) pra centralizar a tela no container 1320px; os appendChild que viviam
+  // direto em `content` (inclusive dentro de renderShoppingListPorReceita/Geral, que fecham
+  // sobre a variável `wrap` do escopo externo) passaram a mirar `wrap`. Mudança de largura de
+  // tela, sem relação nenhuma com agrupamento por corredor/subproduto que esta suíte protege.
+  // Normaliza os DOIS lados pro mesmo texto canônico — qualquer OUTRA divergência continua pegando.
+  const normalizeKnownDesktopTierWrap = (s) =>
+    s.replace(/\b(wrap|content)\.appendChild\((section|ul|pantryTitle|pantryUl|title|pul)\);/g, "__CONTAINER_NORMALIZADO__.appendChild($2);");
+  const appJsBefore = normalizeKnownDesktopTierWrap(normalizeKnownDivida3FromHash(normalizeKnownFase0cIconChange(norm(execSync("git show " + BASE_COMMIT + ":js/app.js", { cwd: ROOT, encoding: "utf8" })))));
+  const appJsNormalized = normalizeKnownDesktopTierWrap(normalizeKnownDivida3FromHash(normalizeKnownFase0cIconChange(norm(appJs))));
   function extractFn(src, name) {
     const start = src.indexOf("function " + name + "(");
     if (start === -1) return null;

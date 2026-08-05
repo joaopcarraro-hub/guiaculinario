@@ -106,8 +106,9 @@ function main() {
   // Busca
   assert(appJs.includes('resultsEl.appendChild(renderRecipeCard(item, { fromHash: fromHash, countryOverride: countryOverride }));'), "Busca: fromHash intacto na lista principal (catLabel saiu, countryOverride entrou no redesenho do card)");
   assert(appJs.includes("function renderPreviewSection(title, items, fromHash) {"), "Busca: renderPreviewSection continua recebendo fromHash como parâmetro");
-  // Minhas Receitas
-  assert(appJs.includes('content.appendChild(renderRecipeCard(item, { fromHash: fromHash }));'), "Minhas Receitas: fromHash intacto (catLabel saiu no redesenho; sem conceito de filtro de país aqui, não ganhou countryOverride)");
+  // Minhas Receitas — container do loop virou listEl (wrapper .recipe-grid próprio, tier largo
+  // 2026-08-05, item 5), não mais content direto; fromHash/ausência de countryOverride intactos.
+  assert(appJs.includes('listEl.appendChild(renderRecipeCard(item, { fromHash: fromHash }));'), "Minhas Receitas: fromHash intacto (catLabel saiu no redesenho; sem conceito de filtro de país aqui, não ganhou countryOverride; container renomeado pra listEl)");
   assert(appJs.includes('// fromHash aqui é só "minhas-receitas" (rota sem query)'), "Minhas Receitas: comentário/padrão original intacto (não reescrito)");
 
   console.log("");
