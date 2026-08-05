@@ -27,6 +27,11 @@ copiado como texto plano para outra conversa, sem nenhum símbolo de formataçã
   de qualquer fase.
 - Ferramentas que reescrevem arquivos do repo devem preservar LF; git diff --ignore-cr-at-eol
   --name-only é a checagem padrão contra poluição de fim de linha antes de qualquer commit.
+- Suíte nunca hardcoda CACHE_NAME — lê do sw.js via `scripts/lib-cache-name.js`
+  (`extractCacheName(swJs)` ou `getCacheName(ROOT)`); bump não exige tocar em suíte. Exceção:
+  pin de versão ANTIGA específica pra teste negativo de migração/regressão (ex. "v25 não
+  sobrevive") é comparação com estado histórico fixo, não sincronia com o valor vigente —
+  mantém o literal, com comentário justificando o porquê.
 
 ## Foto de receita
 

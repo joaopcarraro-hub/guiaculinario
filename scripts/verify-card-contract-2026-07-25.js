@@ -19,6 +19,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const { extractCacheName } = require("./lib-cache-name");
 
 const ROOT = path.join(__dirname, "..");
 const appJs = fs.readFileSync(path.join(ROOT, "js", "app.js"), "utf8");
@@ -262,20 +263,11 @@ function main() {
   console.log("==================================================");
   console.log("8. Service worker — CACHE_NAME v25 -> v26 no mesmo commit");
   console.log("==================================================");
-  // Atualizado (item 1 de "Deixar pro Fable, depois"): css/style.css e js/app.js mudaram de
-  // novo no redesenho da página de receita, v26 -> v27 — esta asserção acompanha o bump MAIS
-  // RECENTE, mesma regra das outras suítes desta família (nunca prender a versão no passado).
-  // v29 -> v30: hotfix 2026-07-26 (pointer-events da whitelist de body), não uma rodada desta
-  // feature — ver scripts/verify-filter-modal-pointer-events-2026-07-26.js.
-  // v30 -> v31: leva final de sobras (2026-07-26) — header de ingredientes, js/app.js mudou de
-  // novo, também fora desta feature.
-  // v31 -> v32: fix pontual (2026-07-26) — centralização vertical do mesmo header de
-  // ingredientes, css/style.css mudou de novo, também fora desta feature.
-  // v33 -> v34: rumo novo de Países (2026-07-26) — mural de bandeiras extinto, tile de país
-  // vira foto de receita-assinatura, css/style.css e js/app.js mudaram de novo, fora desta
-  // feature. v34 -> v35: calibração final do banner de hub (2026-07-26) — blur/scale removidos
-  // de .grupo-banner__img, só css/style.css, também fora desta feature.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v58";'), "CACHE_NAME v36 -> ... -> v56 -> v57 -> v58 (coleções abstratas de tempo/dificuldade ilustradas, 2026-07-31: mais um bump de feature externa, atualizado pro valor vigente; +v58 passada desktop tier largo 2026-08-05, css/style.css+js/app.js)");
+  assert(/const CACHE_NAME = "cardapio-v\d+";/.test(swJs), "CACHE_NAME presente em sw.js no formato esperado (lido dinamicamente via scripts/lib-cache-name.js — bump não exige editar esta suíte): " + extractCacheName(swJs));
+  // Pin histórico legítimo (não migra pro helper): v25 é a versão anterior a ESTA tarefa
+  // (card-contract), travada aqui pra provar que o bump da própria tarefa não ficou preso no
+  // valor antigo — comparação com um estado fixo do passado, não "valor vigente" que precisa
+  // acompanhar todo bump externo.
   assert(!swJs.includes('const CACHE_NAME = "cardapio-v25";'), "v25 não sobrevive — teste negativo");
 
   console.log("");

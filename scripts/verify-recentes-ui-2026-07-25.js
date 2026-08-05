@@ -19,6 +19,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const { extractCacheName } = require("./lib-cache-name");
 
 const ROOT = path.join(__dirname, "..");
 const appJs = fs.readFileSync(path.join(ROOT, "js", "app.js"), "utf8");
@@ -180,7 +181,11 @@ function main() {
   // ingredientes, css/style.css mudou de novo, também fora desta feature.
   // v32 -> v33: item final do redesenho visual. v33 -> v34: rumo novo de Países. v34 -> v35:
   // calibração final do banner de hub (blur/scale removidos) — todos fora desta feature.
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v58";'), "CACHE_NAME v36 -> ... -> v55 -> v56 -> v57 -> v58 (higiene F1b 2026-07-30: buildMiniRecipeCard extraído pra virar helper compartilhado com Sugestões de hoje — e mais bumps de CACHE_NAME de features externas em v51-v56, agora incl. as coleções abstratas de tempo/dificuldade ilustradas 2026-07-31 (v57; +v58 passada desktop tier largo 2026-08-05, css/style.css+js/app.js); atualizado pro valor vigente)");
+  assert(/const CACHE_NAME = "cardapio-v\d+";/.test(swJs), "CACHE_NAME presente em sw.js no formato esperado (lido dinamicamente via scripts/lib-cache-name.js — bump não exige editar esta suíte): " + extractCacheName(swJs));
+  // Pin histórico legítimo (não migra pro helper): v25 é a versão anterior a ESTA tarefa
+  // (recentes-ui), travada aqui pra provar que o bump da própria tarefa não ficou preso no
+  // valor antigo. Não é "valor vigente atualizado a cada bump" como o assert acima era — é
+  // comparação com um estado fixo do passado, exatamente o caso de exceção do CLAUDE.md.
   assert(!swJs.includes('const CACHE_NAME = "cardapio-v25";'), "v25 não sobrevive — teste negativo (a versão desta tarefa foi sucedida, não deixada presa)");
   assert(swJs.includes('"css/style.css"') && swJs.includes('"js/app.js"'), "css/style.css e js/app.js seguem no APP_SHELL precache");
 

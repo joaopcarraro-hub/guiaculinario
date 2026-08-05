@@ -31,6 +31,7 @@
 const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
+const { extractCacheName } = require("./lib-cache-name");
 
 const ROOT = path.join(__dirname, "..");
 const appJs = fs.readFileSync(path.join(ROOT, "js", "app.js"), "utf8");
@@ -748,7 +749,7 @@ function main() {
   console.log("9. SERVICE WORKER — v35 (calibração final do banner de hub, sem blur) + APP_SHELL completo");
   console.log("==================================================");
   const swJs = fs.readFileSync(path.join(ROOT, "sw.js"), "utf8");
-  assert(swJs.includes('const CACHE_NAME = "cardapio-v58";'), "CACHE_NAME v36 -> ... -> v56 -> v57 -> v58 (coleções abstratas de tempo/dificuldade ilustradas, 2026-07-31: css/style.css + js/app.js mudam, bump obrigatório, atualizado pro valor vigente; +v58 passada desktop tier largo 2026-08-05, css/style.css+js/app.js)");
+  assert(/const CACHE_NAME = "cardapio-v\d+";/.test(swJs), "CACHE_NAME presente em sw.js no formato esperado (lido dinamicamente via scripts/lib-cache-name.js — bump não exige editar esta suíte): " + extractCacheName(swJs));
   // Regressão que passou despercebida desde que js/countries.js foi criado: o arquivo é
   // pré-requisito duro de js/categories.js e js/collections.js (os dois leem window.COUNTRIES
   // no topo, fora de função) e não estava no APP_SHELL. Ficava no cache só de carona, pelo

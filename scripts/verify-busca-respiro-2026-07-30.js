@@ -35,6 +35,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const { extractCacheName } = require("./lib-cache-name");
 
 const ROOT = path.join(__dirname, "..");
 const appJs = fs.readFileSync(path.join(ROOT, "js", "app.js"), "utf8");
@@ -86,7 +87,11 @@ function main() {
   console.log("==================================================");
   console.log("4. SERVICE WORKER — CACHE_NAME bump único da rodada (v49 -> v50)");
   console.log("==================================================");
-  assert(/const CACHE_NAME = "cardapio-v58";/.test(swJs), "CACHE_NAME v49 -> ... -> v56 -> v57 -> v58 (coleções abstratas de tempo/dificuldade ilustradas, 2026-07-31: bump de outra feature, atualizado pro valor vigente; +v58 passada desktop tier largo 2026-08-05, css/style.css+js/app.js)");
+  assert(/const CACHE_NAME = "cardapio-v\d+";/.test(swJs), "CACHE_NAME presente em sw.js no formato esperado (lido dinamicamente via scripts/lib-cache-name.js — bump não exige editar esta suíte): " + extractCacheName(swJs));
+  // Pin histórico legítimo (não migra pro helper): v49 é a versão anterior a ESTA tarefa
+  // (busca-respiro), travada aqui pra provar que o bump da própria tarefa não ficou preso no
+  // valor antigo — comparação com um estado fixo do passado, não "valor vigente" que precisa
+  // acompanhar todo bump externo.
   assert(!/const CACHE_NAME = "cardapio-v49";/.test(swJs), "TESTE NEGATIVO: v49 não sobrevive");
 
   console.log("");

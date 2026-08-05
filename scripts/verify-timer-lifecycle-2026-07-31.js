@@ -31,6 +31,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const { extractCacheName } = require("./lib-cache-name");
 
 const ROOT = path.join(__dirname, "..");
 const appJs = fs.readFileSync(path.join(ROOT, "js", "app.js"), "utf8");
@@ -378,7 +379,7 @@ function main() {
 
   console.log("");
   section("8", "SERVICE WORKER");
-  assert(/const CACHE_NAME = "cardapio-v58";/.test(swJs), "CACHE_NAME v55 -> v56 -> v57 -> v58 (coleções abstratas de tempo/dificuldade ilustradas, 2026-07-31: mais um bump de feature externa, atualizado pro valor vigente; +v58 passada desktop tier largo 2026-08-05, css/style.css+js/app.js)");
+  assert(/const CACHE_NAME = "cardapio-v\d+";/.test(swJs), "CACHE_NAME presente em sw.js no formato esperado (lido dinamicamente via scripts/lib-cache-name.js — bump não exige editar esta suíte): " + extractCacheName(swJs));
 
   console.log("");
   console.log("==================================================");
