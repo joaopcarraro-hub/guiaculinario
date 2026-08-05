@@ -3404,4 +3404,101 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
     margin-left: auto;
     margin-right: auto;
   }
+
+  /* Item 9 — página de receita. Hero full-bleed (1920×altura estourava a janela e romperia a
+     janela de recorte 2:1 do contrato §5, docs/CONTRATO-IMAGENS-REDESIGN.md) vira capa CONTIDA:
+     max-width 1100px centrada (left:50%+translateX, não left/right+margin:auto — mais previsível
+     em position:fixed), aspect-ratio 2:1 fixo (a caixa passa a depender só da PRÓPRIA largura,
+     não mais de --hero-h/vh) — 2:1 é o limite exato da janela segura já usada pela foto do card
+     (.recipe-card__photo), então nenhuma foto do acervo corta diferente aqui. Cantos
+     --radius-sheet nos 4 lados agora (era só a folha que tinha raio; a capa virou um cartão
+     flutuante, não bleed). object-position:center bottom continua vindo da regra base,
+     intocado. position:fixed continua — a folha ainda desliza por cima (efeito preservado),
+     só o cálculo do overlap muda pra usar a altura REAL da capa contida (min(100vw,1100px)/2)
+     em vez de --hero-h. */
+  .recipe-hero {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 1100px;
+    height: auto;
+    aspect-ratio: 2 / 1;
+    border-radius: var(--radius-sheet);
+  }
+  /* Mesma matemática da regra base (subtrai --space-10, o padding-top de #main que ainda soma
+     ANTES da folha) — só a altura de referência muda: min(100vw,1100px)/2 (a altura real da
+     capa contida) no lugar de var(--hero-h). */
+  .recipe-page {
+    margin-top: calc(min(100vw, 1100px) / 2 - 24px - var(--space-10));
+  }
+  /* Coração/back sobre a capa CONTIDA (canto da mídia, não do viewport nem do container 1320 —
+     a exceção do item 2 não se aplica aqui, a receita tem sua própria fórmula porque a capa tem
+     sua própria largura, 1100px, diferente das outras 2). .back-float/.recipe-hero__heart são
+     filhos DIRETOS de .recipe-page (js/app.js, renderReceita) — sem precisar de :has(). */
+  .recipe-page > .back-float {
+    left: calc((100vw - min(100vw, 1100px)) / 2 + var(--space-3));
+  }
+  .recipe-page > .recipe-hero__heart {
+    right: calc((100vw - min(100vw, 1100px)) / 2 + var(--space-3));
+  }
+  /* Folha: conteúdo textual em coluna de leitura max-width 720px centrada (título->passos) —
+     mata os 151 cpl do passo mais longo medidos no inventário (meta ≤80 cpl, ver relatório).
+     Todo filho DIRETO de .recipe-page é uma seção de conteúdo em fluxo normal (título, tags,
+     metadados, CTA, ações, ingredientes, passos, dicas, updated-footer — 9 seções, todas
+     block-level, nenhuma flexa a própria largura pro pai) EXCETO os 2 floats fixed acima e o
+     próprio hero (já centralizado com sua fórmula 1100px acima, não deve encolher pra 720px). A
+     folha (.recipe-page) em si continua bleed (100vw) — a coluna de leitura é do CONTEÚDO, não
+     do fundo/raio da folha, que segue a mesma convenção de sempre. */
+  .recipe-page > *:not(.recipe-hero):not(.back-float):not(.recipe-hero__heart) {
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Item 10 — modo cozinhar: já é a única tela OK (teto 600px em .cook-page, 37 cpl) — só
+     centralização vertical, trivial e de baixo risco por ser escopada com :has() (só entra em
+     jogo quando .cook-page existe; nenhuma outra tela usa #recipes-content como flex). Sem
+     min-height o flex não teria folga nenhuma pra centralizar contra (o conteúdo já ocupa a
+     altura que precisa) — calc espelha os paddings verticais reais de #main nesta faixa. */
+  #recipes-content:has(.cook-page) {
+    display: flex;
+    align-items: center;
+    min-height: calc(100vh - var(--space-10) - var(--bottom-nav-height));
+  }
+
+  /* Item 11 — modal de filtros vira diálogo centrado. Mesmo overlay/animação/whitelist de
+     pointer-events (só align/tamanho mudam) — mobile (tela cheia) intocado, a única mudança
+     mora aqui dentro do media query. max-height+overflow:hidden no .filter-modal (que continua
+     flex-column) deixa .filter-modal__body (flex:1, overflow-y:auto, já existente) fazer o
+     scroll interno sozinho, sem precisar recalcular nada. Grades internas (Equipamento/País, .
+     filter-tile-grid) e o cap de tile do item 6 (.filter-tile--photo) não mudam aqui — o
+     container só encolheu ao redor delas. */
+  .filter-modal-overlay {
+    align-items: center;
+    justify-content: center;
+  }
+  .filter-modal {
+    width: 100%;
+    max-width: 560px;
+    height: auto;
+    max-height: 85vh;
+    border-radius: var(--radius-sheet);
+    overflow: hidden;
+  }
+
+  /* Item 12 — sheet do Ordenar vira diálogo centrado compacto. Mesmo padrão do item 11:
+     max-width em vez de width:100% (a regra base já tinha width:100%, que agora encolhe
+     obedecendo o max-width — nenhum flex/grid envolvido aqui, é bloco simples dentro do overlay
+     flex). border-bottom volta a existir (a base zera só pra bottom-sheet colar sem borda dupla
+     na borda real da tela — como diálogo flutuante, precisa da borda nos 4 lados). */
+  .sort-sheet-overlay {
+    align-items: center;
+    justify-content: center;
+  }
+  .sort-sheet {
+    max-width: 400px;
+    border-radius: var(--radius-sheet);
+    border-bottom: 1px solid var(--color-border);
+  }
 }
