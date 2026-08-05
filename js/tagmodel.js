@@ -103,9 +103,20 @@
     let total = 0;
     const hMatch = text.match(/(\d+)\s*h/);
     const mMatch = text.match(/(\d+)\s*min/);
+    // dia/semana (ESTEIRA-1B, 2026-08-05): preparos de dias — "≈3 dias", "2-3 dias",
+    // "14-45 dias", "3-4 semanas" — antes caíam no return null e a receita ficava sem
+    // NENHUMA tag time:, invisível no filtro Tempo e no momento "Fim de Semana". Em faixa
+    // ("2-3 dias") o casamento cai naturalmente no SEGUNDO número, o maior: "2-" não
+    // completa o padrão \d+\s*dia, "3 dias" completa — mesmo mecanismo que já valia pra
+    // "1-48 h". O maior é o honesto pras tags cumulativas de tempo: o que importa é
+    // ultrapassar 180 min (mais-de-1h/preparo-longo).
+    const dMatch = text.match(/(\d+)\s*dia/);
+    const wMatch = text.match(/(\d+)\s*semana/);
     if (hMatch) total += parseInt(hMatch[1], 10) * 60;
     if (mMatch) total += parseInt(mMatch[1], 10);
-    if (!hMatch && !mMatch) {
+    if (dMatch) total += parseInt(dMatch[1], 10) * 1440;
+    if (wMatch) total += parseInt(wMatch[1], 10) * 10080;
+    if (!hMatch && !mMatch && !dMatch && !wMatch) {
       const numericOnly = text.match(/^(\d+)$/);
       if (numericOnly) return parseInt(numericOnly[1], 10);
       return null;

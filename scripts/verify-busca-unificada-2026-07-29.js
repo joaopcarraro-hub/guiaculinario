@@ -977,8 +977,13 @@ function main() {
     "col-vegetariana": 23,
     "col-rapidas": 35,
     "col-ate-1h": 44,
-    "col-mais-de-1h": 13,
-    "col-preparo-longo": 6,
+    // 13->17 e 6->10 (ESTEIRA-1B, 2026-08-05): parseMinutes passou a entender dia(s)/semana(s)
+    // e 7 receitas de preparo de dias entraram em mais-de-1h/preparo-longo; 4 delas são
+    // nature técnica/preparo (Gravlax, Sous-vide, Dry Aging, Defumação Caseira) e por isso o
+    // corte por nature passa a remover +4 nessas duas coleções. Ver
+    // scripts/verify-time-parser-2026-08-05.js.
+    "col-mais-de-1h": 17,
+    "col-preparo-longo": 10,
     "col-faceis": 30,
     "col-intermediarias": 27,
     "col-avancadas": 4,
@@ -1057,9 +1062,13 @@ function main() {
   // 14h — literal do dono: Fim de Semana = 39 SEM depender de origin="vitrine" (corte no motor).
   if (s14CutByNatureFn) {
     const s14FimDeSemanaUniverse = allRecipes.filter((item) => TagModel.matchesGroupedTags(item.tags, ["time:preparo-longo"], "or"));
-    assert(s14FimDeSemanaUniverse.length === 45, "14h: universo bruto de Fim de Semana (time:preparo-longo) = 45 (pré-condição do gabarito)");
+    // 45->52 e 39->42 (ESTEIRA-1B, 2026-08-05): +7 no universo bruto de preparo-longo
+    // (parseMinutes entende dias/semanas), das quais 3 são nature:prato e sobrevivem ao corte
+    // do motor (Sauerbraten, Maniçoba, Legumes Fermentados) — 39+3=42. Ver
+    // scripts/verify-time-parser-2026-08-05.js.
+    assert(s14FimDeSemanaUniverse.length === 52, "14h: universo bruto de Fim de Semana (time:preparo-longo) = 52 (pré-condição do gabarito)");
     const s14FimDeSemanaCut = s14CutByNatureFn(s14FimDeSemanaUniverse, ["time:preparo-longo"], null);
-    assert(s14FimDeSemanaCut.length === 39, "14h literal: Fim de Semana via motor (sem origin=vitrine) = 39 — medido " + s14FimDeSemanaCut.length);
+    assert(s14FimDeSemanaCut.length === 42, "14h literal: Fim de Semana via motor (sem origin=vitrine) = 42 — medido " + s14FimDeSemanaCut.length);
   }
 
   // 14i — literal do dono: diet:vegetariana "global" 99 -> 76.

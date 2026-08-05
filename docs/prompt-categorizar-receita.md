@@ -42,6 +42,9 @@ você deve:
   // é derivado do `name` (ver §3), então guardá-lo seria uma segunda fonte da verdade — e a
   // errada. Não reintroduza.
   time: { prep: "X min", cook: "Y min", total: "Z min" },
+  // `total` aceita h/min e também dias/semanas ("2-3 dias", "3-4 semanas") — em faixa vale o
+  // MAIOR valor pras tags de tempo. NUNCA texto sem número ("Varia", "Semanas"): não deriva
+  // tag de tempo e o validador reprova.
   yield: "N porções",
   difficulty: "Fácil" | "Média" | "Média-alta" | "Difícil",
   tags: ["protein:xxx", "ingredient:yyy"], // course: manual também é permitido — ver regras abaixo

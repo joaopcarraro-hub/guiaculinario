@@ -104,7 +104,12 @@
 // receita/modo cozinhar/modal de filtros/sheet do Ordenar ganham layout próprio >=900px; fix de
 // especificidade em .category-grid--compact (afeta os 2 tiers). css/style.css e js/app.js
 // mudaram nos 3 commits desta rodada.
-const CACHE_NAME = "cardapio-v58";
+// v58 -> v59 (2026-08-05, ESTEIRA-1B): parseMinutes (js/tagmodel.js) entende dia(s)/semana(s)
+// — 7 receitas de preparo de dias (Sauerbraten, Maniçoba, Gravlax, Sous-vide, Dry Aging,
+// Defumação, Legumes Fermentados) deixam de ficar sem tag time: e entram em
+// mais-de-1h/preparo-longo; 4 time.total textuais normalizados em data/*.js (data/ não é
+// precache, mas js/tagmodel.js é).
+const CACHE_NAME = "cardapio-v59";
 
 const APP_SHELL = [
   "./",

@@ -106,7 +106,7 @@ window.RECIPES["brasil-regional"] = [
     subgroup: "Norte",
     desc: "A 'feijoada preta' do Pará — folha de mandioca cozida por dias com várias carnes de porco, até perder a toxicidade.",
     origin: "Brasil (Pará)",
-    time: { prep: "20 min", cook: "5-7 dias (folha) + 3h (montagem final)", total: "Vários dias" },
+    time: { prep: "20 min", cook: "5-7 dias (folha) + 3h (montagem final)", total: "5-7 dias" },
     yield: "10 porções",
     difficulty: "Alta (exige tempo)",
     tags: ["protein:suino", "protein:boi", "ingredient:mandioca"],

@@ -35,6 +35,12 @@ Toda receita deve ter tag de tempo derivável:
 - time:mais-de-1h
 - time:preparo-longo
 
+Parser real (TagModel.parseMinutes, js/tagmodel.js): entende h/min e, desde 2026-08-05
+(ESTEIRA-1B), dia(s) (= 1440 min) e semana(s) (= 10080 min); em faixa numérica ("2-3 dias",
+"1-48 h") vale o MAIOR número. Texto sem número ("Varia", "Semanas") continua null —
+`time.total` precisa de valor numérico honesto extraído da própria receita, nunca adivinhado
+pelo parser. Suíte: scripts/verify-time-parser-2026-08-05.js.
+
 ### Tags de proteína
 
 protein:* só quando for foco real.
