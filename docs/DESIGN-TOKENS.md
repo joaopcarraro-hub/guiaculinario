@@ -667,6 +667,25 @@ diretamente. Remoção dos alias fica pra uma rodada futura.
     `facetOptionsFromPrefix` de verdade contra o acervo real a cada execução — se
     `leguminosa`/`laticinio` um dia ganharem receita e aparecerem no grid sem imagem mapeada, a
     suíte falha alto em vez de deixar a grade sair com um tile sem foto no meio dos outros.
+    **Exceção pontual — `object-position` só em `protein:peixe`.** A rodada de proporção 3:2
+    (acima) tinha deixado um achado aberto: `peixes.webp` é o peixe INTEIRO — cabeça/olho perto do
+    topo do quadrado 1:1/600×600, cauda perto da base — e a janela central de 66,7%
+    (`object-position: center`, top em 100px de 600px) cortava o olho bem no limiar (medido por
+    linha de corte sobre o arquivo-fonte: o centro do olho cai quase exatamente na borda superior
+    da janela). Decisão do dono: `object-position: center 30%` SÓ nesse tile
+    (`.filter-tile--protein[data-value="protein:peixe"] .filter-tile__media img`, seletor por
+    `data-value`, não uma classe nova) — sobe a janela (top 100px→60px), trazendo cabeça+olho
+    inteiros pra dentro; a ponta da cauda sai da janela por baixo (era cortada antes também,
+    continua sendo — trade-off aceito porque a cabeça é o traço que identifica "peixe" à
+    distância, não a cauda). Mesmo princípio do cantão dos EUA nas bandeiras
+    (`ANCORA_X['US']=0.0` em `exportar-bandeiras.js`/`.py`, rodada 4 de bandeiras acima): quando o
+    corte simétrico central perde o elemento que dá identidade, a âncora se move pro elemento, não
+    o contrário — aqui o "elemento" é o olho, não um cantão de bandeira, mas a lógica de exceção é
+    a mesma. Os outros 7 valores de Proteína continuam em `object-position: center`, regra-mãe
+    intacta — exceção não generaliza. Confirmado por medição direta do arquivo-fonte (linhas de
+    corte sobrepostas via script, não estimativa visual) que cabeça+olho ficam dentro da janela
+    nova; a fração de corte é proporção/aspect-ratio, não pixel de viewport, então vale igual em
+    390px e 1366px. Guarda em `scripts/verify-filter-redesign-2026-07-27.js` (seção 12e).
   - **Peso em disco da grade "Mais Categorias"** (6 imagens visíveis — molhos/sopas/entradas/
     risotos-arroz/padaria/tecnicas; massas/sobremesas-classicas só aparecem nos tiles grandes da
     Home): **398,5 KB** somados (números exatos no relatório da tarefa).

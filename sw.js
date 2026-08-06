@@ -122,7 +122,10 @@
 // sem blur/véu (regra própria, não reusa .filter-tile--photo). aspect-ratio ajustado no dia
 // seguinte (1:1 -> 3:2, mesma métrica de .filter-tile--photo/país) após revisão do dono ao vivo
 // — asset em disco segue 1:1, o corte de exibição é que mudou. Os 2 arquivos no APP_SHELL abaixo.
-const CACHE_NAME = "cardapio-v61";
+// v61->v62: fix pontual só em protein:peixe, object-position:center -> center 30% (viés de
+// cabeça, achado do peixe fechado — cabeça/olho entram na janela 3:2, ponta da cauda sai),
+// css/style.css muda de novo.
+const CACHE_NAME = "cardapio-v62";
 
 const APP_SHELL = [
   "./",

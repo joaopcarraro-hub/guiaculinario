@@ -434,6 +434,20 @@ function main() {
   assert(!!photoImgRuleMatch && /blur\(var\(--flag-blur\)\)/.test(photoImgRuleMatch[0]), "TESTE NEGATIVO: .filter-tile--photo (País) continua com blur(--flag-blur) — bandeira, não foto de prato");
 
   console.log("");
+  console.log("12e. FIX PONTUAL — object-position:center 30% SÓ em protein:peixe (viés de cabeça, achado do peixe fechado)");
+  const peixeOverrideMatch = css.match(/\.filter-tile--protein\[data-value="protein:peixe"\] \.filter-tile__media img\s*\{[^}]*\}/);
+  assert(!!peixeOverrideMatch, '.filter-tile--protein[data-value="protein:peixe"] .filter-tile__media img existe no CSS — seletor por data-value (mesmo atributo já injetado por renderProteinTileSectionBody), não uma classe nova');
+  assert(!!peixeOverrideMatch && /object-position:\s*center 30%/.test(peixeOverrideMatch[0]), 'a exceção usa object-position: center 30% (janela sobe, top 100px->60px de um quadrado de 600px — cabeça+olho de peixes.webp entram, ponta da cauda sai)');
+  assert(!!proteinImgRuleMatch && /object-position:\s*center;/.test(proteinImgRuleMatch[0]), "TESTE NEGATIVO: a regra-mãe (.filter-tile--protein .filter-tile__media img, todos os 8 valores) continua object-position:center — a exceção não vazou pra ela");
+  // TESTE NEGATIVO cruzado: nenhum OUTRO valor de Proteína ganhou a mesma exceção (ex. copiar o
+  // seletor errado por engano e aplicar num data-value diferente) — só protein:peixe existe.
+  const otherProteinTagIds = ["protein:ave", "protein:boi", "protein:suino", "protein:frango", "protein:frutos-do-mar", "protein:ovo", "protein:cordeiro"];
+  otherProteinTagIds.forEach((tagId) => {
+    const re = new RegExp('\\.filter-tile--protein\\[data-value="' + tagId + '"\\]');
+    assert(!re.test(css), "TESTE NEGATIVO: " + tagId + " não tem override de object-position — exceção fica só em protein:peixe");
+  });
+
+  console.log("");
   console.log("==================================================");
   console.log(failures === 0 ? "TODAS AS ASSERÇÕES PASSARAM" : "FALHAS: " + failures);
   console.log("==================================================");

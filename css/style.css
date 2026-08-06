@@ -1623,6 +1623,21 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
   background: var(--color-bg);
 }
 
+/* Correção pontual — SÓ o tile de protein:peixe (achado documentado na rodada de proporção 3:2,
+   decisão do dono fecha aqui): peixes.webp é o peixe INTEIRO, cabeça/olho
+   perto do topo do quadrado 1:1/600x600 e cauda perto da base. A janela central de 66,7%
+   (object-position:center, regra-mãe acima, top em 100px de 600px) cortava o olho bem no limiar
+   — medido por linha de corte sobre o arquivo-fonte, o centro do olho cai quase exatamente na
+   borda superior da janela. object-position:center 30% sobe a janela (top 100px->60px),
+   trazendo cabeça+olho inteiros pra dentro; a ponta da cauda sai da janela por baixo (era cortada
+   antes também, continua sendo) — troca aceita porque a cabeça é o traço que identifica "peixe"
+   à distância, não a cauda. Viés de cabeça análogo ao cantão dos EUA nas bandeiras
+   (ANCORA_X['US']=0.0 em exportar-bandeiras.js — ver DESIGN-TOKENS.md, rodada 4 de bandeiras):
+   quando o corte simétrico central perde o elemento que dá identidade, a âncora se move pro
+   elemento, não o contrário. Exceção PONTUAL — só protein:peixe; os outros 7 valores de Proteína
+   continuam em object-position:center, regra-mãe intacta. Registrado em DESIGN-TOKENS.md. */
+.filter-tile--protein[data-value="protein:peixe"] .filter-tile__media img { object-position: center 30%; }
+
 @media (max-width: 380px) {
   .filter-tile-grid { grid-template-columns: repeat(2, 1fr); }
 }
