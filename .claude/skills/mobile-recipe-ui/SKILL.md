@@ -736,26 +736,12 @@ novo.
   decidir o que preservar, então converteu junto. Combinam em OR puro entre si (união), mesma
   lógica de sempre — só a apresentação mudou. `<button>` nativo: foco/Enter/Espaço funcionam
   sem handler de teclado próprio.
-  - Proteína (`protein:`, não confundir com "Papel da proteína" abaixo): 10 valores na
-    taxonomia (`js/tags.js` — cresceu de 8 pra 10 desde a última vez que este documento foi
-    atualizado: `leguminosa`/`laticinio` são novos). Cobertura de imagem investigada contra
-    `imagens/categorias/`: só 7 dos 10 têm uma imagem candidata óbvia (reaproveitando fotos de
-    categoria já existentes — `ave`→`aves.webp`, `boi`→`carnes-bovinas.webp`,
-    `suino`→`suinos.webp`, `cordeiro`→`cordeiro.webp`, `peixe`→`peixes.webp`,
-    `frutos-do-mar`→`frutos-do-mar.webp`, `ovo`→`col-ovo.webp`), e mesmo essa candidata pra
-    `frango` seria emprestada de `aves.webp` — já reivindicada pela tag irmã `protein:ave`, não
-    uma foto própria; `leguminosa`/`laticinio` não têm candidata nenhuma. Abaixo do limiar de
-    10/10 travado no spec — chip de texto nesta rodada, photo-tile (mesma regra-mãe de
-    `.filter-tile--photo`) fica pro mini-lote de imagem futuro. "protein:X" continua casando
-    com `contains:X` (`matchesTagId`) — protagonista OU não — mecanismo intocado por esta
-    rodada, só a apresentação mudou. "Papel da proteína" (Principal/Secundário/Ver tudo,
-    abaixo — rótulo revisto 2026-07-29, era "Tanto faz") continua OUTRO mecanismo via `getRecipesByCollection`/`matchesAnyTag` em
-    tagmodel.js, não tocado.
   - Refeição (`course:`, 5 valores: Prato Principal, Entrada, Acompanhamento, Sobremesa, Café
-    da Manhã): cobertura de 161/398 receitas (40,5%). Mesma situação de Proteína — nunca teve
-    ícone de verdade — e mesma conversão pra chip nesta rodada, por consistência (nenhum pedido
-    explícito do dono citava esta seção por nome; extrapolação da mesma regra aplicada a
-    Proteína, documentada no relatório da tarefa).
+    da Manhã): cobertura de 161/398 receitas (40,5%). Nunca teve ícone de verdade — mesma
+    conversão pra chip da Fase F1a, por consistência (nenhum pedido explícito do dono citava
+    esta seção por nome; extrapolação da mesma regra aplicada a Proteína, que na época também
+    era chip — ver "Proteína" na lista de tile abaixo pro estado ATUAL, graduou pra photo-tile
+    na Fase F1c).
   - "Tipo de prato" (`dish_type:`, ~12-13 valores em uso) e "Restrições" (`diet:`) foram
     medidos juntos antes de `dish_type:` entrar no modal (rodada anterior): `dish_type:` tinha
     cobertura de 166/398 (41,7%); `diet:` tinha só 99/398 (24,9%) e um ÚNICO valor
@@ -779,6 +765,34 @@ novo.
     `display: block` puro, filhos em fluxo normal já ocupam 100% de largura sem precisar de
     `align-items` nenhum) — a causa raiz era específica de `.filter-tile` reusar um container
     flex desenhado pro tile-ícone.
+  - Proteína (`protein:`, graduou de chip pra photo-tile na Fase F1c, 2026-08-06 — REUSO TOTAL
+    de asset, zero imagem nova): 10 valores na taxonomia, 7 reaproveitam a MESMA foto de
+    categoria já usada em Home/hub (`imagens/categorias/<id>.webp`, 600x600, 1:1) via mapeamento
+    literal `PROTEIN_TILE_IMAGE` — `ave`→`aves.webp`, `boi`→`carnes-bovinas.webp`,
+    `suino`→`suinos.webp`, `cordeiro`→`cordeiro.webp`, `peixe`→`peixes.webp`,
+    `frutos-do-mar`→`frutos-do-mar.webp`, `ovo`→`col-ovo.webp`. `frango` NÃO tem imagem de
+    categoria própria (a candidata óbvia, `aves.webp`, já é de `protein:ave`) — resolvido por
+    receita-assinatura curada (`PROTEIN_SIGNATURE_RECIPE["protein:frango"] = "Tandoori
+    Chicken"`, mesmo mecanismo de `countrySignatureRecipe`/`collectionSignatureRecipe`, async via
+    `loadRecipeImage`). Candidata inicial (Frango Recheado, "ave inteira assada em tábua de
+    madeira") DESCARTADA por gêmea visual de `aves.webp` — mesma composição, mesmo still; Galeto
+    Al Primo Canto descartada pelo mesmo motivo; Frango Frito Americano/Kung Pao/Butter
+    Chicken/Yakitori descartadas por já serem assinatura de outra coleção (EUA/China/Índia/Até 1
+    Hora). `leguminosa`/`laticinio` seguem sem imagem (0 receitas no acervo — nunca aparecem no
+    grid, `facetOptionsFromPrefix` só devolve tag com contagem > 0; guarda de futuro na suíte se
+    isso mudar um dia). Layout `"protein-tiles"` (`renderProteinTileSectionBody`), função IRMÃ de
+    `renderCountryTileSectionBody` (não reaproveitada — 2 fontes de imagem diferentes por tagId).
+    CSS `.filter-tile--protein` PRÓPRIA (não reusa `.filter-tile--photo`): aspect-ratio 3/2 —
+    MESMA proporção de `.filter-tile--photo` (país) desde o ajuste de 2026-08-07 (estreou 1:1 em
+    2026-08-06, casando o asset nativo; dono achou "muito grande" ao vivo, corrigido no dia
+    seguinte pra uniformizar com País — a grade do modal deixa de ter proporções mistas). Asset em
+    disco continua 1:1/600×600 (zero regeração, "reuso total" intacto) — 3:2 é corte de EXIBIÇÃO
+    via `object-fit: cover` (janela visível 66,7% da altura do quadrado, centralizada). SEM
+    blur/véu (foto de prato nítida — blur/véu são muleta só de bandeira) é a ÚNICA diferença real
+    que sobra de `.filter-tile--photo`, ver DESIGN-TOKENS.md. "Papel da proteína" (sub-controle
+    logo abaixo) migrou JUNTO pra 2 helpers
+    próprios (`buildProteinRoleHtml`/`wireProteinRoleToggle`), mesmo comportamento/visibilidade,
+    só o caller mudou (era `renderChipSectionBody`, agora `renderProteinTileSectionBody`).
   - Equipamento: ícones reais em `icons/equipment/` (9 de 9 valores — todo tile tem ícone,
     TODOS SVG, nenhum PNG restante). 4 SVG de SVGRepo (forno, liquidificador, batedeira,
     micro-ondas) + 5 autorais (processador, sous vide, air-fryer, panela-de-pressao,

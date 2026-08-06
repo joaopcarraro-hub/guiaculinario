@@ -1589,6 +1589,40 @@ body.sort-sheet-open { overflow: hidden; } /* classe própria, não body.filter-
   background: var(--color-bg);
 }
 
+/* Tile de PROTEÍNA no modal de Filtros (F1c, 2026-08-06; aspect-ratio corrigido 2026-08-07 após
+   revisão do dono ao vivo — "muito grande") — MESMO layout físico de .filter-tile--photo acima
+   (mídia cobrindo o topo + faixa sólida nome+contagem por baixo), regra PRÓPRIA (não reusa
+   .filter-tile--photo) de propósito: mesmo motivo de .category-card--signature não reusar
+   .category-card--country (ver estilo de .category-card--signature mais abaixo) — evita
+   arriscar o CSS de País já testado (scripts/verify-filter-redesign-2026-07-27.js) numa mudança
+   de seletor compartilhado. aspect-ratio 3/2 — MESMA métrica de .filter-tile--photo (país),
+   decisão do dono ao ver 1:1 no ar (tile ficava alto demais, quebrava o ritmo da grade contra
+   País/Equipamento). Fonte é 1:1 nativa (imagens/categorias/*.webp, 600x600) — 3:2 é corte de
+   EXIBIÇÃO via object-fit:cover, não regeração de asset (zero imagem nova, "reuso total"
+   continua de pé); janela visível = 1/1,5 = 66,7% da altura do quadrado, centralizada
+   (object-position:center, mesma fórmula do §5 de CONTRATO-IMAGENS-REDESIGN.md) — conferido ao
+   vivo nos 8 valores, nenhum prato decapitado (ver relatório da tarefa). Única diferença real
+   que sobra de .filter-tile--photo: SEM blur/véu (foto de prato nítida — blur/véu são muleta só
+   de bandeira, ver docs/CONTRATO-IMAGENS-REDESIGN.md §4). Seletor de imagem é o elemento `img`,
+   não a classe `.filter-tile__img`: a foto de frango entra em runtime via
+   loadRecipeImage/applyImage (mesmo pipeline de .category-card--signature), que cria o `<img>`
+   sem classe nenhuma — mesmo motivo de `.category-card--country .category-card__media img` usar
+   seletor de elemento. Resto idêntico byte a byte ao bloco --photo (overflow/padding/gap/
+   align-items/faixa). */
+.filter-tile--protein { overflow: hidden; padding: 0; gap: 0; align-items: stretch; }
+.filter-tile--protein .filter-tile__media { display: block; position: relative; aspect-ratio: 3 / 2; overflow: hidden; }
+.filter-tile--protein .filter-tile__media img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+.filter-tile--protein .filter-tile__media.placeholder { display: flex; align-items: center; justify-content: center; color: var(--color-text-disabled); }
+.filter-tile--protein .filter-tile__media.placeholder svg { width: 24px; height: 24px; }
+.filter-tile--protein .filter-tile__band {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-05);
+  background: var(--color-bg);
+}
+
 @media (max-width: 380px) {
   .filter-tile-grid { grid-template-columns: repeat(2, 1fr); }
 }

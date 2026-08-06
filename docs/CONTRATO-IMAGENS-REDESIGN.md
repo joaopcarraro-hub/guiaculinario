@@ -258,6 +258,47 @@ tratar `tileImage`/`signatureRecipe` como campo automático — os dois só exis
 de `js/collections.js` que os declaram à mão. Trocar qualquer uma das 7 é igualmente barato:
 muda-se o valor no objeto da própria coleção.
 
+### FACETA PROTEÍNA (frango) — 3ª exceção documentada (06/08/2026)
+
+Diferente das duas exceções acima (Países, Coleções abstratas), esta NÃO é sobre representar uma
+categoria — é sobre um VALOR dentro da faceta Proteína do modal de Filtros (`protein:frango`) que,
+ao contrário dos outros 9 valores da taxonomia, não tem foto de categoria própria: a candidata
+óbvia (`aves.webp`) já é de `protein:ave`, a tag irmã. Mesmo princípio das duas exceções
+anteriores — curadoria humana onde não há resposta derivável — aplicado ao menor escopo possível
+(1 valor de 1 faceta, não uma coleção inteira).
+
+| | |
+|---|---|
+| Fonte | `PROTEIN_SIGNATURE_RECIPE["protein:frango"]` em `js/app.js` — mapa curado, não derivado |
+| Resolução | `proteinSignatureRecipe(tagId)` em `app.js`, por **nome exato** |
+| Escopo da busca | `TagModel.getAllRecipesFlat()` — o acervo INTEIRO, mesma regra das 2 exceções acima |
+| Pipeline da foto | o **mesmo** de sempre: `loadRecipeImage()` → foto própria → Wikipedia → placeholder |
+| Escolhida | **Tandoori Chicken** — coxa/sobrecoxa char-grelhadas, forma de coxa inconfundível mesmo em miniatura, prato composto (não ave inteira) |
+
+**As 3 restrições que curaram a escolha** (mesmas da extensão de Coleções abstratas, §4 acima):
+(a) nunca uma receita já reivindicada como assinatura de outra coleção — descartadas: Frango Frito
+Americano (EUA), Frango Kung Pao (China), Butter Chicken (Índia), Yakitori (Até 1 Hora);
+(b) sem gêmea visual do tile de categoria já em uso — descartada Frango Recheado (`data/aves.js`,
+"Frango inteiro assado"), a semente inicial: comparação lado a lado confirmou composição quase
+idêntica a `aves.webp` (ave INTEIRA assada, tábua de madeira, mesmo enquadramento). Galeto Al Primo
+Canto descartada pelo mesmo motivo (ave inteira grelhada, tábua redonda);
+(c) `nature: "prato"` e foto legível em tamanho de tile — o que eliminou pratos onde o frango não
+é visualmente dominante (curries/sopas com molho cobrindo a carne, biryani com arroz dominante,
+pratos empanados que escondem a forma).
+
+**O que isto NÃO autoriza.** Mesmo limite das 2 exceções acima: não autoriza curar representante
+pra nenhum outro valor de nenhuma outra faceta — é específica de `protein:frango`, único valor da
+taxonomia sem candidata de categoria própria. Trocar é igualmente barato: muda-se o nome em
+`PROTEIN_SIGNATURE_RECIPE`.
+
+**Proporção — DIFERENTE das duas exceções acima.** Países e Coleções abstratas usam 4:3 (mesma
+proporção do tile grande da Home). A faceta Proteína usa **3:2** — a foto de frango convive na
+MESMA grade com as outras 7 fotos de categoria dentro do modal de Filtros, e desde 07/08/2026 essa
+grade inteira usa a mesma proporção da faceta País (`.filter-tile--photo`), não a do tile grande da
+Home. ⚠️ **Histórico revogado:** entre 06/08/2026 e 07/08/2026 esta faceta usou 1:1 (proporção
+nativa do asset de categoria) — o dono viu ao vivo e achou o tile alto demais; corrigido pra 3:2 no
+dia seguinte, uniformizando com País. Ver "Proporção por acervo" logo abaixo.
+
 ### Proporção por acervo — deliberada, não inconsistência
 
 São três acervos com três proporções, e isso é decisão, não descuido:
@@ -273,14 +314,41 @@ Filtros (`.filter-tile--photo`). O tile do hub Países migrou para a foto da rec
 (exceção acima), e o mosaico/mural de bandeiras que ocupava o banner do hub e o tile da Home foi
 removido — as 2 superfícies usam `imagens/categorias/paises.webp`, do acervo de categoria.
 
+Desde 06/08/2026 o acervo de **categoria** ganhou um 2º consumidor além de Home/hub: a faceta
+Proteína do modal de Filtros (`.filter-tile--protein`), reaproveitando 7 dos 19 arquivos
+(aves/carnes-bovinas/suínos/peixes/frutos-do-mar/col-ovo/cordeiro), lado a lado com a foto de
+receita-assinatura de `protein:frango` — ver exceção acima. **Proporção de exibição corrigida em
+07/08/2026: 3:2, não 1:1.** Registro do dia 1 (revogado): a faceta estreou casando a proporção
+NATIVA do asset (1:1, "mídia casa com asset", mesma regra das outras superfícies) — o dono viu ao
+vivo e achou o tile "muito grande", quebrando o ritmo contra País/Equipamento na mesma grade;
+corrigido no dia seguinte pra 3:2, a MESMA proporção de `.filter-tile--photo` (país) — a grade
+inteira do modal fica uniforme, **não é mais uma exceção de proporção mista**. O asset em disco
+CONTINUA 1:1 nativo (zero regeração, "reuso total" intacto) — 3:2 é só o corte de EXIBIÇÃO via
+`object-fit: cover` (janela visível = 66,7% da altura do quadrado, centralizada), a mesma técnica
+de corte que qualquer superfície deste documento já usa quando caixa ≠ proporção do master (§5).
+Ver `.filter-tile--protein` no CSS e a nota de DESIGN-TOKENS.md.
+
 A regra que unifica é **"mídia casa com asset"**: a área de mídia do componente adota a proporção do
 próprio arquivo, então `cover` vira o corte MÍNIMO que cobre a caixa, em vez de um corte imposto de
 fora. Foi isso que dispensou o `scale(1.15)` que o CSS usava para esconder borda de blur.
+
+> **Exceção pontual à regra acima (07/08/2026): `.filter-tile--protein`.** A faceta Proteína do
+> modal de Filtros é a ÚNICA superfície do app onde a caixa de mídia NÃO casa a proporção nativa do
+> asset (caixa 3:2, asset 1:1) — corte de 33,3% da altura, não o mínimo possível (que seria 0% numa
+> caixa 1:1). Justificativa: consistência VISUAL entre facetas do mesmo modal pesou mais que corte
+> mínimo por asset, decisão do dono depois de ver a alternativa (1:1, corte 0%) ao vivo e achar o
+> tile grande demais. Ver exceção "FACETA PROTEÍNA" acima.
 
 > **Opção registrada, sem prazo:** migrar o acervo de categoria de 1:1 para 3:2, pela mesma lógica de
 > corte mínimo, uniformizando com as bandeiras. Custo de regerar as 19 (+1 conceito): **R$ 6,46**.
 > Fica para a **fase de Filtros** — o acervo 1:1 atual está commitado e funcional, então não há nada
 > quebrado esperando conserto.
+>
+> **Atualização (07/08/2026, faceta Proteína — F1c):** a fase de Filtros chegou e NÃO exerceu essa
+> opção — decisão explícita do dono continua REUSO TOTAL, zero imagem nova/regerada. O acervo de
+> categoria em disco segue 1:1; o que mudou foi só a CAIXA de exibição da faceta Proteína (3:2,
+> corte em runtime via `object-fit: cover`), não o arquivo. Opção acima continua registrada, sem
+> prazo, pra quem quiser regerar de verdade depois.
 
 ---
 

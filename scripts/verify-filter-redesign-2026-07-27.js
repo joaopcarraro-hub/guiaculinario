@@ -55,25 +55,106 @@ function sliceNestedFunction(src, startNeedle) {
 }
 
 const facetModalScope = sliceModuleFunction(appJs, "function renderFacetModal(triggerWrapEl, defs, opts) {");
-// "Escopo alcançável" pra checagem de radio/checkbox: só as 5 funções que renderGenericSection
-// DE FATO despacha pros defs atuais de GENERIC_FACET_DEFS (confirmado na seção 7/8 abaixo) —
-// deliberadamente EXCLUI renderSingleSectionBody/renderMultiSectionBody, que são branches
-// mortas do mesmo dispatch (nenhum def tem multi:false nem combineMode fora de "or"/"toggle")
-// e não deveriam contar como "visível no modal" só por existirem como fallback defensivo não
-// alcançado. "Visível" é o critério da tarefa — código morto não é visível a ninguém.
+// "Escopo alcançável" pra checagem de radio/checkbox: só as funções que renderGenericSection DE
+// FATO despacha pros defs atuais de GENERIC_FACET_DEFS (confirmado na seção 7/8 abaixo), mais os
+// 2 helpers que elas chamam pra montar HTML — deliberadamente EXCLUI
+// renderSingleSectionBody/renderMultiSectionBody, que são branches mortas do mesmo dispatch
+// (nenhum def tem multi:false nem combineMode fora de "or"/"toggle") e não deveriam contar como
+// "visível no modal" só por existirem como fallback defensivo não alcançado. "Visível" é o
+// critério da tarefa — código morto não é visível a ninguém.
 function reachableModalScope() {
   const parts = [
     "function renderGenericSection(def) {",
     "function renderCountryTileSectionBody(sectionBody, def, options) {",
+    // renderProteinTileSectionBody (F1c, 2026-08-06) — Proteína graduou de chip pra photo-tile
+    // (ver GENERIC_FACET_DEFS/seção 12 abaixo). buildProteinRoleHtml/wireProteinRoleToggle são
+    // os 2 helpers que ela chama pro sub-controle "Papel da proteína" (migrados de dentro de
+    // renderChipSectionBody, único caller antes desta rodada) — entram aqui pelo mesmo motivo
+    // que renderProteinTileSectionBody entra: HTML de fato renderizado no modal.
+    "function renderProteinTileSectionBody(sectionBody, def, options) {",
+    "function buildProteinRoleHtml() {",
+    "function wireProteinRoleToggle(sectionBody, roleOptions) {",
     "function renderTileSectionBody(sectionBody, def, options) {",
     "function renderIngredientTileSectionBody(sectionBody, def, options) {",
     "function renderChipSectionBody(sectionBody, def, options) {",
     // renderProteinRoleSection() foi REMOVIDA (item 1b, 2026-07-28, ver
     // scripts/verify-protein-search-nav-2026-07-28.js) — a seção própria de "Papel da proteína"
-    // morreu, virou sub-controle DENTRO do corpo de renderChipSectionBody (mesma entrada logo
-    // acima já cobre o código novo, nada fica de fora do escopo alcançável por essa remoção).
+    // morreu bem antes desta rodada; ver histórico em buildProteinRoleHtml acima.
   ].map((needle) => sliceNestedFunction(appJs, needle) || "");
   return parts.join("\n\n");
+}
+
+// ---------- mesmo padrão fs+"new Function" de scripts/verify-protein-role-unify-2026-07-30.js —
+// TagModel roda de verdade num sandbox `window` (dados reais do acervo), e funções puras extraídas
+// do FONTE de app.js (não reimplementadas numa 3ª forma) rodam contra esse sandbox pra provar
+// comportamento real, não suposto. ----------
+const DATA_DIR = path.join(ROOT, "data");
+const JS_DIR = path.join(ROOT, "js");
+function runInSandbox(sandbox, code) {
+  // eslint-disable-next-line no-new-func
+  new Function("window", code)(sandbox.window);
+}
+function loadPipeline() {
+  const sandbox = { window: {} };
+  runInSandbox(sandbox, fs.readFileSync(path.join(JS_DIR, "countries.js"), "utf8"));
+  runInSandbox(sandbox, fs.readFileSync(path.join(JS_DIR, "categories.js"), "utf8"));
+  runInSandbox(sandbox, fs.readFileSync(path.join(DATA_DIR, "derivation-dict.js"), "utf8"));
+  runInSandbox(sandbox, fs.readFileSync(path.join(JS_DIR, "tags.js"), "utf8"));
+  fs.readdirSync(DATA_DIR)
+    .filter((f) => f.endsWith(".js") && f !== "derivation-dict.js" && f !== "shopping-dict.js")
+    .forEach((f) => runInSandbox(sandbox, fs.readFileSync(path.join(DATA_DIR, f), "utf8")));
+  runInSandbox(sandbox, fs.readFileSync(path.join(JS_DIR, "collections.js"), "utf8"));
+  runInSandbox(sandbox, fs.readFileSync(path.join(JS_DIR, "tagmodel.js"), "utf8"));
+  return sandbox.window;
+}
+
+// Extrai o corpo de uma função/const OBJETO por casamento de chaves (mesmo mecanismo de
+// verify-protein-role-unify-2026-07-30.js) — startMarker pode ser "function nome(...) {" OU
+// "const NOME = {" (objeto literal), os dois têm chaves balanceadas.
+function extractFunctionBody(src, startMarker) {
+  const start = src.indexOf(startMarker);
+  if (start < 0) return null;
+  const braceStart = src.indexOf("{", start);
+  if (braceStart < 0) return null;
+  let depth = 0;
+  let end = -1;
+  for (let i = braceStart; i < src.length; i++) {
+    if (src[i] === "{") depth++;
+    if (src[i] === "}") {
+      depth--;
+      if (depth === 0) {
+        end = i + 1;
+        break;
+      }
+    }
+  }
+  return end < 0 ? null : src.slice(start, end);
+}
+
+// Carrega PROTEIN_TILE_IMAGE/PROTEIN_SIGNATURE_RECIPE/proteinSignatureRecipe/
+// facetOptionsFromPrefix REAIS via extração de app.js, executados JUNTOS contra o TagModel real
+// (loadPipeline) — a "guarda de futuro" da seção 12 roda o binário real, não reimplementa a
+// regra de contagem/resolução de imagem numa 3ª forma.
+function loadProteinTileHelpers(appJsSrc, TagModel) {
+  const imageMapBody = extractFunctionBody(appJsSrc, "const PROTEIN_TILE_IMAGE = {");
+  const signatureMapBody = extractFunctionBody(appJsSrc, "const PROTEIN_SIGNATURE_RECIPE = {");
+  const signatureFnBody = extractFunctionBody(appJsSrc, "function proteinSignatureRecipe(tagId) {");
+  const facetOptionsBody = extractFunctionBody(appJsSrc, "function facetOptionsFromPrefix(items, prefix) {");
+  if (!imageMapBody || !signatureMapBody || !signatureFnBody || !facetOptionsBody) return null;
+  // eslint-disable-next-line no-new-func
+  const factory = new Function(
+    "TagModel",
+    "return (function() {\n" +
+      imageMapBody +
+      ";\n" +
+      signatureMapBody +
+      ";\n" +
+      signatureFnBody +
+      "\n" +
+      facetOptionsBody +
+      "\nreturn { PROTEIN_TILE_IMAGE: PROTEIN_TILE_IMAGE, PROTEIN_SIGNATURE_RECIPE: PROTEIN_SIGNATURE_RECIPE, proteinSignatureRecipe: proteinSignatureRecipe, facetOptionsFromPrefix: facetOptionsFromPrefix };\n})()"
+  );
+  return factory(TagModel);
 }
 
 function main() {
@@ -88,9 +169,9 @@ function main() {
   console.log("1. ZERO INPUT RADIO/CHECKBOX VISÍVEL NO MODAL");
   console.log("==================================================");
   const reachableScope = reachableModalScope();
-  assert(reachableScope.length > 3000, "escopo alcançável (6 funções de fato despachadas) fatiado com tamanho plausível");
+  assert(reachableScope.length > 3000, "escopo alcançável (8 funções de fato despachadas/chamadas — 5 da Fase F1a + renderProteinTileSectionBody/buildProteinRoleHtml/wireProteinRoleToggle do F1c) fatiado com tamanho plausível");
   assert(!/type="radio"/.test(reachableScope), 'nenhum type="radio" restante no código ALCANÇÁVEL do modal de facetas (Papel da proteína virou segmentado) — renderSingleSectionBody (branch morta do dispatch, nunca invocada por nenhum def atual) deliberadamente fora do escopo desta checagem, ver seção 8');
-  assert(!/type="checkbox"/.test(reachableScope), 'nenhum type="checkbox" restante no código ALCANÇÁVEL do modal de facetas (Complexidade/Tempo/Tipo de prato/Proteína/Refeição viraram chips)');
+  assert(!/type="checkbox"/.test(reachableScope), 'nenhum type="checkbox" restante no código ALCANÇÁVEL do modal de facetas (Complexidade/Tempo/Tipo de prato/Refeição viraram chips, Proteína virou photo-tile — ver seção 12)');
   assert(facetModalScope && !/renderCheckboxSectionBody/.test(facetModalScope), "renderCheckboxSectionBody (gerador de lista de checkbox) não existe mais — substituído pelo gerador de chips");
   assert(facetModalScope && /function renderChipSectionBody\(/.test(facetModalScope), "renderChipSectionBody(...) existe — novo gerador único de chips pras facetas multi-seleção convertidas");
   assert(facetModalScope && /\.filter-chip/.test(facetModalScope), 'classe "filter-chip" é usada de fato no HTML gerado pelo modal');
@@ -111,22 +192,22 @@ function main() {
   console.log("3. PAPEL DA PROTEÍNA — segmentado de 3 pílulas (role=radiogroup/radio), seleção única preservada");
   console.log("==================================================");
   // ATUALIZADO (item 1b, 2026-07-28): a seção própria "Papel da proteína" morreu por decisão do
-  // dono/estrategista — o segmentado virou sub-controle DENTRO do corpo de renderChipSectionBody
-  // (mesmo padrão do toggle Qualquer um/Todos estes de Ingrediente), gated por
-  // `def.key === "protein" && opts.proteinRole`. roleFnBody agora reaproveita chipFnBody (já
-  // fatiado na seção 2 acima) em vez de isolar uma função própria que não existe mais — ver
-  // scripts/verify-protein-search-nav-2026-07-28.js pra cobertura completa do redesenho
-  // (inclusive o escopo dos 2 listeners de clique separados, .filter-chip-row vs .filter-segmented,
-  // pra não contaminar draftFacetState.protein com cliques no segmentado).
-  // ATUALIZADO OUTRA VEZ (ajuste visual, 2026-07-28 rodada 2): as 3 pílulas soltas saturavam
-  // junto dos chips de proteína (achado do dono ao ver ao vivo) — viraram trilho deslizante
-  // (.segmented-toggle), generalizando o MESMO componente do toggle de Ingrediente. O HTML de
-  // role="radiogroup"/role="radio" agora mora em segmentedToggleHtml (função module-level
-  // separada, fora de chipFnBody) — checado por completo em
-  // scripts/verify-protein-search-nav-2026-07-28.js; aqui só confirma que renderChipSectionBody
-  // CHAMA essa função compartilhada com os dados certos, não reconstrói o segmentado à mão.
-  const roleFnBody = chipFnBody;
-  assert(!!roleFnBody, "renderChipSectionBody (onde o segmentado agora vive) isolado com sucesso");
+  // dono/estrategista — o segmentado virou sub-controle, gated por `opts.proteinRole`. O HTML de
+  // role="radiogroup"/role="radio" mora em segmentedToggleHtml (função module-level separada) —
+  // checado por completo em scripts/verify-protein-search-nav-2026-07-28.js; aqui só confirma
+  // que o sub-controle CHAMA essa função compartilhada com os dados certos, não reconstrói o
+  // segmentado à mão.
+  // ATUALIZADO DE NOVO (F1c, 2026-08-06): a faceta VALOR de Proteína graduou de chip pra
+  // photo-tile (seção 12 abaixo) — o sub-controle "Papel da proteína" se moveu JUNTO, de dentro
+  // de renderChipSectionBody pra 2 helpers próprios (buildProteinRoleHtml/wireProteinRoleToggle)
+  // chamados por renderProteinTileSectionBody, o único caller agora. roleFnBody concatena os 2
+  // (buildProteinRoleHtml monta o HTML/rótulos, wireProteinRoleToggle escreve draftProteinRole)
+  // em vez de reaproveitar chipFnBody, que não contém mais nada de Proteína.
+  const roleFnBody =
+    (sliceNestedFunction(appJs, "function buildProteinRoleHtml() {") || "") +
+    "\n\n" +
+    (sliceNestedFunction(appJs, "function wireProteinRoleToggle(sectionBody, roleOptions) {") || "");
+  assert(roleFnBody.trim().length > 2, "buildProteinRoleHtml + wireProteinRoleToggle (onde o segmentado agora vive) isolados com sucesso");
   assert(!!roleFnBody && /segmentedToggleHtml\("Papel da proteína"/.test(roleFnBody), 'chama segmentedToggleHtml("Papel da proteína", ...) — role=radiogroup/radio vêm de dentro dessa função compartilhada, não reconstruídos aqui');
   assert(!!roleFnBody && (roleFnBody.match(/\{\s*value:/g) || []).length === 3, "array `roleOptions` declara exatamente 3 entradas (Ver tudo/Principal/Secundário) — confirma que segmentedToggleHtml recebe 3 paradas");
   // Mini-rodada visual de fechamento (2026-07-29): rótulo "Tanto faz" -> "Ver tudo" (copy do
@@ -237,6 +318,120 @@ function main() {
   console.log("11. SERVICE WORKER — CACHE_NAME bump (css/style.css e js/app.js mudam)");
   console.log("==================================================");
   assert(/const CACHE_NAME = "cardapio-v\d+";/.test(swJs), "CACHE_NAME presente em sw.js no formato esperado (lido dinamicamente via scripts/lib-cache-name.js — bump não exige editar esta suíte): " + extractCacheName(swJs));
+
+  console.log("");
+  console.log("==================================================");
+  console.log("12. FACETA PROTEÍNA VIRA PHOTO-TILE (F1c, 2026-08-06) — REUSO TOTAL, zero imagem nova");
+  console.log("==================================================");
+  assert(/function renderProteinTileSectionBody\(sectionBody, def, options\) \{/.test(appJs), "renderProteinTileSectionBody(...) existe — função IRMÃ de renderCountryTileSectionBody, não reaproveitada (mesmo motivo de .category-card--signature não reusar .category-card--country)");
+  assert(/\{ key: "protein", label: "Prote[ií]na", prefix: "protein:", multi: true, combineMode: "or", layout: "protein-tiles" \}/.test(appJs), 'GENERIC_FACET_DEFS da faceta Proteína agora declara layout: "protein-tiles" (era chip sem layout, Fase F1a)');
+  assert(/else if \(def\.layout === "protein-tiles"\) renderProteinTileSectionBody\(sectionBody, def, options\);/.test(appJs), 'dispatch de renderGenericSection tem o branch "protein-tiles" -> renderProteinTileSectionBody');
+  // TESTE NEGATIVO: renderChipSectionBody não decide mais nada de Proteína — nem o branch
+  // isProteinFacet nem o reset de draftProteinRole sobrevivem lá (os 2 migraram pra
+  // renderProteinTileSectionBody/wireProteinRoleToggle, checados acima na seção 3).
+  const chipFnBodyNow = sliceNestedFunction(appJs, "function renderChipSectionBody(sectionBody, def, options) {");
+  assert(!!chipFnBodyNow && !/isProteinFacet/.test(chipFnBodyNow) && !/draftProteinRole/.test(chipFnBodyNow), "TESTE NEGATIVO: renderChipSectionBody não referencia mais Proteína (isProteinFacet/draftProteinRole) — a faceta saiu de vez desse gerador");
+
+  console.log("");
+  console.log("12a. MAPEAMENTO síncrono (7 valores, foto de categoria já em disco)");
+  const proteinImageBody = extractFunctionBody(appJs, "const PROTEIN_TILE_IMAGE = {");
+  assert(!!proteinImageBody, "PROTEIN_TILE_IMAGE isolado com sucesso");
+  const EXPECTED_TILE_IMAGE = {
+    "protein:ave": "aves",
+    "protein:boi": "carnes-bovinas",
+    "protein:suino": "suinos",
+    "protein:peixe": "peixes",
+    "protein:frutos-do-mar": "frutos-do-mar",
+    "protein:ovo": "col-ovo",
+    "protein:cordeiro": "cordeiro",
+  };
+  Object.keys(EXPECTED_TILE_IMAGE).forEach((tagId) => {
+    const fileId = EXPECTED_TILE_IMAGE[tagId];
+    assert(!!proteinImageBody && new RegExp('"' + tagId + '":\\s*"' + fileId + '"').test(proteinImageBody), tagId + " -> imagens/categorias/" + fileId + ".webp");
+    assert(fs.existsSync(path.join(ROOT, "imagens", "categorias", fileId + ".webp")), ".webp de " + fileId + " existe de verdade em disco (não só no mapeamento — mesma lição do slugFoto)");
+  });
+  assert(!!proteinImageBody && !/"protein:frango"/.test(proteinImageBody), 'TESTE NEGATIVO: protein:frango NÃO está em PROTEIN_TILE_IMAGE (aves.webp já é de protein:ave — frango resolve por receita-assinatura, seção 12b)');
+  assert(!!proteinImageBody && !/"protein:leguminosa"/.test(proteinImageBody) && !/"protein:laticinio"/.test(proteinImageBody), "TESTE NEGATIVO: leguminosa/laticinio NÃO estão em PROTEIN_TILE_IMAGE — 0 receitas hoje, nenhuma candidata de imagem (ver guarda de futuro, seção 12c)");
+
+  console.log("");
+  console.log("12b. RECEITA-ASSINATURA de frango (curada, mesmo princípio de countrySignatureRecipe)");
+  const proteinSignatureMapBody = extractFunctionBody(appJs, "const PROTEIN_SIGNATURE_RECIPE = {");
+  assert(!!proteinSignatureMapBody && /"protein:frango":\s*"Tandoori Chicken"/.test(proteinSignatureMapBody), 'PROTEIN_SIGNATURE_RECIPE["protein:frango"] = "Tandoori Chicken"');
+  // TESTE NEGATIVO — os 5 descartes documentados no comentário acima do mapa (relatório da
+  // tarefa) não sobrevivem como escolha: nem os já reivindicados por outra coleção...
+  ["Frango Frito Americano", "Frango Kung Pao", "Butter Chicken (Murgh Makhani)", "Yakitori"].forEach((claimed) => {
+    assert(!new RegExp('"protein:frango":\\s*"' + claimed.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + '"').test(appJs), 'TESTE NEGATIVO: "' + claimed + '" (já é receita-assinatura de outra coleção) NÃO foi escolhida pra protein:frango');
+  });
+  // ...nem os 2 gêmeos visuais de aves.webp (Frango Recheado era a semente do estrategista,
+  // descartada nesta rodada — ver relatório da tarefa pra comparação lado a lado das fotos).
+  ["Frango Recheado", "Galeto Al Primo Canto"].forEach((twin) => {
+    assert(!new RegExp('"protein:frango":\\s*"' + twin + '"').test(appJs), 'TESTE NEGATIVO: "' + twin + '" (gêmea visual de aves.webp — ave inteira assada em tábua de madeira) NÃO foi escolhida pra protein:frango');
+  });
+
+  console.log("");
+  console.log("12c. GUARDA DE FUTURO — toda opção de Proteína REALMENTE renderizada tem imagem resolvível (executado contra o acervo real, não hardcoded)");
+  const win = loadPipeline();
+  const TagModel = win.TagModel;
+  const proteinHelpers = loadProteinTileHelpers(appJs, TagModel);
+  assert(!!proteinHelpers, "PROTEIN_TILE_IMAGE/PROTEIN_SIGNATURE_RECIPE/proteinSignatureRecipe/facetOptionsFromPrefix extraídos e executados com sucesso contra o TagModel real");
+  if (proteinHelpers) {
+    const allRecipes = TagModel.getAllRecipesFlat();
+    const realOptions = proteinHelpers.facetOptionsFromPrefix(allRecipes, "protein:");
+    const realTagIds = realOptions.map((o) => o.tagId).sort();
+    console.log("  literal: opções reais de Proteína hoje (universo inteiro, sem outro filtro ativo) = " + realTagIds.join(", "));
+    const EXPECTED_TAGIDS_TODAY = [
+      "protein:ave", "protein:boi", "protein:cordeiro", "protein:frango",
+      "protein:frutos-do-mar", "protein:ovo", "protein:peixe", "protein:suino",
+    ].sort();
+    assert(realTagIds.length === 8 && EXPECTED_TAGIDS_TODAY.every((id, i) => realTagIds[i] === id), "8 tags renderizam hoje, exatamente as esperadas (obtido: " + realTagIds.join(", ") + ")");
+    assert(realTagIds.indexOf("protein:leguminosa") === -1 && realTagIds.indexOf("protein:laticinio") === -1, "PRESSUPOSTO CONFIRMADO: leguminosa/laticinio continuam com 0 receitas no acervo real — ausentes das opções renderizadas, 0 tiles, grade nunca fica mista");
+    // A GUARDA em si: pra CADA tag que de fato aparece (dinâmico — se o acervo crescer e
+    // leguminosa/laticinio passarem a ter receita, entram nesta lista sozinhos, sem editar esta
+    // suíte), a imagem tem que resolver por um dos 2 mecanismos. Se um dia isso falhar, é o
+    // sinal exato que a tarefa pediu: grita alto, nunca deixa a grade sair com um buraco.
+    realOptions.forEach((o) => {
+      const resolved = !!proteinHelpers.PROTEIN_TILE_IMAGE[o.tagId] || !!proteinHelpers.proteinSignatureRecipe(o.tagId);
+      assert(resolved, "GUARDA: " + o.tagId + " (renderizado, " + o.count + " receitas) resolve imagem — " + (proteinHelpers.PROTEIN_TILE_IMAGE[o.tagId] ? "categoria imagens/categorias/" + proteinHelpers.PROTEIN_TILE_IMAGE[o.tagId] + ".webp" : "receita-assinatura curada"));
+    });
+  }
+
+  console.log("");
+  console.log("12d. CSS — .filter-tile--protein PRÓPRIA (não reusa .filter-tile--photo), proporção 3/2 (ajuste 2026-08-07, igual ao País), sem blur/véu");
+  const proteinTileRuleMatch = css.match(/\.filter-tile--protein\s*\{[^}]*\}/);
+  assert(!!proteinTileRuleMatch, ".filter-tile--protein existe no CSS");
+  const proteinMediaRuleMatch = css.match(/\.filter-tile--protein \.filter-tile__media\s*\{[^}]*\}/);
+  // ATUALIZADO (2026-08-07): dono viu 1:1 ao vivo e achou "muito grande" — aspect-ratio corrigido
+  // pra 3/2, a MESMA métrica de .filter-tile--photo (país). Fonte continua 1:1/600x600 em disco
+  // (zero regeração de asset, "reuso total" intacto); 3:2 é corte de EXIBIÇÃO via
+  // object-fit:cover — janela visível = 1/1,5 = 66,7% da altura do quadrado, centralizada (§5 de
+  // CONTRATO-IMAGENS-REDESIGN.md). Conferido ao vivo nos 8 valores que nenhum prato decapita, ver
+  // relatório da tarefa (checagem visual/DOM, não algébrica — mesmo método já usado pro gêmeo
+  // visual Frango Recheado vs. aves.webp).
+  assert(!!proteinMediaRuleMatch && /aspect-ratio:\s*3\s*\/\s*2/.test(proteinMediaRuleMatch[0]), ".filter-tile--protein .filter-tile__media usa aspect-ratio 3/2 — MESMA métrica de .filter-tile--photo (país), decisão do dono após ver 1:1 no ar (ficava alto demais)");
+  const proteinImgRuleMatch = css.match(/\.filter-tile--protein \.filter-tile__media img\s*\{[^}]*\}/);
+  assert(!!proteinImgRuleMatch, ".filter-tile--protein .filter-tile__media img existe (seletor de ELEMENTO, não a classe .filter-tile__img — cobre também o <img> sem classe que loadRecipeImage/applyImage cria em runtime pra frango)");
+  assert(!!proteinImgRuleMatch && !/blur\(/.test(proteinImgRuleMatch[0]) && !/scale\(/.test(proteinImgRuleMatch[0]), "TESTE NEGATIVO: sem blur()/scale() — foto de prato nítida, blur/véu são muleta só de bandeira (a ÚNICA diferença real que sobra de .filter-tile--photo, agora que a proporção é igual)");
+  assert(!/\.filter-tile--protein[\s\S]{0,10}::after/.test(css), "TESTE NEGATIVO: .filter-tile--protein não tem pseudo-elemento ::after de véu (só --photo, bandeira, tem)");
+  // TESTE NEGATIVO cruzado: a faceta País (.filter-tile--photo) não regrediu — continua 3:2 com
+  // blur, intocada por esta rodada (mesma checagem da seção 6 acima, reconfirmada aqui porque é
+  // exatamente o CSS vizinho que uma migração de seletor mal-feita arriscaria).
+  assert(!!photoTileRuleMatch, "TESTE NEGATIVO: .filter-tile--photo (País) continua existindo, regra própria intacta");
+  const photoMediaRuleMatch = css.match(/\.filter-tile--photo \.filter-tile__media\s*\{[^}]*\}/);
+  assert(!!photoMediaRuleMatch && /aspect-ratio:\s*3\s*\/\s*2/.test(photoMediaRuleMatch[0]), "TESTE NEGATIVO: .filter-tile--photo (País) continua 3:2, intocado por esta rodada");
+  // Uniformidade — a razão de ser desta rodada: Proteína e País, embora regras CSS separadas
+  // (independência de manutenção preservada), agora produzem a MESMA altura de tile na mesma
+  // grade (.filter-tile-grid compartilhada garante largura igual; aspect-ratio igual garante
+  // altura igual). Extrai o valor NUMÉRICO de cada regra em vez de comparar string — prova
+  // equivalência de verdade, não só "as duas mencionam 3/2 em algum lugar do arquivo".
+  function aspectRatioOf(ruleText) {
+    const m = ruleText && ruleText.match(/aspect-ratio:\s*(\d+)\s*\/\s*(\d+)/);
+    return m ? Number(m[1]) / Number(m[2]) : null;
+  }
+  const proteinRatio = aspectRatioOf(proteinMediaRuleMatch && proteinMediaRuleMatch[0]);
+  const paisRatio = aspectRatioOf(photoMediaRuleMatch && photoMediaRuleMatch[0]);
+  assert(proteinRatio !== null && proteinRatio === paisRatio, "aspect-ratio de Proteína (" + proteinRatio + ") === aspect-ratio de País (" + paisRatio + ") — mesma largura (grid compartilhado) + mesma proporção = mesma altura de tile, grade uniforme");
+  const photoImgRuleMatch = css.match(/\.filter-tile--photo \.filter-tile__img\s*\{[^}]*\}/);
+  assert(!!photoImgRuleMatch && /blur\(var\(--flag-blur\)\)/.test(photoImgRuleMatch[0]), "TESTE NEGATIVO: .filter-tile--photo (País) continua com blur(--flag-blur) — bandeira, não foto de prato");
 
   console.log("");
   console.log("==================================================");

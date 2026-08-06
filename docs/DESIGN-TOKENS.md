@@ -635,6 +635,38 @@ diretamente. Remoção dos alias fica pra uma rodada futura.
     `renderTileSectionBody` (ícone+label+contagem empilhados, ainda usado por Equipamento) porque
     a estrutura muda de verdade. `window.COUNTRIES.<id>.iso2` (`js/countries.js`) continua a
     fonte única — só o consumo mudou de `.emoji` (Unicode) pra arquivo.
+  - **Tile de Proteína no modal de Filtros (`.filter-tile--protein`, faceta Proteína,
+    `renderProteinTileSectionBody` — Fase F1c, 2026-08-06)** — mesma regra-mãe física do tile de
+    país (mídia cobrindo o bloco + faixa sólida nome+contagem por baixo), REUSO TOTAL de asset
+    (zero imagem nova, decisão do dono): 7 dos 10 valores reaproveitam a MESMA foto de categoria
+    já usada em Home/hub (`imagens/categorias/<id>.webp`, 600×600, mapeamento literal
+    `PROTEIN_TILE_IMAGE` em `js/app.js` — o id da tag difere do id do arquivo em 3 casos:
+    `ave`→`aves`, `boi`→`carnes-bovinas`, `suino`→`suinos`); `protein:frango` resolve por
+    receita-assinatura curada (`Tandoori Chicken`, mesmo mecanismo async de
+    `countrySignatureRecipe`/`collectionSignatureRecipe` via `loadRecipeImage`);
+    `leguminosa`/`laticinio` seguem sem imagem (0 receitas no acervo, nunca renderizam).
+    **`aspect-ratio: 3 / 2` — MESMA proporção de `.filter-tile--photo` (país).** CSS PRÓPRIO
+    (`.filter-tile--protein`, não reusa `.filter-tile--photo`, mesmo motivo de
+    `.category-card--signature` não reusar `.category-card--country`), mas com o MESMO valor
+    numérico — ⚠️ **REVOGADO 2026-08-07** (ver "Proporções mistas... aceitas" que este parágrafo
+    tinha registrado no dia anterior, 2026-08-06): o dono viu 1:1 no ar e achou o tile "muito
+    grande" — a proporção foi corrigida pra 3:2 no dia seguinte, uniformizando com País. O asset
+    fonte CONTINUA 1:1 nativo (`imagens/categorias/*.webp`, 600×600) — 3:2 é corte de EXIBIÇÃO via
+    `object-fit: cover` (janela visível = 1/1,5 = 66,7% da altura do quadrado, centralizada — §5
+    de CONTRATO-IMAGENS-REDESIGN.md), não regeração de asset, "reuso total" continua de pé. SEM
+    `blur()`/`::after` de véu (foto de prato nítida — blur/véu são muleta só de bandeira, ver
+    CONTRATO-IMAGENS-REDESIGN.md §4) — essa é a ÚNICA diferença real que sobra de
+    `.filter-tile--photo` agora que a proporção é igual. Seletor de imagem no CSS é o elemento
+    `img` (não a classe `.filter-tile__img`), porque a foto de frango
+    chega via `loadRecipeImage`/`applyImage` em runtime, que cria um `<img>` sem classe nenhuma —
+    mesmo motivo de `.category-card--country .category-card__media img` usar seletor de
+    elemento. Sub-controle "Papel da proteína" (visibilidade/mecanismo intactos) migrou de dentro
+    de `renderChipSectionBody` pra 2 helpers próprios (`buildProteinRoleHtml`/
+    `wireProteinRoleToggle`), chamados pelo novo `renderProteinTileSectionBody`. Guarda de futuro
+    versionada em `scripts/verify-filter-redesign-2026-07-27.js` (seção 12c): roda
+    `facetOptionsFromPrefix` de verdade contra o acervo real a cada execução — se
+    `leguminosa`/`laticinio` um dia ganharem receita e aparecerem no grid sem imagem mapeada, a
+    suíte falha alto em vez de deixar a grade sair com um tile sem foto no meio dos outros.
   - **Peso em disco da grade "Mais Categorias"** (6 imagens visíveis — molhos/sopas/entradas/
     risotos-arroz/padaria/tecnicas; massas/sobremesas-classicas só aparecem nos tiles grandes da
     Home): **398,5 KB** somados (números exatos no relatório da tarefa).

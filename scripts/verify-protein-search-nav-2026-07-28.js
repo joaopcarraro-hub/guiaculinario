@@ -75,25 +75,41 @@ function main() {
     "renderBody() continua montando as seções via defs.forEach(renderGenericSection) — mecanismo de topo intacto"
   );
 
+  // ATUALIZADO (F1c, 2026-08-06 — ver scripts/verify-filter-redesign-2026-07-27.js seção 12): a
+  // faceta VALOR de Proteína graduou de chip pra photo-tile, e o sub-controle "Papel da
+  // proteína" se moveu JUNTO, de dentro de renderChipSectionBody pra 2 helpers próprios
+  // (buildProteinRoleHtml monta HTML/rótulos, wireProteinRoleToggle escreve draftProteinRole),
+  // chamados por renderProteinTileSectionBody — o único caller agora. Os checks abaixo miram
+  // essas 3 funções em vez de renderChipSectionBody, que não sabe mais nada de Proteína.
   const chipBodyScope = sliceNestedFunction(appJs, "function renderChipSectionBody(sectionBody, def, options) {");
   assert(!!chipBodyScope, "renderChipSectionBody encontrado");
-  assert(!!chipBodyScope && /def\.key === "protein" && opts\.proteinRole/.test(chipBodyScope), 'gate exato def.key === "protein" && opts.proteinRole (só a seção Proteína ganha o sub-controle, só quando a coleção tem papel de proteína pra oferecer)');
-  assert(!!chipBodyScope && /filter-subcontrol-label/.test(chipBodyScope), "label visível do sub-controle presente (rótulo próprio — diferente do toggle de Ingrediente, que não tem um)");
-  assert(!!chipBodyScope && chipBodyScope.indexOf("Papel da proteína") !== -1, 'rótulo mantido EXATAMENTE "Papel da proteína" (decisão do dono: não trocar por nenhuma das 2 alternativas de copy)');
+  const roleHtmlScope = sliceNestedFunction(appJs, "function buildProteinRoleHtml() {");
+  const roleWireScope = sliceNestedFunction(appJs, "function wireProteinRoleToggle(sectionBody, roleOptions) {");
+  const proteinTileScope = sliceNestedFunction(appJs, "function renderProteinTileSectionBody(sectionBody, def, options) {");
+  assert(!!roleHtmlScope, "buildProteinRoleHtml encontrado");
+  assert(!!roleWireScope, "wireProteinRoleToggle encontrado");
+  assert(!!proteinTileScope, "renderProteinTileSectionBody encontrado");
+  assert(!!roleHtmlScope && /if \(!opts\.proteinRole\) return \{ html: "", options: null \};/.test(roleHtmlScope), "gate exato !opts.proteinRole (só a seção Proteína ganha o sub-controle, só quando a coleção tem papel de proteína pra oferecer) — equivalente ao antigo def.key === \"protein\" && opts.proteinRole, agora estrutural: só renderProteinTileSectionBody chama buildProteinRoleHtml");
+  assert(!!proteinTileScope && /buildProteinRoleHtml\(\)/.test(proteinTileScope), "renderProteinTileSectionBody (única seção que existe pra Proteína) chama buildProteinRoleHtml()");
+  assert(!!roleHtmlScope && /filter-subcontrol-label/.test(roleHtmlScope), "label visível do sub-controle presente (rótulo próprio — diferente do toggle de Ingrediente, que não tem um)");
+  assert(!!roleHtmlScope && roleHtmlScope.indexOf("Papel da proteína") !== -1, 'rótulo mantido EXATAMENTE "Papel da proteína" (decisão do dono: não trocar por nenhuma das 2 alternativas de copy)');
   // role="radiogroup" em si agora mora dentro de segmentedToggleHtml (função separada, checada
-  // na seção "AJUSTE VISUAL" abaixo) — aqui só confirma que renderChipSectionBody passa o
+  // na seção "AJUSTE VISUAL" abaixo) — aqui só confirma que buildProteinRoleHtml passa o
   // aria-label certo pra essa função compartilhada, provando que É o trilho de Papel da
   // proteína sendo montado, não outra instância genérica.
-  assert(!!chipBodyScope && /segmentedToggleHtml\("Papel da proteína"/.test(chipBodyScope), 'segmentedToggleHtml chamado com aria-label "Papel da proteína" (role=radiogroup vem de dentro dessa função, checado na seção seguinte)');
-  assert(!!chipBodyScope && /"Ver tudo"/.test(chipBodyScope) && /Principal \(/.test(chipBodyScope) && /Secundário \(/.test(chipBodyScope), "os 3 segmentos (Ver tudo/Principal (N)/Secundário (N)) presentes, com contagem — rótulo revisto 2026-07-29 (era Tanto faz), confirmado ao vivo em 360px que cabe no 1/3 do trilho sem truncar");
-  assert(!!chipBodyScope && !/"Tanto faz"/.test(chipBodyScope), "TESTE NEGATIVO: rótulo antigo \"Tanto faz\" não sobrevive no código");
-  assert(
-    !!chipBodyScope && /querySelectorAll\(".filter-chip-row .filter-chip"\)/.test(chipBodyScope),
-    "listener dos chips de VALOR (protein:X) escopado a .filter-chip-row .filter-chip — NÃO ao seletor genérico .filter-chip, que agora TAMBÉM casaria os botões do trilho (bug de contaminação cruzada: mexer no trilho não pode mexer em draftFacetState.protein)"
-  );
-  assert(!!chipBodyScope && /segmentedToggleHtml\(/.test(chipBodyScope), "Papel da proteína usa o gerador compartilhado segmentedToggleHtml(...) — não reconstrói HTML de segmentado à mão");
-  assert(!!chipBodyScope && /wireSegmentedToggle\(/.test(chipBodyScope), "Papel da proteína fia o trilho via wireSegmentedToggle(...) compartilhado — mesma mola/teclado/mecanismo do toggle de Ingrediente");
-  assert(!!chipBodyScope && /draftProteinRole = roleOptions\[index\]\.value \|\| null;/.test(chipBodyScope), "onSelect do trilho escreve draftProteinRole pelo índice escolhido (mesmo rascunho de antes, só mudou o mecanismo de seleção)");
+  assert(!!roleHtmlScope && /segmentedToggleHtml\("Papel da proteína"/.test(roleHtmlScope), 'segmentedToggleHtml chamado com aria-label "Papel da proteína" (role=radiogroup vem de dentro dessa função, checado na seção seguinte)');
+  assert(!!roleHtmlScope && /"Ver tudo"/.test(roleHtmlScope) && /Principal \(/.test(roleHtmlScope) && /Secundário \(/.test(roleHtmlScope), "os 3 segmentos (Ver tudo/Principal (N)/Secundário (N)) presentes, com contagem — rótulo revisto 2026-07-29 (era Tanto faz), confirmado ao vivo em 360px que cabe no 1/3 do trilho sem truncar");
+  assert(!!roleHtmlScope && !/"Tanto faz"/.test(roleHtmlScope), "TESTE NEGATIVO: rótulo antigo \"Tanto faz\" não sobrevive no código");
+  // Contaminação cruzada (bug histórico que a suíte original blindava): antes, valor-chip e
+  // pílula de papel corriam risco de casar o mesmo seletor genérico .filter-chip. Hoje é
+  // estruturalmente impossível — classes DIFERENTES em componentes DIFERENTES (.filter-tile em
+  // renderProteinTileSectionBody vs. .segmented-toggle em wireProteinRoleToggle), garantia mais
+  // forte que a antiga (não depende de escopo de seletor bem calibrado pra não colidir).
+  assert(!!proteinTileScope && /querySelectorAll\(".filter-tile"\)/.test(proteinTileScope), "listener dos VALORES de Proteína (protein:X) usa .filter-tile — seletor próprio, sem sobreposição possível com .segmented-toggle (trilho de Papel da proteína, componente separado)");
+  assert(!!roleWireScope && /querySelector\(".segmented-toggle"\)/.test(roleWireScope), "wireProteinRoleToggle busca .segmented-toggle — DIFERENTE de .filter-tile, zero risco de contaminação cruzada por construção");
+  assert(!!roleHtmlScope && /segmentedToggleHtml\(/.test(roleHtmlScope), "Papel da proteína usa o gerador compartilhado segmentedToggleHtml(...) — não reconstrói HTML de segmentado à mão");
+  assert(!!roleWireScope && /wireSegmentedToggle\(/.test(roleWireScope), "Papel da proteína fia o trilho via wireSegmentedToggle(...) compartilhado — mesma mola/teclado/mecanismo do toggle de Ingrediente");
+  assert(!!roleWireScope && /draftProteinRole = roleOptions\[index\]\.value \|\| null;/.test(roleWireScope), "onSelect do trilho escreve draftProteinRole pelo índice escolhido (mesmo rascunho de antes, só mudou o mecanismo de seleção)");
 
   console.log("");
   console.log("==================================================");
@@ -142,10 +158,17 @@ function main() {
 
   // Teste negativo: as OUTRAS facetas de chip (Complexidade/Tempo/Refeição/Tipo de prato) não
   // ganham o sub-controle — a função é compartilhada, o gate é que decide, não uma duplicata.
+  // ATUALIZADO (F1c, 2026-08-06): Proteína SAIU deste branch — agora tem layout "protein-tiles"
+  // próprio, interceptado ANTES no dispatch (ver scripts/verify-filter-redesign-2026-07-27.js
+  // seção 12). O branch genérico abaixo continua existindo, só não serve mais Proteína.
   const genericSectionScope = sliceNestedFunction(appJs, "function renderGenericSection(def) {");
   assert(
     !!genericSectionScope && /else if \(def\.multi && def\.combineMode === "or"\) renderChipSectionBody\(sectionBody, def, options\);/.test(genericSectionScope),
-    "renderGenericSection continua despachando TODAS as facetas multi/or (incl. Proteína) pra renderChipSectionBody — nenhum layout novo introduzido só pra Proteína"
+    "renderGenericSection continua despachando as demais facetas multi/or (Complexidade/Tempo/Refeição/Tipo de prato) pra renderChipSectionBody"
+  );
+  assert(
+    !!genericSectionScope && /else if \(def\.layout === "protein-tiles"\) renderProteinTileSectionBody\(sectionBody, def, options\);/.test(genericSectionScope),
+    'TESTE NEGATIVO: Proteína não alcança mais renderChipSectionBody — layout "protein-tiles" intercepta ANTES do branch genérico'
   );
 
   // Teste negativo: o mecanismo por trás (tagmodel/opts) não foi tocado — só a apresentação.
@@ -466,14 +489,19 @@ function main() {
 
   console.log("");
   console.log("-- 5. Gate de visibilidade dinâmico (app.js) — não mais um opts.proteinRole estático --");
-  const chipBodyScope2 = sliceNestedFunction(appJs, "function renderChipSectionBody(sectionBody, def, options) {");
-  assert(!!chipBodyScope2 && /function activeProteinTagIds\(/.test(appJs), "helper activeProteinTagIds(draftFacetState, collection) existe — explícito tem prioridade, cai pro implícito da coleção só se nada foi selecionado");
-  assert(!!chipBodyScope2 && /activeProteinTagIds\(draftFacetState/.test(chipBodyScope2), "renderChipSectionBody consulta activeProteinTagIds a cada render — visibilidade RE-AVALIADA a cada mudança de rascunho, não fixada 1x na abertura do modal");
-  assert(!!chipBodyScope2 && /protein-role-wrap/.test(chipBodyScope2), "wrapper .protein-role-wrap presente — sempre no DOM (permite transição de entrada/saída via CSS, não um hard show/hide)");
+  // ATUALIZADO (F1c, 2026-08-06): activeProteinTagIds/protein-role-wrap moraram em
+  // renderChipSectionBody até a rodada anterior — agora moram em buildProteinRoleHtml, o único
+  // lugar que ainda constrói o sub-controle (ver roleHtmlScope, seção ITEM 1b acima).
+  assert(!!roleHtmlScope && /function activeProteinTagIds\(/.test(appJs), "helper activeProteinTagIds(draftFacetState, collection) existe — explícito tem prioridade, cai pro implícito da coleção só se nada foi selecionado");
+  assert(!!roleHtmlScope && /activeProteinTagIds\(draftFacetState/.test(roleHtmlScope), "buildProteinRoleHtml consulta activeProteinTagIds a cada render — visibilidade RE-AVALIADA a cada mudança de rascunho, não fixada 1x na abertura do modal");
+  assert(!!roleHtmlScope && /protein-role-wrap/.test(roleHtmlScope), "wrapper .protein-role-wrap presente — sempre no DOM (permite transição de entrada/saída via CSS, não um hard show/hide)");
 
   console.log("");
   console.log("-- 6. Reset — desselecionar a última proteína (sem fallback implícito) zera o papel --");
-  assert(/draftProteinRole = null/.test(chipBodyScope2) && /activeProteinTagIds\(draftFacetState, opts\.collection\)\.length === 0/.test(chipBodyScope2.replace(/\s+/g, " ")), "listener de clique do chip de Proteína, ao ficar sem nenhuma proteína ativa, zera draftProteinRole — nunca fica com papel 'fantasma' (Principal/Secundário) sem nenhuma proteína selecionada");
+  // ATUALIZADO (F1c, 2026-08-06): o reset ao clicar um VALOR de Proteína (tile, não mais chip)
+  // migrou junto pro listener de clique de renderProteinTileSectionBody — mesmo comportamento,
+  // novo endereço.
+  assert(!!proteinTileScope && /draftProteinRole = null/.test(proteinTileScope) && /activeProteinTagIds\(draftFacetState, opts\.collection\)\.length === 0/.test(proteinTileScope.replace(/\s+/g, " ")), "listener de clique do TILE de valor de Proteína, ao ficar sem nenhuma proteína ativa, zera draftProteinRole — nunca fica com papel 'fantasma' (Principal/Secundário) sem nenhuma proteína selecionada");
 
   console.log("");
   console.log("-- 7. renderCategory — continua funcionando, agora via caso particular --");

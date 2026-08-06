@@ -550,6 +550,50 @@
     return item ? item.recipe : null;
   }
 
+  // Faceta Proteína no modal de Filtros (F1c, 2026-08-06) — REUSO TOTAL de asset, zero imagem
+  // nova (decisão do dono). 7 dos 10 valores da taxonomia (js/tags.js) reaproveitam a MESMA foto
+  // de categoria já usada em Home/hub (imagens/categorias/<id>.webp, 600x600, 1:1) — mapeamento
+  // literal porque o id da tag protein:X difere do id do arquivo em 3 casos (ave->aves,
+  // boi->carnes-bovinas, suino->suinos). frango NÃO entra aqui: aves.webp já é de protein:ave,
+  // não tem imagem de categoria própria — resolvido por PROTEIN_SIGNATURE_RECIPE abaixo, 3ª
+  // exceção documentada à regra "nenhuma receita representa categoria" (CONTRATO-IMAGENS-
+  // REDESIGN.md §4, mesmo princípio de countrySignatureRecipe/collectionSignatureRecipe acima).
+  // leguminosa/laticinio ficam de fora dos dois mapas DE PROPÓSITO: 0 receitas no acervo real
+  // nesta data (confirmado antes desta tarefa), nenhuma candidata de imagem. Se um dia ganharem
+  // receita e passarem a aparecer no grid (facetOptionsFromPrefix só devolve tag com count>0),
+  // scripts/verify-filter-redesign-2026-07-27.js (guarda de futuro) falha alto em vez de deixar
+  // a grade sair com um tile sem foto no meio dos outros — resolver a imagem nesse dia é
+  // curadoria humana, não automática.
+  const PROTEIN_TILE_IMAGE = {
+    "protein:ave": "aves",
+    "protein:boi": "carnes-bovinas",
+    "protein:suino": "suinos",
+    "protein:peixe": "peixes",
+    "protein:frutos-do-mar": "frutos-do-mar",
+    "protein:ovo": "col-ovo",
+    "protein:cordeiro": "cordeiro",
+  };
+
+  // Candidata seguinte (Frango Recheado) DESCARTADA: "Frango inteiro assado" (data/aves.js) —
+  // comparação lado a lado das duas fotos confirmou gêmea visual de aves.webp (as duas são ave
+  // INTEIRA assada, inteira, sobre tábua de madeira, mesma composição de still). Galeto Al Primo
+  // Canto também descartada pelo mesmo motivo (ave inteira grelhada, tábua redonda). Frango Frito
+  // Americano/Frango Kung Pao/Butter Chicken (Murgh Makhani)/Yakitori descartadas por já serem a
+  // receita-assinatura de outra coleção (EUA/China/Índia/Até 1 Hora — ver window.COUNTRIES e
+  // js/collections.js). Tandoori Chicken escolhida: pedaços de coxa/sobrecoxa char-grelhados,
+  // forma de coxa inconfundível mesmo em miniatura (silhueta + vermelho-alaranjado saturado),
+  // prato composto (não ave inteira) — zero risco de gêmeo visual com aves.webp, nature: "prato".
+  const PROTEIN_SIGNATURE_RECIPE = {
+    "protein:frango": "Tandoori Chicken",
+  };
+
+  function proteinSignatureRecipe(tagId) {
+    const name = PROTEIN_SIGNATURE_RECIPE[tagId];
+    if (!name) return null;
+    const item = TagModel.getAllRecipesFlat().find((i) => i.recipe.name === name);
+    return item ? item.recipe : null;
+  }
+
   // Card compartilhado por TODOS os hubs (Fundamentos/Proteínas/Países/Tempo/
   // Dificuldade) via renderGrupo — sem split "X de foco · Y no total" (resíduo do antigo
   // sistema de Foco/Também leva, redundante com o dropdown "Papel da proteína" já disponível
@@ -1249,30 +1293,32 @@
   // não deste campo.
   // layout: "tiles" (Equipamento) — a ÚNICA faceta que ainda usa grade de ícone+label+contagem;
   // reservado pra facetas com ícone de verdade (SVG real) plugado via tileIcon. País usa
-  // "photo-tiles" (foto cobrindo o bloco + faixa, ver mais abaixo). Ingrediente usa
-  // "ingredient-tiles" (grade densa própria + chips removíveis, ver renderIngredientTileSectionBody).
-  // Toda faceta multi/combineMode "or" SEM layout plugado (Complexidade/Tempo/Tipo de
-  // prato/Proteína/Refeição) cai no renderChipSectionBody genérico — grade de CHIPS (pill,
-  // wrap), substituindo tanto a antiga lista de checkbox quanto o antigo tile-sem-ícone (Fase
-  // F1a, 2026-07-27: investigação achou que Proteína/Refeição já viviam num "tile" só de nome —
-  // tileIcon sempre devolvia "", sem imagem/ícone de verdade — então não eram classe 1 (tile
-  // funcionando) de fato; harmonizados pra chip junto de Complexidade/Tempo/Tipo de prato, que
-  // já eram classe 2 real, lista de checkbox nativa). tileIcon: função tagId -> HTML do ícone,
-  // só plugada onde o ícone existe de verdade (Equipamento).
+  // "photo-tiles" (foto cobrindo o bloco + faixa, ver mais abaixo). Proteína usa "protein-tiles"
+  // (mesma regra-mãe, função irmã — ver renderProteinTileSectionBody; F1c, 2026-08-06, graduou
+  // de chip pro photo-tile que a Fase F1a tinha deixado pro "mini-lote de imagem futuro").
+  // Ingrediente usa "ingredient-tiles" (grade densa própria + chips removíveis, ver
+  // renderIngredientTileSectionBody). Toda faceta multi/combineMode "or" SEM layout plugado
+  // (Complexidade/Tempo/Tipo de prato/Refeição) cai no renderChipSectionBody genérico — grade de
+  // CHIPS (pill, wrap), substituindo tanto a antiga lista de checkbox quanto o antigo
+  // tile-sem-ícone (Fase F1a, 2026-07-27: investigação achou que Proteína/Refeição já viviam num
+  // "tile" só de nome — tileIcon sempre devolvia "", sem imagem/ícone de verdade — então não
+  // eram classe 1 (tile funcionando) de fato; harmonizados pra chip junto de Complexidade/Tempo/
+  // Tipo de prato, que já eram classe 2 real, lista de checkbox nativa). tileIcon: função tagId
+  // -> HTML do ícone, só plugada onde o ícone existe de verdade (Equipamento).
   const GENERIC_FACET_DEFS = [
     { key: "country", label: "País", prefix: "country:", multi: true, combineMode: "or", layout: "photo-tiles" },
     { key: "difficulty", label: "Complexidade", prefix: "difficulty:", multi: true, combineMode: "or" },
     { key: "time", label: "Tempo", prefix: "time:", multi: true, combineMode: "or" },
     { key: "equipment", label: "Equipamento", prefix: "equipment:", multi: true, combineMode: "or", layout: "tiles", tileIcon: equipmentTileIconHtml },
-    // "Proteína" (protein:) — NÃO confundir com "Papel da proteína" (renderProteinRoleSection,
-    // seleção única Principal/Secundário/Ver tudo, só em coleções de proteína). Esta é NOVA:
-    // pergunta QUAL proteína (Frango, Boi, Peixe...), disponível em QUALQUER coleção/busca, OR
-    // puro entre valores — mesma família de País/Equipamento. 10 valores na taxonomia (tags.js),
-    // 7-8 com cobertura de imagem em imagens/categorias/ (frango não tem imagem própria — só
-    // aves.webp, já reivindicado por protein:ave; leguminosa/laticinio sem nenhuma candidata) —
-    // abaixo do limiar pra virar photo-tile como País; chip de texto nesta rodada (Fase F1a),
-    // photo-tile fica pro mini-lote de imagem futuro (ver relatório da tarefa).
-    { key: "protein", label: "Proteína", prefix: "protein:", multi: true, combineMode: "or" },
+    // "Proteína" (protein:) — NÃO confundir com "Papel da proteína" (sub-controle dentro do
+    // corpo desta seção, seleção única Principal/Secundário/Ver tudo, só aparece com proteína
+    // ativa). Pergunta QUAL proteína (Frango, Boi, Peixe...), disponível em QUALQUER
+    // coleção/busca, OR puro entre valores. 10 valores na taxonomia (tags.js), 7 com foto de
+    // categoria reaproveitada 1:1 + 1 (frango) com foto de receita-assinatura curada — layout
+    // "protein-tiles" (F1c, 2026-08-06, ver PROTEIN_TILE_IMAGE/PROTEIN_SIGNATURE_RECIPE/
+    // renderProteinTileSectionBody acima). leguminosa/laticinio seguem sem imagem (0 receitas
+    // hoje, nunca aparecem no grid — facetOptionsFromPrefix só devolve tag com count>0).
+    { key: "protein", label: "Proteína", prefix: "protein:", multi: true, combineMode: "or", layout: "protein-tiles" },
     // Fase B: "Refeição" (course:, 5 valores) e "Tipo de prato" (dish_type:, 12 valores) —
     // mesma família (OR puro, sem fallback, sem ícone). "Restrições" (diet:) NÃO entra:
     // cobertura de 24,9% (99/398) e um único valor (diet:vegetariana) — abaixo do limiar
@@ -1774,41 +1820,7 @@
       // continuam intocados.
       function renderChipSectionBody(sectionBody, def, options) {
         const selectedIds = draftFacetState[def.key] || [];
-        const isProteinFacet = def.key === "protein" && opts.proteinRole;
-        let roleHtml = "";
-        // roleOptions também é lido pela fiação mais abaixo (wireSegmentedToggle) — precisa
-        // ficar no escopo da função, não só dentro do "if" de construção do HTML.
-        let roleOptions = null;
-        if (isProteinFacet) {
-          // Correção de semântica (2026-07-29): visibilidade DINÂMICA, RE-AVALIADA a cada
-          // render (não fixada 1x na abertura do modal, como antes) — activeProteinTagIds dá
-          // prioridade ao que está explicitamente selecionado (draftFacetState.protein, este
-          // mesmo selectedIds) e só cai pro implícito de opts.collection (null em busca) se
-          // nada foi selecionado.
-          const roleActive = activeProteinTagIds(draftFacetState, opts.collection).length > 0;
-          const counts = opts.proteinRole.computeCounts(draftFacetState, draftIngredientMode);
-          roleOptions = [
-            { value: "", label: "Ver tudo" },
-            { value: "focus", label: "Principal (" + counts.focus + ")" },
-            { value: "secondary", label: "Secundário (" + counts.secondary + ")" },
-          ];
-          const selectedIndex = draftProteinRole === "focus" ? 1 : draftProteinRole === "secondary" ? 2 : 0;
-          // .protein-role-wrap SEMPRE presente no DOM quando a faceta é Proteína — .is-visible
-          // (CSS) controla aparecer/sumir com transição curta (max-height/opacity/visibility,
-          // tokens de motion já existentes) em vez de um hard show/hide via inclusão
-          // condicional no innerHTML (que não deixaria nada pra animar).
-          roleHtml =
-            '<div class="protein-role-wrap' +
-            (roleActive ? " is-visible" : "") +
-            '"' +
-            (roleActive ? "" : ' aria-hidden="true"') +
-            ">" +
-            '<div class="filter-subcontrol-label">Papel da proteína</div>' +
-            segmentedToggleHtml("Papel da proteína", roleOptions, selectedIndex) +
-            "</div>";
-        }
         sectionBody.innerHTML =
-          roleHtml +
           '<div class="filter-chip-row" role="group" aria-label="' +
           def.label +
           '">' +
@@ -1836,28 +1848,57 @@
             const val = btn.dataset.value;
             const current = draftFacetState[def.key] || [];
             draftFacetState[def.key] = current.indexOf(val) !== -1 ? current.filter((id) => id !== val) : current.concat([val]);
-            // Reset (item 2 da correção de semântica, 2026-07-29): se esta faceta é Proteína e,
-            // depois da mudança, não sobrou NENHUMA proteína ativa (nem explícita nem implícita
-            // da coleção), o papel nunca fica "fantasma" sem proteína nenhuma — zera pra Tanto
-            // faz. Só dispara de verdade fora de coleção de proteína (dentro dela sempre sobra
-            // o implícito, ver activeProteinTagIds).
-            if (def.key === "protein" && activeProteinTagIds(draftFacetState, opts.collection).length === 0) {
-              draftProteinRole = null;
-            }
             renderBody();
           });
         });
-        if (isProteinFacet) {
-          const roleToggleEl = sectionBody.querySelector(".segmented-toggle");
-          wireSegmentedToggle(
-            roleToggleEl,
-            (index) => {
-              draftProteinRole = roleOptions[index].value || null;
-              renderFooter();
-            },
-            () => renderBody()
-          );
-        }
+      }
+
+      // Sub-controle "Papel da proteína" (seleção única Principal/Secundário/Ver tudo) — vive
+      // ACIMA da grade de tiles de valor de Proteína, nunca dentro dela (F1c só move onde a
+      // grade de VALOR mora, chip -> photo-tile; este bloco é intocado, só migrou de dentro de
+      // renderChipSectionBody pra dentro de renderProteinTileSectionBody, único caller). Devolve
+      // {html, options} — options é lido de novo por wireProteinRoleToggle logo abaixo.
+      function buildProteinRoleHtml() {
+        if (!opts.proteinRole) return { html: "", options: null };
+        // Correção de semântica (2026-07-29): visibilidade DINÂMICA, RE-AVALIADA a cada render
+        // (não fixada 1x na abertura do modal, como antes) — activeProteinTagIds dá prioridade
+        // ao que está explicitamente selecionado (draftFacetState.protein) e só cai pro
+        // implícito de opts.collection (null em busca) se nada foi selecionado.
+        const roleActive = activeProteinTagIds(draftFacetState, opts.collection).length > 0;
+        const counts = opts.proteinRole.computeCounts(draftFacetState, draftIngredientMode);
+        const roleOptions = [
+          { value: "", label: "Ver tudo" },
+          { value: "focus", label: "Principal (" + counts.focus + ")" },
+          { value: "secondary", label: "Secundário (" + counts.secondary + ")" },
+        ];
+        const selectedIndex = draftProteinRole === "focus" ? 1 : draftProteinRole === "secondary" ? 2 : 0;
+        // .protein-role-wrap SEMPRE presente no DOM quando a faceta é Proteína — .is-visible
+        // (CSS) controla aparecer/sumir com transição curta (max-height/opacity/visibility,
+        // tokens de motion já existentes) em vez de um hard show/hide via inclusão condicional
+        // no innerHTML (que não deixaria nada pra animar).
+        const html =
+          '<div class="protein-role-wrap' +
+          (roleActive ? " is-visible" : "") +
+          '"' +
+          (roleActive ? "" : ' aria-hidden="true"') +
+          ">" +
+          '<div class="filter-subcontrol-label">Papel da proteína</div>' +
+          segmentedToggleHtml("Papel da proteína", roleOptions, selectedIndex) +
+          "</div>";
+        return { html: html, options: roleOptions };
+      }
+
+      function wireProteinRoleToggle(sectionBody, roleOptions) {
+        if (!roleOptions) return;
+        const roleToggleEl = sectionBody.querySelector(".segmented-toggle");
+        wireSegmentedToggle(
+          roleToggleEl,
+          (index) => {
+            draftProteinRole = roleOptions[index].value || null;
+            renderFooter();
+          },
+          () => renderBody()
+        );
       }
 
       // Tile de País (item 6 do roadmap-mestre) — bandeira imagens/bandeiras/<iso2>.webp
@@ -1904,6 +1945,73 @@
             renderBody();
           });
         });
+      }
+
+      // Tile de Proteína (F1c, 2026-08-06, extensão do rumo de País/Coleções abstratas — REUSO
+      // TOTAL de asset, zero imagem nova). Mesma regra-mãe física de renderCountryTileSectionBody
+      // (mídia cobrindo o bloco + faixa sólida nome+contagem por baixo), função IRMÃ (não
+      // reaproveitada) porque a resolução de imagem por tagId tem 2 fontes diferentes aqui —
+      // PROTEIN_TILE_IMAGE (síncrona, foto de categoria já em disco) e proteinSignatureRecipe
+      // (assíncrona, loadRecipeImage — mesmo cascata foto própria->Wikipedia->placeholder de
+      // renderCollectionCard) — ramificar as duas dentro da função de País arriscaria regredir o
+      // mecanismo dela já testado (mesmo motivo de .category-card--signature não reusar
+      // .category-card--country no CSS). CSS PRÓPRIO também (.filter-tile--protein, não
+      // .filter-tile--photo): aspect-ratio 3/2 — MESMA métrica de .filter-tile--photo desde o
+      // ajuste de 2026-08-07 (dono achou o 1:1 original "muito grande" ao ver ao vivo; asset
+      // fonte continua 1:1/600x600 em disco, 3:2 é corte de EXIBIÇÃO via object-fit:cover, zero
+      // imagem regerada) — e sem blur/véu (foto de prato nítida, blur/véu são muleta só de
+      // bandeira). "Papel da proteína" (buildProteinRoleHtml/wireProteinRoleToggle, migrado de
+      // dentro de renderChipSectionBody) continua ACIMA da grade, visibilidade intocada.
+      function renderProteinTileSectionBody(sectionBody, def, options) {
+        const selectedIds = draftFacetState[def.key] || [];
+        const role = buildProteinRoleHtml();
+        sectionBody.innerHTML =
+          role.html +
+          '<div class="filter-tile-grid">' +
+          options
+            .map((o) => {
+              const categoryImgId = PROTEIN_TILE_IMAGE[o.tagId];
+              const imgSrc = categoryImgId ? "imagens/categorias/" + categoryImgId + ".webp" : null;
+              return (
+                '<button type="button" class="filter-tile filter-tile--protein' +
+                (selectedIds.indexOf(o.tagId) !== -1 ? " is-selected" : "") +
+                '" data-value="' +
+                o.tagId +
+                '">' +
+                '<span class="filter-tile__media">' +
+                (imgSrc ? '<img class="filter-tile__img" src="' + imgSrc + '" alt="" loading="lazy">' : "") +
+                "</span>" +
+                '<span class="filter-tile__band">' +
+                '<span class="filter-tile__label">' +
+                o.tag.label +
+                '</span><span class="filter-tile__count">' +
+                o.count +
+                "</span></span></button>"
+              );
+            })
+            .join("") +
+          "</div>";
+        sectionBody.querySelectorAll(".filter-tile").forEach((btn) => {
+          const tagId = btn.dataset.value;
+          if (!PROTEIN_TILE_IMAGE[tagId]) {
+            const signature = proteinSignatureRecipe(tagId);
+            if (signature) loadRecipeImage(signature, btn.querySelector(".filter-tile__media"));
+          }
+          btn.addEventListener("click", () => {
+            const val = btn.dataset.value;
+            const current = draftFacetState[def.key] || [];
+            draftFacetState[def.key] = current.indexOf(val) !== -1 ? current.filter((id) => id !== val) : current.concat([val]);
+            // Reset (item 2 da correção de semântica, 2026-07-29, migrado de renderChipSectionBody
+            // sem mudança de comportamento): se depois da mudança não sobrou NENHUMA proteína
+            // ativa (nem explícita nem implícita da coleção), o papel nunca fica "fantasma" sem
+            // proteína nenhuma — zera pra Tanto faz.
+            if (activeProteinTagIds(draftFacetState, opts.collection).length === 0) {
+              draftProteinRole = null;
+            }
+            renderBody();
+          });
+        });
+        wireProteinRoleToggle(sectionBody, role.options);
       }
 
       // Piloto de redesenho visual (Equipamento, def.layout === "tiles") — grade de
@@ -1968,6 +2076,7 @@
         section.querySelector(".filter-section__header").addEventListener("click", () => toggleSection(def.key));
         const sectionBody = section.querySelector(".filter-section__body");
         if (def.layout === "photo-tiles") renderCountryTileSectionBody(sectionBody, def, options);
+        else if (def.layout === "protein-tiles") renderProteinTileSectionBody(sectionBody, def, options);
         else if (def.multi && def.combineMode === "or" && def.layout === "tiles") renderTileSectionBody(sectionBody, def, options);
         else if (def.layout === "ingredient-tiles") renderIngredientTileSectionBody(sectionBody, def, options);
         else if (def.multi && def.combineMode === "or") renderChipSectionBody(sectionBody, def, options);

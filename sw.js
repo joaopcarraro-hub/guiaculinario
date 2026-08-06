@@ -115,7 +115,14 @@
 // 9->30, sobremesa 19->36, entrada 25->38, acompanhamento 24->33, sem course: 237->194.
 // Mudaram 16 data/*.js, todos no APP_SHELL abaixo (nota: o changelog do v59 dizia "data/ não
 // é precache", mas data/*.js estão SIM na lista do APP_SHELL desde sempre — corrigido aqui).
-const CACHE_NAME = "cardapio-v60";
+// v60 -> v61 (2026-08-06/07, F1c): faceta Proteína do modal de Filtros vira photo-tile (REUSO
+// TOTAL de asset — 7 valores reaproveitam imagens/categorias/*.webp já em disco, frango ganha
+// receita-assinatura curada, Tandoori Chicken). renderProteinTileSectionBody novo em js/app.js
+// (função irmã de renderCountryTileSectionBody), .filter-tile--protein novo em css/style.css,
+// sem blur/véu (regra própria, não reusa .filter-tile--photo). aspect-ratio ajustado no dia
+// seguinte (1:1 -> 3:2, mesma métrica de .filter-tile--photo/país) após revisão do dono ao vivo
+// — asset em disco segue 1:1, o corte de exibição é que mudou. Os 2 arquivos no APP_SHELL abaixo.
+const CACHE_NAME = "cardapio-v61";
 
 const APP_SHELL = [
   "./",
